@@ -11,7 +11,7 @@ var int DamageMin;
  * Maximum damage to deal on hit (Except for Criticals or damage bonusses).
  * Damage dealt will be between DamageMin.
  */
-var int DamageMin;
+var int DamageMax;
 /**
  * Critical Strike chance.
  */
