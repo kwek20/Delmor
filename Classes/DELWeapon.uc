@@ -26,7 +26,22 @@ var float Range;
  */
 var float AttackSpeed;
 
+/**
+ * Get random damage between the min and max damage.
+ */
+function int GetDamage(){
+	local int Damage , Random;
+	Random = DamageMax - DamageMin;
+	Damage = DamageMin + rand( Random );
+
+	return Damage;
+}
 
 DefaultProperties
 {
+	DamageMin=40
+	DamageMax=60
+	CriticalStrikeChance=0.0
+	Range=100
+	AttackSpeed=1.0
 }
