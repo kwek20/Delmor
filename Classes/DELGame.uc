@@ -1,5 +1,6 @@
 class DELGame extends UTGame;
 
-DefaultProperties
-{
+DefaultProperties {
+   HUDType=class'Delmor.DELPlayerHud'
+   bUseClassicHUD=true
 }
