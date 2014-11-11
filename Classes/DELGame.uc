@@ -1,6 +1,8 @@
-class DELGame extends UTGame;
+class DELGame extends UTDeathMatch;
 
-DefaultProperties {
+DefaultProperties 
+{
    HUDType=class'Delmor.DELPlayerHud'
    bUseClassicHUD=true
+   game='DELGame'
 }
