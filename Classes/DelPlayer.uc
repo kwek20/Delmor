@@ -1,4 +1,4 @@
-class DelPlayer extends Object;
+class DELPlayer extends DELPawn;
 
 DefaultProperties
 {
