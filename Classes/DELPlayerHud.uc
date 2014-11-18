@@ -4,6 +4,7 @@ var CanvasIcon clockIcon;
 var float clock; 
 
 simulated event PostBeginPlay() {
+	Super.PostBeginPlay();
 	`log("HUD POST BEGIN");
    //SetTimer( 0.1, true );
    clock = 30;
@@ -28,18 +29,15 @@ simulated event Tick(float DeltaTime){
 
 function DrawHUD() {
    super.DrawHUD();    
-   drawCrossHair();
+   //drawCrossHair();
    drawHealthBar();
 }
 
 function drawHealthBar() {
-   Canvas.DrawIcon(clockIcon, 0, 0);     
+   //Canvas.DrawIcon(clockIcon, 0, 0);     
 
    Canvas.Font = class'Engine'.static.GetLargeFont();      
    Canvas.SetDrawColor(255, 255, 255); // White
-   Canvas.SetPos(70, 15);
-   
-   Canvas.DrawText(int(clock));
 
    if(clock < 10) {
      Canvas.SetDrawColor(255, 0, 0); // Red
