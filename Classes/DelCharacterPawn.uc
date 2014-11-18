@@ -1,5 +1,5 @@
-class DelCharacterPawn extends Pawn;
-var int health, maxHealth, mana, maxMana, healthRegeneration, manaRegeneration;
+class DelCharacterPawn extends Pawn abstract;
+var int  maxHealth, mana, maxMana, healthRegeneration, manaRegeneration;
 var float physicalResistance, magicResistance;
 var int damageMin, damageMax, attackSpeed, attackRange;
 var float critChance;

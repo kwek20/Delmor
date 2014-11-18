@@ -1,4 +1,4 @@
-class DELBasicMonsterPawn extends DelCharacterPawn
+class DELEasyMonsterPawn extends DelCharacterPawn
       placeable
 	  Config(Game);
 
