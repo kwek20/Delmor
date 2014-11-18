@@ -7,8 +7,9 @@ class DELPlayerController extends PlayerController;
 function UpdateRotation(float DeltaTime)
 {
     local DELPawn dPawn;
-	local float pitchClamp;
-	pitchClamp = 10000.0;
+	local float pitchClampMin , pitchClampMax;
+	pitchClampMax = -10000.0;
+	pitchClampMin = -500.0;
 
     super.UpdateRotation(DeltaTime);
 
@@ -17,7 +18,8 @@ function UpdateRotation(float DeltaTime)
     if (dPawn != none)
     {
 		//Constrain the pitch of the player's camera.
-        dPawn.camPitch = Clamp( dPawn.camPitch + self.PlayerInput.aLookUp , -pitchClamp , pitchClamp );
+        dPawn.camPitch = Clamp( dPawn.camPitch + self.PlayerInput.aLookUp , pitchClampMax , pitchClampMin );
+		//dPawn.camPitch = dPawn.camPitch + self.PlayerInput.aLookUp;
     }
 }
 
