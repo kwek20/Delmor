@@ -1,5 +1,6 @@
 /**
  * A class to spawn monsters at random place.
+ * @autor Bram
  */
 class DELMonsterSpawner extends Actor
 Placeable
@@ -61,7 +62,11 @@ state Spawner {
 					}
 				}
 			} else {
-
+				for(i = 0; i < mobsPerSpawn; i++) {
+					if(checkSpawnedMobsStillAlive() <= mobsPerSpawn) {
+						startSpawnRandom();
+					}
+				}
 			}
 			preventFromSpawningAfterSpawn();
 		}
@@ -86,6 +91,18 @@ state Spawner {
 
 function SpawnPawn()
 {
+	local vector SpawnLocation;
+	local vector temp;
+	local DELCharacterPawn mobThatSpawns;
+	temp.x = rand(spawnArea*2) - spawnArea;
+	temp.y = rand(spawnArea*2) - spawnArea;
+	SpawnLocation = self.Location + temp;
+
+	mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, rotator(selfToPlayer));
+	mobThatSpawns.SpawnDefaultController();
+}
+
+function startSpawnRandom() {
 	local vector SpawnLocation;
 	local vector temp;
 	local DELCharacterPawn mobThatSpawns;

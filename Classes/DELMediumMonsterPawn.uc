@@ -1,5 +1,11 @@
-class DELMediumMonsterPawn extends DelCharacterPawn;
+/**
+ * @autor Bram
+ * Pawn class for the medium enemy
+ */
+class DELMediumMonsterPawn extends DelCharacterPawn
+      placeable
+	  Config(Game);
 
-DefaultProperties
-{
+defaultproperties {
+   ControllerClass='Delmor.DELMediumMonsterController'
 }
