@@ -21,6 +21,10 @@ var float camPitch;
  * Offset from the camera to the pawn.
  */
 var Vector cameraOffset;
+/**
+ * The speed of the pawn when it is walking.
+ */
+var float walkingSpeed;
 
 simulated event PostBeginPlay(){
 	SetCamera();

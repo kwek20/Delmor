@@ -1,4 +1,5 @@
-class DELNpcController extends Controller;
+class DELNpcController extends Controller
+	abstract;
 
 /**
  * When in attack-state. The pawn should strive to attack this pawn.
@@ -12,7 +13,7 @@ state Idle{
 
 	event tick( float deltaTime ){
 		//Move to our target (Should stop when target is whitin range.
-		moveTowardsActor( attackTarget );
+		moveTowardsActor( attackTarget , deltaTime );
 		
 		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
 		if ( checkTargetWhitinRange( attackTarget ) ){
@@ -42,18 +43,33 @@ function meleeAttack(){
 
 /**
  * This function should move a pawn towards a given actor.
- * @param a Actor   The actor to move to.
+ * @param a         Actor   The actor to move to.
+ * @param deltaTime float   The deltaTime from the Tick-event
  */
-function moveTowardsActor( Actor a ){
-	moveTowards( a.Location );
+function moveTowardsActor( Actor a , float deltaTime ){
+	moveTowards( a.Location , deltaTime );
 }
 
 /**
  * This functions should move the controller's pawn towards a given point.
- * @param l Vector  The location to where the pawn should move.
+ * NOTE: This function is to be used ONLY in the Tick-event!
+ * @param l         Vector  The location to where the pawn should move.
+ * @param deltaTime float   The deltaTime from the Tick-event
  */
-function moveTowards( Vector l ){
-	//TODO: Move towards the target.
+function moveTowards( Vector l , float deltaTime ){
+	local Vector selfToPoint;
+	local DELPawn dPawn;
+
+	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
+	dPawn = DELPawn( Pawn );
+	
+	//Caluclate direction
+	selfToPoint = l - Pawn.Location;
+
+	//Move Pawn
+	Pawn.velocity = Normal( selfToPoint ) * dPawn.walkingSpeed;
+	Pawn.setRotation( rotator( selfToPoint ) );
+	Pawn.move( Pawn.velocity * deltaTime );
 }
 
 /**
@@ -63,8 +79,16 @@ function moveTowards( Vector l ){
  * @return boolean.
  */
 function bool checkTargetWhitinRange( DELPawn p ){
-	//TODO business logic.
-	return false;
+	local float distanceToPawn;
+	local float attackRange; //TODO: Replace attackrange with actual DELPawn's weapon range.
+	distanceToPawn = VSize( p.Location - Pawn.Location );
+	
+	if ( distanceToPawn > attackRange ){
+		return false;
+	}
+	else{
+		return true;
+	}
 }
 
 /**
