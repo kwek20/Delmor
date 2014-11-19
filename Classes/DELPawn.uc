@@ -6,6 +6,67 @@
  */
 class DELPawn extends UDKPawn;
 
+/* ==========================================
+ * Stats
+ * ==========================================
+ */
+
+/**
+ * The lifeforce of the pawn. If it hits zero, the pawn will die.
+ */
+var int health;
+/**
+ * The maximum amount of health the pawn can have.
+ */
+var int healthMax;
+/**
+ * How much health the pawn will regain each second.
+ */
+var int healthRegeneration;
+
+/**
+ * The current amount of mana that the pawn has.
+ * Mana is used to cast spells.
+ */
+var int mana;
+
+/**
+ * The maximum amount of mana this pawn can have.
+ */
+var int manaMax;
+
+/**
+ * The pawn's mana pool will refill with this amount each second.
+ */
+var int manaRegeneration;
+
+/**
+ * The range for melee-attacks.
+ */
+var float meleeRange;
+
+/**
+ * Resistance againt melee-attacks.
+ * Usage: DamageToDeal = Damage * ( 1 - physicalResistance );
+ */
+var float physicalResistance;
+
+/**
+ * Resistance againt magic-attacks.
+ * Usage: DamageToDeal = Damage * ( 1 - magicResistance );
+ */
+var float magicResistance;
+
+/**
+ * The speed of the pawn when it is walking.
+ */
+var float walkingSpeed;
+
+
+/* ==========================================
+ * Camera stuff
+ * ==========================================
+ */
 /**
  * The maximum angle of the camera.
  */
@@ -22,10 +83,6 @@ var float camPitch;
  * Offset from the camera to the pawn.
  */
 var Vector cameraOffset;
-/**
- * The speed of the pawn when it is walking.
- */
-var float walkingSpeed;
 
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
@@ -48,8 +105,7 @@ function setCameraOffset( float x , float y , float z ){
 /**
  * Calculates a new camera position based on the postition of the pawn.
  */
-simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV)
-{
+simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV){
     local Vector HitLocation, HitNormal;
 
     out_CamLoc = Location;
@@ -84,11 +140,20 @@ function SpawnController(){
 
 DefaultProperties
 {
+	health = 100
+	healthMax = 100
+	healthRegeneration = 0
+	mana = 0
+	manaMax = 0
+	manaRegeneration = 0
+	meleeRange = 200.0
+	physicalResistance = 0.0
+	magicResistance = 0.0
+	walkingSpeed = 100.0
+
 	isoCamAngle = 45
 	camOffsetDistance = 200.0
 	camPitch = -5000.0
-
-	walkingSpeed = 100.0
 
 	ControllerClass = class'DELNpcController'
 
