@@ -3,7 +3,7 @@
  * ALL NPCControllers SHOULD BE EXTENDED FROM THIS ONE!
  * @author Anders Egberts
  */
-class DELNpcController extends Controller
+class DELNpcController extends AIController
 	abstract;
 
 /**

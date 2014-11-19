@@ -13,9 +13,15 @@ class DELHostileController extends DELNpcController;
  */
 var float alertDistance;
 
+event Possess(Pawn inPawn, bool bVehicleTransition) {
+	super.Possess(inPawn, bVehicleTransition);
+	`log("output");
+}
+
 auto state Idle{
 	function beginState( Name previousStateName ){
 		super.BeginState( previousStateName );
+		`log(self $ "IK BEN LEKKER AAN HET IDLESN");
 	}
 
 	/**

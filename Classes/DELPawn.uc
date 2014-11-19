@@ -28,6 +28,8 @@ var Vector cameraOffset;
 var float walkingSpeed;
 
 simulated event PostBeginPlay(){
+	super.PostBeginPlay();
+	spawnDefaultController();
 	SetCamera();
 	setCameraOffset( 0.0 , 0.0 , 44.0 );
 }
@@ -82,7 +84,6 @@ DefaultProperties
 	isoCamAngle = 45
 	camOffsetDistance = 200.0
 	camPitch = -5000.0
-
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
 	CollisionRadius = 16.0;

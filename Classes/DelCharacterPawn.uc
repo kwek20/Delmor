@@ -5,6 +5,7 @@ var int damageMin, damageMax, attackSpeed, attackRange;
 var float critChance;
 var vector direction;
 
+
 function Attack(){
 
 }

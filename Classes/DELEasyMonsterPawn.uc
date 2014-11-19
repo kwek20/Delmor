@@ -6,6 +6,11 @@ class DELEasyMonsterPawn extends DelCharacterPawn
       placeable
 	  Config(Game);
 
+simulated event PostBeginPlay ()
+{
+    Super.PostBeginPlay();
+	`log(self.Controller);
+}
 defaultproperties {
-   ControllerClass='Delmor.DELEasyMonsterController'
+   ControllerClass=class'Delmor.DELEasyMonsterController'
 }
