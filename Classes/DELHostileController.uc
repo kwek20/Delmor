@@ -1,6 +1,8 @@
 /**
  * A simple controller the is extended from DELNpcController (For combat functions).
  * When the controller sees the player, it will alert nearby monsters to attack the player.
+ * 
+ * ENEMIES SHOULD EXTEND FROM THIS CONTROLLER!
  * @author Anders Egberts
  */
 class DELHostileController extends DELNpcController;

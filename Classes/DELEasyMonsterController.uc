@@ -1,4 +1,4 @@
-class DELEasyMonsterController extends AIController;
+class DELEasyMonsterController extends DELHostileController;
 
 var float range, amount;
 var int idleSeconds;

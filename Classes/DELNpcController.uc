@@ -1,5 +1,6 @@
 /**
  * Abstract controller that contains a few combat functions.
+ * ALL NPCControllers SHOULD BE EXTENDED FROM THIS ONE!
  * @author Anders Egberts
  */
 class DELNpcController extends Controller
