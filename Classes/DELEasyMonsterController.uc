@@ -4,7 +4,5 @@
  */
 class DELEasyMonsterController extends DELHostileController;
 
-
-
 DefaultProperties {
 }

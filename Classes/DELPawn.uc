@@ -30,17 +30,8 @@ var float walkingSpeed;
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	spawnDefaultController();
-	SetCamera();
 	setCameraOffset( 0.0 , 0.0 , 44.0 );
-}
-
-/**
- * This function should set the third person camera.
- */
-function SetCamera(){
-	`log( "Set third person camera" );
-	//self.SetThirdPersonCamera( true );
-	//SetMeshVisibility( true );
+	SetMovementPhysics();
 }
 
 /**
@@ -79,11 +70,28 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
     return true;
 }
 
+/*/**
+ * Spawns the pawn's controller and deletes the previous one.
+ */
+function SpawnController(){
+	`log( "Spawn controller. ControllerClass: " $ControllerClass );
+	if ( controller != none )
+		controller.Destroy();
+
+	controller = spawn( ControllerClass );
+	controller.Pawn = self;
+}*/
+
 DefaultProperties
 {
 	isoCamAngle = 45
 	camOffsetDistance = 200.0
 	camPitch = -5000.0
+
+	walkingSpeed = 100.0
+
+	ControllerClass = class'DELNpcController'
+
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
 	CollisionRadius = 16.0;
