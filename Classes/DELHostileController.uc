@@ -17,11 +17,12 @@ auto state Idle{
 	function beginState( Name previousStateName ){
 		super.BeginState( previousStateName );
 	}
+
 	/**
 	 * When the pawn sees the player, go to attack attack state.
 	 */
 	event SeePlayer( Pawn p ){
-		`log( self$" See player" );
+		`log( self$" See player: "$p );
 		attackTarget = DELPawn( p );
 		goToState( 'Attack' );
 
@@ -36,6 +37,7 @@ auto state Idle{
 function alertNearbyHostiles( DELPawn p ){
 	local DELHostileController c;
 
+	`log( "alertNearbyHostiles" );
 	foreach WorldInfo.AllControllers( class'DELHostileController' , c ){
 		//If the pawn is whitin the alert-radius
 		if ( VSize( c.Pawn.Location - Pawn.Location ) < alertDistance
@@ -45,6 +47,7 @@ function alertNearbyHostiles( DELPawn p ){
 		}
 	}
 }
+
 DefaultProperties
 {
 	alertDistance = 500.0
