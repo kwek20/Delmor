@@ -7,12 +7,13 @@ Config(Game);
 
 var() class<DELCharacterPawn> mobsToSpawn;
 var() bool useAll;
-var() int mobsPerSpawn;
+var() int mobsPerSpawn, spawnDelay;
 var() float spawnRangeToPlayer, spawnArea;
 var float distanceToSpawner;
-var int mobsSpawned, spawnTimeBetweenMobs;
+var int mobsSpawned;
 var vector selfToPlayer;
 var DELPawn player;
+var bool bCanSpawn;
 
 event PostBeginPlay ()
 {
@@ -51,12 +52,18 @@ state Spawner {
 	local int i;
 	function BeginState(Name PreviousStateName) {
 		Super.BeginState(PreviousStateName);
-		`log("test spawner");
 		mobsSpawned = 0;
-		for(i = 0; i < mobsPerSpawn; i++) {
-			if(checkSpawnedMobsStillAlive() <= mobsPerSpawn) {
-				startSpawn();
+		if(bCanSpawn) {
+			if(!useAll) {
+				for(i = 0; i < mobsPerSpawn; i++) {
+					if(checkSpawnedMobsStillAlive() <= mobsPerSpawn) {
+						startSpawn();
+					}
+				}
+			} else {
+
 			}
+			preventFromSpawningAfterSpawn();
 		}
 	}
 
@@ -85,7 +92,8 @@ function SpawnPawn()
 	temp.x = rand(spawnArea*2) - spawnArea;
 	temp.y = rand(spawnArea*2) - spawnArea;
 	SpawnLocation = self.Location + temp;
-	mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, self.Rotation);
+
+	mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, rotator(selfToPlayer));
 	mobThatSpawns.SpawnDefaultController();
 }
 
@@ -103,8 +111,16 @@ function int checkSpawnedMobsStillAlive() {
 	return tempMobsSpawned;
 }
 function startSpawn() {
-	`log("test");
 	SpawnPawn();
+}
+
+function preventFromSpawningAfterSpawn() {
+	bCanSpawn = false;
+	SetTimer(spawnDelay, false, 'resetCooldown');
+}
+
+function resetCooldown() {
+	bCanSpawn = true;
 }
 
 DefaultProperties
@@ -113,7 +129,8 @@ DefaultProperties
 	spawnRangeToPlayer = 500
 	spawnArea = 500
 	mobsPerSpawn = 3
-	spawnTimeBetweenMobs = 1;
+	spawnDelay = 120
+	bCanSpawn = true
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
 	End Object
