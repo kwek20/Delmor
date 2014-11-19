@@ -1,3 +1,7 @@
+/**
+ * Abstract controller that contains a few combat functions.
+ * @author Anders Egberts
+ */
 class DELNpcController extends Controller
 	abstract;
 
@@ -6,7 +10,7 @@ class DELNpcController extends Controller
  */
 var DELPawn attackTarget;
 
-state Idle{
+state Attack{
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
 	}
