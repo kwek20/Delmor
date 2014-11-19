@@ -15,7 +15,7 @@ var float alertDistance;
 
 event Possess(Pawn inPawn, bool bVehicleTransition) {
 	super.Possess(inPawn, bVehicleTransition);
-	`log("output");
+	`log( "###DELHOSTILE CONTROLLER: "$self );
 }
 
 auto state Idle{

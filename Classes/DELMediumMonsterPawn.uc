@@ -6,6 +6,7 @@ class DELMediumMonsterPawn extends DelCharacterPawn
       placeable
 	  Config(Game);
 
-defaultproperties {
+defaultproperties
+{
    ControllerClass=class'Delmor.DELMediumMonsterController'
 }
