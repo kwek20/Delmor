@@ -3,5 +3,5 @@ class DELEasyMonsterPawn extends DelCharacterPawn
 	  Config(Game);
 
 defaultproperties {
-   ControllerClass='Delmor.DELBasicMonsterPawnController'
+   ControllerClass='Delmor.DELHostileController'
 }

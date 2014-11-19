@@ -12,10 +12,14 @@ class DELHostileController extends DELNpcController;
 var float alertDistance;
 
 auto state Idle{
+	function beginState( Name previousStateName ){
+		super.BeginState( previousStateName );
+	}
 	/**
 	 * When the pawn sees the player, go to attack attack state.
 	 */
 	event SeePlayer( Pawn p ){
+		`log( self$" See player" );
 		attackTarget = DELPawn( p );
 		goToState( 'Attack' );
 
