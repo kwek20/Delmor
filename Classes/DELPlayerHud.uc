@@ -1,4 +1,4 @@
-class DELPlayerHud extends UTHUD;
+class DELPlayerHud extends UDKHUD;
 
 var CanvasIcon clockIcon;
 var float clock; 
@@ -6,9 +6,19 @@ var float clock;
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
 	`log("HUD POST BEGIN");
-   //SetTimer( 0.1, true );
    clock = 30;
 }
+
+function PlayerOwnerDied(){
+	log("died");
+	//show death screen
+}
+
+function DisplayHit(vector HitDir, int Damage, class<DamageType> damageType)
+{
+	log("damage: " $ Damage $ " Type: " $ damageType);
+}
+
 
 simulated event Tick(float DeltaTime){
 	Super.Tick(DeltaTime);
@@ -18,14 +28,6 @@ simulated event Tick(float DeltaTime){
       clock = 30;
    }
 }
-
-/*simulated function Timer() {
-  clock--;
-
-  if(clock <= 0) {     
-     clock = 30;
-  }
-}*/
 
 function DrawHUD() {
    super.DrawHUD();    
@@ -63,6 +65,14 @@ function drawCrossHair() {
 
 	Canvas.SetPos(CenterX, CenterY - CrosshairSize);
 	Canvas.DrawRect(1, 2*CrosshairSize + 1);
+}
+
+function log(String text){
+	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
+}
+
+function PlayerController getPlayer(){
+	return PlayerOwner;
 }
 
 defaultproperties {
