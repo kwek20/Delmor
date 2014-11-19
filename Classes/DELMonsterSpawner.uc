@@ -7,17 +7,19 @@ Config(Game);
 
 var() class<DELCharacterPawn> mobsToSpawn;
 var() bool useAll;
-var() int spawnInterval, mobsPerSpawn;
+var() int mobsPerSpawn;
 var() float spawnRangeToPlayer, spawnArea;
-var float distanceToPlayer;
+var float distanceToSpawner;
+var int mobsSpawned, spawnTimeBetweenMobs;
 var vector selfToPlayer;
+var DELPawn player;
 
-simulated event PostBeginPlay() {
-	super.PostBeginPlay();
-	GotoState('idle');
+event PostBeginPlay ()
+{
+    Super.PostBeginPlay();
 }
 
-state idle {
+auto state Idle {
 
 	function BeginState(Name PreviousStateName) {
 		Super.BeginState(PreviousStateName);
@@ -29,39 +31,92 @@ state idle {
 		//DELPlayerController
 		foreach WorldInfo.AllControllers(class'Controller', C)
 		{	
-			if (C.bIsPlayer && C.IsA('PlayerController'))
+			if (C.IsA('DELPlayerController'))
 			{
 				selfToPlayer = C.Pawn.Location - self.Location;
-				distanceToPlayer = Abs(VSize(selfToPlayer));
-				`log(distanceToPlayer);
-				if(distanceToPlayer < spawnRangeToPlayer) {
+				distanceToSpawner = Abs(VSize(selfToPlayer));
+				if(distanceToSpawner < spawnRangeToPlayer) {
 					GotoState('Spawner');
+				}
+			}
+		}
+	}
+	
+	Begin:
+}
+
+state Spawner {
+
+	local Controller C;
+	local int i;
+	function BeginState(Name PreviousStateName) {
+		Super.BeginState(PreviousStateName);
+		`log("test spawner");
+		mobsSpawned = 0;
+		for(i = 0; i < mobsPerSpawn; i++) {
+			if(checkSpawnedMobsStillAlive() <= mobsPerSpawn) {
+				startSpawn();
+			}
+		}
+	}
+
+
+
+	event Tick(float deltaTime) {
+		foreach WorldInfo.AllControllers(class'Controller', C)
+		{	
+			if (C.IsA('DELPlayerController'))
+			{
+				selfToPlayer = C.Pawn.Location - self.Location;
+				distanceToSpawner = Abs(VSize(selfToPlayer));
+				if(distanceToSpawner > spawnRangeToPlayer) {
+					GotoState('Idle');
 				}
 			}
 		}
 	}
 }
 
-state Spawner {
-	function BeginState(Name PreviousStateName) {
-		Super.BeginState(PreviousStateName);
+function SpawnPawn()
+{
+	local vector SpawnLocation;
+	local vector temp;
+	local DELCharacterPawn mobThatSpawns;
+	temp.x = rand(spawnArea*2) - spawnArea;
+	temp.y = rand(spawnArea*2) - spawnArea;
+	SpawnLocation = self.Location + temp;
+	mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, self.Rotation);
+	mobThatSpawns.SpawnDefaultController();
+}
+
+
+function int checkSpawnedMobsStillAlive() {
+	local int tempMobsSpawned;
+	local Controller C;
+	foreach WorldInfo.AllControllers(class'Controller', C) {
+		selfToPlayer = C.Pawn.Location - self.Location;
+		distanceToSpawner = Abs(VSize(selfToPlayer));
+		if(distanceToSpawner < spawnArea) {
+			tempMobsSpawned++;
+		}
 	}
-	event Tick(float deltaTime) {
-	}
-Begin: 
-		`log("Test");
+	return tempMobsSpawned;
+}
+function startSpawn() {
+	`log("test");
+	SpawnPawn();
 }
 
 DefaultProperties
 {
-	spawnRangeToPlayer = 250
+	mobsToSpawn = class'DELEasyMonsterPawn'
+	spawnRangeToPlayer = 500
+	spawnArea = 500
+	mobsPerSpawn = 3
+	spawnTimeBetweenMobs = 1;
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
-	   HiddenGame=True
-	   AlwaysLoadOnClient=False
-	   AlwaysLoadOnServer=False
 	End Object
-  Components.Add(Sprite)
-
+	Components.Add(Sprite)
 }
 

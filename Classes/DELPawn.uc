@@ -2,6 +2,7 @@
  * This DELPawn will later later split in to the monsters that the player has to defeat and the NPCs that
  * the player can talk to.
  * So MonsterPawns and VillagerPawns will both inherit from DELPawn.
+ * DELCharacterPawn will extend from this and if you create a new pawn, it should extend from DELCharacterPawn.
  */
 class DELPawn extends UDKPawn;
 
