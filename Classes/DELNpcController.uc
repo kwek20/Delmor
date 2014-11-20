@@ -70,7 +70,7 @@ function meleeAttack(){
  * @param deltaTime float   The deltaTime from the Tick-event
  */
 function moveTowardsActor( Actor a , float deltaTime ){
-	moveTowards( a.Location , deltaTime );
+	moveTowardsPoint( a.Location , deltaTime );
 }
 
 /**
@@ -79,7 +79,7 @@ function moveTowardsActor( Actor a , float deltaTime ){
  * @param l         Vector  The location to where the pawn should move.
  * @param deltaTime float   The deltaTime from the Tick-event
  */
-function moveTowards( Vector l , float deltaTime ){
+function moveTowardsPoint( Vector l , float deltaTime ){
 	local Vector selfToPoint;
 	local DELPawn dPawn;
 	/**
