@@ -1,5 +1,6 @@
 /**
  * Weapon to be used in Delmor.
+ * @author Anders Egberts
  */
 class DELWeapon extends UTWeapon;
 /**
