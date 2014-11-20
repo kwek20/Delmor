@@ -4,10 +4,9 @@ var String game;
 
 DefaultProperties 
 {
-	//HUDType=class'Delmor.DELPlayerHud'
-	DefaultPawnClass = class'DELPawn'
+	HUDType=class'Delmor.DELPlayerHud'
+	//DefaultPawnClass = class'Delmor.DELPawn'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
-    DefaultInventory(0)=None;
-	bUseClassicHUD=false
-	game='DELGame'
+    //DefaultInventory(0)=None
+	bUseClassicHUD=true
 }

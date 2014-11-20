@@ -5,20 +5,15 @@ var float clock;
 
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
-	`log("HUD POST BEGIN");
    clock = 30;
 }
 
 function PlayerOwnerDied(){
-	log("died");
-	//show death screen
-}
+	local DELPlayerController PC;
+    PC = getPlayer();
 
-function DisplayHit(vector HitDir, int Damage, class<DamageType> damageType)
-{
-	log("damage: " $ Damage $ " Type: " $ damageType);
+	PC.drawSubtitle("You have died!");
 }
-
 
 simulated event Tick(float DeltaTime){
 	Super.Tick(DeltaTime);
@@ -30,13 +25,24 @@ simulated event Tick(float DeltaTime){
 }
 
 function DrawHUD() {
-   super.DrawHUD();    
+   local DELPlayerController PC;
+   super.DrawHUD();
+   
+   PC = getPlayer();
+
    //drawCrossHair();
-   drawHealthBar();
+
+   if (!PlayerOwner.IsDead()){
+		drawHealthBar();
+		DrawSubtitle(PC.subtitle);
+   } else {
+		//dead
+   }
+  
 }
 
 function drawHealthBar() {
-   //Canvas.DrawIcon(clockIcon, 0, 0);     
+   Canvas.DrawIcon(clockIcon, CenterX, CenterY);     
 
    Canvas.Font = class'Engine'.static.GetLargeFont();      
    Canvas.SetDrawColor(255, 255, 255); // White
@@ -53,26 +59,32 @@ function drawHealthBar() {
    Canvas.DrawRect(20 * clock, 30); 
 }
 
-function drawCrossHair() {
-	local float CrosshairSize;
+function DrawSubtitle(string StringMessage){
+	local int X, Y;
+	local float Xstring, Ystring;
+	
+	X = CenterX-Len(StringMessage);
+	Y = SizeY/10*9;
 
-	Canvas.SetDrawColor(0,255,0);
-
-	CrosshairSize = 4;
-
-	Canvas.SetPos(CenterX - CrosshairSize, CenterY);
-	Canvas.DrawRect(2*CrosshairSize + 1, 1);
-
-	Canvas.SetPos(CenterX, CenterY - CrosshairSize);
-	Canvas.DrawRect(1, 2*CrosshairSize + 1);
+	Canvas.TextSize(StringMessage, Xstring, Ystring);
+	
+	Canvas.SetPos(X, Y);
+	Canvas.SetDrawColor(0, 0, 0, 120);
+	
+	Canvas.DrawRect(Xstring, Ystring);
+	
+	Canvas.SetPos(X, Y);
+	Canvas.SetDrawColor(255, 255, 255, 255);
+	
+	Canvas.DrawText(StringMessage);
 }
 
 function log(String text){
 	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
 }
 
-function PlayerController getPlayer(){
-	return PlayerOwner;
+function DELPlayerController getPlayer(){
+	return DELPlayerController(PlayerOwner);
 }
 
 defaultproperties {
