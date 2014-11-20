@@ -23,6 +23,11 @@ state Attack{
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
 		}
+
+		//The attacktarget is gone, return to idle state.
+		if ( !targetIsAlive() ){
+			goToState( 'Idle' );
+		}
 	}
 
 	/**
@@ -87,11 +92,23 @@ function bool checkTargetWhitinRange( DELPawn p ){
 	local float attackRange; //TODO: Replace attackrange with actual DELPawn's weapon range.
 	distanceToPawn = VSize( p.Location - Pawn.Location );
 	
-	if ( distanceToPawn > attackRange ){
+	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
 		return false;
 	}
 	else{
 		return true;
+	}
+}
+
+/**
+ * Returns true if the pawn exists and has more than one health.
+ */
+function bool targetIsAlive(){
+	if ( attackTarget.health > 0 && attackTarget != none ){
+		return true;
+	}
+	else{
+		return false;
 	}
 }
 
