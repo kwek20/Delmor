@@ -3,6 +3,13 @@
  * the player can talk to.
  * So MonsterPawns and VillagerPawns will both inherit from DELPawn.
  * DELCharacterPawn will extend from this and if you create a new pawn, it should extend from DELCharacterPawn.
+ * 
+ * KNOWN ISSUES:
+ * Collision, if I give the pawn a large height in the collision cylinder, it will somehow float above the ground.
+ * However, if I set collisionheight to 1, the pawns will automaticly jump over one another. Problem can be solved by
+ * removing the jumping from the pawn.
+ * 
+ * @author Anders Egberts
  */
 class DELPawn extends UDKPawn;
 
@@ -48,6 +55,11 @@ var float magicResistance;
  * The speed of the pawn when it is walking.
  */
 var float walkingSpeed;
+
+/**
+ * The range at which the pawn can detect the player.
+ */
+var float detectionRange;
 
 
 /* ==========================================
@@ -133,10 +145,11 @@ DefaultProperties
 	mana = 0
 	manaMax = 0
 	manaRegeneration = 0
-	meleeRange = 200.0
+	meleeRange = 100.0
 	physicalResistance = 0.0
 	magicResistance = 0.0
 	walkingSpeed = 100.0
+	detectionRange = 1024.0
 
 	isoCamAngle = 45
 	camOffsetDistance = 200.0
@@ -146,8 +159,8 @@ DefaultProperties
 
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
-	CollisionRadius = 16.0;
-	CollisionHeight = +0.0;
+	CollisionRadius = 32.0;
+	CollisionHeight = +1.0;
 	end object
 
 	//Mesh

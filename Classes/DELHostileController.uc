@@ -13,26 +13,22 @@ class DELHostileController extends DELNpcController;
  */
 var float alertDistance;
 
-event Possess(Pawn inPawn, bool bVehicleTransition) {
-	super.Possess(inPawn, bVehicleTransition);
-	`log( "###DELHOSTILE CONTROLLER: "$self );
-}
-
 auto state Idle{
 	function beginState( Name previousStateName ){
 		super.BeginState( previousStateName );
-		`log(self $ "IK BEN LEKKER AAN HET IDLESN");
 	}
 
 	/**
 	 * When the pawn sees the player, go to attack attack state.
 	 */
 	event SeePlayer( Pawn p ){
-		`log( self$" See player: "$p );
-		attackTarget = DELPawn( p );
-		goToState( 'Attack' );
+		if ( VSize( p.Location - Pawn.Location ) <= DELPawn( Pawn ).detectionRange ){ //The player has to be whitin the detection range.
+			`log( self$" See player: "$p );
+			attackTarget = DELPawn( p );
+			goToState( 'Attack' );
 
-		alertNearbyHostiles( DELPawn( p ) );
+			alertNearbyHostiles( DELPawn( p ) );
+		}
 	}
 }
 
@@ -56,5 +52,5 @@ function alertNearbyHostiles( DELPawn p ){
 
 DefaultProperties
 {
-	alertDistance = 500.0
+	alertDistance = 1024.0
 }
