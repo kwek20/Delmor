@@ -18,7 +18,7 @@ var() bool useAll;
 /**
  * the mobsPerSpawn will be used to spawn an x amount of enemies
  */
-var() int mobsPerSpawn;
+var() int maxMobsAlive;
 /**
  * SpawnDelay is used to respawn only after the amount in seconds.
  */
@@ -40,6 +40,8 @@ var float distanceToSpawner;
  * a Vector where the distance is calculated between the player and spawner in vector
  */
 var vector selfToPlayer;
+
+var vector selfToPathnode;
 /**
  *  the player
  */
@@ -93,28 +95,17 @@ auto state Idle {
 state Spawner {
 
 	local Controller C;
-	local int i;
 	function BeginState(Name PreviousStateName) {
 		Super.BeginState(PreviousStateName);
 		if(bCanSpawn) {
 			if(!useAll) {
-				for(i = 0; i < mobsPerSpawn; i++) {
-					if(checkSpawnedMobsStillAlive() <= mobsPerSpawn) {
-						SpawnPawn();
-					}
-				}
+				startSpawn(false);
 			} else {
-				for(i = 0; i < mobsPerSpawn; i++) {
-					if(checkSpawnedMobsStillAlive() <= mobsPerSpawn) {
-						SpawnPawn();
-					}
-				}
+				startSpawn(true);
 			}
 			preventFromSpawningAfterSpawn();
 		}
 	}
-
-
 
 	event Tick(float deltaTime) {
 		foreach WorldInfo.AllControllers(class'Controller', C)
@@ -133,17 +124,39 @@ state Spawner {
 /**
  * This function spawns one enemy
  */
-function SpawnPawn()
+function spawnPawn(bool random, vector spawnLocation)
 {
-	local vector SpawnLocation;
-	local vector temp;
 	local DELCharacterPawn mobThatSpawns;
-	temp.x = rand(spawnArea*2) - spawnArea;
-	temp.y = rand(spawnArea*2) - spawnArea;
-	SpawnLocation = self.Location + temp;
-
-	mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, rotator(selfToPlayer));
+	local int randomNumber;
+	randomNumber = Rand(100);
+	if(random) {
+		if (randomNumber >= 0 && randomNumber <= 70) {
+			mobThatSpawns = Spawn(class'DELEasyMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
+		} else if (randomNumber > 70 && randomNumber <= 90) {
+			mobThatSpawns = Spawn(class'DELMediumMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
+		} else if (randomNumber > 91 && randomNumber <= 100) {
+			mobThatSpawns = Spawn(class'DELHardMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
+		}
+	} else {
+		mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, rotator(selfToPlayer));
+	}
 	mobThatSpawns.SpawnDefaultController();
+}
+
+function startSpawn(bool random) {
+	local DELSpawnPathNode C;
+	
+	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
+		
+		selfToPathnode = C.Location - self.Location;
+		distanceToSpawner = Abs(VSize(selfToPlayer));
+		`log(distanceToSpawner);
+		if(distanceToSpawner < spawnArea) {
+			if(checkSpawnedMobsStillAlive() < maxMobsAlive) {
+				spawnPawn(random, C.Location); 
+			}
+		}
+	}
 }
 /**
  * this function calculates the amount of enemies that are alive.
@@ -184,10 +197,10 @@ function resetCooldown() {
 DefaultProperties
 {
 	mobsToSpawn = class'DELEasyMonsterPawn'
-	spawnRangeToPlayer = 500
-	spawnArea = 500
-	mobsPerSpawn = 3
-	spawnDelay = 120
+	spawnRangeToPlayer = 1024
+	spawnArea = 1024
+	maxMobsAlive = 3
+	spawnDelay = 1
 	bCanSpawn = true
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
