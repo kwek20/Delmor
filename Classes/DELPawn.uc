@@ -19,14 +19,6 @@ class DELPawn extends UDKPawn;
  */
 
 /**
- * The lifeforce of the pawn. If it hits zero, the pawn will die.
- */
-var int health;
-/**
- * The maximum amount of health the pawn can have.
- */
-var int healthMax;
-/**
  * How much health the pawn will regain each second.
  */
 var int healthRegeneration;
@@ -46,11 +38,6 @@ var int manaMax;
  * The pawn's mana pool will refill with this amount each second.
  */
 var int manaRegeneration;
-
-/**
- * The range for melee-attacks.
- */
-var float meleeRange;
 
 /**
  * Resistance againt melee-attacks.

@@ -1,13 +1,24 @@
-class DELPlayerHud extends UTHUD;
+class DELPlayerHud extends UDKHUD;
 
 var CanvasIcon clockIcon;
 var float clock; 
 
 simulated event PostBeginPlay() {
+	Super.PostBeginPlay();
 	`log("HUD POST BEGIN");
-   //SetTimer( 0.1, true );
    clock = 30;
 }
+
+function PlayerOwnerDied(){
+	log("died");
+	//show death screen
+}
+
+function DisplayHit(vector HitDir, int Damage, class<DamageType> damageType)
+{
+	log("damage: " $ Damage $ " Type: " $ damageType);
+}
+
 
 simulated event Tick(float DeltaTime){
 	Super.Tick(DeltaTime);
@@ -18,28 +29,17 @@ simulated event Tick(float DeltaTime){
    }
 }
 
-/*simulated function Timer() {
-  clock--;
-
-  if(clock <= 0) {     
-     clock = 30;
-  }
-}*/
-
 function DrawHUD() {
    super.DrawHUD();    
-   drawCrossHair();
+   //drawCrossHair();
    drawHealthBar();
 }
 
 function drawHealthBar() {
-   Canvas.DrawIcon(clockIcon, 0, 0);     
+   //Canvas.DrawIcon(clockIcon, 0, 0);     
 
    Canvas.Font = class'Engine'.static.GetLargeFont();      
    Canvas.SetDrawColor(255, 255, 255); // White
-   Canvas.SetPos(70, 15);
-   
-   Canvas.DrawText(int(clock));
 
    if(clock < 10) {
      Canvas.SetDrawColor(255, 0, 0); // Red
@@ -65,6 +65,14 @@ function drawCrossHair() {
 
 	Canvas.SetPos(CenterX, CenterY - CrosshairSize);
 	Canvas.DrawRect(1, 2*CrosshairSize + 1);
+}
+
+function log(String text){
+	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
+}
+
+function PlayerController getPlayer(){
+	return PlayerOwner;
 }
 
 defaultproperties {
