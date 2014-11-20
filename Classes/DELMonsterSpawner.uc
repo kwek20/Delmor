@@ -199,7 +199,7 @@ DefaultProperties
 	mobsToSpawn = class'DELEasyMonsterPawn'
 	spawnRangeToPlayer = 1024
 	spawnArea = 1024
-	maxMobsAlive = 3
+	maxMobsAlive = 4
 	spawnDelay = 1
 	bCanSpawn = true
 	Begin Object Class=SpriteComponent Name=Sprite
