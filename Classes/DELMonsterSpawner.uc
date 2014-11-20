@@ -40,7 +40,9 @@ var float distanceToSpawner;
  * a Vector where the distance is calculated between the player and spawner in vector
  */
 var vector selfToPlayer;
-
+/**
+ * a Vector where the distance is calculated between the pathnod and spawner in vector
+ */
 var vector selfToPathnode;
 /**
  *  the player
@@ -72,7 +74,6 @@ auto state Idle {
 	event Tick(float deltaTime)
 	{
 		local Controller C;
-		//DELPlayerController
 		foreach WorldInfo.AllControllers(class'Controller', C)
 		{	
 			if (C.IsA('DELPlayerController'))
@@ -85,8 +86,6 @@ auto state Idle {
 			}
 		}
 	}
-	
-	Begin:
 }
 
 /**
@@ -98,11 +97,7 @@ state Spawner {
 	function BeginState(Name PreviousStateName) {
 		Super.BeginState(PreviousStateName);
 		if(bCanSpawn) {
-			if(!useAll) {
-				startSpawn(false);
-			} else {
-				startSpawn(true);
-			}
+			startSpawn(useAll);
 			preventFromSpawningAfterSpawn();
 		}
 	}
@@ -142,7 +137,10 @@ function spawnPawn(bool random, vector spawnLocation)
 	}
 	mobThatSpawns.SpawnDefaultController();
 }
-
+/**
+ * Function to start the spawning of mobs
+ * @param random boolean that is used to determine wether spawn a random or a specific class
+ */
 function startSpawn(bool random) {
 	local DELSpawnPathNode C;
 	
@@ -175,10 +173,6 @@ function int checkSpawnedMobsStillAlive() {
 	return tempMobsSpawned;
 }
 
-
-/*function startSpawn() {
-	SpawnPawn();
-}*/
 /**
  * this function will prevent the spawner to spawn till the cooldown has been reached.
  */
@@ -200,7 +194,7 @@ DefaultProperties
 	spawnRangeToPlayer = 1024
 	spawnArea = 1024
 	maxMobsAlive = 4
-	spawnDelay = 1
+	spawnDelay = 120
 	bCanSpawn = true
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
