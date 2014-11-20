@@ -16,16 +16,17 @@ state Attack{
 	}
 
 	event tick( float deltaTime ){
-		//Move to our target (Should stop when target is whitin range.
-		moveTowardsActor( attackTarget , deltaTime );
 		
 		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
 		}
+		else{
+			moveTowardsActor( attackTarget , deltaTime ); //Move to our target (Should stop when target is whitin range.
+		}
 
 		//The attacktarget is gone, return to idle state.
-		if ( !targetIsAlive() ){
+		if ( !targetIsAlive() || targetIsTooFarAway() ){
 			goToState( 'Idle' );
 		}
 	}
@@ -34,9 +35,22 @@ state Attack{
 	 * Called when the target whitin the pawn's attack range.
 	 */
 	event targetInRange(){
+		/**
+		 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
+		 */
+		local vector adjustedLocation;
 		`log( self$" Target In Range" );
 		//Don't attack while moving, set the pawn still.
 		stopPawn();
+
+		//Adjust the location so the pawns will not suddenly point upwards or downwards when the player jumps.
+		adjustedLocation.X = attackTarget.location.X;
+		adjustedLocation.Y = attackTarget.location.Y;
+		adjustedLocation.Z = Pawn.Location.Z;
+
+		//Turn pawn to the target
+		Pawn.setRotation( rotator( adjustedLocation - Pawn.Location ) );
+
 		meleeAttack();
 	}
 }
@@ -68,12 +82,20 @@ function moveTowardsActor( Actor a , float deltaTime ){
 function moveTowards( Vector l , float deltaTime ){
 	local Vector selfToPoint;
 	local DELPawn dPawn;
+	/**
+	 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
+	 */
+	local Vector adjustedLocation;
 
 	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
 	dPawn = DELPawn( Pawn );
+
+	adjustedLocation.X = l.X;
+	adjustedLocation.Y = l.Y;
+	adjustedLocation.Z = Pawn.Location.Z;
 	
 	//Caluclate direction
-	selfToPoint = l - Pawn.Location;
+	selfToPoint = adjustedLocation - Pawn.Location;
 
 	//Move Pawn
 	Pawn.velocity = Normal( selfToPoint ) * dPawn.walkingSpeed;
@@ -89,7 +111,6 @@ function moveTowards( Vector l , float deltaTime ){
  */
 function bool checkTargetWhitinRange( DELPawn p ){
 	local float distanceToPawn;
-	local float attackRange; //TODO: Replace attackrange with actual DELPawn's weapon range.
 	distanceToPawn = VSize( p.Location - Pawn.Location );
 	
 	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
@@ -116,9 +137,26 @@ function bool targetIsAlive(){
  * Sets the controller's pawn still.
  */
 function stopPawn(){
+	`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	Pawn.Velocity.Z = 0.0;
+}
+
+/**
+ * Returns true when attackTarget is too far away.
+ */
+function bool targetIsTooFarAway(){
+	local float distanceToPawn;
+
+	distanceToPawn = VSize( attackTarget.Location - Pawn.Location );
+
+	if( distanceToPawn > DELPawn( Pawn ).detectionRange ){
+		return true;
+	}
+	else{
+		return false;
+	}
 }
 
 DefaultProperties
