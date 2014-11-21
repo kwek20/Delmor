@@ -6,6 +6,12 @@ class DELPlayerInput extends PlayerInput;
 var float defaultRotationSpeed;
 var float pawnRotationSpeed;
 
+simulated event postBeginPlay(){
+	//super.PostBeginPlay();
+	`log("### Post begin play. PlayerInput: "$self );
+	setBindings();
+}
+
 /**
  * Turns the player's pawn left if not in look mode.
  * 
@@ -76,6 +82,27 @@ exec function startLookMode(){
 exec function endLookMode(){
 	DELPawn( Pawn ).bLookMode = false;
 }
+
+/**
+ * Sets all keybindings for Delmor.
+ */
+function setBindings(){
+	`log( "Set bindings" );
+	//setKeyBinding( 'w' , "moveForward" );
+	setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
+	setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
+	setKeyBinding( 'RightMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+}
+/**
+ * Set a specific keybinding.
+ */
+function setKeyBinding( name inKey , String inCommand ){
+	//local name key;
+	//key = inKey;
+	SetBind( inKey , inCommand );
+	`log( GetBind( inKey ) );
+}
+
 DefaultProperties
 {
 	defaultRotationSpeed = 600.0
