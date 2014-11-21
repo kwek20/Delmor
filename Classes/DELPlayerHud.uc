@@ -11,8 +11,7 @@ simulated event PostBeginPlay() {
 function PlayerOwnerDied(){
 	local DELPlayerController PC;
     PC = getPlayer();
-
-	PC.showSubtitle("You have died!");
+	PC.gotoState('End');
 }
 
 simulated event Tick(float DeltaTime){
