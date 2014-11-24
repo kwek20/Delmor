@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * Extended playercontroller that changes the camera.
  * 
@@ -7,8 +6,6 @@
  * 
  * @author Anders Egberts.
  */
-class DELPlayerController extends PlayerController;
-=======
 class DELPlayerController extends PlayerController
 	config(Game);
 
@@ -110,45 +107,47 @@ public function showSubtitle(string text){
 /*################
  * Util functions
  ###############*/
->>>>>>> d392e4d36c429318b60ac44adee12a82927fef4f
 
 /**
  * Overriden function from PlayerController. In this version the pawn will not rotate with
  * the camera. However when the player moves the mouse, the camera will rotate.
  * @author Anders Egberts
  */
-function UpdateRotation(float DeltaTime){
+function UpdateRotation(float DeltaTime)
+{
     local DELPawn dPawn;
 	local float pitchClampMin , pitchClampMax;
-<<<<<<< HEAD
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
 	pitchClampMax = -10000.0;
 	pitchClampMin = -500.0;
 
     //super.UpdateRotation(DeltaTime);
-=======
 
-	`log("UpdateRotation");
+    dPawn = DELPawn(self.Pawn);
 
-	if (canWalk){
-		pitchClampMax = -10000.0;
-		pitchClampMin = -500.0;
+	ViewRotation = Rotation;
 
-		super.UpdateRotation(DeltaTime);
-		dPawn = DELPawn(self.Pawn);
->>>>>>> d392e4d36c429318b60ac44adee12a82927fef4f
 
-		if (dPawn != none){
-			//Constrain the pitch of the player's camera.
-			dPawn.camPitch = Clamp( dPawn.camPitch + self.PlayerInput.aLookUp , pitchClampMax , pitchClampMin );
-			//dPawn.camPitch = dPawn.camPitch + self.PlayerInput.aLookUp;
-		}
-	} else {
-		//Mouse event
-		`log("mouse event");
-	}
-}        
+	// Calculate Delta to be applied on ViewRotation
+	DeltaRot.Yaw = PlayerInput.aTurn;
+	DeltaRot.Pitch	= PlayerInput.aLookUp;
+
+	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+	SetRotation(ViewRotation);
+
+	ViewShake( deltaTime );
+	
+	NewRotation = ViewRotation;
+	NewRotation.Roll = Rotation.Roll;
+
+    if (dPawn != none)
+    {
+		//Constrain the pitch of the player's camera.
+        dPawn.camPitch = Clamp( dPawn.camPitch + self.PlayerInput.aLookUp , pitchClampMax , pitchClampMin );
+		//dPawn.camPitch = dPawn.camPitch + self.PlayerInput.aLookUp;
+    }
+}    
 
 /*##########
  * Getters
@@ -177,42 +176,14 @@ public function String getSubtitle(){
 	return subtitle;
 }
 
-<<<<<<< HEAD
-	ViewRotation = Rotation;
-
-
-	// Calculate Delta to be applied on ViewRotation
-	DeltaRot.Yaw = PlayerInput.aTurn;
-	DeltaRot.Pitch	= PlayerInput.aLookUp;
-
-	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-	SetRotation(ViewRotation);
-
-	ViewShake( deltaTime );
-	
-	NewRotation = ViewRotation;
-	NewRotation.Roll = Rotation.Roll;
-
-    if (dPawn != none)
-    {
-		//Constrain the pitch of the player's camera.
-        dPawn.camPitch = Clamp( dPawn.camPitch + self.PlayerInput.aLookUp , pitchClampMax , pitchClampMin );
-		//dPawn.camPitch = dPawn.camPitch + self.PlayerInput.aLookUp;
-    }
-=======
 public function int getSeconds(){
 	local int sec, a;
 	GetSystemTime(a,a,a,a,a,a,sec,a);
 	return sec;
->>>>>>> d392e4d36c429318b60ac44adee12a82927fef4f
 }
 
 DefaultProperties
 {
-<<<<<<< HEAD
 	InputClass=class'DELPlayerInput'
-}
-=======
 	subtitleTime=5
 }
->>>>>>> d392e4d36c429318b60ac44adee12a82927fef4f
