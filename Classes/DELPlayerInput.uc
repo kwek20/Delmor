@@ -86,12 +86,16 @@ exec function endLookMode(){
 /**
  * Sets all keybindings for Delmor.
  */
-function setBindings(){
+function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	`log( "Set bindings" );
 	//setKeyBinding( 'w' , "moveForward" );
-	setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
-	setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
-	setKeyBinding( 'RightMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+	if(!change) {
+		setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
+		setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
+		setKeyBinding( 'RightMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+	} else {
+		setKeyBinding(inKey, inCommand);
+	}
 }
 /**
  * Set a specific keybinding.
