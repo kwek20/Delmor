@@ -127,7 +127,6 @@ function UpdateRotation(float DeltaTime){
 		}
 	} else {
 		//Mouse event
-		`log("mouse event");
 	}
 }        
 
