@@ -10,15 +10,18 @@ var() int subtitleTime, currentTime;
  #########*/
 
 function BeginState(Name PreviousStateName){
+	super.BeginState(PreviousStateName);
 	self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 }
 
 auto state PlayerWaiting {
+
 Begin:
       gotoState('Playing');
 }
 
-state Playing {
+state Playing extends PlayerWalking{
+
 Begin:
 	canWalk = true;
 	drawDefaultHud = true;
@@ -28,6 +31,7 @@ Begin:
 }
 
 state End {
+
 Begin:
 	canWalk = false;
 	drawDefaultHud = false;
@@ -37,6 +41,7 @@ Begin:
 }
 
 state Inventory {
+
  Begin:
 	canWalk = false;
 	drawDefaultHud = false;
@@ -46,8 +51,11 @@ state Inventory {
 }
 
 function swapState(name StateName){
-	if (StateName == GetStateName()) return;
-	gotoState(StateName);
+	if (StateName == GetStateName()) {
+		gotoState('Playing');
+	} else {
+		gotoState(StateName);
+	}
 }
 
 /*#####################
@@ -55,12 +63,10 @@ function swapState(name StateName){
  ####################*/
 
 exec function openInventory(){
-	`log("openInventory");
 	swapState('Inventory');
 }
 
 exec function closeHud(){
-	`log("closeHud");
 	swapState('Playing');
 }
 
@@ -71,7 +77,6 @@ exec function closeHud(){
 function checkHuds(){
 	if (getHud() == None)return;
 
-	//`log(GetStateName() $ ":" @ canWalk @ drawDefaultHud @ drawBars @ drawSubtitles);
 	getHud().interfaces.Length = 0;
 	if (drawDefaultHud){
 		//addInterface(class'DELInterfaceSpells');
@@ -107,8 +112,6 @@ public function showSubtitle(string text){
 function UpdateRotation(float DeltaTime){
     local DELPawn dPawn;
 	local float pitchClampMin , pitchClampMax;
-
-	`log("UpdateRotation");
 
 	if (canWalk){
 		pitchClampMax = -10000.0;
