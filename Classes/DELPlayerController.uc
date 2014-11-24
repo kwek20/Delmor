@@ -123,7 +123,8 @@ simulated function PostBeginPlay() {
  * the camera. However when the player moves the mouse, the camera will rotate.
  * @author Anders Egberts
  */
-function UpdateRotation(float DeltaTime){
+function UpdateRotation(float DeltaTime)
+{
     local DELPawn dPawn;
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
@@ -158,7 +159,7 @@ function UpdateRotation(float DeltaTime){
 	} else {
 		//Mouse event
 	}
-}        
+}
 
 /*##########
  * Getters

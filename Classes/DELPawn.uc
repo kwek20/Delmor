@@ -128,13 +128,9 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	 */
 	local Rotator newRotation;
 
-	//Determine target rotation based on look mode.
-	if ( !bLookMode ){
-		targetRotation = Rotation;
-	}
-	else{
-		targetRotation = Controller.Rotation;
-	}
+	//Get the controller's rotation as camera angle.
+	targetRotation = Controller.Rotation;
+
     out_CamLoc = Location;
     out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
     out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
@@ -149,12 +145,14 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	newRotation.Pitch = Rotation.Pitch;
 	newRotation.Roll = Rotation.Roll;
 	newRotation.Yaw = targetRotation.Yaw;
+
+	//If in look mode, rotate the pawn according to the camera's rotation
 	if ( bLookMode ){
 		self.SetRotation( newRotation );
 	}
-	else{
-		Controller.SetRotation( newRotation );
-	}
+	//else{
+	//	Controller.SetRotation( newRotation );
+	//}
 
     if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
     {

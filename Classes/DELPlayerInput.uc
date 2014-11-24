@@ -94,14 +94,17 @@ exec function closeHud() {
 /**
  * Sets all keybindings for Delmor.
  */
-function setBindings(){
+function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	`log( "Set bindings" );
-	//setKeyBinding( 'w' , "moveForward" );
-	setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
-	setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
-	setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
-	setKeyBinding( 'I' , "openInventory" );
-	setKeyBinding('Escape', "closeHud");
+	if(!change) {
+		setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
+		setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
+		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+		setKeyBinding( 'I' , "openInventory" );
+		setKeyBinding('Escape', "closeHud");
+	} else {
+		setKeyBinding(inKey, inCommand);
+	}
 }
 /**
  * Set a specific keybinding.
