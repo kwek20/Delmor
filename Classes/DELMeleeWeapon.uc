@@ -23,6 +23,12 @@ simulated state WeaponFiring{
 	}
 }
 
+function ResetSwings()
+{
+	RestoreAmmo(MaxSwings);
+}
+
+
 simulated function TraceSwing()
 {
 	local Actor HitActor;
@@ -31,6 +37,7 @@ simulated function TraceSwing()
 
 	SwordTip = GetSwordSocketLocation(SwordTipSocketName);
 	SwordHilt = GetSwordSocketLocation(SwordHiltSocketName);
+	//DamageAmount = FCeil(InstantHitDamage[CurrentFireMode]);
 	DamageAmount = calculateDamage();
 
 
@@ -92,6 +99,48 @@ simulated function int addCrit(int damage){
 }
 
 
+
+function RestoreAmmo(int Amount, optional byte FireModeNum)
+{
+	Swings[FireModeNum] = Min(Amount, MaxSwings);
+}
+
+function ConsumeAmmo(byte FireModeNum)
+{
+	if (HasAmmo(FireModeNum))
+	{
+		Swings[FireModeNum]--;
+	}
+}
+
+simulated function bool HasAmmo(byte FireModeNum, optional int Ammount)
+{
+	return Swings[FireModeNum] > Ammount;
+}
+
+simulated function FireAmmunition()
+{
+	StopFire(CurrentFireMode);
+	SwingHitActors.Remove(0, SwingHitActors.Length);
+
+	if (HasAmmo(CurrentFireMode))
+	{
+	/*	if (MaxSwings - Swings[0] == 0) {
+			MeleeWeaponPawn(Owner).SwingAnim.PlayCustomAnim('SwingOne', 1.0);
+		} else if (MaxSwings - Swings[0] == 1){
+			MeleeWeaponPawn(Owner).SwingAnim.PlayCustomAnim('SwingTwo', 1.0);
+		}
+		else{
+			MeleeWeaponPawn(Owner).SwingAnim.PlayCustomAnim('SwingThree', 1.0);
+		}*/
+
+
+
+		PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
+
+		super.FireAmmunition();
+	}
+}
 DefaultProperties
 {
 	MaxSwings=3
