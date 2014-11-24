@@ -1,6 +1,4 @@
-class DELPlayerSoundGroup extends UTPawnSoundGroup
-	abstract
-	dependson(UTPhysicalMaterialProperty);
+class DELPlayerSoundGroup extends UTPawnSoundGroup;
 
 DefaultProperties
 {

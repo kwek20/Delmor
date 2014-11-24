@@ -103,6 +103,7 @@ simulated event PostBeginPlay(){
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , 44.0 );
 	SetMovementPhysics();
+	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
 }
 
 /**
@@ -210,7 +211,9 @@ DefaultProperties
 	magicResistance = 0.0
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
-	regenerationTimer = 1.0
+	regenerationTimer = 1.0;
+	
+	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0
 	camPitch = -5000.0
@@ -241,5 +244,4 @@ DefaultProperties
     Components.Add(ThirdPersonMesh)
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
-	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 }

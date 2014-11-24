@@ -9,6 +9,7 @@
 class DELPlayerController extends PlayerController
 	config(Game);
 
+var SoundCue soundSample; 
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 var() private string subtitle;
 var() int subtitleTime, currentTime;
@@ -113,7 +114,6 @@ public function showSubtitle(string text){
  * Util functions
  ###############*/
 
-var SoundCue soundSample; 
 simulated function PostBeginPlay() {
 	super.PostBeginPlay();
 }

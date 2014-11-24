@@ -83,6 +83,14 @@ exec function endLookMode(){
 	DELPawn( Pawn ).bLookMode = false;
 }
 
+exec function openInventory() {
+	DELPlayerController(Pawn.Controller).openInventory();
+}
+
+exec function closeHud() {
+	DELPlayerController(Pawn.Controller).closeHud();
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
@@ -91,7 +99,9 @@ function setBindings(){
 	//setKeyBinding( 'w' , "moveForward" );
 	setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
 	setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
-	setKeyBinding( 'RightMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+	setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+	setKeyBinding( 'I' , "openInventory" );
+	setKeyBinding('Escape', "closeHud");
 }
 /**
  * Set a specific keybinding.

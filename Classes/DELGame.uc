@@ -1,4 +1,4 @@
-class DELGame extends UTDeathMatch;
+class DELGame extends UDKGame;
 
 var String game;
 
@@ -26,6 +26,6 @@ DefaultProperties
 	DefaultPawnClass = class'DELPlayer'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
     DefaultInventory(0)=none
-	bUseClassicHUD=false
+	bUseClassicHUD=true
 	game='DELGame'
 }
