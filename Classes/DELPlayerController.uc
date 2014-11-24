@@ -8,6 +8,11 @@
  */
 class DELPlayerController extends PlayerController;
 
+var SoundCue soundSample; 
+simulated function PostBeginPlay() {
+	super.PostBeginPlay();
+}
+
 /**
  * Overriden function from PlayerController. In this version the pawn will not rotate with
  * the camera. However when the player moves the mouse, the camera will rotate.

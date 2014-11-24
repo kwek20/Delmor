@@ -11,12 +11,15 @@
  * 
  * @author Anders Egberts
  */
-class DELPawn extends UDKPawn;
+class DELPawn extends UTPawn;
+
 
 /* ==========================================
  * Stats
  * ==========================================
  */
+
+
 
 /**
  * How much health the pawn will regain each second.
@@ -195,6 +198,7 @@ simulated exec function turnRight(){
 
 DefaultProperties
 {
+	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
 	healthRegeneration = 0
@@ -235,5 +239,7 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-	//Components.Remove( ArmsMesh )
+	ArmsMesh[0] = none
+	ArmsMesh[1] = none
+	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 }

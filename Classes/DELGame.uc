@@ -23,7 +23,7 @@ DefaultProperties
 {
 	//HUDType=class'Delmor.DELPlayerHud'
     HUDType=class'Delmor.DELPlayerHud'
-	DefaultPawnClass = class'DELPawn'
+	DefaultPawnClass = class'DELPlayer'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
     DefaultInventory(0)=none
 	bUseClassicHUD=false
