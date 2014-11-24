@@ -1,4 +1,4 @@
-class DELPlayer extends DELPawn;
+class DELPlayer extends DELCharacterPawn;
 
 simulated event PostBeginPlay()
 {
