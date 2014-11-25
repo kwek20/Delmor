@@ -4,7 +4,11 @@ var() int barSize;
 
 simulated function draw(DELPlayerHud hud){
 	local int length, startX, startY;
-	if (hud.getPlayer().getPawn() == None || hud.getPlayer().getPawn().Health <= 0)return;
+	local DELPawn pawn;
+	
+	pawn = DELPawn(hud.getPlayer().getPawn());
+	if (pawn == None || pawn.Health <= 0)return;
+	
 
 	hud.Canvas.Font = class'Engine'.static.GetLargeFont();   
 	length = hud.SizeX/5;
@@ -13,12 +17,13 @@ simulated function draw(DELPlayerHud hud){
 
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red
 	hud.Canvas.SetPos(startX, startY);   
+	hud.Canvas.DrawRect(length * (float(pawn.Health) / float(pawn.HealthMax)), barSize); 
 
-	hud.Canvas.DrawRect(length * (float(hud.getPlayer().getPawn().Health) / float(hud.getPlayer().getPawn().HealthMax)), barSize); 
-
-	hud.Canvas.SetDrawColor(0, 0, 255); // blue
-	hud.Canvas.SetPos(startX, startY+barSize);   
-	hud.Canvas.DrawRect(length, barSize); 
+	if (pawn.mana > 0){
+		hud.Canvas.SetDrawColor(0, 0, 255); // blue
+		hud.Canvas.SetPos(startX, startY+barSize);   
+		hud.Canvas.DrawRect(length * (float(pawn.mana) / float(pawn.manaMax)), barSize); 
+	}
 }
 
 DefaultProperties

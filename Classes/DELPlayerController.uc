@@ -99,7 +99,7 @@ function checkHuds(){
 	if (getHud() == None)return;
 
 	if (drawDefaultHud){
-		//addInterface(class'DELInterfaceSpells');
+		addInterface(class'DELInterfaceBar');
 		//addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
