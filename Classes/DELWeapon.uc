@@ -1,48 +1,32 @@
 /**
  * Weapon to be used in Delmor.
- * @author Anders Egberts
+ * @author Harmen Wiersma
  */
-class DELWeapon extends UTWeapon;
+class DELWeapon extends Weapon;
 /**
  * Minimal damage to deal on hit.
  * Damage dealt will be between DamageMin.
  */
-var int DamageMin;
+var int damageMin;
 /**
  * Maximum damage to deal on hit (Except for Criticals or damage bonusses).
  * Damage dealt will be between DamageMin.
  */
-var int DamageMax;
+var int damageMax;
 /**
  * Critical Strike chance.
  */
-var float CriticalStrikeChance;
+var float criticalStrikeChance;
 /**
- * Effective range.
- * Swords also have an effective range (Longer swords have a wider range/Attack sweep).
+ * multiplier that is added to the danage when a crit hits
  */
-var float Range;
-/**
- * Interval at which the weapons can be used.
- */
-var float AttackSpeed;
+var float criticalDamageMultiplier;
 
 /**
- * Get random damage between the min and max damage.
+ * default setting to all weapons
  */
-function int GetDamage(){
-	local int Damage , Random;
-	Random = DamageMax - DamageMin;
-	Damage = DamageMin + rand( Random );
-
-	return Damage;
-}
-
 DefaultProperties
 {
-	DamageMin=40
-	DamageMax=60
-	CriticalStrikeChance=0.0
-	Range=100
-	AttackSpeed=1.0
+	criticalStrikeChance = 0.05;
+	criticalDamageMultiplier = 5;
 }
