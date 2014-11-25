@@ -118,5 +118,5 @@ function setKeyBinding( name inKey , String inCommand ){
 
 DefaultProperties
 {
-	defaultRotationSpeed = 600.0
+	defaultRotationSpeed = 300.0
 }
