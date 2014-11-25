@@ -158,6 +158,7 @@ DefaultProperties
 	bMeleeWeapon=true;
 	bInstantHit=true;
 	bCanThrow=false;
+	bInvisible=false;
 	FiringStatesArray(0)="Swinging"
 
 	WeaponFireTypes(0)=EWFT_Custom

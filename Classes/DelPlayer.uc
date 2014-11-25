@@ -1,24 +1,27 @@
 class DELPlayer extends DELCharacterPawn;
 
+var array< class<Inventory> > DefaultInventory;
+var Weapon sword;
+
 
 simulated function bool IsFirstPerson(){
 	return false;
 }
+
 function AddDefaultInventory()
 {
-    //InvManager.CreateInventory(class'Delmor.DELMeleeWeapon');
-	InvManager.CreateInventory(class'UTGame.UTWeap_LinkGun');
+	//sword = Spawn(Class 'DELMeleeWeapon');
+	sword = Spawn(Class 'UTWeap_LinkGun');
+	self.InvManager.DiscardInventory();
+	self.InvManager.AddInventory(sword);
 	`log("Weapon added to pawn");
 }
 
 
 simulated event PostBeginPlay()
 {
-	local Weapon NewWeapon;
 	super.PostBeginPlay();
 
-	//NewWeapon = Spawn(Class 'DELMeleeWeapon');
-	//NewWeapon.GiveTo(Self);
 
 	`log("IK BEN GEBIN. mijn taak is het uimoorden van het menselijk ras");
 }

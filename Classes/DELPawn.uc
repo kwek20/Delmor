@@ -210,6 +210,8 @@ DefaultProperties
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
 	regenerationTimer = 1.0;
+
+
 	
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
@@ -240,6 +242,6 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-	ArmsMesh[0] = none
-	ArmsMesh[1] = none
+	//ArmsMesh[0] = none
+	//ArmsMesh[1] = none
 }
