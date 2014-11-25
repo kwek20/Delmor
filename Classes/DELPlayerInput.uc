@@ -25,6 +25,109 @@ simulated exec function turnLeft(){
 }
 
 /**
+ * Move in the camera's direction.
+ */
+simulated exec function moveForward(){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( 0.0 );
+		Pawn.SetDesiredRotation( Rotator( camToPawn ) );
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
+/**
+ * Move right in aspect to the camera.
+ */
+simulated exec function moveRight(){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( 90.0 );
+		Pawn.SetRotation( Rotator( camToPawn ) );
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
+/**
+ * Move left in aspect to the camera.
+ */
+simulated exec function moveLeft(){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( -90.0 );
+		Pawn.SetRotation( Rotator( camToPawn ) );
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
+
+/**
+ * Goes to state movingForward
+ */
+exec function startMovingForward(){
+	goToState( 'movingForward' );
+}
+
+/**
+ * Goes to state movingLeft
+ */
+exec function startMovingLeft(){
+	goToState( 'movingLeft' );
+}
+
+/**
+ * Goes to state movingLeft
+ */
+exec function startMovingRight(){
+	goToState( 'movingRight' );
+}
+
+/**
+ * Calculates a vector based on the pawn's location and the player's camera's location.
+ * Additionally you can set an offset.
+ */
+function vector cameraToPawn( float offSet ){
+	local vector camPositionPlusOffset;
+
+	`log( "Controller.rotation: "$Pawn.Controller.Rotation );
+	`log( "Offset: "$offset );
+	camPositionPlusOffset.X = Pawn.Location.X + lengthDirX( 80 , - ( Rotation.Yaw + offset * DegToUnrRot ) );
+	camPositionPlusOffset.Y = Pawn.Location.Y + lengthDirY( 80 , - ( Rotation.Yaw + offset * DegToUnrRot ) );
+	camPositionPlusOffset.Z = Pawn.Location.Z;
+
+	`log( "Pawn.location: "$Pawn.Location );
+	`log( "camPositionPlusOffset: "$camPositionPlusOffset );
+
+	FlushPersistentDebugLines();
+	DrawDebugLine( Pawn.Location, camPositionPlusOffset , 255 , 0 , 0  , true );
+	DrawDebugSphere( Pawn.location , 8 , 8 , 255 , 0 , 0 , true );
+	DrawDebugSphere( camPositionPlusOffset , 8 , 8 , 0 , 0 , 255 , true );
+
+	return camPositionPlusOffset - Pawn.location;
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+private function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+private function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+
+}
+
+/**
  * Turns the player's pawn right if not in look mode.
  * 
  * TODO:
@@ -59,7 +162,7 @@ function rotatePawn( float degrees ){
 	newRotation.Yaw = Pawn.Rotation.Yaw + int( degrees );
 
 	Pawn.SetRotation( newRotation );
-	Pawn.SetDesiredRotation( newRotation );
+	//Pawn.SetDesiredRotation( newRotation );
 }
 
 /**
@@ -91,14 +194,33 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
+state movingForward{
+	event tick( float deltaTime ){
+		moveForward();
+	}
+}
+
+state movingLeft{
+	event tick( float deltaTime ){
+		moveLeft();
+	}
+}
+
+state movingRight{
+	event tick( float deltaTime ){
+		moveRight();
+	}
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	`log( "Set bindings" );
 	if(!change) {
-		setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
-		setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
+		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0" );
+		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0" );
+		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");

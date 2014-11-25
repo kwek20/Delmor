@@ -186,7 +186,6 @@ state Flock{
 
 DefaultProperties
 {
-	groupDistance = 1024.0
 	maximumDistance = 1024.0
 	minimumDistance = 128.0
 }

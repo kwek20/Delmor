@@ -39,7 +39,7 @@ state Attack{
 		 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 		 */
 		local vector adjustedLocation;
-		`log( self$" Target In Range" );
+		//`log( self$" Target In Range" );
 		//Don't attack while moving, set the pawn still.
 		stopPawn();
 
@@ -137,7 +137,7 @@ function bool targetIsAlive(){
  * Sets the controller's pawn still.
  */
 function stopPawn(){
-	`log( self$" Stop pawn" );
+	//www`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	Pawn.Velocity.Z = 0.0;
