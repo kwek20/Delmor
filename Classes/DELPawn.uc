@@ -69,6 +69,8 @@ var float detectionRange;
  */
 var float regenerationTimer;
 
+var SkeletalMeshComponent Mesh;
+
 
 /* ==========================================
  * Camera stuff
