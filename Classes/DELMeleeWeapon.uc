@@ -143,6 +143,9 @@ simulated function FireAmmunition()
 }
 DefaultProperties
 {
+	swordHiltSocketName = swordHiltSocket
+	swordTipSocketName = swordTipSocket
+
 	MaxSwings=3
 	Swings(0)=3
 
@@ -155,4 +158,17 @@ DefaultProperties
 	FiringStatesArray(0)="Swinging"
 
 	WeaponFireTypes(0)=EWFT_Custom
+
+	Begin Object Name=FirstPersonMesh
+        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+        FOV=60
+        //Animations=MeshSequenceA
+        //AnimSets(0)=AnimSet'CastersSwordPackage.Sword.AnimSetSword'
+        bForceUpdateAttachmentsInTick=True
+        Scale=0.9000000
+    End Object
+
+    Begin Object Name=PickupMesh
+        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+    End Object
 }
