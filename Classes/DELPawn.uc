@@ -11,12 +11,15 @@
  * 
  * @author Anders Egberts
  */
-class DELPawn extends UDKPawn;
+class DELPawn extends UTPawn;
+
 
 /* ==========================================
  * Stats
  * ==========================================
  */
+
+
 
 /**
  * How much health the pawn will regain each second.
@@ -86,6 +89,13 @@ var float camPitch;
 var Vector cameraOffset;
 
 /**
+ * Determines whether the player is in look mode.
+ * When in look mode, the pawn will rotate with the camara.
+ * Else the camera will rotate with the pawn.
+ */
+var bool bLookMode;
+
+/**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
 simulated event PostBeginPlay(){
@@ -93,6 +103,7 @@ simulated event PostBeginPlay(){
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , 44.0 );
 	SetMovementPhysics();
+	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
 }
 
 /**
@@ -111,16 +122,37 @@ function setCameraOffset( float x , float y , float z ){
  */
 simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV){
     local Vector HitLocation, HitNormal;
+	local Rotator targetRotation;
+	/**
+	 * New pawn rotation if using look mode.
+	 */
+	local Rotator newRotation;
+
+	//Get the controller's rotation as camera angle.
+	targetRotation = Controller.Rotation;
 
     out_CamLoc = Location;
-    out_CamLoc.X -= Cos(Controller.Rotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-    out_CamLoc.Y -= Sin(Controller.Rotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+    out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+    out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
     out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
 	out_CamLoc = out_CamLoc + cameraOffset;
 
-    out_CamRot.Yaw = Controller.Rotation.Yaw;
+    out_CamRot.Yaw = targetRotation.Yaw;
     out_CamRot.Pitch = camPitch;
     out_CamRot.Roll = 0;
+
+	//If in look mode, change the pawn's rotation based on the camera
+	newRotation.Pitch = Rotation.Pitch;
+	newRotation.Roll = Rotation.Roll;
+	newRotation.Yaw = targetRotation.Yaw;
+
+	//If in look mode, rotate the pawn according to the camera's rotation
+	if ( bLookMode ){
+		self.SetRotation( newRotation );
+	}
+	//else{
+	//	Controller.SetRotation( newRotation );
+	//}
 
     if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
     {
@@ -155,8 +187,17 @@ function SpawnController(){
 	controller.Pawn = self;
 }*/
 
+simulated exec function turnLeft(){
+	`log( self$" TurnLeft" );
+}
+
+simulated exec function turnRight(){
+	`log( self$" TurnRight" );
+}
+
 DefaultProperties
 {
+	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
 	healthRegeneration = 0
@@ -168,10 +209,13 @@ DefaultProperties
 	magicResistance = 0.0
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
-	regenerationTimer = 1.0
+	regenerationTimer = 1.0;
+	
+	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0
 	camPitch = -5000.0
+	bLookMode = false
 
 	ControllerClass = class'DELNpcController'
 
@@ -196,5 +240,6 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-	//Components.Remove( ArmsMesh )
+	ArmsMesh[0] = none
+	ArmsMesh[1] = none
 }

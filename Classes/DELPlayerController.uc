@@ -9,6 +9,7 @@
 class DELPlayerController extends PlayerController
 	config(Game);
 
+var SoundCue soundSample; 
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 var() private string subtitle;
 var() int subtitleTime, currentTime;
@@ -113,12 +114,17 @@ public function showSubtitle(string text){
  * Util functions
  ###############*/
 
+simulated function PostBeginPlay() {
+	super.PostBeginPlay();
+}
+
 /**
  * Overriden function from PlayerController. In this version the pawn will not rotate with
  * the camera. However when the player moves the mouse, the camera will rotate.
  * @author Anders Egberts
  */
-function UpdateRotation(float DeltaTime){
+function UpdateRotation(float DeltaTime)
+{
     local DELPawn dPawn;
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
@@ -153,7 +159,7 @@ function UpdateRotation(float DeltaTime){
 	} else {
 		//Mouse event
 	}
-}        
+}
 
 /*##########
  * Getters
@@ -190,5 +196,6 @@ public function int getSeconds(){
 
 DefaultProperties
 {
+	InputClass=class'DELPlayerInput'
 	subtitleTime=5
 }
