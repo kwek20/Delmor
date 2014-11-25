@@ -9,12 +9,15 @@ var array<Actor> swingHitActors;
 var array<int> swings;
 var const int maxSwings;
 
-simulated state WeaponFiring{
+simulated state Swinging{
 	simulated event Tick(float DeltaTime){
 		super.Tick(DeltaTime);
 		TraceSwing();
 	}
-
+	simulated event BeginState(Name NextStateName){
+		`log("Swing that mothafucka");
+		`log(GetHand());
+	}
 	
 	simulated event EndState(Name NextStateName)
 	{
