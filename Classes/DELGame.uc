@@ -9,6 +9,6 @@ DefaultProperties
 	DefaultPawnClass = class'DELPawn'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
     DefaultInventory(0)=none
-	bUseClassicHUD=false
+	bUseClassicHUD=true
 	game='DELGame'
 }
