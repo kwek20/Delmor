@@ -1,80 +1,60 @@
 class DELPlayerHud extends UDKHUD;
 
-var CanvasIcon clockIcon;
-var float clock; 
+var array< DELInterface > interfaces;
 
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
-	`log("HUD POST BEGIN");
-   clock = 30;
+
+	`log("PostBeginPlay HUD"); 
 }
 
 function PlayerOwnerDied(){
-	log("died");
-	//show death screen
+	local DELPlayerController PC;
+    PC = getPlayer();
+	PC.gotoState('End');
 }
-
-function DisplayHit(vector HitDir, int Damage, class<DamageType> damageType)
-{
-	log("damage: " $ Damage $ " Type: " $ damageType);
-}
-
 
 simulated event Tick(float DeltaTime){
 	Super.Tick(DeltaTime);
-	clock-=0.1;
-
-   if(clock <= 0) {     
-      clock = 30;
-   }
 }
 
-function DrawHUD() {
-   super.DrawHUD();    
-   //drawCrossHair();
-   drawHealthBar();
+function PostRender(){
+	local DELInterface interface;
+	super.PostRender();
+
+	foreach interfaces(interface){
+		interface.draw(self);
+	}
 }
 
-function drawHealthBar() {
-   //Canvas.DrawIcon(clockIcon, 0, 0);     
+function DrawSubtitle(string StringMessage){
+	local int X, Y;
+	local float Xstring, Ystring;
+	
+	X = CenterX-Len(StringMessage);
+	Y = SizeY/10*9;
 
-   Canvas.Font = class'Engine'.static.GetLargeFont();      
-   Canvas.SetDrawColor(255, 255, 255); // White
-
-   if(clock < 10) {
-     Canvas.SetDrawColor(255, 0, 0); // Red
-   } else if (clock < 20) {
-     Canvas.SetDrawColor(255, 255, 0); // Yellow
-   } else {
-     Canvas.SetDrawColor(0, 255, 0); // Green
-   }
- 
-   Canvas.SetPos(200, 15);   
-   Canvas.DrawRect(20 * clock, 30); 
-}
-
-function drawCrossHair() {
-	local float CrosshairSize;
-
-	Canvas.SetDrawColor(0,255,0);
-
-	CrosshairSize = 4;
-
-	Canvas.SetPos(CenterX - CrosshairSize, CenterY);
-	Canvas.DrawRect(2*CrosshairSize + 1, 1);
-
-	Canvas.SetPos(CenterX, CenterY - CrosshairSize);
-	Canvas.DrawRect(1, 2*CrosshairSize + 1);
+	Canvas.TextSize(StringMessage, Xstring, Ystring);
+	
+	Canvas.SetPos(X, Y);
+	Canvas.SetDrawColor(0, 0, 0, 120);
+	
+	Canvas.DrawRect(Xstring, Ystring);
+	
+	Canvas.SetPos(X, Y);
+	Canvas.SetDrawColor(255, 255, 255, 255);
+	
+	Canvas.DrawText(StringMessage);
 }
 
 function log(String text){
 	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
 }
 
-function PlayerController getPlayer(){
-	return PlayerOwner;
+function DELPlayerController getPlayer(){
+	return DELPlayerController(PlayerOwner);
 }
 
 defaultproperties {
- clockIcon=(Texture=Texture2D'UDKHUD.Time')  
+
 }
