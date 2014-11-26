@@ -1,7 +1,7 @@
-class DELPlayerHud extends UDkHUD
+class DELPlayerHud extends UDKHUD
 	config(game);
 
-var array< DELInterface > interfaces;
+//var array< DELInterface > interfaces;
 
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
@@ -23,9 +23,9 @@ simulated event PostBeginPlay() {
 
 
 function PlayerOwnerDied(){
-	local DELPlayerController PC;
+/*	local DELPlayerController PC;
     PC = getPlayer();
-	PC.gotoState('End');
+	PC.gotoState('End');*/
 }
 
 function DrawHUD() {
@@ -38,32 +38,36 @@ function DrawHUD() {
 }
 
 function PostRender(){
-	local DELInterface interface;
+//	local DELInterface interface;
 	super.PostRender();
 
-	foreach interfaces(interface){
-		interface.draw(self);
-	}
+//	foreach interfaces(interface){
+	//	interface.draw(self);
+	//}
 }
 
 function log(String text){
-	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
+//	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
 }
-
+/*
 function DELPlayerController getPlayer(){
 	return DELPlayerController(PlayerOwner);
 }
-
+*/
 /*-----------------------------------------------------------
  * COMPASS
  *-----------------------------------------------------------*/
+
+/**
+ * Returns the heading in radians
+ * */
 
 function float getRadianHeading(){
 	local Vector v;
 	local rotator r;
 	local float f;
 
-	r.Yaw = PlayerOwner.Pawn.Rotation.Yaw;
+	r.Yaw = GetALocalPlayerController().Pawn.Rotation.Yaw;
 	v = vector(r);
 	f = GetHeadingAngle(v);
 	f = UnwindHeading(f);
@@ -75,24 +79,30 @@ function float getRadianHeading(){
 	return f;
 }
 
-
+/**
+ * Returns the player heading 
+ */
 function float GetPlayerHeading(){
 	local Vector v;
 	local Rotator r;
 	local float f;
 
-	r.Yaw = PlayerOwner.Pawn.Rotation.Yaw;
+	r.Yaw = GetALocalPlayerController().Pawn.Rotation.Yaw;
 	v = vector(r);
 	f = GetHeadingAngle(v);
 	f = UnwindHeading(f);
 
 	while(f < 0){
 		f += PI * 2.0f;
+	//	`log("f: "$f);
 	}
-
+	
 	return f;
 }
 
+/**
+ * Draws a compass at pre-set coordinates
+ * */
 function DrawCompass(){
 	local float TrueNorth;
 	local float PlayerHeading;
@@ -107,7 +117,7 @@ function DrawCompass(){
 	local float ActualMapRange;
 	MapPosition.X = MPosXMap;
 	MapPosition.Y = MPosYMap;
-	ActualMapRange = FMax(GameMinimap.MapRangeMax.X - GameMinimap.MapRangeMin.X, GameMinimap.MapRangeMax.Y - GameMinimap.MapRangeMin.Y);
+//	ActualMapRange = FMax(GameMinimap.MapRangeMax.X - GameMinimap.MapRangeMin.X, GameMinimap.MapRangeMax.Y - GameMinimap.MapRangeMin.Y);
 /*	`log("actualmaprangeXmax: "$ GameMinimap.MapRangeMax.X);
 	`log("actualMaprangeYmax: "$ GameMinimap.MapRangeMax.Y);
 	`log("actualmaprangeXmin: "$ GameMinimap.MapRangeMin.X);
@@ -116,21 +126,21 @@ function DrawCompass(){
 	`log("MAPPOSY: "$ MapPosition.Y);
 	`log("resoscale: "$ResolutionScale);*/
 	MapDim = MapDim * ResolutionScale;
-
+/*
 	PlayerPos.X = (GetALocalPlayerController().Pawn.Location.Y - GameMinimap.MapCenter.Y) / ActualMapRange;
 	PlayerPos.Y = (GameMinimap.MapCenter.X - GetALocalPlayerController().Pawn.Location.X) / ActualMapRange;
-	/*`log("MAPDIM " $ MapDim);
+	*//*`log("MAPDIM " $ MapDim);
 	`log("DPC.Pawn.Location.Y " $ GetALocalPlayerController().Pawn.Location.Y);
 	`log("ActualMapRange: " $ ActualMapRange);
 	`log("PlayerposX " $PlayerPos.X);
 	`log("PlayerposY " $PlayerPos.Y);*/
-
+/*
 	ClampedPlayerPos.X = FClamp(   PlayerPos.X,
             -0.5 + (TileSize / 2.0),
             0.5 - (TileSize / 2.0));
 	ClampedPlayerPos.Y = FClamp(   PlayerPos.Y,
             -0.5 + (TileSize / 2.0),
-            0.5 - (TileSize / 2.0));
+            0.5 - (TileSize / 2.0));*/
 /*
 	`log("ClampedPlayerPos.X: "$ ClampedPlayerPos.X);
 	`log("ClampedPlayerPos.Y: "$ ClampedPlayerPos.Y);*/
@@ -151,27 +161,27 @@ function DrawCompass(){
 		//`log("Maprotation" $ MapRotation);
 		CompassRotation = MapRotation;
 		//`log("CompassRotation"$ CompassRotation);
-	}
+	}/*
 	DisplayPlayerPos.X = VSize(PlayerPos) * Cos( ATan(PlayerPos.X) - MapRotation);
 	DisplayPlayerPos.Y = VSize(PlayerPos) * Sin( ATan(PlayerPos.Y) - MapRotation);
-  /*
-	`log("DIsplayplayerPos.X: "$DisplayPlayerPos.X);
-	`log("DIsplayplayerPos.Y: "$DisplayPlayerPos.Y);*/
-
+  */
+//	`log("DIsplayplayerPos.X: "$DisplayPlayerPos.X);
+//	`log("DIsplayplayerPos.Y: "$DisplayPlayerPos.Y);
+/*
 	RotPlayerPos.X = VSize(ClampedPlayerPos) * Cos( ATan2(ClampedPlayerPos.Y, ClampedPlayerPos.X) - MapRotation);
 	RotPlayerPos.Y = VSize(ClampedPlayerPos) * Sin( ATan2(ClampedPlayerPos.Y, ClampedPlayerPos.X) - MapRotation);
+*/
+//	`log("RotPlayerPos.X: " $ RotPlayerPos.X);
+//	`log("RotPlayerPos.Y: "$ RotPlayerPos.Y);
 /*
-	`log("RotPlayerPos.X: " $ RotPlayerPos.X);
-	`log("RotPlayerPos.Y: "$ RotPlayerPos.Y);*/
-
 	StartPos.X = FClamp(RotPlayerPos.X + (0.5 - (TileSize / 2.0)),0.0,1.0 - TileSize);
 	StartPos.Y = FClamp(RotPlayerPos.Y + (0.5 - (TileSize / 2.0)),0.0,1.0 - TileSize);
 	StartPos.X = FClamp(DisplayPlayerPos.X + (0.5 - (TileSize / 2.0)),TileSize/-2,1.0 - TileSize/2);
     StartPos.Y = FClamp(DisplayPlayerPos.Y + (0.5 - (TileSize / 2.0)),TileSize/-2,1.0 - TileSize/2);
-
+*/
 	//`log("StartPos.Y: " $ StartPos.Y);
 	//`log("Startpos.X: "$ StartPos.X);
-
+/*
 	MapOffset.R =  FClamp(-1.0 * RotPlayerPos.X,
           -0.5 + (TileSize / 2.0),
           0.5 - (TileSize / 2.0));
@@ -180,7 +190,7 @@ function DrawCompass(){
           -0.5 + (TileSize / 2.0),
           0.5 - (TileSize / 2.0));
 	MapOffset.R =  FClamp(-1.0 * DisplayPlayerPos.X,-0.5,0.5);
-	MapOffset.G =  FClamp(-1.0 * DisplayPlayerPos.Y,-0.5,0.5);
+	MapOffset.G =  FClamp(-1.0 * DisplayPlayerPos.Y,-0.5,0.5);*/
 	//`log("Mapoffset.G: "$ MapOffset.G );
 	//`log("Tilesize "$ TileSize);
 	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);

@@ -31,5 +31,5 @@ defaultproperties
    
    bForwardAlwaysUp=True
 	Minimap=MaterialInstanceConstant'CompassContent.cartography-155321_640_Mat_INST'
-	CompassOverlay=MaterialInstanceConstant'CompassContent.M_compass_INST'
+	CompassOverlay=MaterialInstanceConstant'CompassContent.compass_needle_Mat_INST'
 }

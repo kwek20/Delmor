@@ -6,27 +6,39 @@ var(Movement) const rotator Rotation;
 
 event PostBeginPlay(){
 	super.PostBeginPlay();
-/*	`log("=====",,'UTBook');
-	`log("Compass Heading"@GetRadianHeading()@GetDegreeHeading(),,'UTBook');
-	`log("=====",,'UTBook');*/
+//	`log("=====",,'UTBook');
+//	`log("Compass Heading"@GetRadianHeading()@GetDegreeHeading(),,'UTBook');
+//	`log("=====",,'UTBook');
 	ConsoleCommand("DisableAllScreenMessages");
 }
 
+/**
+ * Returns the Yaw 
+ */
 function int getYaw(){
 	//`log("getYaw: " $ self.Rotation.Yaw);
 	return self.Rotation.Yaw;
 }
 
+/**
+ * Returns rotator
+ */
 function Rotator getRotator(){
 	//`log("getRotator: " $ self.Rotation);
 	return self.Rotation;
 }
 
+/**
+ * Returns rotator as a vector
+ */
 function vector getVectorizedRotator(){
 	//`log("getVectorizedRotator: " $ self.Rotation);
 	return Vector(self.Rotation);
 }
 
+/**
+ * Gets the heading in radians
+ */
 function float getRadianHeading(){
 	local Vector v;
 	local rotator r;
@@ -44,13 +56,16 @@ function float getRadianHeading(){
 	return f;
 }
 
+/**
+ * Gets the heading in degrees
+ */
 function float getDegreeHeading(){
 	local float f;
 
 	f = getRadianHeading();
 
 	f *= RadToDeg;
-	//`log("getDegreeHeading: " $ f);
+	`log("getDegreeHeading: " $ f);
 	return f;
 }
 

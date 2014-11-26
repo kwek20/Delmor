@@ -1,4 +1,4 @@
-class DELICompass extends Object;
+interface DELICompass;
 
 function int getYaw();
 function rotator getRotator();
