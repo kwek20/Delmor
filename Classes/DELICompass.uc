@@ -1,9 +1,9 @@
 interface DELICompass;
 
-function int getYaw();
-function rotator getRotator();
 function float getRadianHeading();
 function float getDegreeHeading();
+function int getYaw();
+function Rotator getRotator();
 function vector getVectorizedRotator();
 
 

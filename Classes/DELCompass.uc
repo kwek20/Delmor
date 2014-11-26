@@ -6,9 +6,6 @@ var(Movement) const rotator Rotation;
 
 event PostBeginPlay(){
 	super.PostBeginPlay();
-//	`log("=====",,'UTBook');
-//	`log("Compass Heading"@GetRadianHeading()@GetDegreeHeading(),,'UTBook');
-//	`log("=====",,'UTBook');
 	ConsoleCommand("DisableAllScreenMessages");
 }
 
@@ -65,13 +62,8 @@ function float getDegreeHeading(){
 	f = getRadianHeading();
 
 	f *= RadToDeg;
-	`log("getDegreeHeading: " $ f);
 	return f;
 }
-
-
-
-
 
 DefaultProperties
 {

@@ -1,7 +1,7 @@
-class DELPlayerHud extends UDKHUD
+class DELPlayerHud extends UDkHUD
 	config(game);
 
-//var array< DELInterface > interfaces;
+var array< DELInterface > interfaces;
 
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
@@ -21,11 +21,10 @@ simulated event PostBeginPlay() {
 	`log("HUD POST BEGIN");
 }
 
-
 function PlayerOwnerDied(){
-/*	local DELPlayerController PC;
+	local DELPlayerController PC;
     PC = getPlayer();
-	PC.gotoState('End');*/
+	PC.gotoState('End');
 }
 
 function DrawHUD() {
@@ -36,24 +35,32 @@ function DrawHUD() {
     MPosXMap = Canvas.OrgX + 30;
     MPosYMap = Canvas.OrgX + 30;
 }
-
-function PostRender(){
-//	local DELInterface interface;
-	super.PostRender();
-
-//	foreach interfaces(interface){
-	//	interface.draw(self);
-	//}
-}
-
-function log(String text){
-//	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
-}
 /*
 function DELPlayerController getPlayer(){
 	return DELPlayerController(PlayerOwner);
 }
 */
+/*-----------------------------------------------------------
+ * COMPASS
+ *-----------------------------------------------------------*/
+
+function PostRender(){
+	local DELInterface interface;
+	super.PostRender();
+
+	foreach interfaces(interface){
+		interface.draw(self);
+	}
+}
+
+function log(String text){
+	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
+}
+
+function DELPlayerController getPlayer(){
+	return DELPlayerController(PlayerOwner);
+}
+
 /*-----------------------------------------------------------
  * COMPASS
  *-----------------------------------------------------------*/
