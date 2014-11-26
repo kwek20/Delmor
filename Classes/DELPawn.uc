@@ -69,7 +69,8 @@ var float detectionRange;
  */
 var float regenerationTimer;
 
-var SkeletalMeshComponent Mesh;
+//var SkeletalMeshComponent Mesh;
+var array< class<Inventory> > DefaultInventory;
 
 
 /* ==========================================
@@ -106,6 +107,12 @@ simulated event PostBeginPlay(){
 	setCameraOffset( 0.0 , 0.0 , 44.0 );
 	SetMovementPhysics();
 	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
+	//Mesh.GetSocketByName("");
+	//Mesh.GetSocketByName(socketName);
+}
+
+function AddDefaultInventory()
+{
 }
 
 /**
@@ -212,9 +219,6 @@ DefaultProperties
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
 	regenerationTimer = 1.0;
-
-
-	
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0
