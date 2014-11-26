@@ -5,6 +5,11 @@
 class DELEasyMonsterController extends DELHostileController;
 
 /**
+ * The pawn will flock around a medium-monster if one is nearby. Which monster to flock around 
+ * is determined here.
+ */
+var DELMediumMonsterPawn flockTarget;
+/**
  * Pawns will try to be this close to one another.
  */
 var float maximumDistance;
@@ -39,6 +44,14 @@ function Vector cohesion(){
 
 			nMobs ++;
 		}
+	}
+
+	//Move slightly towards a medium monster pawn.
+	if ( flockTarget != none ){
+		totalVector.X += flockTarget.Location.X;
+		totalVector.Y += flockTarget.Location.Y;
+
+		nMobs ++;
 	}
 
 	//Create an average of the vector
@@ -105,6 +118,30 @@ private function bool monsterNearby(){
 }
 
 /**
+ * Gets a nearby MediumMonsterPawn, these will command the EasyMonsterPawns
+ * and it's smart to flock around these.
+ * @return DELMediumMonsterPawn when one is nearby else it will return none.
+ */
+private function DELMediumMonsterPawn getNearbyCommander(){
+	local float smallestDistance , distance;
+	local DELMediumMonsterController c;
+	local DELMediumMonsterPawn commander;
+
+	commander = none;
+	smallestDistance = maximumDistance;
+
+	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
+		distance = VSize( c.Pawn.Location - pawn.Location );
+		if ( distance < smallestDistance ){
+			commander = DELMediumMonsterPawn( c.Pawn );
+			smallestDistance = distance;
+		}
+	}
+
+	return commander;
+}
+
+/**
  * Returns true when the pawn is too close to another monster.
  */
 private function bool tooCloseToMonster(){
@@ -149,6 +186,8 @@ auto state Idle{
 
 		//Go to flocking state when there's another pawn nearby
 		if( monsterNearby() ){
+			//Find a commander
+			flockTarget = getNearbyCommander();
 			goToState( 'Flock' );
 		}
 	}
@@ -186,7 +225,6 @@ state Flock{
 
 DefaultProperties
 {
-	groupDistance = 1024.0
 	maximumDistance = 1024.0
 	minimumDistance = 128.0
 }

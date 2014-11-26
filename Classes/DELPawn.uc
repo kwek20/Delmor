@@ -105,6 +105,7 @@ simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , 44.0 );
+	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
 	//Mesh.GetSocketByName("");
@@ -159,9 +160,9 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	if ( bLookMode ){
 		self.SetRotation( newRotation );
 	}
-	//else{
-	//	Controller.SetRotation( newRotation );
-	//}
+	else{
+		Controller.SetRotation( newRotation );
+	}
 
     if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
     {

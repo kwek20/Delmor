@@ -39,7 +39,7 @@ state Attack{
 		 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 		 */
 		local vector adjustedLocation;
-		`log( self$" Target In Range" );
+		//`log( self$" Target In Range" );
 		//Don't attack while moving, set the pawn still.
 		stopPawn();
 
@@ -98,7 +98,8 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 	selfToPoint = adjustedLocation - Pawn.Location;
 
 	//Move Pawn
-	Pawn.velocity = Normal( selfToPoint ) * dPawn.walkingSpeed;
+	Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.walkingSpeed;
+	Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.walkingSpeed;
 	Pawn.setRotation( rotator( selfToPoint ) );
 	Pawn.move( Pawn.velocity * deltaTime );
 }
@@ -137,10 +138,10 @@ function bool targetIsAlive(){
  * Sets the controller's pawn still.
  */
 function stopPawn(){
-	`log( self$" Stop pawn" );
+	//www`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
-	Pawn.Velocity.Z = 0.0;
+	//Pawn.Velocity.Z = 0.0;
 }
 
 /**
