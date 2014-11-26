@@ -38,5 +38,5 @@ simulated function bool update();
 DefaultProperties
 {
 	CursorColor=(R=255,G=255,B=255,A=255)
-	CursorTexture=Texture2D'EngineResources.Cursors.Arrow'
+	CursorTexture=Texture2D'UDKHUD.cursor_png'
 }

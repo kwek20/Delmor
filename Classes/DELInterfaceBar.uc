@@ -1,4 +1,4 @@
-class DELInterfaceBar extends DELInterface;
+class DELInterfaceBar extends DELInterfaceInteractible;
 
 var int sqaureSize, inbetween, amountBars;
 

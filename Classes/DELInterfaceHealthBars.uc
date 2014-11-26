@@ -1,5 +1,7 @@
 class DELInterfaceHealthBars extends DELInterface;
 
+var() MaterialInstanceConstant bg; 
+
 var() int barSize;
 
 simulated function draw(DELPlayerHud hud){
@@ -15,6 +17,9 @@ simulated function draw(DELPlayerHud hud){
 	startX = 30;
 	startY = 15;
 
+	hud.Canvas.SetPos(0,0);
+	hud.Canvas.DrawMaterialTile(bg, 340, 128, 120);
+
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red
 	hud.Canvas.SetPos(startX, startY);   
 	hud.Canvas.DrawRect(length * (float(pawn.Health) / float(pawn.HealthMax)), barSize); 
@@ -28,5 +33,6 @@ simulated function draw(DELPlayerHud hud){
 
 DefaultProperties
 {
+	bg=MaterialInstanceConstant'MyPackage.BARS-HUD_Mat_INST'
 	barSize=30;
 }
