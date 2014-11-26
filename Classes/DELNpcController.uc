@@ -151,7 +151,7 @@ function bool targetIsTooFarAway(){
 
 	distanceToPawn = VSize( attackTarget.Location - Pawn.Location );
 
-	if( distanceToPawn > DELPawn( Pawn ).detectionRange ){
+	if( distanceToPawn > DELPawn( Pawn ).detectionRange && !pawn.LineOfSightTo( attackTarget ) ){
 		return true;
 	}
 	else{
