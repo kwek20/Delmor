@@ -105,6 +105,28 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 }
 
 /**
+ * Move the pawn in a certain direction.
+ * This direction will be calculated from a vector.
+ * NOTE: This function is to be used ONLY in the Tick-event!
+ * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
+ * @param deltaTime float   The deltaTime from the Tick-event
+ */
+function moveInDirection( vector to , float deltaTime ){
+	local rotator adjustedRotation;
+
+	//Adjust the rotation so that only the Yaw will be modified.
+	adjustedRotation.Pitch = Pawn.Rotation.Pitch;
+	adjustedRotation.Roll = Pawn.Rotation.Roll;
+	adjustedRotation.Yaw = rotator( to ).Yaw;
+
+	//Move Pawn
+	Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).walkingSpeed;
+	Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).walkingSpeed;
+	Pawn.setRotation( adjustedRotation  );
+	Pawn.move( Pawn.velocity * deltaTime );
+}
+
+/**
  * Checks whether a pawn is whitin the pawn's attack range.
  * Returns true when pawn is whitin range.
  * @param p DELPawn The pawn that should be whitin range.

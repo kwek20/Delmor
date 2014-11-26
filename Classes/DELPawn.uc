@@ -201,10 +201,10 @@ DefaultProperties
 	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
-	healthRegeneration = 0
+	healthRegeneration = 1
 	mana = 0
 	manaMax = 0
-	manaRegeneration = 0
+	manaRegeneration = 1
 	meleeRange = 100.0
 	physicalResistance = 0.0
 	magicResistance = 0.0
@@ -223,7 +223,7 @@ DefaultProperties
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
 	CollisionRadius = 32.0;
-	CollisionHeight = +44.0;
+	CollisionHeight = +22.0;
 	end object
 
 	//Mesh
@@ -237,7 +237,7 @@ DefaultProperties
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=-42.0)
+		Translation=(Z=-20.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
