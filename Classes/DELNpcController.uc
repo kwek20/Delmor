@@ -98,7 +98,8 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 	selfToPoint = adjustedLocation - Pawn.Location;
 
 	//Move Pawn
-	Pawn.velocity = Normal( selfToPoint ) * dPawn.walkingSpeed;
+	Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.walkingSpeed;
+	Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.walkingSpeed;
 	Pawn.setRotation( rotator( selfToPoint ) );
 	Pawn.move( Pawn.velocity * deltaTime );
 }
@@ -140,7 +141,7 @@ function stopPawn(){
 	//www`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
-	Pawn.Velocity.Z = 0.0;
+	//Pawn.Velocity.Z = 0.0;
 }
 
 /**

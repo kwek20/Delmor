@@ -31,7 +31,7 @@ simulated exec function moveForward(){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 0.0 );
-		Pawn.SetDesiredRotation( Rotator( camToPawn ) );
+		Pawn.SetRotation( Rotator( camToPawn ) );
 		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
@@ -57,6 +57,17 @@ simulated exec function moveLeft(){
 		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
+/**
+ * Move down in aspect to the camera.
+ */
+simulated exec function moveBackward(){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( -180.0 );
+		Pawn.SetRotation( Rotator( camToPawn ) );
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
 
 /**
  * Goes to state movingForward
@@ -78,6 +89,12 @@ exec function startMovingLeft(){
 exec function startMovingRight(){
 	goToState( 'movingRight' );
 }
+/**
+ * Goes to state movingBackward
+ */
+exec function startMovingBackward(){
+	goToState( 'movingBackward' );
+}
 
 /**
  * Calculates a vector based on the pawn's location and the player's camera's location.
@@ -86,19 +103,9 @@ exec function startMovingRight(){
 function vector cameraToPawn( float offSet ){
 	local vector camPositionPlusOffset;
 
-	`log( "Controller.rotation: "$Pawn.Controller.Rotation );
-	`log( "Offset: "$offset );
 	camPositionPlusOffset.X = Pawn.Location.X + lengthDirX( 80 , - ( Rotation.Yaw + offset * DegToUnrRot ) );
 	camPositionPlusOffset.Y = Pawn.Location.Y + lengthDirY( 80 , - ( Rotation.Yaw + offset * DegToUnrRot ) );
 	camPositionPlusOffset.Z = Pawn.Location.Z;
-
-	`log( "Pawn.location: "$Pawn.Location );
-	`log( "camPositionPlusOffset: "$camPositionPlusOffset );
-
-	FlushPersistentDebugLines();
-	DrawDebugLine( Pawn.Location, camPositionPlusOffset , 255 , 0 , 0  , true );
-	DrawDebugSphere( Pawn.location , 8 , 8 , 255 , 0 , 0 , true );
-	DrawDebugSphere( camPositionPlusOffset , 8 , 8 , 0 , 0 , 255 , true );
 
 	return camPositionPlusOffset - Pawn.location;
 }
@@ -199,6 +206,11 @@ state movingForward{
 		moveForward();
 	}
 }
+state movingBackward{
+	event tick( float deltaTime ){
+		moveBackward();
+	}
+}
 
 state movingLeft{
 	event tick( float deltaTime ){
@@ -221,7 +233,8 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0" );
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0" );
-		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0" );
+		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | startMovingForward | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
 	} else {
