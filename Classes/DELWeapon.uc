@@ -2,7 +2,7 @@
  * Weapon to be used in Delmor.
  * @author Harmen Wiersma
  */
-class DELWeapon extends UTWeapon;
+class DELWeapon extends UDKWeapon;
 /**
  * Minimal damage to deal on hit.
  * Damage dealt will be between DamageMin.

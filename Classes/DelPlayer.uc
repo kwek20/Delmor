@@ -10,23 +10,21 @@ simulated function bool IsFirstPerson(){
 
 function AddDefaultInventory()
 {
-	//sword = Spawn(Class 'DELMeleeWeapon');
-	sword = Spawn(Class 'UTWeap_LinkGun');
-	self.InvManager.DiscardInventory();
-	self.InvManager.AddInventory(sword);
-	`log("Weapon added to pawn");
+	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
+	sword.GiveTo(Controller.Pawn);
+	sword.bCanThrow = false; // don't allow default weapon to be thrown out
+	Controller.ClientSwitchToBestWeapon();
 }
 
 
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
-
-
-	`log("IK BEN GEBIN. mijn taak is het uimoorden van het menselijk ras");
+	AddDefaultInventory();
 }
 
 DefaultProperties
 {
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
+	bCanBeBaseForPawn=true
 }

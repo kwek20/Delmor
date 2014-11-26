@@ -16,7 +16,6 @@ simulated state Swinging{
 	}
 	simulated event BeginState(Name NextStateName){
 		`log("Swing that mothafucka");
-		`log(GetHand());
 	}
 	
 	simulated event EndState(Name NextStateName)
@@ -31,9 +30,32 @@ function ResetSwings()
 	RestoreAmmo(MaxSwings);
 }
 
+simulated function TimeWeaponEquipping(){
+    super.TimeWeaponEquipping();
+    AttachWeaponTo( instigator.Mesh,'WeaponPoint' );
+}
+ 
+simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName ){
+    MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
+}
 
-simulated function TraceSwing()
-{
+simulated event SetPosition(UDKPawn Holder){
+    local SkeletalMeshComponent compo;
+    local SkeletalMeshSocket socket;
+    local Vector FinalLocation;
+ 
+    compo = Holder.Mesh;
+    if (compo != none){
+        socket = compo.GetSocketByName('WeaponPoint');
+        if (socket != none){
+            FinalLocation = compo.GetBoneLocation(socket.BoneName);
+        }
+    } //And we probably should do something similar for the rotation <img src="http://www.moug-portfolio.info/wp-includes/images/smilies/icon_smile.gif" alt=":)" class="wp-smiley"> 
+ 
+    SetLocation(FinalLocation);
+}
+
+simulated function TraceSwing(){
 	local Actor HitActor;
 	local Vector HitLoc, HitNorm, SwordTip, SwordHilt, Momentum;
 	local int DamageAmount;
@@ -146,6 +168,7 @@ simulated function FireAmmunition()
 }
 DefaultProperties
 {
+	bHardAttach = true
 	swordHiltSocketName = swordHiltSocket
 	swordTipSocketName = swordTipSocket
 
@@ -158,21 +181,23 @@ DefaultProperties
 	bMeleeWeapon=true;
 	bInstantHit=true;
 	bCanThrow=false;
-	bInvisible=false;
+	bInvisible=true;
 	FiringStatesArray(0)="Swinging"
 
 	WeaponFireTypes(0)=EWFT_Custom
 
-	Begin Object Name=FirstPersonMesh
+	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
         FOV=60
+		HiddenGame=FALSE
+        HiddenEditor=FALSE
         //Animations=MeshSequenceA
         //AnimSets(0)=AnimSet'CastersSwordPackage.Sword.AnimSetSword'
         bForceUpdateAttachmentsInTick=True
         Scale=0.9000000
-    End Object
+	End Object
+    Mesh=MeleeWeapon
+	
+    Components.Add(MeleeWeapon)
 
-    Begin Object Name=PickupMesh
-        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
-    End Object
 }
