@@ -2,7 +2,7 @@
  * @autor Bram
  * Pawn class for the hard enemy
  */
-class DELHardMonsterPawn extends DelCharacterPawn
+class DELHardMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
 

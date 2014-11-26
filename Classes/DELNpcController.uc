@@ -3,7 +3,7 @@
  * ALL NPCControllers SHOULD BE EXTENDED FROM THIS ONE!
  * @author Anders Egberts
  */
-class DELNpcController extends AIController;
+class DELNpcController extends DELCharacterController;
 
 /**
  * When in attack-state. The pawn should strive to attack this pawn.

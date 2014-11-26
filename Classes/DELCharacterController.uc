@@ -1,4 +1,4 @@
-class DELCharacterController extends Controller;
+class DELCharacterController extends AIController;
 
 DefaultProperties
 {
