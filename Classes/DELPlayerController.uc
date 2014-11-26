@@ -130,7 +130,7 @@ function UpdateRotation(float DeltaTime)
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
 	pitchClampMax = -10000.0;
-	pitchClampMin = -00.0;
+	pitchClampMin = -250.0;
 
     //super.UpdateRotation(DeltaTime);
 
