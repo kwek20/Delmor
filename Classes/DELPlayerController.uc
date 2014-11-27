@@ -13,7 +13,6 @@ var SoundCue soundSample;
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 var() private string subtitle;
 var() int subtitleTime, currentTime;
-
 /*##########
  * STATES
  #########*/
@@ -115,6 +114,7 @@ public function showSubtitle(string text){
  ###############*/
 
 simulated function PostBeginPlay() {
+	
 	super.PostBeginPlay();
 }
 

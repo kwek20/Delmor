@@ -69,6 +69,9 @@ var float detectionRange;
  */
 var float regenerationTimer;
 
+var array< class<Inventory> > DefaultInventory;
+
+
 
 /* ==========================================
  * Camera stuff
@@ -211,6 +214,8 @@ DefaultProperties
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
 	regenerationTimer = 1.0;
+
+
 	
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
