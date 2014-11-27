@@ -9,8 +9,8 @@ function InitGame( string Options, out string ErrorMessage )
 	Super.InitGame(Options,ErrorMessage);
 	
 	foreach AllActors(class'Delmor.DELMinimap',ThisMinimap){
-	GameMinimap = ThisMinimap;
-	break;
+		GameMinimap = ThisMinimap;
+		break;
 	}
 	
 }

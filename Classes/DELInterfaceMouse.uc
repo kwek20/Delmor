@@ -6,11 +6,7 @@ var const Texture2D CursorTexture;
 var const Color CursorColor;
 
 simulated function load(DELPlayerHud hud){
-	local DELPlayerInput MIPU;
-	MIPU = DELPlayerInput(hud.PlayerOwner.PlayerInput); 
-
-	`log(hud.centerX @ hud.centerY);
-	MIPU.setMousePos(hud.centerX, hud.centerY);
+	DELPlayerInput(hud.PlayerOwner.PlayerInput).setMousePos(hud.centerX, hud.centerY);
 }
 
 /**

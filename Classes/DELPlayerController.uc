@@ -6,7 +6,7 @@
  * 
  * @author Anders Egberts.
  */
-class DELPlayerController extends PlayerController
+class DELPlayerController extends PlayerController dependson(DELInterface)
 	config(Game);
 
 var SoundCue soundSample; 
@@ -42,14 +42,12 @@ Begin:
 }
 
 state MouseState {
-	function UpdateRotation(float DeltaTime){
-		//draw mouse
-	}
+	function UpdateRotation(float DeltaTime);
 
 	function load(){
 		canWalk=false;
 		drawDefaultHud=true;
-		addInterface(class'DELInterfaceMouse');
+		addInterfacePriority(class'DELInterfaceMouse', HIGH);
 	}
 }
 
@@ -76,7 +74,7 @@ function swapState(name StateName){
 		if (StateName == 'Playing') return;
 		StateName = 'Playing';
 	}
-	getHud().interfaces.Length = 0;
+	getHud().clearInterfaces();
 	ClientGotoState(StateName);
 }
 
@@ -90,6 +88,18 @@ exec function openInventory(){
 
 exec function closeHud(){
 	swapState('Playing');
+}
+
+public function onNumberPress(int key){
+	local DELinterface interface;
+	local array<DELInterface> interfaces;
+
+	interfaces = getHud().getInterfaces();
+	foreach interfaces(interface){
+		if (DELInterfaceInteractible(interface) != None){
+			DELInterfaceInteractible(interface).onKeyPress(getHud(), key);
+		}
+	}
 }
 
 /*################
@@ -113,13 +123,17 @@ function checkHuds(){
 }
 
 function addInterface(class<DELInterface> interface){
+	addInterfacePriority(interface, NORMAL);
+}
+
+function addInterfacePriority(class<DELInterface> interface, EPriority priority){
 	local DELInterface delinterface;
 
 	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
 	`log("Added interface"@interface);
 	
 	delinterface = Spawn(interface, self);
-	getHud().interfaces.AddItem(delinterface);
+	getHud().addInterface(delinterface, priority);
 	delinterface.load(getHud());
 }
 

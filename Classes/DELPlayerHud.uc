@@ -1,7 +1,16 @@
 class DELPlayerHud extends UDkHUD
 	config(game);
 
-var array< DELInterface > interfaces;
+struct InterFaceItem {
+	var DELInterface interface;
+	var EPriority priority;
+};
+
+/**
+ * array of interfaces with load order. 
+ * First is lowest, last is highest
+ */
+var() PrivateWrite array< InterFaceItem > interfaces;
 
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
@@ -20,6 +29,34 @@ simulated event PostBeginPlay() {
 	//GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
 
+function addInterface(DELInterface interface, EPriority priority){
+	local InterFaceItem interf, newItem;
+	local int i;
+
+	i=0;
+	`log(priority);
+	foreach interfaces(interf){
+		`log(interf.priority);
+		//if (interf.priority >= priority.value) break;
+		i++;
+	}   
+	newItem.interface = interface;
+	newItem.priority = priority;
+	interfaces.insertItem(i, newItem);
+}
+
+function clearInterfaces(){
+	interfaces.Length = 0;
+}
+
+function array<DELInterface> getInterfaces(){
+	local array<DELInterface> interfaceArray;
+	local InterFaceItem item;
+	foreach interfaces(item){
+		interfaceArray.AddItem(item.interface);
+	}
+	return interfaceArray;
+}
 
 function PlayerOwnerDied(){
 	local DELPlayerController PC;
@@ -27,21 +64,12 @@ function PlayerOwnerDied(){
 	PC.gotoState('End');
 }
 
-function DrawHUD() {
-   super.DrawHUD();    
-   //drawCrossHair();
-   //drawHealthBar();
-	//DrawCompass();
-    //MPosXMap = Canvas.OrgX + 30;
-    //MPosYMap = Canvas.ClipY/1.6;
-}
-
 function PostRender(){
-	local DELInterface interface;
+	local InterFaceItem interface;
 	super.PostRender();
 
 	foreach interfaces(interface){
-		interface.draw(self);
+		interface.interface.draw(self);
 	}
 }
 

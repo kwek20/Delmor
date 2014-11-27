@@ -6,6 +6,11 @@ class DELInterface extends Actor
 	config(Game)
 	abstract;
 
+enum EPriority {
+  HIGHEST<value=5>, HIGH<value=4>, NORMAL<value=3>, LOW<value=2>, LOWEST<value=1>
+};
+
+
 /**
  * Load method gets called upon adding a new DELInterface
  */

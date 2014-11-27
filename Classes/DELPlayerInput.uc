@@ -27,6 +27,8 @@ simulated exec function turnLeft(){
 	}
 }
 
+
+
 /**
  * Turns the player's pawn right if not in look mode.
  * 
@@ -94,6 +96,10 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
+exec function numberPress(name inKey){
+	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
@@ -105,6 +111,8 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
+
+		setKeyBinding('one', "numberPress 1");
 	} else {
 		setKeyBinding(inKey, inCommand);
 	}
