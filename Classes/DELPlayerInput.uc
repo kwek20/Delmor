@@ -91,9 +91,13 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
+
 /**
  * Sets all keybindings for Delmor.
  */
+//Right mouse button = magix
+//1,2,3 switch magic spells
+
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	`log( "Set bindings" );
 	if(!change) {
@@ -102,6 +106,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
+
 	} else {
 		setKeyBinding(inKey, inCommand);
 	}
