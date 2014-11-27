@@ -5,7 +5,7 @@ class DELPlayerInput extends PlayerInput;
  */
 var float defaultRotationSpeed;
 var float pawnRotationSpeed;
-
+var bool isPaused;
 simulated event postBeginPlay(){
 	//super.PostBeginPlay();
 	`log("### Post begin play. PlayerInput: "$self );
@@ -91,6 +91,32 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
+exec function startSprint() {
+	DelPlayer(Pawn).StartSprint();
+}
+
+exec function stopSprint(){
+	DelPlayer(Pawn).StopSprint();
+}
+/*
+exec function togglePause(){
+	if(isPaused == false){
+	SetPause(true);
+
+	openInventory();
+	isPaused = !isPaused;
+	}
+	else if(isPaused==true)
+	{
+		SetPause(false);
+		isPaused = !isPaused;
+		closeHud();
+	}
+}*/
+
+exec function blockInput(){
+//blockblockblock
+}
 
 /**
  * Sets all keybindings for Delmor.
@@ -106,6 +132,11 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
+		setKeyBinding('LeftShift', "startSprint | onrelease stopSprint");
+		setKeyBinding('F', "blockInput");
+		setKeyBinding('E', "blockInput");
+		setKeyBinding('LeftControl', "blockInput");
+		setKeyBinding('Spacebar', "blockInput");
 
 	} else {
 		setKeyBinding(inKey, inCommand);

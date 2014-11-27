@@ -133,23 +133,13 @@ function DrawCompass(){
 	`log("MAPPOSY: "$ MapPosition.Y);
 	`log("resoscale: "$ResolutionScale);*/
 	MapDim = MapDim * ResolutionScale;
-/*
-	PlayerPos.X = (GetALocalPlayerController().Pawn.Location.Y - GameMinimap.MapCenter.Y) / ActualMapRange;
-	PlayerPos.Y = (GameMinimap.MapCenter.X - GetALocalPlayerController().Pawn.Location.X) / ActualMapRange;
-	*//*`log("MAPDIM " $ MapDim);
+/*  `log("MAPDIM " $ MapDim);
 	`log("DPC.Pawn.Location.Y " $ GetALocalPlayerController().Pawn.Location.Y);
 	`log("ActualMapRange: " $ ActualMapRange);
 	`log("PlayerposX " $PlayerPos.X);
 	`log("PlayerposY " $PlayerPos.Y);*/
-/*
-	ClampedPlayerPos.X = FClamp(   PlayerPos.X,
-            -0.5 + (TileSize / 2.0),
-            0.5 - (TileSize / 2.0));
-	ClampedPlayerPos.Y = FClamp(   PlayerPos.Y,
-            -0.5 + (TileSize / 2.0),
-            0.5 - (TileSize / 2.0));*/
-/*
-	`log("ClampedPlayerPos.X: "$ ClampedPlayerPos.X);
+
+/*	`log("ClampedPlayerPos.X: "$ ClampedPlayerPos.X);
 	`log("ClampedPlayerPos.Y: "$ ClampedPlayerPos.Y);*/
 	TrueNorth = GameMinimap.GetRadianHeading();
 	Playerheading = GetPlayerHeading();
@@ -168,38 +158,7 @@ function DrawCompass(){
 		//`log("Maprotation" $ MapRotation);
 		CompassRotation = MapRotation;
 		//`log("CompassRotation"$ CompassRotation);
-	}/*
-	DisplayPlayerPos.X = VSize(PlayerPos) * Cos( ATan(PlayerPos.X) - MapRotation);
-	DisplayPlayerPos.Y = VSize(PlayerPos) * Sin( ATan(PlayerPos.Y) - MapRotation);
-  */
-//	`log("DIsplayplayerPos.X: "$DisplayPlayerPos.X);
-//	`log("DIsplayplayerPos.Y: "$DisplayPlayerPos.Y);
-/*
-	RotPlayerPos.X = VSize(ClampedPlayerPos) * Cos( ATan2(ClampedPlayerPos.Y, ClampedPlayerPos.X) - MapRotation);
-	RotPlayerPos.Y = VSize(ClampedPlayerPos) * Sin( ATan2(ClampedPlayerPos.Y, ClampedPlayerPos.X) - MapRotation);
-*/
-//	`log("RotPlayerPos.X: " $ RotPlayerPos.X);
-//	`log("RotPlayerPos.Y: "$ RotPlayerPos.Y);
-/*
-	StartPos.X = FClamp(RotPlayerPos.X + (0.5 - (TileSize / 2.0)),0.0,1.0 - TileSize);
-	StartPos.Y = FClamp(RotPlayerPos.Y + (0.5 - (TileSize / 2.0)),0.0,1.0 - TileSize);
-	StartPos.X = FClamp(DisplayPlayerPos.X + (0.5 - (TileSize / 2.0)),TileSize/-2,1.0 - TileSize/2);
-    StartPos.Y = FClamp(DisplayPlayerPos.Y + (0.5 - (TileSize / 2.0)),TileSize/-2,1.0 - TileSize/2);
-*/
-	//`log("StartPos.Y: " $ StartPos.Y);
-	//`log("Startpos.X: "$ StartPos.X);
-/*
-	MapOffset.R =  FClamp(-1.0 * RotPlayerPos.X,
-          -0.5 + (TileSize / 2.0),
-          0.5 - (TileSize / 2.0));
-	//`log("Mapoffset.R: "$ MapOffset.R );
-	MapOffset.G =  FClamp(-1.0 * RotPlayerPos.Y,
-          -0.5 + (TileSize / 2.0),
-          0.5 - (TileSize / 2.0));
-	MapOffset.R =  FClamp(-1.0 * DisplayPlayerPos.X,-0.5,0.5);
-	MapOffset.G =  FClamp(-1.0 * DisplayPlayerPos.Y,-0.5,0.5);*/
-	//`log("Mapoffset.G: "$ MapOffset.G );
-	//`log("Tilesize "$ TileSize);
+	}
 	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
 	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
 	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
@@ -209,8 +168,7 @@ function DrawCompass(){
             MapDim,
             MapDim,
             0.0,0.0,1.0,1.0);
-	//Canvas.SetPos(MapPosition.X + MapDim * (((DisplayPlayerPos.X + 0.5) - StartPos.X) / TileSize) - (BoxSize / 2),MapPosition.Y + MapDim * (((DisplayPlayerPos.Y + 0.5) - StartPos.Y) / TileSize) - (BoxSize / 2));
-	//Canvas.DrawBox(BoxSize,BoxSize);
+
 
 	Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
