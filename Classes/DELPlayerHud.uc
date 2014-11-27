@@ -17,8 +17,7 @@ var float MPosYMap;
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
 
-	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
-	`log("HUD POST BEGIN");
+	//GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
 
 
@@ -32,9 +31,9 @@ function DrawHUD() {
    super.DrawHUD();    
    //drawCrossHair();
    //drawHealthBar();
-	DrawCompass();
-    MPosXMap = Canvas.OrgX + 30;
-    MPosYMap = Canvas.ClipY/1.6;
+	//DrawCompass();
+    //MPosXMap = Canvas.OrgX + 30;
+    //MPosYMap = Canvas.ClipY/1.6;
 }
 
 function PostRender(){
@@ -57,7 +56,7 @@ function DELPlayerController getPlayer(){
 /*-----------------------------------------------------------
  * COMPASS
  *-----------------------------------------------------------*/
-
+/*
 function float getRadianHeading(){
 	local Vector v;
 	local rotator r;
@@ -201,7 +200,7 @@ function DrawCompass(){
 	Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
 }
-
+*/
 
 defaultproperties 
 {

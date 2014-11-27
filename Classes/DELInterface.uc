@@ -7,15 +7,20 @@ class DELInterface extends Actor
 	abstract;
 
 /**
+ * Load method gets called upon adding a new DELInterface
+ */
+function load(DELPlayerHud hud);
+
+/**
  * Redraws the canvas objects for this Interface.
  */
-simulated function draw(DELPlayerHud hud);
+function draw(DELPlayerHud hud);
 
 /**
  * Lets this interface check on its own for updates.<br/>
  * When update returns true, draw(Canvas) will be called.
  */
-simulated function bool update();
+function bool update();
 
 DefaultProperties
 {

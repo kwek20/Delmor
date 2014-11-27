@@ -23,7 +23,7 @@ function BeginState(Name PreviousStateName){
 	self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 }
 
-auto state PlayerWaiting {
+auto state PlayerWalking {
 Begin:
       gotoState('Playing');
 }
@@ -113,9 +113,14 @@ function checkHuds(){
 }
 
 function addInterface(class<DELInterface> interface){
+	local DELInterface delinterface;
+
 	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
 	`log("Added interface"@interface);
-	getHud().interfaces.AddItem(Spawn(interface, self));
+	
+	delinterface = Spawn(interface, self);
+	getHud().interfaces.AddItem(delinterface);
+	delinterface.load(getHud());
 }
 
 public function showSubtitle(string text){

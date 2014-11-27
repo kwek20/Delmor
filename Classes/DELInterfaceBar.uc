@@ -1,6 +1,6 @@
 class DELInterfaceBar extends DELInterfaceInteractible;
 
-var int sqaureSize, inbetween, amountBars;
+var int squareSize, inbetween, amountBars;
 
 simulated function draw(DELPlayerHud hud){
 	local int length, startX, startY, i;
@@ -11,26 +11,26 @@ simulated function draw(DELPlayerHud hud){
 	
 
 	//hud.Canvas.Font = class'Engine'.static.GetLargeFont();   
-	length = 5*sqaureSize + 6*inbetween;
+	length = 5*squareSize + 6*inbetween;
 	startX = hud.sizeX/2 - length/2;
-	startY = hud.sizeY - sqaureSize*1.5;
+	startY = hud.sizeY - squareSize*1.5;
 
 	hud.Canvas.SetDrawColor(0, 0, 0); // black
 	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawRect(length, sqaureSize+inbetween*2); 
+	hud.Canvas.DrawRect(length, squareSize+inbetween*2); 
 
 	hud.Canvas.SetDrawColor(20, 20, 20); // grey
 	startY+=inbetween;
 
 	for (i=1; i<=amountBars; i++){
-		hud.Canvas.SetPos(startX + i*inbetween + (i-1)*sqaureSize, startY);   
-		hud.Canvas.DrawRect(sqaureSize, sqaureSize); 
+		hud.Canvas.SetPos(startX + i*inbetween + (i-1)*squareSize, startY);   
+		hud.Canvas.DrawRect(squareSize, squareSize); 
 	}
 }
 
 DefaultProperties
 {
-	sqaureSize=40
+	squareSize=40
 	inbetween=5;
 	amountBars=5;
 }
