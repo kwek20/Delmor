@@ -20,7 +20,6 @@ class DELPawn extends UTPawn;
  */
 
 
-
 /**
  * How much health the pawn will regain each second.
  */
@@ -71,8 +70,6 @@ var float regenerationTimer;
 
 var array< class<Inventory> > DefaultInventory;
 
-
-
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -108,6 +105,12 @@ simulated event PostBeginPlay(){
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
+	//Mesh.GetSocketByName("");
+	//Mesh.GetSocketByName(socketName);
+}
+
+function AddDefaultInventory()
+{
 }
 
 /**
@@ -214,9 +217,6 @@ DefaultProperties
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
 	regenerationTimer = 1.0;
-
-
-	
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0

@@ -3,7 +3,6 @@ class DELPlayer extends DELCharacterPawn;
 var array< class<Inventory> > DefaultInventory;
 var Weapon sword;
 
-
 simulated function bool IsFirstPerson(){
 	return false;
 }
@@ -26,5 +25,6 @@ simulated event PostBeginPlay()
 DefaultProperties
 {
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
+	meleeArcheType = DELMeleeWeapon'Delmor_weapons.DelMeleeWeaponArcheType'
 	bCanBeBaseForPawn=true
 }

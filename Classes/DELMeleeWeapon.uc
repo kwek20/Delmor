@@ -30,12 +30,14 @@ function ResetSwings()
 	RestoreAmmo(MaxSwings);
 }
 
-simulated function TimeWeaponEquipping(){
+simulated function TimeWeaponEquipping()
+{
     super.TimeWeaponEquipping();
-    AttachWeaponTo( instigator.Mesh,'WeaponPoint' );
+    AttachWeaponTo( Instigator.Mesh,'WeaponPoint' );
 }
  
-simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName ){
+simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
+{
     MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
 }
 
@@ -199,5 +201,4 @@ DefaultProperties
     Mesh=MeleeWeapon
 	
     Components.Add(MeleeWeapon)
-
 }
