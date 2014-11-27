@@ -5,16 +5,24 @@ var const Texture2D CursorTexture;
 // The color of the cursor
 var const Color CursorColor;
 
+simulated function load(DELPlayerHud hud){
+	local DELPlayerInput MIPU;
+	MIPU = DELPlayerInput(hud.PlayerOwner.PlayerInput); 
+
+	`log(hud.centerX @ hud.centerY);
+	MIPU.setMousePos(hud.centerX, hud.centerY);
+}
+
 /**
  * Redraws the canvas objects for this Interface.
  */
 simulated function draw(DELPlayerHud hud){
-	local DELMouseInterfacePlayerInput MouseInterfacePlayerInput;
+	local DELPlayerInput MouseInterfacePlayerInput;
 
 	// Ensure that we have a valid PlayerOwner and CursorTexture
 	if (hud.PlayerOwner != None /*&& CursorTexture != None*/) {
 		// Cast to get the MouseInterfacePlayerInput
-		MouseInterfacePlayerInput = DELMouseInterfacePlayerInput(hud.PlayerOwner.PlayerInput); 
+		MouseInterfacePlayerInput = DELPlayerInput(hud.PlayerOwner.PlayerInput); 
 
 		if (MouseInterfacePlayerInput != None){
 			// Set the canvas position to the mouse position

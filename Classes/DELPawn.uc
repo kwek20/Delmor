@@ -154,12 +154,12 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	newRotation.Yaw = targetRotation.Yaw;
 
 	//If in look mode, rotate the pawn according to the camera's rotation
-	if ( bLookMode ){
-		self.SetRotation( newRotation );
-	}
-	else{
+	//if ( bLookMode ){
+	//	self.SetRotation( newRotation );
+	//}
+	//else{
 		Controller.SetRotation( newRotation );
-	}
+	//}
 
     if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
     {

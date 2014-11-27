@@ -22,7 +22,7 @@ function BeginState(Name PreviousStateName){
 	self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 }
 
-auto state PlayerWaiting {
+auto state PlayerWalking {
 Begin:
       gotoState('Playing');
 }
@@ -112,9 +112,14 @@ function checkHuds(){
 }
 
 function addInterface(class<DELInterface> interface){
+	local DELInterface delinterface;
+
 	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
 	`log("Added interface"@interface);
-	getHud().interfaces.AddItem(Spawn(interface, self));
+	
+	delinterface = Spawn(interface, self);
+	getHud().interfaces.AddItem(delinterface);
+	delinterface.load(getHud());
 }
 
 public function showSubtitle(string text){
@@ -142,8 +147,8 @@ function UpdateRotation(float DeltaTime)
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
-	pitchClampMax = -10000.0;
-	pitchClampMin = -250.0;
+	pitchClampMax = -15000.0;
+	pitchClampMin = 2000.0;
 
     //super.UpdateRotation(DeltaTime);
 

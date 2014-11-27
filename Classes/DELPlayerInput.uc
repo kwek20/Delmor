@@ -5,11 +5,21 @@ class DELPlayerInput extends PlayerInput;
  */
 var float defaultRotationSpeed;
 var float pawnRotationSpeed;
+/**
+ * An instance of DELmath. This instance will later be used to execute various mathematical functions.
+ */
+var DELMath math;
+
+// Stored mouse position. Set to private write as we don't want other classes to modify it, but still allow other classes to access it.
+var PrivateWrite IntPoint MousePosition; 
 
 simulated event postBeginPlay(){
 	//super.PostBeginPlay();
 	`log("### Post begin play. PlayerInput: "$self );
 	setBindings();
+	`log( ">>>>>>>>>>>>>>>>>>>>> Spawn DELMath" );
+	math = spawn( class'DELMath' );
+	`log( "math: "$math );
 }
 
 /**
@@ -31,7 +41,10 @@ simulated exec function moveForward(){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 0.0 );
-		Pawn.SetRotation( Rotator( camToPawn ) );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
@@ -42,7 +55,10 @@ simulated exec function moveRight(){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 90.0 );
-		Pawn.SetRotation( Rotator( camToPawn ) );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
@@ -53,7 +69,10 @@ simulated exec function moveLeft(){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -90.0 );
-		Pawn.SetRotation( Rotator( camToPawn ) );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
@@ -64,10 +83,19 @@ simulated exec function moveBackward(){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -180.0 );
-		Pawn.SetRotation( Rotator( camToPawn ) );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
+
+/*
+ * ========================================
+ * Start moving function.
+ * ========================================
+ */
 
 /**
  * Goes to state movingForward
@@ -94,6 +122,36 @@ exec function startMovingRight(){
  */
 exec function startMovingBackward(){
 	goToState( 'movingBackward' );
+}
+
+/**
+ * This function should rotate the playerinput's pawn along the yaw-axis to the target-yaw.
+ * @param targetYaw	    int The targetYaw in unrealDegrees.
+ * @param rotationSpeed int The number of unrealdegrees to rotate per tick.
+ */
+function rotatePawnToDirection( int targetYaw , int rotationSpeed ){
+	local int yaw;
+	local rotator newRotation;
+
+	//Spawn a math
+	if ( math == none ){
+		math = spawn( class'DELMath' );
+	}
+
+	yaw = pawn.Rotation.Yaw;
+
+	if ( yaw < targetYaw - rotationSpeed || yaw > targetYaw + rotationSpeed ){
+        yaw += math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed;
+	}
+    else{
+        yaw = targetYaw;
+    }
+
+	newRotation.Pitch = pawn.Rotation.Pitch;
+	newRotation.Roll = pawn.Rotation.Roll;
+	newRotation.Yaw = yaw;
+
+	pawn.SetRotation( newRotation );
 }
 
 /**
@@ -191,6 +249,7 @@ exec function startLookMode(){
  */
 exec function endLookMode(){
 	DELPawn( Pawn ).bLookMode = false;
+	//goToState( 'idle' );
 }
 
 exec function openInventory() {
@@ -205,10 +264,22 @@ state movingForward{
 	event tick( float deltaTime ){
 		moveForward();
 	}
+	/**
+	 * Exits the movingForward state.
+	 */
+	exec function stopMovingForward(){
+		goToState( 'idle' );
+	}
 }
 state movingBackward{
 	event tick( float deltaTime ){
 		moveBackward();
+	}
+	/**
+	 * Exits the movingBackward state.
+	 */
+	exec function stopMovingBackward(){
+		goToState( 'idle' );
 	}
 }
 
@@ -216,11 +287,23 @@ state movingLeft{
 	event tick( float deltaTime ){
 		moveLeft();
 	}
+	/**
+	 * Exits the movingLeft state.
+	 */
+	exec function stopMovingLeft(){
+		goToState( 'idle' );
+	}
 }
 
 state movingRight{
 	event tick( float deltaTime ){
 		moveRight();
+	}
+	/**
+	 * Exits the movingRight state.
+	 */
+	exec function stopMovingRight(){
+		goToState( 'idle' );
 	}
 }
 
@@ -230,17 +313,38 @@ state movingRight{
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	`log( "Set bindings" );
 	if(!change) {
-		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0" );
-		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0" );
-		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0" );
-		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0" );
-		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | startMovingForward | OnRelease EndLookMode" );
+		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMovingForward" );
+		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
+		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
+		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
 	} else {
 		setKeyBinding(inKey, inCommand);
 	}
 }
+
+function setMousePos(int x, int y){
+	// Add the aMouseX to the mouse position and clamp it within the viewport width
+    MousePosition.X = Clamp(x, 0, myHUD.SizeX); 
+    // Add the aMouseY to the mouse position and clamp it within the viewport height
+    MousePosition.Y = Clamp(y, 0, myHUD.SizeY); 
+}
+
+event PlayerInput(float DeltaTime){
+  // Handle mouse 
+  // Ensure we have a valid HUD
+  if (myHUD != None) {
+    // Add the aMouseX to the mouse position and clamp it within the viewport width
+    MousePosition.X = Clamp(MousePosition.X + aMouseX, 0, myHUD.SizeX); 
+    // Add the aMouseY to the mouse position and clamp it within the viewport height
+    MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
+  }
+
+  Super.PlayerInput(DeltaTime);
+}
+
 /**
  * Set a specific keybinding.
  */
