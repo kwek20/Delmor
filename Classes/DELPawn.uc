@@ -241,6 +241,7 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
+
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
 }

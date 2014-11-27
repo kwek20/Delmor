@@ -60,5 +60,5 @@ function engagePlayer( Pawn p ){
 
 DefaultProperties
 {
-	alertDistance = 1024.0
+	alertDistance = 1920.0
 }
