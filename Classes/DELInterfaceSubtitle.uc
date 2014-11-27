@@ -13,7 +13,7 @@ simulated function draw(DELPlayerHud hud){
 	hud.Canvas.TextSize(message, Xstring, Ystring);
 
 	X = hud.CenterX - (Xstring/2);
-	Y = hud.SizeY/10*9;
+	Y = hud.SizeY/10*8.8;
 	
 	hud.Canvas.SetPos(X, Y);
 	hud.Canvas.SetDrawColor(0, 0, 0, 120);

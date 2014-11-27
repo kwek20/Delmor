@@ -23,12 +23,14 @@ function BeginState(Name PreviousStateName){
 }
 
 auto state PlayerWaiting {
-
 Begin:
       gotoState('Playing');
 }
 
 state Playing extends PlayerWalking{
+	function BeginState(Name PreviousStateName){
+		self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
+	}
 
 Begin:
 	canWalk = true;
@@ -38,32 +40,43 @@ Begin:
 	checkHuds();
 }
 
-state End {
+state MouseState {
+	function UpdateRotation(float DeltaTime){
+		//draw mouse
+	}
+
+	function load(){
+		canWalk=false;
+		drawDefaultHud=true;
+		addInterface(class'DELInterfaceMouse');
+	}
+}
+
+state End extends MouseState{
 
 Begin:
-	canWalk = false;
-	drawDefaultHud = false;
+	load();
 	drawBars = false;
 	drawSubtitles = true;
 	checkHuds();
 }
 
-state Inventory {
+state Inventory extends MouseState{
 
  Begin:
-	canWalk = false;
-	drawDefaultHud = false;
-	drawBars = false;
+	load();
+	drawBars = true;
 	drawSubtitles = true;
 	checkHuds();
 }
 
 function swapState(name StateName){
 	if (StateName == GetStateName()) {
-		gotoState('Playing');
-	} else {
-		gotoState(StateName);
+		if (StateName == 'Playing') return;
+		StateName = 'Playing';
 	}
+	getHud().interfaces.Length = 0;
+	ClientGotoState(StateName);
 }
 
 /*#####################
@@ -85,9 +98,8 @@ exec function closeHud(){
 function checkHuds(){
 	if (getHud() == None)return;
 
-	getHud().interfaces.Length = 0;
 	if (drawDefaultHud){
-		//addInterface(class'DELInterfaceSpells');
+		addInterface(class'DELInterfaceBar');
 		//addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
@@ -100,7 +112,8 @@ function checkHuds(){
 }
 
 function addInterface(class<DELInterface> interface){
-	`log("Added interface " $ interface);
+	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
+	`log("Added interface"@interface);
 	getHud().interfaces.AddItem(Spawn(interface, self));
 }
 
