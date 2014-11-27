@@ -186,6 +186,7 @@ DefaultProperties
 
 	WeaponFireTypes(0)=EWFT_Custom
 
+
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
         FOV=60
@@ -199,5 +200,4 @@ DefaultProperties
     Mesh=MeleeWeapon
 	
     Components.Add(MeleeWeapon)
-
 }

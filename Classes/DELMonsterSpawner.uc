@@ -8,7 +8,7 @@ Config(Game);
 /**
  * The class that will be spawned
  */
-var() class<DELCharacterPawn> mobsToSpawn;
+var() class<DELHostilePawn> mobsToSpawn;
 
 /**
  * a boolean that is used to set 1 class or random mobs
@@ -121,7 +121,7 @@ state Spawner {
  */
 function spawnPawn(bool random, vector spawnLocation)
 {
-	local DELCharacterPawn mobThatSpawns;
+	local DELHostilePawn mobThatSpawns;
 	local int randomNumber;
 	randomNumber = Rand(100);
 	if(random) {

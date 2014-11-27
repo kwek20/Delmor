@@ -2,7 +2,7 @@
  * @autor Bram
  * Pawn class for the medium enemy
  */
-class DELMediumMonsterPawn extends DelCharacterPawn
+class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
 

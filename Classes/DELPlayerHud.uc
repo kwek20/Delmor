@@ -32,7 +32,7 @@ function DrawHUD() {
    super.DrawHUD();    
    //drawCrossHair();
    //drawHealthBar();
-	DrawCompass();
+	//DrawCompass();
     MPosXMap = Canvas.OrgX + 30;
     MPosYMap = Canvas.ClipY/1.6;
 }

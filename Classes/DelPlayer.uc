@@ -3,7 +3,6 @@ class DELPlayer extends DELCharacterPawn;
 var array< class<Inventory> > DefaultInventory;
 var Weapon sword;
 
-
 simulated function bool IsFirstPerson(){
 	return false;
 }

@@ -22,13 +22,7 @@ auto state Idle{
 	 * When the pawn sees the player, go to attack attack state.
 	 */
 	event SeePlayer( Pawn p ){
-		if ( VSize( p.Location - Pawn.Location ) <= DELPawn( Pawn ).detectionRange ){ //The player has to be whitin the detection range.
-			`log( self$" See player: "$p );
-			attackTarget = DELPawn( p );
-			goToState( 'Attack' );
-
-			alertNearbyHostiles( DELPawn( p ) );
-		}
+		engagePlayer( p );
 	}
 }
 
@@ -47,6 +41,20 @@ function alertNearbyHostiles( DELPawn p ){
 			c.attackTarget = p;
 			c.goToState( 'Attack' );
 		}
+	}
+}
+
+/**
+ * Start an assault on the player if you are close enough.
+ * Also alert nearby monsters.
+ */
+function engagePlayer( Pawn p ){
+	if ( VSize( p.Location - Pawn.Location ) <= DELPawn( Pawn ).detectionRange ){ //The player has to be whitin the detection range.
+		`log( self$" See player: "$p );
+		attackTarget = DELPawn( p );
+		goToState( 'Attack' );
+
+		alertNearbyHostiles( DELPawn( p ) );
 	}
 }
 
