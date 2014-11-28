@@ -1,7 +1,16 @@
 class DELPlayerHud extends UDkHUD
 	config(game);
 
-var array< DELInterface > interfaces;
+struct InterFaceItem {
+	var DELInterface interface;
+	var EPriority priority;
+};
+
+/**
+ * array of interfaces with load order. 
+ * First is lowest, last is highest
+ */
+var() PrivateWrite array< InterFaceItem > interfaces;
 
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
@@ -17,10 +26,35 @@ var float MPosYMap;
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
 
-	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
-	`log("HUD POST BEGIN");
+	//GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
 
+function addInterface(DELInterface interface, EPriority priority){
+	local InterFaceItem interf, newItem;
+	local int i;
+
+	i=0;
+	foreach interfaces(interf){
+		if (interf.priority >= priority) break;
+		i++;
+	}   
+	newItem.interface = interface;
+	newItem.priority = priority;
+	interfaces.insertItem(i, newItem);
+}
+
+function clearInterfaces(){
+	interfaces.Length = 0;
+}
+
+function array<DELInterface> getInterfaces(){
+	local array<DELInterface> interfaceArray;
+	local InterFaceItem item;
+	foreach interfaces(item){
+		interfaceArray.AddItem(item.interface);
+	}
+	return interfaceArray;
+}
 
 function PlayerOwnerDied(){
 	local DELPlayerController PC;
@@ -38,11 +72,11 @@ function DrawHUD() {
 }
 
 function PostRender(){
-	local DELInterface interface;
+	local InterFaceItem interface;
 	super.PostRender();
 
 	foreach interfaces(interface){
-		interface.draw(self);
+		interface.interface.draw(self);
 	}
 }
 
@@ -57,7 +91,7 @@ function DELPlayerController getPlayer(){
 /*-----------------------------------------------------------
  * COMPASS
  *-----------------------------------------------------------*/
-
+/*
 function float getRadianHeading(){
 	local Vector v;
 	local rotator r;
@@ -201,7 +235,7 @@ function DrawCompass(){
 	Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
 }
-
+*/
 
 defaultproperties 
 {
