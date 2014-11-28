@@ -7,7 +7,7 @@ class DELInterface extends Actor
 	abstract;
 
 enum EPriority {
-  HIGHEST<value=5>, HIGH<value=4>, NORMAL<value=3>, LOW<value=2>, LOWEST<value=1>
+	LOWEST, LOW, NORMAL, HIGH, HIGHEST
 };
 
 

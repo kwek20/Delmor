@@ -34,10 +34,8 @@ function addInterface(DELInterface interface, EPriority priority){
 	local int i;
 
 	i=0;
-	`log(priority);
 	foreach interfaces(interf){
-		`log(interf.priority);
-		//if (interf.priority >= priority.value) break;
+		if (interf.priority >= priority) break;
 		i++;
 	}   
 	newItem.interface = interface;

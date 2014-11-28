@@ -74,6 +74,7 @@ function swapState(name StateName){
 		if (StateName == 'Playing') return;
 		StateName = 'Playing';
 	}
+	`log("-- Switching state to "$StateName$"--");
 	getHud().clearInterfaces();
 	ClientGotoState(StateName);
 }

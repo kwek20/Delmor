@@ -113,6 +113,10 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding('Escape', "closeHud");
 
 		setKeyBinding('one', "numberPress 1");
+		setKeyBinding('two', "numberPress 2");
+		setKeyBinding('three', "numberPress 3");
+		setKeyBinding('four', "numberPress 4");
+		setKeyBinding('five', "numberPress 5");
 	} else {
 		setKeyBinding(inKey, inCommand);
 	}
