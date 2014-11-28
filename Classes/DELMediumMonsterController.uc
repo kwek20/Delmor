@@ -98,12 +98,8 @@ state attack{
 	}
 
 	event tick( float deltaTime ){
-		local DELPawn monster;
-
 		super.Tick( deltaTime );
-
 		timer -= deltaTime;
-
 		if ( timer <= 0.0 ){
 			`log( self$" It is time to make a decision" );
 			//Heal a nearby monster that is almost dead.

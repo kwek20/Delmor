@@ -1,11 +1,12 @@
+/**
+ * Pawn class used for the goat.
+ */
 class DELGoatPawn extends DELAnimalPawn
       placeable
 	  Config(Game);
-
-simulated event PostBeginPlay() {
-	super.PostBeginPlay();
-	`log(Mesh.SkeletalMesh);
-}
+/**
+ * The mesh for the Goat and his speed.
+ */
 DefaultProperties
 {
 	Components.Remove(ThirdPersonMesh);
@@ -22,6 +23,6 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-   ControllerClass=class'Delmor.DELGoatController'
+	ControllerClass=class'Delmor.DELGoatController'
 	GroundSpeed=50
 }

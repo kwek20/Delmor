@@ -41,5 +41,4 @@ DefaultProperties
 	PlayerControllerClass=class'Delmor.DELPlayerController'
     DefaultInventory(0)=none
 	bUseClassicHUD=true
-	game='DELGame'
 }
