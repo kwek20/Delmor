@@ -35,11 +35,9 @@ function startMatch(){
 
 DefaultProperties 
 {
-	//HUDType=class'Delmor.DELPlayerHud'
     HUDType=class'Delmor.DELPlayerHud'
 	DefaultPawnClass = class'Delmor.DELPawn'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
     DefaultInventory(0)=none
 	bUseClassicHUD=true
-	game='DELGame'
 }
