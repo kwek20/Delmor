@@ -235,15 +235,6 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
-/*
- * ==========================================
- * States
- * ==========================================
- */
-
-state idle{
-}
-
 state movingForward{
 	event tick( float deltaTime ){
 		moveForward( deltaTime );
