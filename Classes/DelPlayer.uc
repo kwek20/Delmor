@@ -25,9 +25,19 @@ simulated event PostBeginPlay()
 DefaultProperties
 {
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
-<<<<<<< HEAD
-	meleeArcheType = DELMeleeWeapon'Delmor_weapons.DelMeleeWeaponArcheType'
-=======
->>>>>>> 2d312dca6b5fd0a47b81d23947875be86a3354fa
 	bCanBeBaseForPawn=true
+	Components.Remove(ThirdPersonMesh);
+	Begin Object Name=ThirdPersonMesh
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Lucian_walking'
+		AnimSets(0)=AnimSet'Delmor_Character.Center'
+		PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
+		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
+		Scale3D=(X=1, Y=1, Z=1)
+		HiddenGame=False
+		HiddenEditor=False
+		bHasPhysicsAssetInstance=True
+		bAcceptsLights=true
+		Translation=(Z=-50.0)
+	End Object
+    Components.Add(ThirdPersonMesh)
 }
