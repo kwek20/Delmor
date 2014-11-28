@@ -37,7 +37,7 @@ simulated function draw(DELPlayerHud hud){
 
 			// Draw the texture on the screen
 			if (CursorTexture != None){
-				hud.Canvas.DrawTile(CursorTexture, CursorTexture.SizeX, CursorTexture.SizeY, 0.f, 0.f, CursorTexture.SizeX, CursorTexture.SizeY,, true);
+				drawTile(hud.Canvas, CursorTexture, CursorTexture.SizeX, CursorTexture.SizeY);
 			} else {
 				hud.Canvas.DrawRect(20, 20); 
 			}

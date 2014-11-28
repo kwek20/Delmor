@@ -11,24 +11,60 @@ var int squareSize, inbetween, amountBars;
 /**
  * Array of textures linked to the buttons
  */
-var array<String> textures;
+var array<Texture2D> textures;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceButton button;
 	local int i, length, startX, startY;
 
-	//Code for the box behind the buttons
 	length = 5*squareSize + 6*inbetween;
 	startX = hud.sizeX/2 - length/2;
 	startY = hud.sizeY - squareSize*1.5;
 
-	for (i=1; i<=amountBars; i++){
+		hud.log(length@startX@startY@hud.sizeX);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	/*for (i=1; i<=amountBars; i++){
 		button = Spawn(class'DELInterfaceButton');
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
 		addButton(button);
-	}
+	}*/
 }
 
 function useMagic(DELPlayerHud hud){
@@ -60,5 +96,5 @@ DefaultProperties
 	inbetween=5;
 	amountBars=5;
 
-	textures = ("1", "2", "3", "4", "5")
+	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
 }

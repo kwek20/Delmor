@@ -3,7 +3,7 @@
  */
 class DELInterfaceHealthBars extends DELInterface;
 
-var() MaterialInstanceConstant bg; 
+var() Texture2D bg; 
 
 /**
  * The height of a bar.<br/>
@@ -20,12 +20,12 @@ simulated function draw(DELPlayerHud hud){
 	
 
 	hud.Canvas.Font = class'Engine'.static.GetLargeFont();   
-	length = hud.SizeX/5;
-	startX = 30;
-	startY = 15;
+	length = bg.SizeX/4;
+	startX = bg.SizeX/4-barSize/2;
+	startY = bg.SizeY/6-barSize;
 
 	hud.Canvas.SetPos(0,0);
-	hud.Canvas.DrawMaterialTile(bg, 340, 128, 120);
+	drawTile(hud.Canvas, bg, bg.SizeX/2, bg.SizeY/2);
 
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red
 	hud.Canvas.SetPos(startX, startY);   
@@ -40,6 +40,6 @@ simulated function draw(DELPlayerHud hud){
 
 DefaultProperties
 {
-	bg=MaterialInstanceConstant'MyPackage.BARS-HUD_Mat_INST'
-	barSize=30;
+	bg=Texture2D'MyPackage.combars'
+	barSize=23;
 }

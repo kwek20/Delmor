@@ -15,7 +15,7 @@ var() Vector4 position;
 /**
  * The current texture of this button
  */
-var() MaterialInstanceConstant texture; 
+var() Texture2D texture; 
 
 /**
  * The key you use to activate this button. None if not existing
@@ -72,7 +72,7 @@ public function draw(DELPlayerHud hud){
 
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (texture != None){
-		hud.Canvas.DrawMaterialTile(texture, position.Z, position.W);
+		drawTile(hud.Canvas, texture, position.Z, position.W);
 	} else {
 		//purple square
 		hud.Canvas.SetDrawColor(50, 0, 50); // purple
@@ -92,7 +92,7 @@ public function draw(DELPlayerHud hud){
  * Sets the texture for this button
  * @param mat The material to set
  */
-public function setTexture(MaterialInstanceConstant mat){
+public function setTexture(Texture2D mat){
 	texture = mat;
 }
 

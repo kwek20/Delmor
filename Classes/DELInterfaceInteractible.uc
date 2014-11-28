@@ -66,7 +66,7 @@ protected function DELInterfaceButton getButtonByPosition(IntPoint position){
  * @param b The button we want to perform the action for
  */
 public function performAction(DELPlayerHud p, DELInterfaceButton b){
-	if (b == None || p == None) return;
+	if (b == None || p == None || b.identifierKey < 0 || b.identifierKey > 9) return;
 	`log("Button action for " $ b.identifierKey);
 	b.onUse(p);
 }

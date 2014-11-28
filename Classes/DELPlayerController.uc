@@ -25,8 +25,10 @@ function BeginState(Name PreviousStateName){
 }
 
 auto state PlayerWalking {
+	function swap(){gotoState('Playing');}
+
 Begin:
-      gotoState('Playing');
+	SetTimer(1, true, 'swap'); //cheating way to make the canvas load properly before loading interfaces
 }
 
 state Playing extends PlayerWalking{
