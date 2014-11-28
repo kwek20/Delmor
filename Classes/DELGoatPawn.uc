@@ -4,6 +4,12 @@
 class DELGoatPawn extends DELAnimalPawn
       placeable
 	  Config(Game);
+
+simulated function PostBeginPlay() {
+	super.PostBeginPlay();
+	`log(self);
+}
+
 /**
  * The mesh for the Goat and his speed.
  */

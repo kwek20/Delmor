@@ -62,6 +62,15 @@ function PlayerOwnerDied(){
 	PC.gotoState('End');
 }
 
+function DrawHUD() {
+   super.DrawHUD();    
+   //drawCrossHair();
+   //drawHealthBar();
+	//DrawCompass();
+    MPosXMap = Canvas.OrgX + 30;
+    MPosYMap = Canvas.ClipY/1.6;
+}
+
 function PostRender(){
 	local InterFaceItem interface;
 	super.PostRender();

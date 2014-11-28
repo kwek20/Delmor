@@ -228,7 +228,7 @@ DefaultProperties
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
 	CollisionRadius = 32.0;
-	CollisionHeight = +22.0;
+	CollisionHeight = +44.0;
 	end object
 
 	//Mesh
@@ -242,7 +242,7 @@ DefaultProperties
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=-20.0)
+		Translation=(Z=-42.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
