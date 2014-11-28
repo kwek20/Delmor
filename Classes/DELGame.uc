@@ -1,6 +1,20 @@
 class DELGame extends UDKGame;
 
 var String game;
+var DELMinimap GameMinimap;
+
+function InitGame( string Options, out string ErrorMessage )
+{
+	local DELMinimap ThisMinimap;
+	Super.InitGame(Options,ErrorMessage);
+	
+	foreach AllActors(class'Delmor.DELMinimap',ThisMinimap){
+		GameMinimap = ThisMinimap;
+		break;
+	}
+	
+}
+
 
 /**
  * Extended the startMatch function. The game will now search for DELPlayerInput
@@ -23,7 +37,7 @@ DefaultProperties
 {
 	//HUDType=class'Delmor.DELPlayerHud'
     HUDType=class'Delmor.DELPlayerHud'
-	DefaultPawnClass = class'DELPlayer'
+	DefaultPawnClass = class'Delmor.DELPawn'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
     DefaultInventory(0)=none
 	bUseClassicHUD=true

@@ -6,6 +6,9 @@ class DELPlayerInput extends PlayerInput;
 var float defaultRotationSpeed;
 var float pawnRotationSpeed;
 
+// Stored mouse position. Set to private write as we don't want other classes to modify it, but still allow other classes to access it.
+var PrivateWrite IntPoint MousePosition; 
+
 simulated event postBeginPlay(){
 	//super.PostBeginPlay();
 	`log("### Post begin play. PlayerInput: "$self );
@@ -23,6 +26,8 @@ simulated exec function turnLeft(){
 		pawnRotationSpeed = -defaultRotationSpeed;
 	}
 }
+
+
 
 /**
  * Move in the camera's direction.
@@ -224,6 +229,10 @@ state movingRight{
 	}
 }
 
+exec function numberPress(name inKey){
+	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
@@ -237,10 +246,37 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | startMovingForward | OnRelease EndLookMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
+
+		setKeyBinding('one', "numberPress 1");
+		setKeyBinding('two', "numberPress 2");
+		setKeyBinding('three', "numberPress 3");
+		setKeyBinding('four', "numberPress 4");
+		setKeyBinding('five', "numberPress 5");
 	} else {
 		setKeyBinding(inKey, inCommand);
 	}
 }
+
+function setMousePos(int x, int y){
+	// Add the aMouseX to the mouse position and clamp it within the viewport width
+    MousePosition.X = Clamp(x, 0, myHUD.SizeX); 
+    // Add the aMouseY to the mouse position and clamp it within the viewport height
+    MousePosition.Y = Clamp(y, 0, myHUD.SizeY); 
+}
+
+event PlayerInput(float DeltaTime){
+  // Handle mouse 
+  // Ensure we have a valid HUD
+  if (myHUD != None) {
+    // Add the aMouseX to the mouse position and clamp it within the viewport width
+    MousePosition.X = Clamp(MousePosition.X + aMouseX, 0, myHUD.SizeX); 
+    // Add the aMouseY to the mouse position and clamp it within the viewport height
+    MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
+  }
+
+  Super.PlayerInput(DeltaTime);
+}
+
 /**
  * Set a specific keybinding.
  */

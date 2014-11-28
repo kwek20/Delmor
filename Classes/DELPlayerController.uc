@@ -6,7 +6,7 @@
  * 
  * @author Anders Egberts.
  */
-class DELPlayerController extends PlayerController
+class DELPlayerController extends PlayerController dependson(DELInterface)
 	config(Game);
 
 var SoundCue soundSample; 
@@ -22,13 +22,15 @@ function BeginState(Name PreviousStateName){
 	self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 }
 
-auto state PlayerWaiting {
-
+auto state PlayerWalking {
 Begin:
       gotoState('Playing');
 }
 
 state Playing extends PlayerWalking{
+	function BeginState(Name PreviousStateName){
+		self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
+	}
 
 Begin:
 	canWalk = true;
@@ -38,32 +40,42 @@ Begin:
 	checkHuds();
 }
 
-state End {
+state MouseState {
+	function UpdateRotation(float DeltaTime);
+
+	function load(){
+		canWalk=false;
+		drawDefaultHud=true;
+		addInterfacePriority(class'DELInterfaceMouse', HIGH);
+	}
+}
+
+state End extends MouseState{
 
 Begin:
-	canWalk = false;
-	drawDefaultHud = false;
+	load();
 	drawBars = false;
 	drawSubtitles = true;
 	checkHuds();
 }
 
-state Inventory {
+state Inventory extends MouseState{
 
  Begin:
-	canWalk = false;
-	drawDefaultHud = false;
-	drawBars = false;
+	load();
+	drawBars = true;
 	drawSubtitles = true;
 	checkHuds();
 }
 
 function swapState(name StateName){
 	if (StateName == GetStateName()) {
-		gotoState('Playing');
-	} else {
-		gotoState(StateName);
+		if (StateName == 'Playing') return;
+		StateName = 'Playing';
 	}
+	`log("-- Switching state to "$StateName$"--");
+	getHud().clearInterfaces();
+	ClientGotoState(StateName);
 }
 
 /*#####################
@@ -78,6 +90,18 @@ exec function closeHud(){
 	swapState('Playing');
 }
 
+public function onNumberPress(int key){
+	local DELinterface interface;
+	local array<DELInterface> interfaces;
+
+	interfaces = getHud().getInterfaces();
+	foreach interfaces(interface){
+		if (DELInterfaceInteractible(interface) != None){
+			DELInterfaceInteractible(interface).onKeyPress(getHud(), key);
+		}
+	}
+}
+
 /*################
  * HUD functions
  ###############*/
@@ -85,9 +109,8 @@ exec function closeHud(){
 function checkHuds(){
 	if (getHud() == None)return;
 
-	getHud().interfaces.Length = 0;
 	if (drawDefaultHud){
-		//addInterface(class'DELInterfaceSpells');
+		addInterface(class'DELInterfaceBar');
 		//addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
@@ -100,8 +123,18 @@ function checkHuds(){
 }
 
 function addInterface(class<DELInterface> interface){
-	`log("Added interface " $ interface);
-	getHud().interfaces.AddItem(Spawn(interface, self));
+	addInterfacePriority(interface, NORMAL);
+}
+
+function addInterfacePriority(class<DELInterface> interface, EPriority priority){
+	local DELInterface delinterface;
+
+	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
+	`log("Added interface"@interface);
+	
+	delinterface = Spawn(interface, self);
+	getHud().addInterface(delinterface, priority);
+	delinterface.load(getHud());
 }
 
 public function showSubtitle(string text){
