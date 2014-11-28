@@ -23,29 +23,15 @@ simulated event postBeginPlay(){
 }
 
 /**
- * Turns the player's pawn left if not in look mode.
- * 
- * TODO:
- * Strafe when in look mode.
- */
-simulated exec function turnLeft(){
-	if ( !DELPawn( pawn ).bLookMode ){
-		pawnRotationSpeed = -defaultRotationSpeed;
-	}
-}
-
-
-
-/**
  * Move in the camera's direction.
  */
-simulated exec function moveForward(){
+simulated exec function moveForward( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 0.0 );
 		if ( !DELPawn( pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -53,13 +39,13 @@ simulated exec function moveForward(){
 /**
  * Move right in aspect to the camera.
  */
-simulated exec function moveRight(){
+simulated exec function moveRight( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 90.0 );
 		if ( !DELPawn( pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -67,13 +53,13 @@ simulated exec function moveRight(){
 /**
  * Move left in aspect to the camera.
  */
-simulated exec function moveLeft(){
+simulated exec function moveLeft( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -90.0 );
 		if ( !DELPawn( pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -81,13 +67,13 @@ simulated exec function moveLeft(){
 /**
  * Move down in aspect to the camera.
  */
-simulated exec function moveBackward(){
+simulated exec function moveBackward( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -180.0 );
 		if ( !DELPawn( pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , 1200 );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -131,10 +117,11 @@ exec function startMovingBackward(){
  * @param targetYaw	    int The targetYaw in unrealDegrees.
  * @param rotationSpeed int The number of unrealdegrees to rotate per tick.
  */
-function rotatePawnToDirection( int targetYaw , int rotationSpeed ){
+function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-
+	local int adjustedRotationSpeed;
+	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
 	//Spawn a math
 	if ( math == none ){
 		math = spawn( class'DELMath' );
@@ -142,8 +129,8 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed ){
 
 	yaw = pawn.Rotation.Yaw;
 
-	if ( yaw < targetYaw - rotationSpeed || yaw > targetYaw + rotationSpeed ){
-        yaw += math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed;
+	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed + adjustedRotationSpeed ){
+        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
 	}
     else{
         yaw = targetYaw;
@@ -154,6 +141,37 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed ){
 	newRotation.Yaw = yaw;
 
 	pawn.SetRotation( newRotation );
+}
+
+/**
+ * This function should rotate the pawn's controller (thus the camera) to the player's direction.
+ * @param targetYaw	    int The targetYaw in unrealDegrees.
+ * @param rotationSpeed int The number of unrealdegrees to rotate per tick.
+ */
+function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTime ){
+	local int yaw;
+	local rotator newRotation;
+	local int adjustedRotationSpeed;
+	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
+	//Spawn a math
+	if ( math == none ){
+		math = spawn( class'DELMath' );
+	}
+
+	yaw = pawn.Controller.Rotation.Yaw;
+
+	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed + adjustedRotationSpeed ){
+        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
+	}
+    else{
+        yaw = targetYaw;
+    }
+
+	newRotation.Pitch = pawn.Controller.Rotation.Pitch;
+	newRotation.Roll = pawn.Controller.Rotation.Roll;
+	newRotation.Yaw = yaw;
+
+	pawn.controller.SetRotation( newRotation );
 }
 
 /**
@@ -195,51 +213,6 @@ private function float lengthDirY( float len , float dir ){
 }
 
 /**
- * Turns the player's pawn right if not in look mode.
- * 
- * TODO:
- * Strafe when in look mode.
- */
-simulated exec function turnRight(){
-	if ( !DELPawn( pawn ).bLookMode ){
-		pawnRotationSpeed = defaultRotationSpeed;
-	}
-}
-
-/**
- * Perform rotation in tick event.
- */
-event Tick( float deltaTime ){
-	if ( pawnRotationSpeed != 0.0 ){
-		rotatePawn( pawnRotationSpeed );
-	}
-}
-
-/**
- * Rotates the pawn along the yaw
- * @param degrees   float   The number of unreal degrees to rotate.
- */
-function rotatePawn( float degrees ){
-	local Rotator newRotation;
-
-	`log( "Rotate Pawn. Degrees: "$degrees$". Pawn.Rotation.Yaw: "$Pawn.Rotation.Yaw );
-
-	newRotation.Roll = Pawn.Rotation.Roll;
-	newRotation.Pitch = Pawn.Rotation.Pitch;
-	newRotation.Yaw = Pawn.Rotation.Yaw + int( degrees );
-
-	Pawn.SetRotation( newRotation );
-	//Pawn.SetDesiredRotation( newRotation );
-}
-
-/**
- * Set pawnRotationSpeed to 0.0
- */
-exec function resetRotationSpeed(){
-	pawnRotationSpeed = 0.0;
-}
-
-/**
  * Starts the look mode in the pawn. When in lookMode, the player can rotate the view and the pawn with the mouse.
  */
 exec function startLookMode(){
@@ -262,9 +235,18 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
+/*
+ * ==========================================
+ * States
+ * ==========================================
+ */
+
+state idle{
+}
+
 state movingForward{
 	event tick( float deltaTime ){
-		moveForward();
+		moveForward( deltaTime );
 	}
 	/**
 	 * Exits the movingForward state.
@@ -275,7 +257,7 @@ state movingForward{
 }
 state movingBackward{
 	event tick( float deltaTime ){
-		moveBackward();
+		moveBackward( deltaTime );
 	}
 	/**
 	 * Exits the movingBackward state.
@@ -287,7 +269,8 @@ state movingBackward{
 
 state movingLeft{
 	event tick( float deltaTime ){
-		moveLeft();
+		moveLeft( deltaTime );
+		//rotateCameraToPlayer( pawn.Rotation.Yaw + 90 * DegToUnrRot , defaultRotationSpeed , deltaTime );
 	}
 	/**
 	 * Exits the movingLeft state.
@@ -299,7 +282,7 @@ state movingLeft{
 
 state movingRight{
 	event tick( float deltaTime ){
-		moveRight();
+		moveRight( deltaTime );
 	}
 	/**
 	 * Exits the movingRight state.
@@ -369,5 +352,5 @@ function setKeyBinding( name inKey , String inCommand ){
 
 DefaultProperties
 {
-	defaultRotationSpeed = 300.0
+	defaultRotationSpeed = 1800.0
 }

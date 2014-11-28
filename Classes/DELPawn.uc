@@ -101,7 +101,7 @@ var bool bLookMode;
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 44.0 );
+	setCameraOffset( 0.0 , 0.0 , 64.0 );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
