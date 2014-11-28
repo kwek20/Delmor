@@ -19,6 +19,19 @@ var Vector tempDest;
  * Location where the goat should walk next to
  */
 var Vector nextLocation;
+/**
+ * temp value that is used to calculate the distance between the Goat and the player
+ */
+var float distanceToPlayer;
+/**
+ * a Vector where the distance is calculated between the player and Goat in vector
+ */
+var vector selfToPlayer;
+
+var float fleeRangeToPlayer;
+var DELPlayer player;
+
+
 /** 
  *  Event that is called when the goad is spawned
  *  @param inPawn
@@ -34,18 +47,38 @@ event Possess(Pawn inPawn, bool bVehicleTransition)
  * state where the goat is walking to a random player
  */
 auto state walk {
+	local Vector targetLocation;
+	local bool playerIsSeen;
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
 		nextLocation = getRandomLocation();
+		playerIsSeen = false;
+	}	
+
+	event SeePlayer(Pawn p) {
+		if(p.IsA('DELPlayer')) {
+			selfToPlayer = p.Location - self.Pawn.Location;
+			distanceToPlayer = Abs(VSize(selfToPlayer));
+			if(distanceToPlayer < fleeRangeToPlayer) {
+				player = DELPlayer(p);
+				targetLocation.X =  self.player.Location.X + lengthDirX(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
+				targetLocation.Y =  self.player.Location.Y + lengthDirY(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
+				targetLocation.Z = self.Pawn.Location.Z;
+				playerIsSeen = true;
+			}
+		}
 	}
-	//event Tick(float DeltaTime) {
 	
 Begin:
 	sleep(0.05);
-		if(vSize(nextLocation - self.Pawn.Location) < 100) {
+		if(vSize(targetLocation - self.Pawn.Location) < 100) {
+			playerIsSeen = false;
+		} else if(vSize(nextLocation - self.Pawn.Location) < 100) {
 				GotoState('eat');
 		} else {
-			if(NavigationHandle.PointReachable(nextLocation))
+			if(distanceToPlayer < fleeRangeToPlayer && playerIsSeen) {
+				moveTo(targetLocation);
+			} else if(NavigationHandle.PointReachable(nextLocation))
 			{
 				moveTo(nextLocation);
 			} else if( FindNavMeshPath(nextLocation) ){
@@ -65,13 +98,27 @@ Begin:
 	sleep(0.1);
 	goto 'Begin';
 }
+
+state flee {
+	
+	local rotator direction;
+	local Controller C;
+	local Vector targetLocation;
+	function beginState( Name previousStateName ){
+		super.beginState( previousStateName );
+		//nextLocation = getRandomLocation();
+		targetLocation.X =  self.player.Location.X + lengthDirX(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
+		targetLocation.Y =  self.player.Location.Y + lengthDirY(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
+		targetLocation.Z = self.Pawn.Location.Z;
+	}
+}
 /**
  * The state where the goat is doing nothing but eating
  */
 state eat {
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
-		SetTimer(Rand(10), false, 'backToWalk');
+		SetTimer(Rand(55)+5, false, 'backToWalk');
 	}
 	function backToWalk() {
 		nextLocation = getRandomLocation();
@@ -102,7 +149,32 @@ function Vector getRandomlocation() {
 	return temp;
 }
 
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+private function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+private function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+
+}
+
 DefaultProperties
 {
 	wanderRange = 2048
+	fleeRangeToPlayer = 128
 }

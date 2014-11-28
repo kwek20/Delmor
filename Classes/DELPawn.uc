@@ -78,7 +78,12 @@ var array< class<Inventory> > DefaultInventory;
 /**
  * Distance of the camera to this pawn.
  */
-var const float camOffsetDistance;
+var float camOffsetDistance;
+/**
+ * The distance of the camera that we want, if camera is not at this distance it will adjust
+ * the actualdistance till it is.
+ */
+var float camTargetDistance;
 /**
  * The pitch of the camera.
  */
@@ -180,6 +185,13 @@ event Tick( float deltaTime ){
 		health = Clamp( health + healthRegeneration , 0 , healthMax );
 		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
 	}
+
+	if ( bLookMode )
+		camTargetDistance = 100.0;
+	else
+		camTargetDistance = 300.0;
+	//Animate the camera
+	adjustCameraDistance( deltaTime );
 }
 
 /*/**
@@ -193,6 +205,28 @@ function SpawnController(){
 	controller = spawn( ControllerClass );
 	controller.Pawn = self;
 }*/
+
+/**
+ * Animates the camera distance.
+ * THIS FUNCTION MAY ONLY BE EXECUTED IN THE TICK EVENT.
+ * @param deltaTime float   The deltaTime from the tick-event.
+ */
+function adjustCameraDistance( float deltaTime ){
+	local float difference , distanceSpeed;
+	difference = max( camOffsetDistance , camTargetDistance ) - min( camOffsetDistance , camTargetDistance );
+	distanceSpeed = max( difference * ( 12 * deltaTime ) , 2 );
+
+	if ( camOffsetDistance < camTargetDistance ){
+		camOffsetDistance += distanceSpeed;
+	}
+	if ( camOffsetDistance > camTargetDistance ){
+		camOffsetDistance -= distanceSpeed;
+	}
+	//Lock
+	if ( camOffsetDistance + distanceSpeed > camTargetDistance && camOffsetDistance - distanceSpeed < camTargetDistance ){
+		camOffsetDistance = camTargetDistance;
+	}
+}
 
 simulated exec function turnLeft(){
 	`log( self$" TurnLeft" );
@@ -220,6 +254,7 @@ DefaultProperties
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0
+	camTargetDistance = 300.0
 	camPitch = -5000.0
 	bLookMode = false
 
@@ -228,7 +263,7 @@ DefaultProperties
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
 	CollisionRadius = 32.0;
-	CollisionHeight = +22.0;
+	CollisionHeight = +44.0;
 	end object
 
 	//Mesh
@@ -242,7 +277,7 @@ DefaultProperties
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=-20.0)
+		Translation=(Z=-42.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
