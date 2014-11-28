@@ -18,6 +18,16 @@ class DELMediumMonsterController extends DELHostileController;
  */
 var float decisionInterval;
 
+/**
+ * Any easyMonsterPawn that is this close to the MediumMonster pawn will be commanded by it.
+ */
+var float commandRadius;
+
+/**
+ * The radius to wander in.
+ */
+var float wanderRadius;
+
 /*
  * ===============================================================
  * Utility functions
@@ -71,19 +81,105 @@ private function int nPawnsNearPlayer(){
 	return nPawns;
 }
 
+/**
+ * Gets a random position within the pawn's wanderRadius.
+ */
+private function vector getRandomLocation(){
+	local vector randomLoc;
+
+	randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
+	randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
+	randomLoc.Z = pawn.Location.Z;
+
+	`log( self$" randomLoc: "$randomLoc );
+	return randomLoc;
+}
+
 /*
  * ===============================================================
  * Action-functions
  * ===============================================================
  */
 
+/**
+ * Sets all nearby minions into attack state and sets their attackTarget to the controller's attacktarget.
+ */
+function orderNearbyMinionsToAttackPlayer(){
+	local DELEasyMonsterController c;
 
+	foreach WorldInfo.AllControllers( class'DELEasyMonsterController' , c ){
+		if ( VSize( c.Pawn.Location - attackTarget.Location ) <= commandRadius ){
+			c.engagePlayer( attackTarget );
+		}
+	}
+}
 
 /*
  * ===============================================================
  * States
  * ===============================================================
  */
+
+auto state idle{
+	/**
+	 * Go to wander-state as soon as you enter idle-state.
+	 */
+	function beginState( name previousStateName ){
+		super.beginState( previousStateName );
+		
+	}
+
+	event tick( float deltaTime ){
+		super.Tick( deltaTime );
+		
+		if( pawn != none ){
+			goToState( 'wander' );
+		}
+	}
+}
+/**
+ * Wander randomly on the map.
+ */
+state wander{
+	local vector targetLocation;
+	local float timeAtLocation;
+	local float maxTimeAtPoint;
+
+	function beginState( name previousStateName ){
+		targetLocation = getRandomLocation();
+		resetTimer();
+	}
+
+	event tick( float deltaTime ){
+		if ( distanceToPoint( targetLocation ) > 32.0 ){
+			self.moveTowardsPoint( targetLocation , deltaTime );
+		}
+		else{
+			stopPawn();
+			timeAtLocation += deltaTime;
+
+			if ( timeAtLocation > maxTimeAtPoint ){
+				targetLocation = getRandomLocation();
+				resetTimer();
+			}
+		}
+	}
+
+	/**
+	 * Assault the player when you see him.
+	 */
+	event seePlayer( pawn p ){
+		engagePlayer( p );
+	}
+
+	/**
+	 * Sets timeAtLocation to 0.0 and gets a new maxTimeAtPoint.
+	 */
+	private function resetTimer(){
+		timeAtLocation = 0.0;
+		maxTimeAtPoint = 1 + rand( 5 );
+	}
+}
 
 state attack{
 	/**
@@ -115,6 +211,9 @@ state attack{
 			if ( checkIsInDanger() ){
 				`log( self$" I'm in danger" );
 				goToState( 'Flee' );
+
+				//Call for backup
+				orderNearbyMinionsToAttackPlayer();
 			}
 
 			//Wait till the player has killed the easypawns before attacking
@@ -212,4 +311,6 @@ state maintainDistanceFromPlayer{
 DefaultProperties
 {
 	decisionInterval = 0.5
+	commandRadius = 512.0
+	wanderRadius = 512.0
 }

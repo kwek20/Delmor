@@ -10,6 +10,15 @@ class DELNpcController extends DELCharacterController;
  */
 var DELPawn attackTarget;
 
+/*
+ * ==============================================
+ * Action functions
+ * ==============================================
+ */
+
+/**
+ * In this state the NPC will chase it's target and attack if it's close enough.
+ */
 state Attack{
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
@@ -54,6 +63,71 @@ state Attack{
 		meleeAttack();
 	}
 }
+
+/*
+ * ==============================================
+ * Utility functions
+ * ==============================================
+ */
+
+/**
+ * Returns the distance between two points.
+ */
+function float distanceToPoint( vector l ){
+	return VSize( pawn.Location - l );
+}
+
+/**
+ * Checks whether a pawn is whitin the pawn's attack range.
+ * Returns true when pawn is whitin range.
+ * @param p DELPawn The pawn that should be whitin range.
+ * @return boolean.
+ */
+function bool checkTargetWhitinRange( DELPawn p ){
+	local float distanceToPawn;
+	distanceToPawn = VSize( p.Location - Pawn.Location );
+	
+	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
+		return false;
+	}
+	else{
+		return true;
+	}
+}
+
+/**
+ * Returns true if the pawn exists and has more than one health.
+ */
+function bool targetIsAlive(){
+	if ( attackTarget.health > 0 && attackTarget != none ){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+/**
+ * Returns true when attackTarget is too far away.
+ */
+function bool targetIsTooFarAway(){
+	local float distanceToPawn;
+
+	distanceToPawn = VSize( attackTarget.Location - Pawn.Location );
+
+	if( distanceToPawn > DELPawn( Pawn ).detectionRange && !pawn.LineOfSightTo( attackTarget ) ){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+/*
+ * ==============================================
+ * Action functions
+ * ==============================================
+ */
 
 /**
  * Starts the meleeAttack pipeline.
@@ -127,36 +201,6 @@ function moveInDirection( vector to , float deltaTime ){
 }
 
 /**
- * Checks whether a pawn is whitin the pawn's attack range.
- * Returns true when pawn is whitin range.
- * @param p DELPawn The pawn that should be whitin range.
- * @return boolean.
- */
-function bool checkTargetWhitinRange( DELPawn p ){
-	local float distanceToPawn;
-	distanceToPawn = VSize( p.Location - Pawn.Location );
-	
-	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
-		return false;
-	}
-	else{
-		return true;
-	}
-}
-
-/**
- * Returns true if the pawn exists and has more than one health.
- */
-function bool targetIsAlive(){
-	if ( attackTarget.health > 0 && attackTarget != none ){
-		return true;
-	}
-	else{
-		return false;
-	}
-}
-
-/**
  * Sets the controller's pawn still.
  */
 function stopPawn(){
@@ -164,22 +208,6 @@ function stopPawn(){
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
-}
-
-/**
- * Returns true when attackTarget is too far away.
- */
-function bool targetIsTooFarAway(){
-	local float distanceToPawn;
-
-	distanceToPawn = VSize( attackTarget.Location - Pawn.Location );
-
-	if( distanceToPawn > DELPawn( Pawn ).detectionRange && !pawn.LineOfSightTo( attackTarget ) ){
-		return true;
-	}
-	else{
-		return false;
-	}
 }
 
 DefaultProperties
