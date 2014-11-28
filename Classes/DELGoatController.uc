@@ -56,7 +56,6 @@ Begin:
 					MoveTo(tempDest);
 				}
 			} else {
-				`log(self $ 'NEE zelfs dat  gaat nu niet meer');
 				nextLocation = getRandomLocation();
 				GotoState('walk');
 			}
