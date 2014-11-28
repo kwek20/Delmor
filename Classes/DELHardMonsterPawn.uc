@@ -8,5 +8,10 @@ class DELHardMonsterPawn extends DELHostilePawn
 
 defaultproperties
 {
-   ControllerClass=class'Delmor.DELhardMonsterController'
+	ControllerClass=class'Delmor.DELhardMonsterController'
+
+	health = 500
+	healthMax = 500
+	healthRegeneration = 0
+	walkingSpeed = 60.0
 }

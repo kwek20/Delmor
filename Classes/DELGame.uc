@@ -5,13 +5,13 @@ var DELMinimap GameMinimap;
 
 function InitGame( string Options, out string ErrorMessage )
 {
-	local DELMinimap ThisMinimap;
+	//local DELMinimap ThisMinimap;
 	Super.InitGame(Options,ErrorMessage);
 	
-	foreach AllActors(class'Delmor.DELMinimap',ThisMinimap){
-	GameMinimap = ThisMinimap;
-	break;
-	}
+	//foreach AllActors(class'Delmor.DELMinimap',ThisMinimap){
+	//GameMinimap = ThisMinimap;
+	//break;
+	//}
 	
 }
 
@@ -39,7 +39,6 @@ DefaultProperties
     HUDType=class'Delmor.DELPlayerHud'
 	DefaultPawnClass = class'Delmor.DELPlayer'
 	PlayerControllerClass=class'Delmor.DELPlayerController'
-    DefaultInventory(0)=None;
+    DefaultInventory(0)=none
 	bUseClassicHUD=true
-	game='DELGame'
 }

@@ -28,6 +28,7 @@ function Vector cohesion(){
 	local DELEasyMonsterController c;
 	local int nMobs;
 	local Vector totalVector;
+	local int i;
 
 	nMobs = 1;
 	//Set the z-location of the total vector.
@@ -48,10 +49,12 @@ function Vector cohesion(){
 
 	//Move slightly towards a medium monster pawn.
 	if ( flockTarget != none ){
-		totalVector.X += flockTarget.Location.X;
-		totalVector.Y += flockTarget.Location.Y;
+		for( i = 0; i < 10; i ++ ){
+			totalVector.X += flockTarget.Location.X;
+			totalVector.Y += flockTarget.Location.Y;
 
-		nMobs ++;
+			nMobs ++;
+		}
 	}
 
 	//Create an average of the vector

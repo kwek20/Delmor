@@ -37,7 +37,7 @@ DefaultProperties
 {
 	magician = false;
 
-	MeleeWeapon=DELMeleeWeapon'DELMeleeWeapon'
+	MeleeWeapon=DELMeleeWeapon'Delmor.DELMeleeWeapon'
 	AbilityList[0] = DELMagic'DELMagic'
 	AbilityList[1] = DELMagic'DELMagic'
 	AbilityList[2] = DELMagic'DELMagic'

@@ -15,16 +15,24 @@ var Vector startPosition;
  * A position in which the goat must walk to get to his final position.
  */
 var Vector tempDest;
-
+/**
+ * Location where the goat should walk next to
+ */
 var Vector nextLocation;
-
+/** 
+ *  Event that is called when the goad is spawned
+ *  @param inPawn
+ *  @param bVehicleTransition
+ */
 event Possess(Pawn inPawn, bool bVehicleTransition)
 {
     super.Possess(inPawn, bVehicleTransition);
     Pawn.SetMovementPhysics();
 	startPosition = self.Pawn.Location;
 }
-
+/**
+ * state where the goat is walking to a random player
+ */
 auto state walk {
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
@@ -48,7 +56,6 @@ Begin:
 					MoveTo(tempDest);
 				}
 			} else {
-				`log(self $ 'NEE zelfs dat  gaat nu niet meer');
 				nextLocation = getRandomLocation();
 				GotoState('walk');
 			}
@@ -58,7 +65,9 @@ Begin:
 	sleep(0.1);
 	goto 'Begin';
 }
-
+/**
+ * The state where the goat is doing nothing but eating
+ */
 state eat {
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
@@ -69,7 +78,10 @@ state eat {
 		GotoState('walk');
 	}
 }
-
+/**
+ * A function for A* to get a next path to the goal
+ * @param goal the location where the goat should walk to.
+ */
 function bool FindNavMeshPath(Vector goal)
 {
     NavigationHandle.PathConstraintList = none;
@@ -78,7 +90,10 @@ function bool FindNavMeshPath(Vector goal)
     class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, goal,32 );
     return NavigationHandle.FindPath();
 }
-
+/**
+ * A function to get a random location around its start position.
+ * @return a Vector location
+ */
 function Vector getRandomlocation() {
 	local Vector temp;
 	temp.X = Rand(wanderRange*2) - wanderRange;

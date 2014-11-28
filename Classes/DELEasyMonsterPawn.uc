@@ -8,5 +8,6 @@ class DELEasyMonsterPawn extends DELHostilePawn
 
 defaultproperties
 {
-   ControllerClass=class'DELEasyMonsterController'
+	ControllerClass=class'DELEasyMonsterController'
+	magicResistance = 1.0
 }

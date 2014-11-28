@@ -35,7 +35,8 @@ simulated function TimeWeaponEquipping(){
     AttachWeaponTo( instigator.Mesh,'WeaponPoint' );
 }
  
-simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName ){
+simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
+{
     MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
 }
 
@@ -185,7 +186,6 @@ DefaultProperties
 	FiringStatesArray(0)="Swinging"
 
 	WeaponFireTypes(0)=EWFT_Custom
-
 
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
