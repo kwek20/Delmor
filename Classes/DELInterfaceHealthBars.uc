@@ -1,7 +1,14 @@
+/**
+ * Interface for the health and mana bar
+ */
 class DELInterfaceHealthBars extends DELInterface;
 
 var() MaterialInstanceConstant bg; 
 
+/**
+ * The height of a bar.<br/>
+ * The length is calculated from the (screen width / 5)
+ */
 var() int barSize;
 
 simulated function draw(DELPlayerHud hud){

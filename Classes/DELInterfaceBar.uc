@@ -1,6 +1,16 @@
+/**
+ * Interface for the quick action bar
+ */
 class DELInterfaceBar extends DELInterfaceInteractible;
 
+/**
+ * Size of a button, length between 2 buttons and the amount of buttons we want to draw
+ */
 var int squareSize, inbetween, amountBars;
+
+/**
+ * Array of textures linked to the buttons
+ */
 var array<String> textures;
 
 function load(DELPlayerHud hud){

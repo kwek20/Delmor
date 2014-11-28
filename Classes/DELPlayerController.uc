@@ -11,6 +11,7 @@ class DELPlayerController extends PlayerController dependson(DELInterface)
 
 var SoundCue soundSample; 
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
+
 var() private string subtitle;
 var() int subtitleTime, currentTime;
 
@@ -42,7 +43,22 @@ Begin:
 }
 
 state MouseState {
-	function UpdateRotation(float DeltaTime);
+	function UpdateRotation(float DeltaTime);   
+
+	exec function StartFire(optional byte FireModeNum){}
+
+	simulated function StopFire(optional byte FireModeNum ){
+		local DELPlayerInput input;
+		input = DELPlayerInput(getHud().PlayerOwner.PlayerInput);
+
+		if(FireModeNum == 0){
+			//Left
+			onMousePress(input.MousePosition);
+		} else if(FireModeNum == 1){
+			//Right
+			onMousePress(input.MousePosition);
+		}
+	}
 
 	function load(){
 		canWalk=false;
@@ -99,6 +115,18 @@ public function onNumberPress(int key){
 	foreach interfaces(interface){
 		if (DELInterfaceInteractible(interface) != None){
 			DELInterfaceInteractible(interface).onKeyPress(getHud(), key);
+		}
+	}
+}
+
+public function onMousePress(IntPoint pos){
+	local DELinterface interface;
+	local array<DELInterface> interfaces;
+
+	interfaces = getHud().getInterfaces();
+	foreach interfaces(interface){
+		if (DELInterfaceInteractible(interface) != None){
+			DELInterfaceInteractible(interface).onClick(getHud(), pos);
 		}
 	}
 }
