@@ -33,8 +33,15 @@ protected function DELInterfaceButton getButtonByPosition(Vector2D position){
 
 public function performAction(DELPlayerHud p, DELInterfaceButton b){
 	if (b == none || p == None) return;
-	
 	`log("Button action for " $ b.identifierKey);
+	b.onUse(p);
+}
+
+public function draw(DELPlayerHud hud){
+	local DELInterfaceButton button;
+	foreach buttons(button){
+		button.draw(hud);
+	}
 }
 
 public function bool canInteract(){

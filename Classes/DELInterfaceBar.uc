@@ -16,15 +16,18 @@ function load(DELPlayerHud hud){
 		button = Spawn(class'DELInterfaceButton');
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-
+		button.setRun(useMagic);
 		addButton(button);
 	}
+}
+
+function useMagic(DELPlayerHud hud){
+	hud.log("RAN useMagic");
 }
 
 function draw(DELPlayerHud hud){
 	local int length, startX, startY;
 	local DELPawn pawn;
-	local DELInterfaceButton button;
 	
 	pawn = DELPawn(hud.getPlayer().getPawn());
 	if (pawn == None || pawn.Health <= 0)return;
@@ -38,9 +41,7 @@ function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(startX, startY);   
 	hud.Canvas.DrawRect(length, squareSize+inbetween*2); 
 
-	foreach buttons(button){
-		button.draw(hud);
-	}
+	super.draw(hud);
 }
 
 DefaultProperties

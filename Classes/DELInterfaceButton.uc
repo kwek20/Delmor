@@ -16,6 +16,8 @@ var() MaterialInstanceConstant texture;
  */
 var() int identifierKey;
 
+delegate onUse(DELPlayerHud hud);
+
 /**
  * Checks if a position is inside this button
  */
@@ -50,12 +52,20 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 }
 
 public function draw(DELPlayerHud hud){
+	local float Xstring, Ystring;
+
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (texture != None){
 		hud.Canvas.DrawMaterialTile(texture, position.Z, position.W);
 	} else {
-		hud.Canvas.SetDrawColor(50, 0, 50); // Red
+		hud.Canvas.SetDrawColor(50, 0, 50); // purple
 		hud.Canvas.DrawRect(position.Z, position.W);
+		
+		hud.Canvas.TextSize(identifierKey $ "", Xstring, Ystring);
+		hud.Canvas.SetDrawColor(0, 0, 0); // black
+		hud.Canvas.SetPos(  position.X + position.Z / 2 - Xstring / 2, 
+							position.Y + position.W / 2 - Ystring / 2);
+		hud.Canvas.DrawText(identifierKey $ "");
 	}
 }
 
@@ -68,6 +78,10 @@ public function setTexture(MaterialInstanceConstant mat){
 
 public function setIdentifier(int key){
 	identifierKey = Clamp(key, 0, 9);
+}
+
+public function setRun(delegate<onUse> runMethod){
+	onUse = runMethod;
 }
 
 DefaultProperties
