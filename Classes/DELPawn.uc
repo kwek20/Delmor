@@ -95,11 +95,14 @@ var Vector cameraOffset;
 
 /**
  * Determines whether the player is in look mode.
- * When in look mode, the pawn will rotate with the camara.
+ * When in look mode, the pawn will not rotate with the camara.
  * Else the camera will rotate with the pawn.
  */
 var bool bLookMode;
-
+/**
+ * If locked to camera, the pawn's direction will be determined by the camera-direction.
+ */
+var bool bLockedToCamera;
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
@@ -158,7 +161,7 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	newRotation.Yaw = targetRotation.Yaw;
 
 	//If in look mode, rotate the pawn according to the camera's rotation
-	//if ( bLookMode ){
+	//if ( bLockedToCamera ){
 	//	self.SetRotation( newRotation );
 	//}
 	//else{
@@ -185,8 +188,8 @@ event Tick( float deltaTime ){
 		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
 	}
 
-	if ( bLookMode )
-		camTargetDistance = 100.0;
+	if ( bLockedToCamera )
+		camTargetDistance = 150.0;
 	else
 		camTargetDistance = 300.0;
 	//Animate the camera
@@ -213,7 +216,7 @@ function SpawnController(){
 function adjustCameraDistance( float deltaTime ){
 	local float difference , distanceSpeed;
 	difference = max( camOffsetDistance , camTargetDistance ) - min( camOffsetDistance , camTargetDistance );
-	distanceSpeed = max( difference * ( 12 * deltaTime ) , 2 );
+	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
 
 	if ( camOffsetDistance < camTargetDistance ){
 		camOffsetDistance += distanceSpeed;
@@ -248,7 +251,7 @@ DefaultProperties
 	physicalResistance = 0.0
 	magicResistance = 0.0
 	walkingSpeed = 100.0
-	detectionRange = 1024.0
+	detectionRange = 960.0
 	regenerationTimer = 1.0;
 	//SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
@@ -256,6 +259,7 @@ DefaultProperties
 	camTargetDistance = 300.0
 	camPitch = -5000.0
 	bLookMode = false
+	bLockedToCamera = false
 
 	ControllerClass = class'DELNpcController'
 
