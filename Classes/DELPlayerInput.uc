@@ -129,7 +129,7 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 
 	yaw = pawn.Rotation.Yaw;
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed + adjustedRotationSpeed ){
+	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
         yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
 	}
     else{
@@ -151,7 +151,7 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-	local int adjustedRotationSpeed;
+	local int adjustedRotationSpeed; 
 	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
 	//Spawn a math
 	if ( math == none ){
@@ -323,7 +323,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
-		setKeyBinding( 'LeftMouseButton' , "mousePress" );
+		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
 		setKeyBinding( 'I' , "openInventory" );
