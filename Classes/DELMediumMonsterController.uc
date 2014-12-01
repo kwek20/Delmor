@@ -194,19 +194,12 @@ state attack{
 	}
 
 	event tick( float deltaTime ){
-		local DELPawn monster;
 
 		super.Tick( deltaTime );
 
 		timer -= deltaTime;
 
 		if ( timer <= 0.0 ){
-			`log( self$" It is time to make a decision" );
-			//Heal a nearby monster that is almost dead.
-			//monster = findLowHealthMonster();
-			//if ( monster != none )
-			//	healMonster( monster );
-
 			//Flee from the player if the health is low and the player is too close.
 			if ( checkIsInDanger() ){
 				`log( self$" I'm in danger" );

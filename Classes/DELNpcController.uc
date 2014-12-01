@@ -123,6 +123,23 @@ function bool targetIsTooFarAway(){
 	}
 }
 
+/**
+ * Returns whether the controller is in a combat-related state.
+ * Combat states are (Amongst others): Attack, Keep distance, flee.
+ * States that won't be seen as combat states are: Idle, Flock, Wander.
+ */
+function bool isInCombatState(){
+	if ( isInState( 'attack' )
+	|| isInState( 'flee' )
+	|| isInState( 'maintainDistanceFromPlayer' )
+	){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
 /*
  * ==============================================
  * Action functions

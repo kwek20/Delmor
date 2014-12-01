@@ -311,6 +311,7 @@ state Flock{
 		local vector targetLocation;
 
 		//Calculate target location based on flocking rules
+		//Pawns will flock differently when a commander is near.
 		if ( commander == none ){
 			targetLocation = cohesion();
 		}
