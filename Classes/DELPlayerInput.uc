@@ -160,7 +160,7 @@ function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTi
 
 	yaw = pawn.Controller.Rotation.Yaw;
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed + adjustedRotationSpeed ){
+	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
         yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
 	}
     else{
