@@ -14,6 +14,7 @@ var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 
 var() private string subtitle;
 var() int subtitleTime, currentTime;
+
 /*##########
  * STATES
  #########*/
@@ -24,13 +25,8 @@ function BeginState(Name PreviousStateName){
 }
 
 auto state PlayerWalking {
-	function swap(){
-		gotoState('Playing');
-	}
-
 Begin:
-	SetTimer(FInterpTo(1, 3 ,WorldInfo.DeltaSeconds,0.1), false, 'swap'); 
-	//cheating way to make the canvas load properly before loading interfaces
+	Sleep(0.1); gotoState('Playing');
 }
 
 state Playing extends PlayerWalking{
@@ -48,21 +44,8 @@ Begin:
 
 state MouseState {
 	function UpdateRotation(float DeltaTime);   
-
-	exec function StartFire(optional byte FireModeNum){}
-
-	simulated function StopFire(optional byte FireModeNum ){
-		local DELPlayerInput input;
-		input = DELPlayerInput(getHud().PlayerOwner.PlayerInput);
-
-		if(FireModeNum == 0){
-			//Left
-			onMousePress(input.MousePosition);
-		} else if(FireModeNum == 1){
-			//Right
-			onMousePress(input.MousePosition);
-		}
-	}
+	exec function StartFire(optional byte FireModeNum);
+	exec function StopFire(optional byte FireModeNum);
 
 	function load(){
 		canWalk=false;

@@ -310,16 +310,20 @@ exec function numberPress(name inKey){
 	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
 }
 
+exec function mousePress(){
+	DELPlayerController(Pawn.Controller).onMousePress(MousePosition);
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
-	`log( "Set bindings" );
 	if(!change) {
 		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMovingForward" );
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+		setKeyBinding( 'LeftMouseButton' , "mousePress" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
 		setKeyBinding( 'I' , "openInventory" );
