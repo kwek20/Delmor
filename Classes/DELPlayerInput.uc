@@ -129,7 +129,7 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 
 	yaw = pawn.Rotation.Yaw;
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed + adjustedRotationSpeed ){
+	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
         yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
 	}
     else{
