@@ -31,7 +31,7 @@ function load(DELPlayerHud hud){
 		button = Spawn(class'DELInterfaceButton');
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-		button.setRun(actions[i-1]);
+		button.setRun(useMagic);
 		button.setTexture(textures[i-1]);
 		addButton(button);
 	}
