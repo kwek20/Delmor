@@ -244,8 +244,8 @@ DefaultProperties
 	health = 100
 	healthMax = 100
 	healthRegeneration = 1
-	mana = 0
-	manaMax = 0
+	mana = 100
+	manaMax = 100
 	manaRegeneration = 1
 	meleeRange = 100.0
 	physicalResistance = 0.0
@@ -253,7 +253,6 @@ DefaultProperties
 	walkingSpeed = 100.0
 	detectionRange = 960.0
 	regenerationTimer = 1.0;
-	//SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0
 	camTargetDistance = 300.0

@@ -31,8 +31,8 @@ function draw(DELPlayerHud hud){
 	
 	local LinearColor MapOffset;
 
-	MapPosition.X = hud.Canvas.OrgX + 30;
-	MapPosition.Y = hud.Canvas.OrgY + 30;
+	MapPosition.X = hud.Canvas.OrgX;
+	MapPosition.Y = hud.Canvas.OrgY;
 
 	MapDim = MapDim * ResolutionScale;
 
@@ -158,7 +158,7 @@ DefaultProperties
 
 	bMoveable=false
 
-	MapDim=180
+	MapDim=150
 	TileSize=0.4
 	  BoxSize=12
 	 MapPosition=(X=0.000000,Y=0.000000)
