@@ -227,6 +227,20 @@ exec function endLookMode(){
 	//goToState( 'idle' );
 }
 
+/**
+ * Enter aim mode before performing a spell.
+ */
+exec function startAimMode(){
+	DELPawn( Pawn ).bLockedToCamera = true;
+}
+
+/**
+ * Exit aim mode before performing a spell.
+ */
+exec function endAimMode(){
+	DELPawn( Pawn ).bLockedToCamera = false;
+}
+
 exec function openInventory() {
 	DELPlayerController(Pawn.Controller).openInventory();
 }
@@ -307,6 +321,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding('Escape', "closeHud");
 
@@ -340,6 +355,11 @@ event PlayerInput(float DeltaTime){
   Super.PlayerInput(DeltaTime);
 }
 
+event tick( float deltaTime ){
+	if ( DELPawn( pawn ).bLockedToCamera ){
+		rotatePawnToDirection( pawn.Controller.Rotation.Yaw , defaultRotationSpeed , deltaTime );
+	}
+}
 /**
  * Set a specific keybinding.
  */

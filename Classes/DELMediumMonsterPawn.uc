@@ -31,4 +31,5 @@ defaultproperties
 	healthMax = 150
 	healthRegeneration = 4
 	walkingSpeed = 80.0
+	detectionRange = 512.0
 }
