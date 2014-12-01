@@ -2,7 +2,6 @@ class DELPlayer extends DELCharacterPawn;
 
 var array< class<Inventory> > DefaultInventory;
 var Weapon sword;
-
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -17,12 +16,27 @@ var float   SprintTimerCount;
 var float   LastSprint;
 var float   ScaledTimer;
 
+var() const array<Name> SwingAnimationNames;
+var AnimNodePlayCustomAnim SwingAnim;
 
 simulated function bool IsFirstPerson(){
 	return false;
 }
 
-function AddDefaultInventory(){
+
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+	super.PostInitAnimTree(SkelComp);
+
+	if (SkelComp == Mesh)
+	{
+		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
+		`log("-------------------__________-----------------");
+	}
+}
+
+function AddDefaultInventory()
+{
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	sword.bCanThrow = false; // don't allow default weapon to be thrown out
@@ -217,7 +231,9 @@ DefaultProperties
 {
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
-	Components.Remove(ThirdPersonMesh)
+
+	Components.Remove(ThirdPersonMesh);
+
 		Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Lucian_walking'
 		AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'

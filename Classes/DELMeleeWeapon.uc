@@ -9,19 +9,21 @@ var array<Actor> swingHitActors;
 var array<int> swings;
 var const int maxSwings;
 
-simulated state Swinging{
+simulated state Swinging extends WeaponFiring {
 	simulated event Tick(float DeltaTime){
 		super.Tick(DeltaTime);
 		TraceSwing();
 	}
-	simulated event BeginState(Name NextStateName){
+	/*simulated event BeginState(Name NextStateName){
 		`log("Swing that mothafucka");
-	}
+		FireAmmunition();
+	}*/
 	
 	simulated event EndState(Name NextStateName)
 	{
 		super.EndState(NextStateName);
 		SetTimer(GetFireInterval(CurrentFireMode), false, nameof(ResetSwings));
+		`log("i have swinged my sword");
 	}
 }
 
@@ -72,7 +74,7 @@ simulated function TraceSwing(){
 	{
 		if (HitActor != self && AddToSwingHitActors(HitActor))
 		{
-			Momentum = Normal(SwordTip - SwordHilt) * InstantHitMomentum[CurrentFireMode];
+			//Momentum = Normal(SwordTip - SwordHilt) * InstantHitMomentum[CurrentFireMode];
 			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, class'DamageType');
 			//PlaySound(SwordClank);
 		}
@@ -100,7 +102,8 @@ simulated function Vector GetSwordSocketLocation(Name SocketName){
 	local Rotator SwordRotation;
 	local SkeletalMeshComponent SMC;
 	SMC = SkeletalMeshComponent(Mesh);
-	
+
+
 	if (SMC != none && SMC.GetSocketByName(SocketName) != none){
 		SMC.GetSocketWorldLocationAndRotation(SocketName, SocketLocation, SwordRotation);
 	}
@@ -147,23 +150,28 @@ simulated function bool HasAmmo(byte FireModeNum, optional int Ammount)
 
 simulated function FireAmmunition()
 {
+	`log("FireAmmunition");
 	StopFire(CurrentFireMode);
 	SwingHitActors.Remove(0, SwingHitActors.Length);
 
 	if (HasAmmo(CurrentFireMode))
 	{
-	/*	if (MaxSwings - Swings[0] == 0) {
-			MeleeWeaponPawn(Owner).SwingAnim.PlayCustomAnim('SwingOne', 1.0);
+		`log("Swing:");
+		`log(Swings[0]);
+		if (MaxSwings - Swings[0] == 0) {
+			`log(Swings[0]);
+			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.f,0.1f,0.1f,false,true);
 		} else if (MaxSwings - Swings[0] == 1){
-			MeleeWeaponPawn(Owner).SwingAnim.PlayCustomAnim('SwingTwo', 1.0);
+			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
 		}
 		else{
-			MeleeWeaponPawn(Owner).SwingAnim.PlayCustomAnim('SwingThree', 1.0);
-		}*/
+			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
+		}
+		`log("swing complete?");
 
 
+		//PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
 
-		PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
 
 		super.FireAmmunition();
 	}
@@ -171,11 +179,16 @@ simulated function FireAmmunition()
 DefaultProperties
 {
 	bHardAttach = true
-	swordHiltSocketName = swordHiltSocket
-	swordTipSocketName = swordTipSocket
+	swordHiltSocketName = SwordHiltSocket
+	swordTipSocketName = SwordTipSocket
+	//swordHiltSocketName = StartControl
+	//swordTipSocketName = EndControl
+
 
 	MaxSwings=3
 	Swings(0)=3
+
+	FireInterval(0)=0.25
 
 	damageMin = 10;
 	damageMax = 50;
@@ -183,20 +196,42 @@ DefaultProperties
 	bMeleeWeapon=true;
 	bInstantHit=true;
 	bCanThrow=false;
-	bInvisible=true;
+
 	FiringStatesArray(0)="Swinging"
 
 	WeaponFireTypes(0)=EWFT_Custom
 
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
-        SkeletalMesh=SkeletalMesh'GDC_Materials.Meshes.SK_ExportSword2'
+        SkeletalMesh=SkeletalMesh'Delmor_Character.lucian_sword'
         FOV=60
 		HiddenGame=FALSE
         HiddenEditor=FALSE
         //Animations=MeshSequenceA
-        //AnimSets(0)=AnimSet'CastersSwordPackage.Sword.AnimSetSword'
+        AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
+		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
         bForceUpdateAttachmentsInTick=True
-        Scale=0.9000000
+		bCacheAnimSequenceNodes=false
+		AlwaysLoadOnClient=true
+		AlwaysLoadOnServer=true
+		CastShadow=true
+		BlockRigidBody=true
+		bUpdateSkelWhenNotRendered=false
+		bIgnoreControllersWhenNotRendered=true
+		bUpdateKinematicBonesFromAnimation=true
+		bCastDynamicShadow=true
+		RBChannel=RBCC_Untitled3
+		RBCollideWithChannels=(Untitled3=true)
+		bOverrideAttachmentOwnerVisibility=true
+		bAcceptsDynamicDecals=false
+		bHasPhysicsAssetInstance=true
+		TickGroup=TG_PreAsyncWork
+		MinDistFactorForKinematicUpdate=0.2f
+		bChartDistanceFactor=true
+		RBDominanceGroup=20
+		Scale=1.f
+		bAllowAmbientOcclusion=false
+		bUseOnePassLightingOnTranslucency=true
+		bPerBoneMotionBlur=true
 	End Object
     Mesh=MeleeWeapon
 	

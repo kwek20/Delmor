@@ -29,7 +29,7 @@ var float MPosYMap;
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
 
-	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
+	//GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
 
 /**
