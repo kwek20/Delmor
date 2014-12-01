@@ -13,6 +13,12 @@ var int squareSize, inbetween, amountBars;
  */
 var array<Texture2D> textures;
 
+/**
+ * Array of delegate functions
+ */
+var array< delegate<action> > actions;
+delegate action(DELPlayerHud hud);
+
 function load(DELPlayerHud hud){
 	local DELInterfaceButton button;
 	local int i, length, startX, startY;
@@ -21,50 +27,14 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - length/2;
 	startY = hud.sizeY - squareSize*1.5;
 
-		hud.log(length@startX@startY@hud.sizeX);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	/*for (i=1; i<=amountBars; i++){
+	for (i=1; i<=amountBars; i++){
 		button = Spawn(class'DELInterfaceButton');
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-		button.setRun(useMagic);
+		button.setRun(actions[i-1]);
+		button.setTexture(textures[i-1]);
 		addButton(button);
-	}*/
+	}
 }
 
 function useMagic(DELPlayerHud hud){
@@ -90,6 +60,46 @@ function draw(DELPlayerHud hud){
 	super.draw(hud);
 }
 
+function old(){
+	/*
+	 i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	button.setRun();
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+
+	i++;
+	button = Spawn(class'DELInterfaceButton');
+	button.setTexture(textures[i-1]);
+	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+	button.setIdentifier(i);
+	AddButton(button);
+	*/
+}
+
 DefaultProperties
 {
 	squareSize=40
@@ -97,4 +107,9 @@ DefaultProperties
 	amountBars=5;
 
 	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
+	actions[0] = useMagic
+	actions[1] = useMagic
+	actions[2] = useMagic
+	actions[3] = useMagic
+	actions[4] = useMagic
 }

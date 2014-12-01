@@ -110,7 +110,8 @@ public function setIdentifier(int key){
  * @param runMethod The method this button will run when you activate it
  */
 public function setRun(delegate<onUse> runMethod){
-	onUse = runMethod;
+	`log(runMethod);
+	//onUse = runMethod;
 }
 
 DefaultProperties
