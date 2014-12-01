@@ -1,6 +1,9 @@
 class DELPlayerHud extends UDkHUD
 	config(game);
 
+/**
+ * Struct containing an interface with its priority
+ */
 struct InterFaceItem {
 	var DELInterface interface;
 	var EPriority priority;
@@ -29,6 +32,11 @@ simulated event PostBeginPlay() {
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
 
+/**
+ * Adds an interface with the correct priority.
+ * @param interface the interface getting added
+ * @param priority the priority
+ */
 function addInterface(DELInterface interface, EPriority priority){
 	local InterFaceItem interf, newItem;
 	local int i;
@@ -43,10 +51,30 @@ function addInterface(DELInterface interface, EPriority priority){
 	interfaces.insertItem(i, newItem);
 }
 
+/**
+ * Clears the interfaces array. Removing all content
+ */
 function clearInterfaces(){
 	interfaces.Length = 0;
 }
 
+/**
+ * Gets an active interface by class name
+ * @param interface the interface, must extend DELInterface
+ * @return the interface or None
+ */
+function DELInterface getInterface(class<DELInterface> interface){
+	local InterFaceItem item;
+	foreach interfaces(item){
+		if (item.interface.class == interface) return item.interface;
+	}
+
+	return none;
+}
+
+/**
+ * Get all interfaces, ordered by priority
+ */
 function array<DELInterface> getInterfaces(){
 	local array<DELInterface> interfaceArray;
 	local InterFaceItem item;
