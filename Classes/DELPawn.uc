@@ -109,7 +109,6 @@ simulated event PostBeginPlay(){
 	setCameraOffset( 0.0 , 0.0 , 64.0 );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
-	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
 }
@@ -251,7 +250,7 @@ DefaultProperties
 	walkingSpeed = 100.0
 	detectionRange = 1024.0
 	regenerationTimer = 1.0;
-	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
+	//SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 
 	camOffsetDistance = 300.0
 	camTargetDistance = 300.0
