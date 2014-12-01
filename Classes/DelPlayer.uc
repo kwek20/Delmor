@@ -27,7 +27,7 @@ DefaultProperties
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 	Components.Remove(ThirdPersonMesh);
-	Begin Object Name=ThirdPersonMesh
+		Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Lucian_walking'
 		AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.Lucian_walking_Physics'
