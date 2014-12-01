@@ -151,7 +151,7 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-	local int adjustedRotationSpeed;
+	local int adjustedRotationSpeed; 
 	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
 	//Spawn a math
 	if ( math == none ){

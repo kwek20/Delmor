@@ -4,11 +4,6 @@
  * So MonsterPawns and VillagerPawns will both inherit from DELPawn.
  * DELCharacterPawn will extend from this and if you create a new pawn, it should extend from DELCharacterPawn.
  * 
- * KNOWN ISSUES:
- * Collision, if I give the pawn a large height in the collision cylinder, it will somehow float above the ground.
- * However, if I set collisionheight to 1, the pawns will automaticly jump over one another. Problem can be solved by
- * removing the jumping from the pawn.
- * 
  * @author Anders Egberts
  */
 class DELPawn extends UTPawn;
@@ -143,36 +138,38 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	 */
 	local Rotator newRotation;
 
-	//Get the controller's rotation as camera angle.
-	targetRotation = Controller.Rotation;
+	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
+		//Get the controller's rotation as camera angle.
+		targetRotation = Controller.Rotation;
 
-    out_CamLoc = Location;
-    out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-    out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-    out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
-	out_CamLoc = out_CamLoc + cameraOffset;
+		out_CamLoc = Location;
+		out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc = out_CamLoc + cameraOffset;
 
-    out_CamRot.Yaw = targetRotation.Yaw;
-    out_CamRot.Pitch = camPitch;
-    out_CamRot.Roll = 0;
+		out_CamRot.Yaw = targetRotation.Yaw;
+		out_CamRot.Pitch = camPitch;
+		out_CamRot.Roll = 0;
 
-	//If in look mode, change the pawn's rotation based on the camera
-	newRotation.Pitch = Rotation.Pitch;
-	newRotation.Roll = Rotation.Roll;
-	newRotation.Yaw = targetRotation.Yaw;
+		//If in look mode, change the pawn's rotation based on the camera
+		newRotation.Pitch = Rotation.Pitch;
+		newRotation.Roll = Rotation.Roll;
+		newRotation.Yaw = targetRotation.Yaw;
 
-	//If in look mode, rotate the pawn according to the camera's rotation
-	//if ( bLockedToCamera ){
-	//	self.SetRotation( newRotation );
-	//}
-	//else{
-		Controller.SetRotation( newRotation );
-	//}
+		//If in look mode, rotate the pawn according to the camera's rotation
+		//if ( bLockedToCamera ){
+		//	self.SetRotation( newRotation );
+		//}
+		//else{
+			Controller.SetRotation( newRotation );
+		//}
 
-    if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
-    {
-        out_CamLoc = HitLocation;
-    }
+		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
+		{
+			out_CamLoc = HitLocation;
+		}
+	}
 
     return true;
 }
@@ -193,8 +190,11 @@ event Tick( float deltaTime ){
 		camTargetDistance = 150.0;
 	else
 		camTargetDistance = 300.0;
-	//Animate the camera
-	adjustCameraDistance( deltaTime );
+
+	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
+		//Animate the camera
+		adjustCameraDistance( deltaTime );
+	}
 }
 
 /*/**
