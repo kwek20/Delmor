@@ -111,7 +111,7 @@ function checkHuds(){
 
 	if (drawDefaultHud){
 		addInterface(class'DELInterfaceBar');
-		//addInterface(class'DELInterfaceCompass');
+		addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
 		addInterface(class'DELInterfaceSubtitle');

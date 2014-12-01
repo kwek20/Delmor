@@ -17,49 +17,35 @@ var float MPosYMap;
 
 function load(DELPlayerHud hud){
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
+	ConsoleCommand("DisableAllScreenMessages");
 }
 
+
+/**
+ * Draws compass to hud
+ * */
 function draw(DELPlayerHud hud){
 	local float TrueNorth, PlayerHeading;
 	local Vector2D MapPosition;
 	local float CompassRotation, MapRotation;
-	local vector PlayerPos, ClampedPlayerPos, DisplayPlayerPos, RotPlayerPos, StartPos;
+	
 	local LinearColor MapOffset;
-	local float ActualMapRange;
 
-	MapPosition.X = hud.Canvas.OrgX + 30;;
-	MapPosition.Y = hud.Canvas.OrgY + 30;;
-//	ActualMapRange = FMax(GameMinimap.MapRangeMax.X - GameMinimap.MapRangeMin.X, GameMinimap.MapRangeMax.Y - GameMinimap.MapRangeMin.Y);
-/*	`log("actualmaprangeXmax: "$ GameMinimap.MapRangeMax.X);
-	`log("actualMaprangeYmax: "$ GameMinimap.MapRangeMax.Y);
-	`log("actualmaprangeXmin: "$ GameMinimap.MapRangeMin.X);
-	`log("actualMaprangeYmin: "$ GameMinimap.MapRangeMin.Y);
-	`log("MAPPOSX: "$ MapPosition.X);
-	`log("MAPPOSY: "$ MapPosition.Y);
-	`log("resoscale: "$ResolutionScale);*/
+	MapPosition.X = hud.Canvas.OrgX + 30;
+	MapPosition.Y = hud.Canvas.OrgY + 30;
+
 	MapDim = MapDim * ResolutionScale;
-/*  `log("MAPDIM " $ MapDim);
-	`log("DPC.Pawn.Location.Y " $ GetALocalPlayerController().Pawn.Location.Y);
-	`log("ActualMapRange: " $ ActualMapRange);
-	`log("PlayerposX " $PlayerPos.X);
-	`log("PlayerposY " $PlayerPos.Y);*/
 
-/*	`log("ClampedPlayerPos.X: "$ ClampedPlayerPos.X);
-	`log("ClampedPlayerPos.Y: "$ ClampedPlayerPos.Y);*/
-	TrueNorth = GameMinimap.GetRadianHeading();
-	Playerheading = getRadianHeading();
+	TrueNorth = GameMinimap.getRadianHeading();
+	Playerheading = getPlayerHeading();
 
-	/*`log("TRUENORTH : "$ TrueNorth);*/
+	
 	if(GameMinimap.bForwardAlwaysUp){
 		MapRotation = PlayerHeading;
-		//`log("Maprotation" $ MapRotation);
 		CompassRotation = PlayerHeading - TrueNorth;
-		//`log("CompassRotation"$ CompassRotation);
 	} else {
 		MapRotation = PlayerHeading - TrueNorth;
-		//`log("Maprotation" $ MapRotation);
 		CompassRotation = MapRotation;
-		//`log("CompassRotation"$ CompassRotation);
 	}
 	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
 	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
@@ -130,6 +116,26 @@ function float getDegreeHeading(){
 
 	f *= RadToDeg;
 	return f;
+}
+
+/**
+ * Returns playerheading
+ * */
+function float getPlayerHeading()
+{
+	local Float PlayerHeading;
+	local Rotator PlayerRotation;
+	local Vector v;
+
+	PlayerRotation.Yaw = GetALocalPlayerController().Pawn.Rotation.Yaw;
+	v = vector(PlayerRotation);
+	PlayerHeading = GetHeadingAngle(v);
+	PlayerHeading = UnwindHeading(PlayerHeading);
+
+	while (PlayerHeading < 0)
+		PlayerHeading += PI * 2.0f;
+
+	return PlayerHeading;
 }
 
 DefaultProperties
