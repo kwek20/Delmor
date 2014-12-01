@@ -1,4 +1,4 @@
-class DELMinimap extends DELCompass;
+class DELMinimap extends DELInterfaceCompass;
 
 var() MaterialInstanceConstant Minimap;
 var() MaterialInstanceConstant CompassOverlay;
@@ -30,6 +30,6 @@ defaultproperties
    Components.Add(DrawSphere0)
    
    bForwardAlwaysUp=True
-	Minimap=MaterialInstanceConstant'CompassContent.M_minimap_INST'
-	CompassOverlay=MaterialInstanceConstant'CompassContent.M_compass_INST'
+	Minimap=MaterialInstanceConstant'CompassContent.cartography-155321_640_Mat_INST'
+	CompassOverlay=MaterialInstanceConstant'CompassContent.compass_needle_Mat_INST'
 }
