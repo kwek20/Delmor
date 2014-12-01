@@ -15,7 +15,6 @@ function InitGame( string Options, out string ErrorMessage )
 	
 }
 
-
 /**
  * Extended the startMatch function. The game will now search for DELPlayerInput
  * And make it execute the setBindings() function so that we have the special Delmor

@@ -229,6 +229,7 @@ exec function endLookMode(){
 
 exec function openInventory() {
 	DELPlayerController(Pawn.Controller).openInventory();
+	`log( "OPEN INVENTORY!!!!" );
 }
 
 exec function closeHud() {
