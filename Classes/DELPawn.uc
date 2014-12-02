@@ -104,7 +104,7 @@ var bool bLockedToCamera;
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 64.0 );
+	setCameraOffset( 0.0 , 0.0 , 48.0 );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
@@ -188,7 +188,7 @@ event Tick( float deltaTime ){
 	if ( bLockedToCamera )
 		camTargetDistance = 150.0;
 	else
-		camTargetDistance = 300.0;
+		camTargetDistance = 200.0;
 
 	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
 		//Animate the camera
@@ -254,8 +254,8 @@ DefaultProperties
 	detectionRange = 960.0
 	regenerationTimer = 1.0;
 
-	camOffsetDistance = 300.0
-	camTargetDistance = 300.0
+	camOffsetDistance = 200.0
+	camTargetDistance = 200.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false

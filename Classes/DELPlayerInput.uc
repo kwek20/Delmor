@@ -17,9 +17,6 @@ simulated event postBeginPlay(){
 	//super.PostBeginPlay();
 	`log("### Post begin play. PlayerInput: "$self );
 	setBindings();
-	`log( ">>>>>>>>>>>>>>>>>>>>> Spawn DELMath" );
-	math = spawn( class'DELMath' );
-	`log( "math: "$math );
 }
 
 /**
@@ -120,26 +117,20 @@ exec function startMovingBackward(){
 function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-	local int adjustedRotationSpeed;
-	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
-	//Spawn a math
-	if ( math == none ){
-		math = spawn( class'DELMath' );
-	}
 
-	yaw = pawn.Rotation.Yaw;
+	math = GetMath();
+	yaw = math.modulo( pawn.Rotation.Yaw , 65536 );
+	targetYaw = math.modulo( targetYaw , 65536 );
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
-        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
-	}
-    else{
+	if ( yaw < targetYaw - ( rotationSpeed  - 2 ) || yaw > targetYaw + ( rotationSpeed - 2 ) ){
+        yaw += math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed;
+	} else {
         yaw = targetYaw;
     }
 
 	newRotation.Pitch = pawn.Rotation.Pitch;
 	newRotation.Roll = pawn.Rotation.Roll;
 	newRotation.Yaw = yaw;
-
 	pawn.SetRotation( newRotation );
 }
 
@@ -151,27 +142,40 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-	local int adjustedRotationSpeed; 
-	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
-	//Spawn a math
-	if ( math == none ){
-		math = spawn( class'DELMath' );
-	}
 
+	math = GetMath();
 	yaw = pawn.Controller.Rotation.Yaw;
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
-        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
-	}
-    else{
+	if ( yaw < targetYaw - rotationSpeed || yaw > targetYaw + rotationSpeed ){
+        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed );
+	} else {
         yaw = targetYaw;
     }
 
 	newRotation.Pitch = pawn.Controller.Rotation.Pitch;
 	newRotation.Roll = pawn.Controller.Rotation.Roll;
 	newRotation.Yaw = yaw;
-
 	pawn.controller.SetRotation( newRotation );
+}
+
+/*
+ * =================================================
+ * Utility functions
+ * =================================================
+ */
+
+/**
+ * Spawns a new instance of DELMath if none exists and returns it OR - if
+ * an instance of DELMath already exists - return that instance.
+ * @return DELMath.
+ */
+private function DELMath GetMath(){
+	//Spawn a math
+	if ( math == none ){
+		math = spawn( class'DELMath' );
+	}
+
+	return math;
 }
 
 /**
@@ -326,7 +330,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
-		setKeyBinding( 'I' , "openInventory" );
+		setKeyBinding( 'I' , "openInventory | Axis aBaseY Speed=0.0" );
 		setKeyBinding('Escape', "closeHud");
 
 		setKeyBinding('one', "numberPress 1");
