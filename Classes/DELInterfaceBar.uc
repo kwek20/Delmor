@@ -36,12 +36,12 @@ function load(DELPlayerHud hud){
 		addButton(button);
 	}
 }
-
+//fucked around with this function to test my magical abilities. hope it doesn't break
 function useMagic(DELPlayerHud hud){
 	local DELPawn pawnee;
 	pawnee =DELPawn(hud.getPlayer().getPawn());
 	hud.log("RAN useMagic");
-	`log(key);
+
 	key++;
 	pawnee.magicSwitch(key);
 	if(key == 7){ 

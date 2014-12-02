@@ -1,30 +1,65 @@
 class DELMagic extends DELWeapon;
+/**
+ * list of spells available to magician
+ */
 //var array<DELMagicProjectile> spells;
 var Array< class<UTProjectile> > spells;
+/**
+ * location of active ability within spell list
+ */
 var int ActiveAbilityNumber;
 
 
 /**
- * shoots the magic
+ * starts the shooting
+ * in case of a chargeable spell, the charging will be initiated
+ */
+simulated function FireStart(){
+	//super.StartFire(FireModeNum);
+	if(ActiveAbilityNumber != 0){
+		shoot();
+	}else{
+		shoot();
+	}
+	shoot();
+}
+
+/**
+ * consuming the mana needed for casting the spell
+ * @param spell the spel that is cast
+ * @param chargeTime in case the spell is charged, the charge time will be added to the cost
+ */
+simulated function consumeMana(DELMagicProjectile spell, optional int chargeTime){
+	spell.getCost();
+}
+
+
+/**
+ * shoots the spell
  */
 simulated function shoot(){
 	CustomFire();
 }
 
+/**
+ * gets the amount of spells the player knows
+ */
 simulated function int getMaxSpells(){
 	return spells.Length;
 }
 
+/**
+ * changes the spell that will be used
+ */
 simulated function switchMagic(int AbilityNumber){
-	`log("ability:" $ AbilityNumber);
 	ActiveAbilityNumber = AbilityNumber-1;
-	`log("ellllllllllllllllllllllllllllllllllllo active ability:");
-	`log(ActiveAbilityNumber);
 }
 
 
 /**
  * gets the in-world position of the DualWeaponPoint of the holder
+ * @param holder holder of the weapon
+ * @return returns the position of the socket
  */
 simulated function Vector GetSocketPosition(Pawn Holder){
     local SkeletalMeshComponent compo;
@@ -42,17 +77,12 @@ simulated function Vector GetSocketPosition(Pawn Holder){
 	return FinalLocation;
 }
 
+/**
+ * gets the spell
+ */
 function class<UTProjectile> getMagic(){
 	return spells[ActiveAbilityNumber];
 }
-
-
-simulated state WeaponFiring{
-
-}
-
-
-
 
 /**
  * checks if you are able to use magic.

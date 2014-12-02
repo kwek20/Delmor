@@ -81,7 +81,7 @@ simulated function StartFire(byte FireModeNum){
 		return;
 	}
 	if(FireModeNum == 1 && magic!= None){
-		magic.shoot();
+		magic.FireStart();
 	}
 	if(FireModeNum == 0 && sword != None){
 		weapon.StartFire(FireModeNum);
