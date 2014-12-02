@@ -29,4 +29,5 @@ DefaultProperties
 {
 	criticalHitChance = 5;
 	criticalDamageMultiplier = 4;
+	bCanThrow = false
 }

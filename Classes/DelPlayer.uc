@@ -1,7 +1,8 @@
 class DELPlayer extends DELCharacterPawn;
 
 var array< class<Inventory> > DefaultInventory;
-var Weapon sword;
+var DELWeapon sword;
+var DELWeapon magic;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -24,23 +25,29 @@ simulated function bool IsFirstPerson(){
 }
 
 
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
+/**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 	super.PostInitAnimTree(SkelComp);
 
-	if (SkelComp == Mesh)
-	{
+	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
 		`log("-------------------__________-----------------");
 	}
 }
 
-function AddDefaultInventory()
-{
+/**
+ * adds the weapons(magic + masterSword to the player)
+ */
+function AddDefaultInventory(){
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
-	sword.bCanThrow = false; // don't allow default weapon to be thrown out
 	Controller.ClientSwitchToBestWeapon();
+	magic = Spawn(class'DELMeleeWeapon',,,self.Location);
+	magic.GiveTo(Controller.Pawn);
 }
 
 
