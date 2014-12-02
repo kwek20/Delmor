@@ -2,7 +2,7 @@ class DELPlayer extends DELCharacterPawn;
 
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
-var DELWeapon magic;
+var DELMagic magic;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -46,7 +46,7 @@ function AddDefaultInventory(){
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	magic = Spawn(class'DELMeleeWeapon',,,self.Location);
+	magic = Spawn(class'DELMagic',,,self.Location);
 	magic.GiveTo(Controller.Pawn);
 }
 
@@ -54,6 +54,55 @@ function AddDefaultInventory(){
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+}
+
+/**
+ * switches magical ability
+ */
+simulated function magicSwitch(int AbilityNumber){
+	if( bNoWeaponFiring){
+		return;
+	}	
+	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
+		magic.switchMagic(AbilityNumber);
+	}
+}
+
+
+/**
+ * Pawn starts firing!
+ * Called from PlayerController::StartFiring
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StartFire(byte FireModeNum){
+	if( bNoWeaponFiring){
+		return;
+	}
+	if(FireModeNum == 1 && magic!= None){
+		magic.shoot();
+	}
+	if(FireModeNum == 0 && sword != None){
+		weapon.StartFire(FireModeNum);
+	}
+}
+
+
+/**
+ * Pawn stops firing!
+ * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StopFire(byte FireModeNum){
+	if(FireModeNum == 1 && magic!= None){
+		magic.StopFire(FireModeNum);
+	}
+	if(FireModeNum == 0 && sword != None){
+		sword.StopFire(FireModeNum);
+	}
 }
 
 

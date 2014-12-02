@@ -1,5 +1,26 @@
 class DELMagic extends DELWeapon;
-var array<DELMagicProjectile> spells;
+//var array<DELMagicProjectile> spells;
+var Array< class<UTProjectile> > spells;
+var int ActiveAbilityNumber;
+
+
+/**
+ * shoots the magic
+ */
+simulated function shoot(){
+	CustomFire();
+}
+
+simulated function int getMaxSpells(){
+	return spells.Length;
+}
+
+simulated function switchMagic(int AbilityNumber){
+	`log("ability:" $ AbilityNumber);
+	ActiveAbilityNumber = AbilityNumber-1;
+	`log("ellllllllllllllllllllllllllllllllllllo active ability:");
+	`log(ActiveAbilityNumber);
+}
 
 
 /**
@@ -12,13 +33,17 @@ simulated function Vector GetSocketPosition(Pawn Holder){
  
     compo = Holder.Mesh;
     if (compo != none){
-        socket = compo.GetSocketByName('DualWeaponPoint');
+        socket = compo.GetSocketByName('MagicPoint');
         if (socket != none){
             FinalLocation = compo.GetBoneLocation(socket.BoneName);
 			return FinalLocation;
         }
     } 
 	return FinalLocation;
+}
+
+function class<UTProjectile> getMagic(){
+	return spells[ActiveAbilityNumber];
 }
 
 
@@ -34,9 +59,12 @@ simulated state WeaponFiring{
  * if you are it will magic
  */
 simulated function CustomFire(){
-	local vector		StartTrace, RealStartLoc, AimDir;
+	local vector		StartTrace, RealStartLoc, AimDir, Direction;
 	local Projectile	SpawnedProjectile;
 
+	Direction.X = 0;
+	Direction.Y = 0;
+	Direction.Z = 0;
 
 	if( Role == ROLE_Authority ){
 		// This is where we would start an instant trace. (what CalcWeaponFire uses)
@@ -46,12 +74,11 @@ simulated function CustomFire(){
 
 		// this is the location where the projectile is spawned.
 		RealStartLoc = GetPhysicalFireStartLoc(AimDir);
-
 		
 		// Spawn projectile
-		SpawnedProjectile = Spawn(class'UTProj_LinkPowerPlasma',self,, RealStartLoc);
+		SpawnedProjectile = Spawn(getMagic(),self,, StartTrace);
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
-			SpawnedProjectile.Init();
+			SpawnedProjectile.Init(AimDir);
 			`log(instigator.GetViewRotation());
 		}
 	}
@@ -61,4 +88,8 @@ simulated function CustomFire(){
 DefaultProperties
 {
 	WeaponFireTypes(0)=EWFT_Custom
+	spells[0] =class'UTProj_LinkPlasma'
+	spells[1] =class'UTProj_Rocket'
+	spells[2] =class'UTProj_Grenade'
+	ActiveAbilityNumber = 0;
 }

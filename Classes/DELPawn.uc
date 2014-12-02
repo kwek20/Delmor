@@ -115,6 +115,8 @@ function AddDefaultInventory()
 {
 }
 
+function magicSwitch(int AbilityNumber);
+
 /**
  * Set the camera offset.
  * @param x float   x-offset.

@@ -6,7 +6,7 @@ class DELInterfaceBar extends DELInterfaceInteractible;
 /**
  * Size of a button, length between 2 buttons and the amount of buttons we want to draw
  */
-var int squareSize, inbetween, amountBars;
+var int squareSize, inbetween, amountBars, key;
 
 /**
  * Array of textures linked to the buttons
@@ -38,7 +38,15 @@ function load(DELPlayerHud hud){
 }
 
 function useMagic(DELPlayerHud hud){
+	local DELPawn pawnee;
+	pawnee =DELPawn(hud.getPlayer().getPawn());
 	hud.log("RAN useMagic");
+	`log(key);
+	key++;
+	pawnee.magicSwitch(key);
+	if(key == 7){ 
+		key = 0;
+	}
 }
 
 function draw(DELPlayerHud hud){
@@ -102,6 +110,7 @@ function old(){
 
 DefaultProperties
 {
+	key = 0;
 	squareSize=40
 	inbetween=5;
 	amountBars=5;

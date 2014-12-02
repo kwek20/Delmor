@@ -14,11 +14,6 @@ simulated state Swinging extends WeaponFiring {
 		super.Tick(DeltaTime);
 		TraceSwing();
 	}
-	/*simulated event BeginState(Name NextStateName){
-		`log("Swing that mothafucka");
-		FireAmmunition();
-	}*/
-	
 	simulated event EndState(Name NextStateName)
 	{
 		super.EndState(NextStateName);
@@ -148,31 +143,24 @@ simulated function bool HasAmmo(byte FireModeNum, optional int Ammount)
 	return Swings[FireModeNum] > Ammount;
 }
 
-simulated function FireAmmunition()
-{
+simulated function FireAmmunition(){
 	`log("FireAmmunition");
 	StopFire(CurrentFireMode);
 	SwingHitActors.Remove(0, SwingHitActors.Length);
 
-	if (HasAmmo(CurrentFireMode))
-	{
+	if (HasAmmo(CurrentFireMode)){
 		`log("Swing:");
 		`log(Swings[0]);
 		if (MaxSwings - Swings[0] == 0) {
-			`log(Swings[0]);
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.f,0.1f,0.1f,false,true);
 		} else if (MaxSwings - Swings[0] == 1){
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
-		}
-		else{
+		} else {
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
 		}
 		`log("swing complete?");
 
-
 		//PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
-
-
 		super.FireAmmunition();
 	}
 }
