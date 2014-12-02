@@ -61,6 +61,7 @@ Begin:
 	drawBars = false;
 	drawSubtitles = true;
 	checkHuds();
+	addInterface(class'DELInterfacePause');
 }
 
 state End extends MouseState{
@@ -85,7 +86,6 @@ function swapState(name StateName){
 	if (StateName == GetStateName()) {
 		if (StateName == 'Playing') {
 			StateName = 'Pauses';
-			Pause();
 		} else {
 			StateName = 'Playing';
 		}

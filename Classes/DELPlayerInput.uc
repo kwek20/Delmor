@@ -131,8 +131,7 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 
 	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
         yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
-	}
-    else{
+	} else {
         yaw = targetYaw;
     }
 
@@ -242,6 +241,7 @@ exec function endAimMode(){
 }
 
 exec function openInventory() {
+	`log("openInventory");
 	DELPlayerController(Pawn.Controller).openInventory();
 }
 
@@ -326,7 +326,11 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
+
 		setKeyBinding( 'I' , "openInventory" );
+		setKeyBinding( 'F10' , "openInventory" );
+		ChangeInputBinding("ToggleInventory", 'I');
+
 		setKeyBinding('Escape', "closeHud");
 
 		setKeyBinding('one', "numberPress 1");
@@ -336,6 +340,23 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding('five', "numberPress 5");
 	} else {
 		setKeyBinding(inKey, inCommand);
+	}
+}
+
+/**
+ * Changes the bound key from a command
+ */
+simulated exec function ChangeInputBinding(string Command, name BindName){
+	local int BindIndex;
+
+	if (Command == "none") Command = "";
+
+	for( BindIndex = Bindings.Length-1; BindIndex >= 0; BindIndex--){
+		if(Bindings[BindIndex].Command == Command){
+			Bindings[BindIndex].Name = BindName;
+			SaveConfig();
+			return;
+		}
 	}
 }
 

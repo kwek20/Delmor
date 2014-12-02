@@ -8,9 +8,11 @@ function InitGame( string Options, out string ErrorMessage )
 	local DELMinimap ThisMinimap;
 	Super.InitGame(Options,ErrorMessage);
 	
+	ConsoleCommand("DisableAllScreenMessages");
+
 	foreach AllActors(class'Delmor.DELMinimap',ThisMinimap){
-	GameMinimap = ThisMinimap;
-	break;
+		GameMinimap = ThisMinimap;
+		break;
 	}
 	
 }
