@@ -81,7 +81,6 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 public function draw(DELPlayerHud hud){
 	local float Xstring, Ystring;
 	local string message;
-
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (texture != None){
 		drawTile(hud.Canvas, texture, position.Z, position.W);

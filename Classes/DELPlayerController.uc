@@ -80,6 +80,8 @@ state Inventory extends MouseState{
 	drawBars = true;
 	drawSubtitles = true;
 	checkHuds();
+
+	addInterface(class'DELInterfaceInventory');
 }
 
 function swapState(name StateName){

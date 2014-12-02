@@ -101,14 +101,29 @@ var bool bLockedToCamera;
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
+
+var class<U_InventoryManager>		UInventory;
+var repnotify U_InventoryManager			UManager;
+
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
+`Log("Custom Pawn up");
+
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , 64.0 );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
+
+	 //Set up custom inventory manager
+        if (UInventory != None)
+	{
+		UManager = Spawn(UInventory, Self);
+		if ( UManager == None )
+			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+
+	}
 }
 
 function AddDefaultInventory()
@@ -240,6 +255,10 @@ simulated exec function turnRight(){
 
 DefaultProperties
 {
+	bCanPickUpInventory = true
+	UInventory = U_InventoryManager
+
+
 	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
