@@ -89,27 +89,19 @@ function class<UTProjectile> getMagic(){
  * if you are it will magic
  */
 simulated function CustomFire(){
-	local vector		StartTrace, RealStartLoc, AimDir, Direction;
+	local vector		Spawnlocation,AimDir;
 	local Projectile	SpawnedProjectile;
 
-	Direction.X = 0;
-	Direction.Y = 0;
-	Direction.Z = 0;
-
 	if( Role == ROLE_Authority ){
-		// This is where we would start an instant trace. (what CalcWeaponFire uses)
-		StartTrace = GetSocketPosition(instigator);
 
+		Spawnlocation = GetSocketPosition(instigator);
 		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, StartTrace));
 
-		// this is the location where the projectile is spawned.
-		RealStartLoc = GetPhysicalFireStartLoc(AimDir);
 		
 		// Spawn projectile
-		SpawnedProjectile = Spawn(getMagic(),self,, StartTrace);
+		SpawnedProjectile = Spawn(getMagic(),self,, Spawnlocation);
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
 			SpawnedProjectile.Init(AimDir);
-			`log(instigator.GetViewRotation());
 		}
 	}
 }
