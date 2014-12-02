@@ -54,6 +54,15 @@ state MouseState {
 	}
 }
 
+state Pauses extends MouseState{
+
+Begin:
+	load();
+	drawBars = false;
+	drawSubtitles = true;
+	checkHuds();
+}
+
 state End extends MouseState{
 
 Begin:
@@ -74,8 +83,12 @@ state Inventory extends MouseState{
 
 function swapState(name StateName){
 	if (StateName == GetStateName()) {
-		if (StateName == 'Playing') return;
-		StateName = 'Playing';
+		if (StateName == 'Playing') {
+			StateName = 'Pauses';
+			Pause();
+		} else {
+			StateName = 'Playing';
+		}
 	}
 	`log("-- Switching state to "$StateName$"--");
 	getHud().clearInterfaces();
