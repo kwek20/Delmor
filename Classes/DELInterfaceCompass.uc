@@ -120,7 +120,7 @@ function float getDegreeHeading(){
 
 /**
  * Returns playerheading
- * */
+ */
 function float getPlayerHeading()
 {
 	local Float PlayerHeading;

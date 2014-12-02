@@ -12,7 +12,7 @@ var DELPawn attackTarget;
 
 /*
  * ==============================================
- * Action functions
+ * States
  * ==============================================
  */
 
@@ -29,9 +29,8 @@ state Attack{
 		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
-		}
-		else{
-			moveTowardsActor( attackTarget , deltaTime ); //Move to our target (Should stop when target is whitin range.
+		} else {
+			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
@@ -89,8 +88,7 @@ function bool checkTargetWhitinRange( DELPawn p ){
 	
 	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
 		return false;
-	}
-	else{
+	} else {
 		return true;
 	}
 }
@@ -101,8 +99,7 @@ function bool checkTargetWhitinRange( DELPawn p ){
 function bool targetIsAlive(){
 	if ( attackTarget.health > 0 && attackTarget != none ){
 		return true;
-	}
-	else{
+	} else {
 		return false;
 	}
 }
@@ -117,8 +114,7 @@ function bool targetIsTooFarAway(){
 
 	if( distanceToPawn > DELPawn( Pawn ).detectionRange && !pawn.LineOfSightTo( attackTarget ) ){
 		return true;
-	}
-	else{
+	} else {
 		return false;
 	}
 }
@@ -129,15 +125,32 @@ function bool targetIsTooFarAway(){
  * States that won't be seen as combat states are: Idle, Flock, Wander.
  */
 function bool isInCombatState(){
-	if ( isInState( 'attack' )
-	|| isInState( 'flee' )
-	|| isInState( 'maintainDistanceFromPlayer' )
+	if ( isInState( 'Attack' )
+	|| isInState( 'Flee' )
+	|| isInState( 'MaintainDistanceFromPlayer' )
 	){
 		return true;
-	}
-	else{
+	} else {
 		return false;
 	}
+}
+
+/**
+ * Checks whether two circles collide. Useful for collision-checking between Pawns.
+ * @return bool
+ */
+function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
+	local float distance , totalRadius;
+
+	distance = VSize( circleLocationA - circleLocationB );
+	totalRadius = circleRadiusA + circleRadiusB;
+
+	if ( distance <= totalRadius ){
+		return true;
+	} else {
+		return false;
+	}
+
 }
 
 /*

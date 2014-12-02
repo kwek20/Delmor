@@ -70,7 +70,7 @@ private function int nPawnsNearPlayer(){
 	local float nearDistance;
 
 	nPawns = 0;
-	nearDistance = 192.0;
+	nearDistance = 256.0;
 
 	foreach WorldInfo.AllControllers( class'DELEasyMonsterController' , c ){
 		if ( VSize( c.Pawn.Location - attackTarget.Location ) <= nearDistance ){

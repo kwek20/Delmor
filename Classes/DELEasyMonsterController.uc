@@ -158,6 +158,37 @@ private function bool angleIsTaken(){
 	return false;
 }
 
+/**
+ * Checks whether a nearby MediumMonsters wants to flee or maintain distance to player.
+ * @return DELMediumMonsterPawn that wants to flee/maintain distance
+ */
+private function DELMediumMonsterPawn isInTheWay(){
+	local DELMediumMonsterPawn obstructed;
+	local DELMediumMonsterController c;
+	local vector adjustedLocation;
+
+		`log( "Check is in the way" );
+
+	obstructed = none;
+
+	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
+		//If the pawn is nearby
+		if ( VSize( pawn.Location - c.Pawn.Location ) <= minimumDistance && ( c.IsInState( 'Flee' ) || c.IsInState( 'maintainDistanceFromPlayer' ) ) ){
+
+			adjustedLocation.X = c.Pawn.Location.X + lengthDirX( c.Pawn.GroundSpeed * 2 , c.Pawn.Rotation.Yaw * UnrRotToDeg + 180.0 );
+			adjustedLocation.Y = c.Pawn.Location.Y + lengthDirY( c.Pawn.GroundSpeed * 2 , c.Pawn.Rotation.Yaw * UnrRotToDeg + 180.0 );
+			adjustedLocation.Z = c.Pawn.Location.Z;
+
+			//if ( CheckCircleCollision( adjustedLocation , c.Pawn.GetCollisionRadius() * 4 , pawn.Location , pawn.GetCollisionRadius() ) ){
+				obstructed = DELMediumMonsterPawn( c.Pawn );
+				break;
+			//}
+		}
+	}
+
+	return obstructed;
+}
+
 /*
  * ====================================================
  * Action functions
@@ -294,6 +325,24 @@ auto state Idle{
 			//Find a commander
 			commander = getNearbyCommander();
 			goToState( 'Flock' );
+		}
+	}
+}
+
+state Attack{
+	event tick( float deltaTime ){
+		/**
+		 * The mediummonsterpawn is that is being obstructed by this pawn.
+		 */
+		local DELMediumMonsterPawn obstructing;
+
+		super.tick( deltaTime );
+
+		//Evade medium monsters the want to flee.
+		obstructing = isInTheWay();
+		if ( obstructing != none ){
+			`log( "Move away" );
+			moveInDirection( pawn.Location - obstructing.location , deltaTime );
 		}
 	}
 }
