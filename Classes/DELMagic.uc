@@ -2,12 +2,38 @@ class DELMagic extends DELWeapon;
 /**
  * list of spells available to magician
  */
-//var array<DELMagicProjectile> spells;
-var Array< class<UTProjectile> > spells;
+var array< class<Projectile> > spells;
 /**
  * location of active ability within spell list
  */
 var int ActiveAbilityNumber;
+
+var vector newColorlevel;
+
+var bool newColor;
+
+simulated state charging{
+	simulated event beginstate(Name NextStateName){
+		SetTimer(3.0,false, NameOf(setColor));
+		`log("start charge");
+	}
+
+	function setColor(){
+		newColor = true;
+		`log("charge complete");
+	}
+
+	simulated event endstate(Name NextStateName){
+		shoot();
+	}
+}
+
+simulated state Nothing{
+	simulated event beginstate(Name NextStateName){
+		`log("kinda like a idle but my own");
+	}
+}
+
 
 
 /**
@@ -16,12 +42,15 @@ var int ActiveAbilityNumber;
  */
 simulated function FireStart(){
 	//super.StartFire(FireModeNum);
-	if(ActiveAbilityNumber != 0){
-		shoot();
-	}else{
+	if(ActiveAbilityNumber == 0){
+		GoToState('Charging');
+	} else {
 		shoot();
 	}
-	shoot();
+}
+
+simulated function FireStop(){
+	GoToState('Nothing');
 }
 
 /**
@@ -32,7 +61,6 @@ simulated function FireStart(){
 simulated function consumeMana(DELMagicProjectile spell, optional int chargeTime){
 	spell.getCost();
 }
-
 
 /**
  * shoots the spell
@@ -80,7 +108,7 @@ simulated function Vector GetSocketPosition(Pawn Holder){
 /**
  * gets the spell
  */
-function class<UTProjectile> getMagic(){
+function class<Projectile> getMagic(){
 	return spells[ActiveAbilityNumber];
 }
 
@@ -90,18 +118,25 @@ function class<UTProjectile> getMagic(){
  */
 simulated function CustomFire(){
 	local vector		Spawnlocation,AimDir;
-	local Projectile	SpawnedProjectile;
+	local UTProj_LinkPlasma	SpawnedProjectile;
 
 	if( Role == ROLE_Authority ){
 
 		Spawnlocation = GetSocketPosition(instigator);
-		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, StartTrace));
+		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, Spawnlocation));
 
 		
 		// Spawn projectile
-		SpawnedProjectile = Spawn(getMagic(),self,, Spawnlocation);
+		SpawnedProjectile = Spawn(class'UTProj_LinkPlasma' ,self,, Spawnlocation);
+		if(newColor){
+			SpawnedProjectile.ColorLevel = newColorlevel;
+			SpawnedProjectile.DamageRadius = 20000;
+			SpawnedProjectile.Damage = 2000000;
+			`log("colorChanged");
+		}
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
-			SpawnedProjectile.Init(AimDir);
+			//SpawnedProjectile.Init(AimDir);
+			`log("shoot");
 		}
 	}
 }
@@ -109,9 +144,12 @@ simulated function CustomFire(){
 
 DefaultProperties
 {
+	newColor = false
+	newColorlevel = (X=1,Y=1,Z=2);
 	WeaponFireTypes(0)=EWFT_Custom
-	spells[0] =class'UTProj_LinkPlasma'
-	spells[1] =class'UTProj_Rocket'
-	spells[2] =class'UTProj_Grenade'
+	spells[0] = class'UTProj_LinkPlasma'
+	spells[1] = class'UTProj_Rocket'
+	spells[2] = class'UTProj_Grenade'
+	spells[3] = class'UTProj_LoadedRocket'
 	ActiveAbilityNumber = 0;
 }

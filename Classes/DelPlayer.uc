@@ -60,7 +60,7 @@ simulated event PostBeginPlay(){
  * switches magical ability
  */
 simulated function magicSwitch(int AbilityNumber){
-	if( bNoWeaponFiring){
+	if(bNoWeaponFiring){
 		return;
 	}	
 	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
@@ -97,8 +97,9 @@ simulated function StartFire(byte FireModeNum){
  * @param	FireModeNum		fire mode number
  */
 simulated function StopFire(byte FireModeNum){
+	`log("mouse released");
 	if(FireModeNum == 1 && magic!= None){
-		magic.StopFire(FireModeNum);
+		magic.FireStop();
 	}
 	if(FireModeNum == 0 && sword != None){
 		sword.StopFire(FireModeNum);
