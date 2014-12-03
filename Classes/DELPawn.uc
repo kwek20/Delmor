@@ -65,6 +65,16 @@ var float regenerationTimer;
 
 var array< class<Inventory> > DefaultInventory;
 
+/**
+ * When the pawn is stunned it may not move or attack.
+ */
+var bool bIsStunned;
+
+/**
+ * The weapon that will be used by the pawn.
+ */
+var DELWeapon myWeapon; 
+
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -252,7 +262,9 @@ DefaultProperties
 	magicResistance = 0.0
 	walkingSpeed = 100.0
 	detectionRange = 960.0
-	regenerationTimer = 1.0;
+	regenerationTimer = 1.0
+
+	bIsStunned = false
 
 	camOffsetDistance = 200.0
 	camTargetDistance = 200.0

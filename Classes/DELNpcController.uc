@@ -52,9 +52,7 @@ state Attack{
 		stopPawn();
 
 		//Adjust the location so the pawns will not suddenly point upwards or downwards when the player jumps.
-		adjustedLocation.X = attackTarget.location.X;
-		adjustedLocation.Y = attackTarget.location.Y;
-		adjustedLocation.Z = Pawn.Location.Z;
+		adjustedLocation = adjustLocation( attackTarget.location , Pawn.Location.Z );
 
 		//Turn pawn to the target
 		Pawn.setRotation( rotator( adjustedLocation - Pawn.Location ) );
@@ -153,6 +151,34 @@ function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA
 
 }
 
+/**
+ * Adjusts a given location so that it's z-variable will be set to a given value while ignoring
+ * the other values.
+ * Useful for locking z-values.
+ */
+function vector adjustLocation( vector inLocation , float targetZ ){
+	local vector newLocation;
+
+	newLocation.X = inLocation.X;
+	newLocation.Y = inLocation.Y;
+	newLocation.Z = targetZ;
+
+	return newLocation;
+}
+
+/**
+ * Adjust a rotation so that it's yaw-value will be locked to a given value.
+ */
+function rotator adjustRotation( rotator inRotation , float targetYaw ){
+	local rotator adjustedRotation;
+
+	adjustedRotation.Pitch = inRotation.Pitch;
+	adjustedRotation.Roll = inRotation.Roll;
+	adjustedRotation.Yaw = targetYaw;
+
+	return adjustedRotation;
+}
+
 /*
  * ==============================================
  * Action functions
@@ -194,18 +220,18 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
 	dPawn = DELPawn( Pawn );
 
-	adjustedLocation.X = l.X;
-	adjustedLocation.Y = l.Y;
-	adjustedLocation.Z = Pawn.Location.Z;
+	if ( !dPawn.bIsStunned ){//You may only move if you are not stunned
+		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
 	
-	//Caluclate direction
-	selfToPoint = adjustedLocation - Pawn.Location;
+		//Caluclate direction
+		selfToPoint = adjustedLocation - Pawn.Location;
 
-	//Move Pawn
-	Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.walkingSpeed;
-	Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.walkingSpeed;
-	Pawn.setRotation( rotator( selfToPoint ) );
-	Pawn.move( Pawn.velocity * deltaTime );
+		//Move Pawn
+		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.walkingSpeed;
+		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.walkingSpeed;
+		Pawn.setRotation( rotator( selfToPoint ) );
+		Pawn.move( Pawn.velocity * deltaTime );
+	}
 }
 
 /**
@@ -218,16 +244,16 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
 
-	//Adjust the rotation so that only the Yaw will be modified.
-	adjustedRotation.Pitch = Pawn.Rotation.Pitch;
-	adjustedRotation.Roll = Pawn.Rotation.Roll;
-	adjustedRotation.Yaw = rotator( to ).Yaw;
+	if ( !DELPawn( pawn ).bIsStunned ){
+		//Adjust the rotation so that only the Yaw will be modified.
+		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
 
-	//Move Pawn
-	Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).walkingSpeed;
-	Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).walkingSpeed;
-	Pawn.setRotation( adjustedRotation  );
-	Pawn.move( Pawn.velocity * deltaTime );
+		//Move Pawn
+		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).walkingSpeed;
+		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).walkingSpeed;
+		Pawn.setRotation( adjustedRotation  );
+		Pawn.move( Pawn.velocity * deltaTime );
+	}
 }
 
 /**

@@ -1,5 +1,5 @@
 /**
- * @autor Bram
+ * @author Bram
  * Pawn class for the hard enemy
  */
 class DELHardMonsterPawn extends DELHostilePawn

@@ -119,18 +119,18 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 	local rotator newRotation;
 
 	math = GetMath();
-	yaw = math.modulo( pawn.Rotation.Yaw , 65536 );
-	targetYaw = math.modulo( targetYaw , 65536 );
+	yaw = pawn.Rotation.Yaw % 65536;
+	targetYaw = targetYaw % 65536;
 
-	if ( yaw < targetYaw - ( rotationSpeed  - 2 ) || yaw > targetYaw + ( rotationSpeed - 2 ) ){
-        yaw += math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed;
+	if ( yaw < targetYaw - ( rotationSpeed  - 10 ) || yaw > targetYaw + ( rotationSpeed - 10 ) ){
+        yaw += math.sign( ( ( ( targetYaw - yaw % 65536 ) + 98304 ) % 65536 ) - 32768 ) * rotationSpeed;
 	} else {
         yaw = targetYaw;
     }
 
 	newRotation.Pitch = pawn.Rotation.Pitch;
 	newRotation.Roll = pawn.Rotation.Roll;
-	newRotation.Yaw = yaw;
+	newRotation.Yaw = yaw % 65536;
 	pawn.SetRotation( newRotation );
 }
 
@@ -380,5 +380,5 @@ function setKeyBinding( name inKey , String inCommand ){
 
 DefaultProperties
 {
-	defaultRotationSpeed = 1800.0
+	defaultRotationSpeed = 1600.0
 }
