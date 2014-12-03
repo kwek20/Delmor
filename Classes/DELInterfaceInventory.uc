@@ -12,7 +12,9 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - ((AmountX*length)+((AmountX + 1)*inbetween))/2;
 	startY = hud.sizeY/2 - ((AmountY*length)+((AmountY + 1)*inbetween))/2;
 
-	//foreach hud.getPlayer().getPawn().UInventory.UItems(item){
+	//foreach hud.getPlayer().getPawn().UManager.UItems(item){
+	//	`log(hud.getPlayer().getPawn().UManager.UItems(item).itemName);
+	//}
 
 	for(i = 0; i < (amountX*amountY); i++){
 		button = Spawn(class'DELInterfaceButton');
