@@ -9,22 +9,21 @@ function load(DELPlayerHud hud){
 	local U_items item;
 	local int startX, startY, i;
 	
-	i = 1;
-
-	startX = hud.sizeX/2 - hud.sizeX*backgroundDimensionWidth/2 + inbetween;
-	startY = hud.sizeY/2 - (length*buttonAmount + inbetween*(buttonAmount+2))/2 + inbetween;
+	startX = hud.sizeX/2 - ((AmountX*length)+((AmountX + 1)*inbetween))/2;
+	startY = hud.sizeY/2 - ((AmountY*length)+((AmountY + 1)*inbetween))/2;
 
 	//foreach hud.getPlayer().getPawn().UInventory.UItems(item){
 
-	for(i = 1; i <= (amountX*amountY); i++){
+	for(i = 0; i < (amountX*amountY); i++){
 		button = Spawn(class'DELInterfaceButton');
 
-		`log(startX + ((i % 5)*inbetween) + (((i % 5)-1)*length) @ startY + ((class'DELMath'.static.floor(i / 5) + 1)*inbetween) + ((class'DELMath'.static.floor(i / 5))*length) @ i);
+		`log(startX + ((i % amountX + 1)*inbetween) + (((i % amountX))*length) @ startY + ((class'DELMath'.static.floor(i / amountX) + 1)*inbetween) + ((class'DELMath'.static.floor(i / amountX))*length) @ i);
 
-		button.setPosition( startX + ((i % 5)*inbetween) + (((i % 5)-1)*length), 
-							startY + ((class'DELMath'.static.floor(i / 5) + 1)*inbetween) + ((class'DELMath'.static.floor(i / 5))*length),                             length, length, hud);
+		button.setPosition( startX + ((i % amountX + 1)*inbetween) + ((i % amountX)*length), 
+							startY + ((class'DELMath'.static.floor(i / amountX) + 1)*inbetween) + ((class'DELMath'.static.floor(i / amountX))*length),                             
+							length, length, hud);
 		//button.setRun(exit);
-		button.setText("text = " $ i);
+		button.setText("" $ (i+1));
 		//button.setColor(buttonColor);
 		addButton(button);
 	}
@@ -39,8 +38,8 @@ function draw(DELPlayerHud hud){
 DefaultProperties
 {
 	inbetween=10
-	length=30
-	amountX=5
-	amountY=5
+	length=50
+	amountX=8
+	amountY=8
 	background=Texture2D'UDKHUD.cursor_png'
 }
