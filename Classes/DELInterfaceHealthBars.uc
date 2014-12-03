@@ -40,6 +40,6 @@ simulated function draw(DELPlayerHud hud){
 
 DefaultProperties
 {
-	bg=Texture2D'MyPackage.combars'
+	bg=Texture2D'DelmorHud.combars'
 	barSize=23;
 }
