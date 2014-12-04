@@ -112,6 +112,14 @@ exec function startMovingBackward(){
 	goToState( 'movingBackward' );
 }
 
+exec function startSprint() {
+	DelPlayer( Pawn ).startSprint();
+}
+
+exec function stopSprint() {
+	DelPlayer( Pawn ).stopSprint();
+}
+
 /**
  * This function should rotate the playerinput's pawn along the yaw-axis to the target-yaw.
  * @param targetYaw	    int The targetYaw in unrealDegrees.
@@ -323,6 +331,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );

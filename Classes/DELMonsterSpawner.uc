@@ -145,10 +145,8 @@ function startSpawn(bool random) {
 	local DELSpawnPathNode C;
 	
 	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
-		
 		selfToPathnode = C.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
-		`log(distanceToSpawner);
 		if(distanceToSpawner < spawnArea) {
 			if(checkSpawnedMobsStillAlive() < maxMobsAlive) {
 				spawnPawn(random, C.Location); 
@@ -162,8 +160,8 @@ function startSpawn(bool random) {
  */
 function int checkSpawnedMobsStillAlive() {
 	local int tempMobsSpawned;
-	local Controller C;
-	foreach WorldInfo.AllControllers(class'Controller', C) {
+	local DELPlayerController C;
+	foreach WorldInfo.AllControllers(class'DELPlayerController', C) {
 		selfToPlayer = C.Pawn.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
 		if(distanceToSpawner < spawnArea) {

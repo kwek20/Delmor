@@ -66,7 +66,7 @@ simulated function int getStamCount(){
  * Function to start sprinting
  * Works on timers according to a logarithm
  */
-exec function StartSprint(){
+exec function startSprint(){
 	local float TimeSinceLast;
 	local float Log;
 	//ConsoleCommand("Sprint");
@@ -144,7 +144,7 @@ exec function StartSprint(){
  * checks if certain timer (exhausted) is active
  * if so, stop sprinting
  */
-exec function StopSprint(){
+exec function stopSprint(){
 	Groundspeed = 375.0;
 	bSprinting = false;
 	ClearTimer('LowerStam');
