@@ -25,11 +25,11 @@ function load(DELPlayerHud hud){
 
 		if (items.Length > i){
 			button.setRun(button.click);
-			button.setHover(button.hover);
 			button.setText(items[i].getName());
 			button.setTexture(items[i].texture);
 		}
 
+		button.setHover(button.hover);
 		button.setIdentifier(i+1);
 		addButton(button);
 	}

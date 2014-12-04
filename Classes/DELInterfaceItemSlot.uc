@@ -1,9 +1,8 @@
 class DELInterfaceItemSlot extends DELInterfaceButton;
 
-var int displaySec;
-
 var Texture2D default_bg;
 var Color bgColor;
+var bool isHover;
 
 function draw(DELPlayerHud hud){
 	drawStandardbackground(hud);
@@ -20,11 +19,17 @@ function click(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
 
 function hover(DELPlayerHud hud, bool enter){
 	drawDescription(hud);
+	isHover = true;
+	SetTimer(0.1, false, 'noHover');
 }
 
+function noHover(){isHover=false;}
+
 function drawStandardbackground(DELPlayerHud hud){
+	local int c;
+	c =  isHover ? 255 : 0;
 	hud.Canvas.SetPos(position.X, position.Y);
-	drawTile(hud.Canvas, default_bg, position.Z, position.W);
+	drawCTile(hud.Canvas, default_bg, position.Z, position.W, 0, c, 0, 255);
 }
 
 function drawDescription(DELPlayerHud hud){
