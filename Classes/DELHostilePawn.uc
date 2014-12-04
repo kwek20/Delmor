@@ -1,4 +1,4 @@
-class DELHostilePawn extends DELNPCPawn;
+class DELHostilePawn extends DELNPCPawn abstract;
 
 var DELWeapon sword;
 

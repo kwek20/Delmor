@@ -240,6 +240,15 @@ function adjustCameraDistance( float deltaTime ){
 	}
 }
 
+/**
+ * Knocks the pawn back.
+ * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction int     The yaw at which the pawn should fly through the air.
+ */
+function knockBack( float intensity , int direction ){
+	velocity.z = 20.0;
+}
+
 simulated exec function turnLeft(){
 	`log( self$" TurnLeft" );
 }

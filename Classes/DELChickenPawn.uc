@@ -1,7 +1,7 @@
 /**
  * Pawn class used for the goat.
  */
-class DELGoatPawn extends DELAnimalPawn
+class DELChickenPawn extends DELAnimalPawn
       placeable
 	  Config(Game);
 
@@ -25,10 +25,16 @@ DefaultProperties
 		Scale3D=(X=1, Y=1, Z=1)
 		bHasPhysicsAssetInstance=false
 		bAcceptsLights=true
-		Translation=(Z=1.0)
+		Translation=(Z=-19.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-	ControllerClass=class'Delmor.DELGoatController'
+	
+	Begin Object Name=CollisionCylinder
+	CollisionRadius = 22.0;
+	CollisionHeight = +16.0;
+	end object
+
+	ControllerClass=class'DELChickenController'
 	GroundSpeed=50
 }

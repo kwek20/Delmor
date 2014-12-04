@@ -1,4 +1,4 @@
-class DELPlayer extends DELCharacterPawn;
+class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
 var array< class<Inventory> > DefaultInventory;
 var Weapon sword;
@@ -47,6 +47,7 @@ function AddDefaultInventory()
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+	//Location.Z = 10000;
 }
 
 
@@ -65,7 +66,7 @@ simulated function int getStamCount(){
  * Function to start sprinting
  * Works on timers according to a logarithm
  */
-exec function StartSprint(){
+exec function startSprint(){
 	local float TimeSinceLast;
 	local float Log;
 	//ConsoleCommand("Sprint");
@@ -143,7 +144,7 @@ exec function StartSprint(){
  * checks if certain timer (exhausted) is active
  * if so, stop sprinting
  */
-exec function StopSprint(){
+exec function stopSprint(){
 	Groundspeed = 375.0;
 	bSprinting = false;
 	ClearTimer('LowerStam');
@@ -225,6 +226,67 @@ simulated function RegenStam(){
 
 		}
 	}
+}
+
+function String Serialize()
+{
+    local JSonObject PJSonObject;
+
+    // Instance the JSonObject, abort if one could not be created
+    PJSonObject = new class'JSonObject';
+
+    if (PJSonObject == None)
+    {
+		`Warn(Self$" could not be serialized for saving the game state.");
+		return "";
+    }
+
+    // Save the location
+    PJSonObject.SetFloatValue("Location_X", Location.X);
+    PJSonObject.SetFloatValue("Location_Y", Location.Y);
+    PJSonObject.SetFloatValue("Location_Z", Location.Z);
+
+    // Save the rotation
+    PJSonObject.SetIntValue("Rotation_Pitch", Rotation.Pitch);
+    PJSonObject.SetIntValue("Rotation_Yaw", Rotation.Yaw);
+    PJSonObject.SetIntValue("Rotation_Roll", Rotation.Roll);
+
+    // If the controller is the player controller, then saved a flag to say that it should be repossessed
+    //by the player when we reload the game state
+    PJSonObject.SetBoolValue("IsPlayer", DELPlayerController(self.Controller) != none);
+
+    // Send the encoded JSonObject
+    return class'JSonObject'.static.EncodeJson(PJSonObject);
+}
+
+function Deserialize(JSonObject Data)
+{
+    local Vector SavedLocation;
+    local Rotator SavedRotation;
+    local DELGAME SGameInfo;
+
+    // Deserialize the location and set it
+    SavedLocation.X = Data.GetFloatValue("Location_X");
+    SavedLocation.Y = Data.GetFloatValue("Location_Y");
+    SavedLocation.Z = Data.GetFloatValue("Location_Z");
+    SetLocation(SavedLocation);
+
+    // Deserialize the rotation and set it
+    SavedRotation.Pitch = Data.GetIntValue("Rotation_Pitch");
+    SavedRotation.Yaw = Data.GetIntValue("Rotation_Yaw");
+    SavedRotation.Roll = Data.GetIntValue("Rotation_Roll");
+    SetRotation(SavedRotation);
+
+    // Deserialize if this was a player controlled pawn, if it was then tell the game info about it
+    if (Data.GetBoolValue("IsPlayer"))
+    {
+		SGameInfo = DELGame(self.WorldInfo.Game);
+
+		if (SGameInfo != none)
+		{
+			SGameInfo.PendingPlayerPawn = self;
+		}
+    }
 }
 
 DefaultProperties

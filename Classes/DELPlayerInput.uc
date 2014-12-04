@@ -109,6 +109,14 @@ exec function startMovingBackward(){
 	goToState( 'movingBackward' );
 }
 
+exec function startSprint() {
+	DelPlayer( Pawn ).startSprint();
+}
+
+exec function stopSprint() {
+	DelPlayer( Pawn ).stopSprint();
+}
+
 /**
  * This function should rotate the playerinput's pawn along the yaw-axis to the target-yaw.
  * @param targetYaw	    int The targetYaw in unrealDegrees.
@@ -246,6 +254,7 @@ exec function endAimMode(){
 }
 
 exec function openInventory() {
+	`log("openInventory");
 	DELPlayerController(Pawn.Controller).openInventory();
 }
 
@@ -327,10 +336,15 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
 		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
-		setKeyBinding( 'I' , "openInventory | Axis aBaseY Speed=0.0" );
+
+		setKeyBinding( 'I' , "openInventory" );
+		setKeyBinding( 'F10' , "openInventory" );
+		ChangeInputBinding("ToggleInventory", 'I');
+
 		setKeyBinding('Escape', "closeHud");
 
 		setKeyBinding('one', "numberPress 1");
@@ -340,6 +354,23 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding('five', "numberPress 5");
 	} else {
 		setKeyBinding(inKey, inCommand);
+	}
+}
+
+/**
+ * Changes the bound key from a command
+ */
+simulated exec function ChangeInputBinding(string Command, name BindName){
+	local int BindIndex;
+
+	if (Command == "none") Command = "";
+
+	for( BindIndex = Bindings.Length-1; BindIndex >= 0; BindIndex--){
+		if(Bindings[BindIndex].Command == Command){
+			Bindings[BindIndex].Name = BindName;
+			SaveConfig();
+			return;
+		}
 	}
 }
 

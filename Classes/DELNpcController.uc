@@ -6,9 +6,21 @@
 class DELNpcController extends DELCharacterController;
 
 /**
+ * A special variable to save the player-pawn in.
+ */
+var DELPlayer player;
+/**
  * When in attack-state. The pawn should strive to attack this pawn.
  */
 var DELPawn attackTarget;
+/**
+ * When fleeing, the pawn will try be this far away from the agressor.
+ */
+var float fleeDistance;
+/**
+ * When a pawn is closer the controller's pawn than this number, it will be "too close".
+ */
+var float tooCloseDistance;
 
 /*
  * ==============================================
@@ -16,6 +28,26 @@ var DELPawn attackTarget;
  * ==============================================
  */
 
+event Possess( Pawn inPawn , bool bVehicleTransition ){
+	super.Possess( inPawn , bVehicleTransition );
+
+	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
+	
+}
+
+
+auto state Idle{
+	event Tick( float deltaTime ){
+
+		super.Tick( deltaTime );
+
+		if ( player == none ){
+			//Find the player
+			player = findPlayer();
+			`log( "findPlayer: player: "$player );
+		}
+	}
+}
 /**
  * In this state the NPC will chase it's target and attack if it's close enough.
  */
@@ -58,6 +90,27 @@ state Attack{
 		Pawn.setRotation( rotator( adjustedLocation - Pawn.Location ) );
 
 		meleeAttack();
+	}
+}
+
+/**
+ * Flee from the player
+ */
+state flee{
+
+	event tick( float deltaTime ){
+		local vector selfToPlayer;
+		
+		super.Tick( deltaTime );
+
+		selfToPlayer = pawn.Location - player.location;
+
+		if ( VSize( selfToPlayer ) < fleeDistance ){
+			moveInDirection( selfToPlayer , deltaTime );
+		}
+		else{
+			stopPawn();
+		}
 	}
 }
 
@@ -126,6 +179,7 @@ function bool isInCombatState(){
 	if ( isInState( 'Attack' )
 	|| isInState( 'Flee' )
 	|| isInState( 'MaintainDistanceFromPlayer' )
+	|| isInState( 'Charge' )
 	){
 		return true;
 	} else {
@@ -177,6 +231,72 @@ function rotator adjustRotation( rotator inRotation , float targetYaw ){
 	adjustedRotation.Yaw = targetYaw;
 
 	return adjustedRotation;
+}
+
+/**
+ * Checks whether a pawn to too close to this pawn.
+ */
+function bool tooCloseToPawn( DELPawn p ){
+	if ( VSize( p.location - Pawn.Location ) < tooCloseDistance ){
+		return true;
+	}
+	else
+		return false;
+}
+
+/**
+ * Get the player-pawn.
+ */
+function DELPlayer findPlayer(){
+	local DELPlayer playerPawn;
+
+	playerPawn = none;
+	foreach WorldInfo.AllPawns( class'DELPlayer' , playerPawn ){
+		return playerPawn;
+	}
+	return playerPawn;
+}
+
+/**
+ * Same as GoToState exept this one will only change states
+ * if the player variable is not null.
+ */
+function changeState( name newState ){
+	if ( player != none ){
+		goToState( newState );
+	}
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+}
+
+/**
+ * Checks whether the pawn collides and if so,
+ * returns the instance of the pawn that the controller's
+ * pawn collides with.
+ * @return DELPawn
+ */
+function DELPawn checkCollision(){
+	return none;
 }
 
 /*
@@ -268,4 +388,7 @@ function stopPawn(){
 
 DefaultProperties
 {
+	player = none
+	fleeDistance = 512.0
+	tooCloseDistance = 256.0
 }

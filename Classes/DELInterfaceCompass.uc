@@ -17,7 +17,6 @@ var float MPosYMap;
 
 function load(DELPlayerHud hud){
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
-	ConsoleCommand("DisableAllScreenMessages");
 }
 
 

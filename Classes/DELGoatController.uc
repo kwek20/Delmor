@@ -149,30 +149,6 @@ function Vector getRandomlocation() {
 	return temp;
 }
 
-/**
- * This function calculates a new x based on the given direction.
- * @param   dir Float   The direction in UnrealDegrees.
- */
-private function float lengthDirX( float len , float dir ){
-	local float Radians;
-	Radians = UnrRotToRad * dir;
-
-	return len * cos( Radians );
-
-}
-
-/**
- * This function calculates a new y based on the given direction.
- * @param   dir Float   The direction in UnrealDegrees.
- */
-private function float lengthDirY( float len , float dir ){
-	local float Radians;
-	Radians = UnrRotToRad * dir;
-
-	return len * -sin( Radians );
-
-}
-
 DefaultProperties
 {
 	wanderRange = 2048

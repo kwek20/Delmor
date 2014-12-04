@@ -23,6 +23,16 @@ var() Texture2D texture;
 var() int identifierKey;
 
 /**
+ * The text displayed on the button
+ */
+var() string text;
+
+/**
+ * The color of the button if no texture has been found
+ */
+var() Color color;
+
+/**
  * This function gets called when the button is used(mouse/key)
  * @param hud The player hud
  */
@@ -70,22 +80,24 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
  */
 public function draw(DELPlayerHud hud){
 	local float Xstring, Ystring;
+	local string message;
 
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (texture != None){
 		drawTile(hud.Canvas, texture, position.Z, position.W);
 	} else {
-		//purple square
-		hud.Canvas.SetDrawColor(50, 0, 50); // purple
+		//behind the text square
+		hud.Canvas.SetDrawColorStruct(color);
 		hud.Canvas.DrawRect(position.Z, position.W);
 		
 		//text
+		message = getText();
 		hud.Canvas.Font = class'Engine'.static.GetLargeFont();    
-		hud.Canvas.TextSize(identifierKey $ "", Xstring, Ystring);
-		hud.Canvas.SetDrawColor(0, 0, 0); // black
+		hud.Canvas.TextSize(message $ "", Xstring, Ystring);
+		hud.Canvas.SetDrawColor(0,0,0);
 		hud.Canvas.SetPos(  position.X + position.Z / 2 - Xstring / 2, 
 							position.Y + position.W / 2 - Ystring / 2);
-		hud.Canvas.DrawText(identifierKey $ "");
+		hud.Canvas.DrawText(message);
 	}
 }
 
@@ -114,8 +126,33 @@ public function setRun(delegate<onUse> runMethod){
 	onUse = runMethod;
 }
 
+/**
+ * Sets the displayed text for the button. <br/>
+ * Only works if there is no texture
+ */
+public function setText(string text){
+	self.text = text;
+}
+
+/**
+ * Returns the current text on the button
+ * @return The text
+ */
+public function string getText(){
+	return text != "" ? text : (identifierKey > -1 ? (string(identifierKey)) : "NO KEY");
+}
+
+/**
+ * Sets the color for the button. <br/>
+ * Only works if there is no texture
+ */
+public function setColor(color c){
+	color = c;
+}
+
 DefaultProperties
 {
+	color=(R=255,G=255,B=255,A=255)
 	identifierKey=-1
 	bCanActivate=true
 }

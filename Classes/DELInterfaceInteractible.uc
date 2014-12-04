@@ -41,7 +41,9 @@ public function onClick(DELPlayerHud p, IntPoint position){
 protected function DELInterfaceButton getButtonByKey(int key){
 	local DELInterfaceButton button;
 	foreach buttons(button){
-		if (button.identifiedBy(key)) return button;
+		if (button.identifiedBy(key)) {
+			return button;
+		}
 	}
 	return None;
 }
@@ -54,7 +56,9 @@ protected function DELInterfaceButton getButtonByKey(int key){
 protected function DELInterfaceButton getButtonByPosition(IntPoint position){
 	local DELInterfaceButton button;
 	foreach buttons(button){
-		if (button.containsPos(position)) return button;
+		if (button.containsPos(position)) {
+			return button;
+		}
 	}
 	return None;
 }
@@ -66,7 +70,7 @@ protected function DELInterfaceButton getButtonByPosition(IntPoint position){
  * @param b The button we want to perform the action for
  */
 public function performAction(DELPlayerHud p, DELInterfaceButton b){
-	if (b == None || p == None || b.identifierKey < 0 || b.identifierKey > 9) return;
+	if (b == None || p == None) return;
 	`log("Button action for " $ b.identifierKey);
 	b.onUse(p);
 }

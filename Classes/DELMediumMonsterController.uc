@@ -73,7 +73,7 @@ private function int nPawnsNearPlayer(){
 	nearDistance = 256.0;
 
 	foreach WorldInfo.AllControllers( class'DELEasyMonsterController' , c ){
-		if ( VSize( c.Pawn.Location - attackTarget.Location ) <= nearDistance ){
+		if ( VSize( c.Pawn.Location - player.Location ) <= nearDistance ){
 			nPawns ++;
 		}
 	}
@@ -133,7 +133,7 @@ auto state idle{
 		super.Tick( deltaTime );
 		
 		if( pawn != none ){
-			goToState( 'wander' );
+			changeState( 'wander' );
 		}
 	}
 }
@@ -200,7 +200,7 @@ state attack{
 			//Flee from the player if the health is low and the player is too close.
 			if ( checkIsInDanger() ){
 				`log( self$" I'm in danger" );
-				goToState( 'Flee' );
+				changeState( 'Flee' );
 
 				//Call for backup
 				orderNearbyMinionsToAttackPlayer();
@@ -208,7 +208,7 @@ state attack{
 
 			//Wait till the player has killed the easypawns before attacking
 			if ( nPawnsNearPlayer() > 2 ){
-				goToState( 'maintainDistanceFromPlayer' );
+				changeState( 'maintainDistanceFromPlayer' );
 			}
 
 			//Reset the timer
@@ -221,12 +221,6 @@ state attack{
  * When the distance to the player is greater than this number, stop fleeing and heal yourself.
  */
 state flee{
-	local float fleeDistance;
-
-	function beginState( name previousStateName ){
-		fleeDistance = 512.0;
-	}
-
 	event tick( float deltaTime ){
 		local vector selfToPlayer;
 		
@@ -234,13 +228,10 @@ state flee{
 
 		selfToPlayer = pawn.Location - attackTarget.location;
 
-		if ( VSize( selfToPlayer ) < fleeDistance ){
-			moveInDirection( selfToPlayer , deltaTime );
-		}
-		else{
+		if ( VSize( selfToPlayer ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
 			if ( pawn.Health >= pawn.HealthMax / 2 ){
-				goToState( 'attack' );
+				changeState( 'attack' );
 			}
 		}
 	}
@@ -288,7 +279,7 @@ state maintainDistanceFromPlayer{
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
 			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer ){
-				goToState( 'attack' );
+				changeState( 'Charge' );
 			}
 
 			//Reset timer
@@ -296,6 +287,54 @@ state maintainDistanceFromPlayer{
 		}
 	}
 
+}
+/**
+ * Charge towards the player in hopes to stun him.
+ */
+state Charge{
+	local vector playerPosition;
+	function beginState( name previousStateName ){
+		local rotator selfToPlayer;
+
+		super.BeginState( previousStateName );
+
+		//Set the playerPosition to the player's position PLUS a bit extra so that the MediumEnemy will charge a bit further and thus appear more realistic.
+		selfToPlayer = rotator( attackTarget.location - pawn.Location );
+		playerPosition.X = attackTarget.location.X + lengthDirX( -128.0 , selfToPlayer.yaw );
+		playerPosition.Y = attackTarget.location.Y + lengthDirY( -128.0 , selfToPlayer.yaw );
+		playerPosition.Z = attackTarget.location.Z;
+	}
+
+	event tick( float deltaTime ){
+		local DELPawn collidingPawn;
+
+		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime ){
+			moveInDirection( playerPosition - pawn.Location , deltaTime * 4 /*We run to the player, so we move faster*/ );
+			//TODO: Check for collision
+			
+			collidingPawn = checkCollision();
+			if ( collidingPawn != none ){
+				collisionWithPawn( collidingPawn );
+			}
+		}
+		else{
+			changeState( 'attack' );
+		}
+	}
+
+	/**
+	 * Called when the pawn collides with another pawn.
+	 * 
+	 * If the pawn collides with an easyMinion it should push him away.
+	 * But if the pawn collides with the player, the pawn should exit the charge state
+	 * and the player should be stunned.
+	 */
+	event collisionWithPawn( DELPawn p ){
+		local vector selfToPawn;
+
+		selfToPawn = p.location - pawn.Location;
+		p.knockBack( 75.0 , rotator( selfToPawn ).Yaw );
+	}
 }
 
 DefaultProperties
