@@ -256,6 +256,67 @@ public function int getSeconds(){
 	return sec;
 }
 
+exec function SaveGame(string FileName)
+{
+    local DELSaveGameState GameSave;
+
+    // Instance the save game state
+    GameSave = new class'DELSaveGameState';
+
+    if (GameSave == None)
+    {
+		return;
+    }
+
+    ScrubFileName(FileName);    // Scrub the file name
+    GameSave.SaveGameState();   // Ask the save game state to save the game
+
+    // Serialize the save game state object onto disk
+    if (class'Engine'.static.BasicSaveObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION))
+    {
+        // If successful then send a message
+		ClientMessage("Saved game state to " $ FileName $ ".", 'System');
+    }
+}
+
+exec function LoadGame(string FileName)
+{
+    local DELSaveGameState GameSave;
+
+    // Instance the save game state
+    GameSave = new class'DELSaveGameState';
+
+    if (GameSave == None)
+    {
+		return;
+    }
+
+    // Scrub the file name
+    ScrubFileName(FileName);
+
+    // Attempt to deserialize the save game state object from disk
+    if (class'Engine'.static.BasicLoadObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION))
+    {
+        // Start the map with the command line parameters required to then load the save game state
+		ConsoleCommand("start " $ GameSave.PersistentMapFileName $ "?Game=DELSaveGameState.DELGame?DELSaveGameState=" $ FileName);
+    }
+	GameSave.LoadGameState();
+}
+
+function ScrubFileName(out string FileName)
+{
+    // Add the extension if it does not exist
+    if (InStr(FileName, ".sav",, true) == INDEX_NONE)
+    {
+		FileName $= ".sav";
+    }
+
+    FileName = Repl(FileName, " ", "_");                            // If the file name has spaces, replace then with under scores
+    FileName = class'DELSaveGameState'.const.SAVE_LOCATION $ FileName; // Prepend the filename with the save folder location
+	`log(FileName);
+}
+
+
 DefaultProperties
 {
 	InputClass=class'DELPlayerInput'

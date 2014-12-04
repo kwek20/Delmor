@@ -17,9 +17,9 @@ DefaultProperties
 {
 	Components.Remove(ThirdPersonMesh);
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'KismetGame_Assets.Anims.SK_Jazz'
-		AnimSets(0)=AnimSet'KismetGame_Assets.Anims.SK_Jazz_Anims'
-		AnimtreeTemplate=AnimTree'KismetGame_Assets.Anims.Jazz_AnimTree'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Chicken'
+		AnimSets(0)=AnimSet'Delmor_Character.Chicken_anim'
+		AnimtreeTemplate=AnimTree'Delmor_Character.Chicken_animTree'
 		HiddenGame=False
 		HiddenEditor=False
 		Scale3D=(X=1, Y=1, Z=1)
