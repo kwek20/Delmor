@@ -32,7 +32,7 @@ var vector selfToPlayer;
 var float fleeRangeToPlayer;
 var DELPlayer player;
 var float moveRange;
-var int idleTime;
+var int maxIdleTime;
 var int minIdleTime;
 
 
@@ -130,7 +130,7 @@ state flee {
 state eat {
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
-		SetTimer(Rand(idleTime)+minIdleTime, false, 'backToWalk');
+		SetTimer(Rand(maxIdleTime)+minIdleTime, false, 'backToWalk');
 	}
 	function backToWalk() {
 		nextLocation = getRandomLocation();
@@ -197,6 +197,6 @@ DefaultProperties
 	wanderRange = 2048
 	moveRange = 1024
 	fleeRangeToPlayer = 128
-	idleTime = 55
+	maxIdleTime = 55
 	minIdleTime = 5
 }
