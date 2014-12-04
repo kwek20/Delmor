@@ -11,9 +11,6 @@ class U_InventoryManager extends Actor;
 //Array of items in the inventory
 var array<U_Items> UItems;
 
-// Used to spawn and add item into inventory
-var U_Items AddItem;
-
 var  DELPlayerHUD HUD;
 
 simulated event PostBeginPlay()
@@ -66,22 +63,28 @@ function bool CheckInventorySize(class<U_Items> ItemToCheck, int AmountWantingTo
   function StartingInventory()
 {
          AddInventory(class'U_HerbItem', 1);
-		 AddInventory(class'U_HerbItem', 3);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+		 AddInventory(class'DELItemOre', 1);
+
 }
 
 
 //Add items to the current inventory
-function AddInventory(class<U_Items> ItemType, int Amount )
-{
-     local int			i;
+function AddInventory(class<U_Items> ItemType, int amount ){
+	local int i;
+	local U_Items AddItem;
 
-     for ( i=0; i<Amount; i++ )
-      {
-         //Spawn the abstract item when the physical object is picked up and store it
-         AddItem = Spawn(ItemType);
-         UItems.AddItem(AddItem);
-      }
-      `log("There are" @ UItems.length @ "Items");
+    AddItem = Spawn(ItemType);
+	AddItem.setAmount(amount);
+    UItems.AddItem(AddItem);
+    
+    `log("There are" @ UItems.length @ "Items");
 }
 
 //Remove items from the current inventory either when used or dropped.

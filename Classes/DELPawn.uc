@@ -102,12 +102,11 @@ var bool bLockedToCamera;
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
 
-var class<U_InventoryManager>		UInventory;
-var repnotify U_InventoryManager			UManager;
+var class<U_InventoryManager> UInventory;
+var repnotify U_InventoryManager UManager;
 
 simulated event PostBeginPlay(){
-	super.PostBeginPlay();
-`Log("Custom Pawn up");
+	super.PostBeginPlay(); 
 
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , 64.0 );

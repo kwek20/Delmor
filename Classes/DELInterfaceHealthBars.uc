@@ -15,7 +15,7 @@ simulated function draw(DELPlayerHud hud){
 	local int length, startX, startY;
 	local DELPawn pawn;
 	
-	pawn = DELPawn(hud.getPlayer().getPawn());
+	pawn = hud.getPlayer().getPawn();
 	if (pawn == None || pawn.Health <= 0)return;
 	
 

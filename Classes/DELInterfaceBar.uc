@@ -17,6 +17,7 @@ var array<Texture2D> textures;
  * Array of delegate functions
  */
 var array< delegate<action> > actions;
+
 delegate action(DELPlayerHud hud);
 
 function load(DELPlayerHud hud){
@@ -37,7 +38,7 @@ function load(DELPlayerHud hud){
 	}
 }
 
-function useMagic(DELPlayerHud hud){
+function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton btn){
 	hud.log("RAN useMagic");
 }
 
@@ -45,7 +46,7 @@ function draw(DELPlayerHud hud){
 	local int length, startX, startY;
 	local DELPawn pawn;
 	
-	pawn = DELPawn(hud.getPlayer().getPawn());
+	pawn = hud.getPlayer().getPawn();
 	if (pawn == None || pawn.Health <= 0)return;
 	
 	//Code for the box behind the buttons
