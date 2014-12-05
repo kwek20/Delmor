@@ -191,6 +191,8 @@ state attack{
 		super.beginState( previousStateName );
 
 		timer = 0.0;
+
+		DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
 	}
 
 	event tick( float deltaTime ){
@@ -305,6 +307,8 @@ state Charge{
 		playerPosition.Z = attackTarget.location.Z;
 
 		DrawDebugSphere( playerPosition , 16 , 20 , 0 , 255 , 0 , true );
+
+		DELMediumMonsterPawn( Pawn ).say( "InitCharge" );
 	}
 
 	event tick( float deltaTime ){
@@ -346,6 +350,19 @@ state Charge{
 			goToState( 'Attack' );
 		}
 	}
+}
+
+/*
+ * ===================================
+ * Events
+ * ===================================
+ */
+
+/**
+ * Called when a pawn that belongs to this commander dies.
+ */
+event minionDied(){
+	DELMediumMonsterPawn( Pawn ).say( "MinionDied" );
 }
 
 DefaultProperties

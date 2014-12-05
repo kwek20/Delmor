@@ -257,6 +257,7 @@ function knockBack( float intensity , vector direction ){
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
+	bBlockActors = false;
 }
 
 simulated exec function turnLeft(){

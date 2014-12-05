@@ -46,15 +46,15 @@ event Tick( float deltaTime ){
 	if (Trace(HitLocation, HitNormal, newLocation, myPawn.location , false, vect(0.0, 0.0, 0.0)) != none ){
 		//The pawn collided, the force will be stopped now.
 		`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> COLLLISION!!!!!!!!!!!!!!" );
-		//myPawn.setLocation( adjustLocation( HitNormal , newLocation.Z ) );
-		destroy();
+		myPawn.setLocation( adjustLocation( HitNormal , newLocation.Z ) );
+		endForce();
 	}
 	myPawn.setLocation( newLocation );
 
 	//We've hit the ground
 	if ( myPawn.location.Z <= beginZ + 4.0 && zPower <= 0 ){
 		`log( "HIT GROUND" );
-		destroy();
+		endForce();
 	}
 
 	//Gravity
@@ -69,6 +69,13 @@ function setPower( float inPower ){
 	zPower = inPower;
 }
 
+/**
+ * Destroys the force effects.
+ */
+function endForce(){
+	myPawn.bBlockActors = true;
+	destroy();
+}
 /**
  * Adjusts a given location so that it's z-variable will be set to a given value while ignoring
  * the other values.
