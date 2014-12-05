@@ -166,7 +166,7 @@ function Vector GetALocation() {
 	local Vector temp;
 	temp.X = Self.Pawn.Location.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Y = Self.Pawn.Location.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
-	temp.Z = self.Pawn.Location.Z;
+	temp.Z = self.Pawn.Location.Z + Rand(5000);
 	return temp;
 }
 
