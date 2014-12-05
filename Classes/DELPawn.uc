@@ -65,6 +65,16 @@ var float regenerationTimer;
 
 var array< class<Inventory> > DefaultInventory;
 
+/**
+ * When the pawn is stunned it may not move or attack.
+ */
+var bool bIsStunned;
+
+/**
+ * The weapon that will be used by the pawn.
+ */
+var DELWeapon myWeapon; 
+
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -104,7 +114,7 @@ var bool bLockedToCamera;
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 64.0 );
+	setCameraOffset( 0.0 , 0.0 , 48.0 );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
@@ -188,7 +198,7 @@ event Tick( float deltaTime ){
 	if ( bLockedToCamera )
 		camTargetDistance = 150.0;
 	else
-		camTargetDistance = 300.0;
+		camTargetDistance = 200.0;
 
 	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
 		//Animate the camera
@@ -230,6 +240,15 @@ function adjustCameraDistance( float deltaTime ){
 	}
 }
 
+/**
+ * Knocks the pawn back.
+ * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction int     The yaw at which the pawn should fly through the air.
+ */
+function knockBack( float intensity , int direction ){
+	velocity.z = 20.0;
+}
+
 simulated exec function turnLeft(){
 	`log( self$" TurnLeft" );
 }
@@ -252,10 +271,12 @@ DefaultProperties
 	magicResistance = 0.0
 	walkingSpeed = 100.0
 	detectionRange = 960.0
-	regenerationTimer = 1.0;
+	regenerationTimer = 1.0
 
-	camOffsetDistance = 300.0
-	camTargetDistance = 300.0
+	bIsStunned = false
+
+	camOffsetDistance = 200.0
+	camTargetDistance = 200.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false

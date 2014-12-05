@@ -35,6 +35,6 @@ DefaultProperties
 	CollisionHeight = +16.0;
 	end object
 
-	ControllerClass=class'Delmor.DELChickenController'
+	ControllerClass=class'DELChickenController'
 	GroundSpeed=50
 }

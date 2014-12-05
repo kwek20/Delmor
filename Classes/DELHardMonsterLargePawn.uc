@@ -1,5 +1,5 @@
 /**
- * @autor Bram
+ * @author Bram
  * Pawn class for the hard enemy
  */
 class DELHardMonsterPawn extends DELHostilePawn
@@ -8,10 +8,10 @@ class DELHardMonsterPawn extends DELHostilePawn
 
 defaultproperties
 {
-	ControllerClass=class'Delmor.DELhardMonsterController'
+	ControllerClass=class'Delmor.DELHardMonsterLargeController'
 
-	health = 500
-	healthMax = 500
+	health = 1000
+	healthMax = 1000
 	healthRegeneration = 0
-	walkingSpeed = 60.0
+	walkingSpeed = 80.0
 }

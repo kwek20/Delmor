@@ -1,3 +1,6 @@
+/**
+ * JAVADOC!!!!!!!!!!!!!!!!!!!!!11111111one
+ */
 class DELActiveWeapon extends UDKWeapon;
 
 var DELMeleeWeapon MeleeWeapon;

@@ -1,9 +1,8 @@
 /**
- * Controller of all animals.
+ * Controller of the goat
  * @author Bram
  */
-
-class DELAnimalController extends DELNpcController abstract;
+class DELGoatController extends DELAnimalController;
 /**
  *  the range in which the goat will wander arount his start position
  */
@@ -31,9 +30,6 @@ var vector selfToPlayer;
 
 var float fleeRangeToPlayer;
 var DELPlayer player;
-var float moveRange;
-var int maxIdleTime;
-var int minIdleTime;
 
 
 /** 
@@ -45,21 +41,12 @@ event Possess(Pawn inPawn, bool bVehicleTransition)
 {
     super.Possess(inPawn, bVehicleTransition);
     Pawn.SetMovementPhysics();
+	startPosition = self.Pawn.Location;
 }
-
-auto state Idle {
-	event Tick(float DeltaTime) {
-		if(self.Pawn != none) {
-			startPosition = self.Pawn.Location;
-			GotoState('walk');
-		}
-	}
-}
-
 /**
  * state where the goat is walking to a random player
  */
-state walk {
+auto state walk {
 	local Vector targetLocation;
 	local bool playerIsSeen;
 	function beginState( Name previousStateName ){
@@ -119,6 +106,7 @@ state flee {
 	local Vector targetLocation;
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
+		//nextLocation = getRandomLocation();
 		targetLocation.X =  self.player.Location.X + lengthDirX(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
 		targetLocation.Y =  self.player.Location.Y + lengthDirY(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
 		targetLocation.Z = self.Pawn.Location.Z;
@@ -130,7 +118,7 @@ state flee {
 state eat {
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
-		SetTimer(Rand(maxIdleTime)+minIdleTime, false, 'backToWalk');
+		SetTimer(Rand(55)+5, false, 'backToWalk');
 	}
 	function backToWalk() {
 		nextLocation = getRandomLocation();
@@ -155,26 +143,14 @@ function bool FindNavMeshPath(Vector goal)
  */
 function Vector getRandomlocation() {
 	local Vector temp;
-	temp = GetALocation();
-	while(VSize(temp - startPosition) > wanderRange) {
-		temp = GetALocation();
-	}
-	return temp;
-}
-
-function Vector GetALocation() {
-	local Vector temp;
-	temp.X = Self.Pawn.Location.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
-	temp.Y = Self.Pawn.Location.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
-	temp.Z = self.Pawn.Location.Z + Rand(5000);
+	temp.X = Rand(wanderRange*2) - wanderRange;
+	temp.Y = Rand(wanderRange*2) - wanderRange;
+	temp = temp + startPosition;
 	return temp;
 }
 
 DefaultProperties
 {
 	wanderRange = 2048
-	moveRange = 1024
 	fleeRangeToPlayer = 128
-	maxIdleTime = 55
-	minIdleTime = 5
 }
