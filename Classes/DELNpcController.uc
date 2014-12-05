@@ -296,6 +296,15 @@ function float lengthDirY( float len , float dir ){
  * @return DELPawn
  */
 function DELPawn checkCollision(){
+	local Controller c;
+
+	foreach WorldInfo.AllControllers( class'Controller' , c ){
+		if ( distanceToPoint( c.Pawn.Location ) < 64.0 + self.Pawn.GetCollisionRadius() && c != self ){
+			if ( CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
+				return DELPawn( c.Pawn );
+			}
+		}
+	}
 	return none;
 }
 
@@ -309,7 +318,7 @@ function DELPawn checkCollision(){
  * Starts the meleeAttack pipeline.
  */
 function meleeAttack(){
-	`log( self$" MeleeAttack" );
+	//`log( self$" MeleeAttack" );
 
 	//TODO: Melee attack
 }

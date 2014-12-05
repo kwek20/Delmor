@@ -145,13 +145,11 @@ private function DELMediumMonsterPawn isInTheWay(){
 	local DELMediumMonsterController c;
 	local vector adjustedLocation;
 
-		`log( "Check is in the way" );
-
 	obstructed = none;
 
 	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
 		//If the pawn is nearby
-		if ( VSize( pawn.Location - c.Pawn.Location ) <= minimumDistance && ( c.IsInState( 'Flee' ) || c.IsInState( 'maintainDistanceFromPlayer' ) || c.IsInState( 'Charge' ) ) ){
+		if ( VSize( pawn.Location - c.Pawn.Location ) <= minimumDistance && ( c.IsInState( 'Flee' ) || c.IsInState( 'maintainDistanceFromPlayer' )/* || c.IsInState( 'Charge' ) */) ){
 
 			adjustedLocation.X = c.Pawn.Location.X + lengthDirX( c.Pawn.GroundSpeed * 2 , c.Pawn.Rotation.Yaw * UnrRotToDeg + 180.0 );
 			adjustedLocation.Y = c.Pawn.Location.Y + lengthDirY( c.Pawn.GroundSpeed * 2 , c.Pawn.Rotation.Yaw * UnrRotToDeg + 180.0 );
