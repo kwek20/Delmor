@@ -17,7 +17,7 @@ var() Vector4 position;
 /**
  * The current texture of this button
  */
-var() Texture2D texture; 
+var() Texture2D texture, hoverTexture; 
 
 /**
  * The key you use to activate this button. None if not existing
@@ -34,7 +34,14 @@ var() Vector2D textOffset;
 /**
  * The color of the button if no texture has been found
  */
-var() Color color;
+var() Color color, hoverColor;
+
+/**
+ * If this is true, the player is hovering on it
+ */
+var bool isHover;
+
+var() SoundCue clickSound;
 
 /**
  * This function gets called when the button is used(mouse/key)
@@ -43,6 +50,21 @@ var() Color color;
 delegate onUse(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button);
 
 delegate onHover(DELPlayerHud hud, bool enter);
+
+function hover(DELPlayerHud hud, bool enter){
+	isHover = true;
+	SetTimer(0.1, false, 'noHover');
+}
+
+function noHover(){isHover=false;}
+
+function use(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+	PlayClickSound();
+}
+
+function PlayClickSound(){
+	PlaySound( clickSound );
+}
 
 /**
  * Checks if a position is inside this button
@@ -87,28 +109,45 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 public function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (texture != None){
-		drawTile(hud.Canvas, texture, position.Z, position.W);
+		drawTexture(hud.Canvas);
 	} else {
 		//behind the text square
-		drawStandardbackground(hud);
-		drawText(hud);
+		drawStandardbackground(hud.Canvas);
+		drawText(hud.Canvas);
 	}
 }
 
-public function drawText(DELPlayerHud hud){
-	local float Xstring, Ystring;
-	hud.Canvas.Font = class'Engine'.static.GetLargeFont();    
-	hud.Canvas.TextSize(getText() $ "", Xstring, Ystring);
-	hud.Canvas.SetDrawColor(0,0,0);
-	hud.Canvas.SetPos(  position.X + position.Z * textOffset.X - Xstring / 2, 
-							position.Y + position.W * textOffset.Y - Ystring / 2);
-	hud.Canvas.DrawText(getText());
+public function drawTexture(Canvas c){
+	if (texture == None) return;
+	if (isHover && (hoverTexture != none || hoverColorSet())){
+		if (hoverTexture != none){
+			drawTile(c, hoverTexture, position.Z, position.W);
+		} else {
+			drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);
+		}
+	} else {
+		drawTile(c, texture, position.Z, position.W);
+	}
 }
 
-public function drawStandardbackground(DELPlayerHud hud){
-	hud.Canvas.SetPos(position.X, position.Y);
-	hud.Canvas.SetDrawColorStruct(color);
-	hud.Canvas.DrawRect(position.Z, position.W);
+private function bool hoverColorSet(){
+	return hoverColor.R > 0 || hoverColor.G > 0 || hoverColor.B > 0 || hoverColor.A > 0;
+}
+
+public function drawText(Canvas c){
+	local float Xstring, Ystring;
+	c.Font = class'Engine'.static.GetLargeFont();    
+	c.TextSize(getText() $ "", Xstring, Ystring);
+	c.SetDrawColor(0,0,0);
+	c.SetPos(  position.X + position.Z * textOffset.X - Xstring / 2, 
+							position.Y + position.W * textOffset.Y - Ystring / 2);
+	c.DrawText(getText());
+}
+
+public function drawStandardbackground(Canvas c){
+	c.SetPos(position.X, position.Y);
+	c.SetDrawColorStruct(isHover ? hoverColor : color);
+	c.DrawRect(position.Z, position.W);
 }
 
 /**
@@ -117,6 +156,14 @@ public function drawStandardbackground(DELPlayerHud hud){
  */
 public function setTexture(Texture2D mat){
 	texture = mat;
+}
+
+/**
+ * Sets the hover texture for this button
+ * @param mat The material to set
+ */
+public function setHoverTexture(Texture2D mat){
+	hoverTexture = mat;
 }
 
 /**
@@ -170,7 +217,14 @@ public function setColor(color c){
 
 DefaultProperties
 {
+	onHover = hover
+	onUse = use;
+
+	clickSound = SoundCue'a_interface.menu.UT3MenuAcceptCue'
+
 	color=(R=255,G=255,B=255,A=255)
+	hoverColor=(R=175,G=175,B=175,A=255)
+
 	identifierKey=-1
 	bCanActivate=true
 

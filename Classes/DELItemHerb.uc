@@ -1,4 +1,4 @@
-class U_HerbItem  extends U_Items placeable;
+class DELItemHerb extends DELItem placeable;
 
 defaultproperties
 {

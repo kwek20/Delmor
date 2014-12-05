@@ -1,4 +1,4 @@
-class U_WorldItemPickup extends Actor placeable;
+class DELItemPickup extends Actor placeable;
 
 var() editconst const CylinderComponent	CylinderComponent;
 var() const editconst DynamicLightEnvironmentComponent LightEnvironment;
@@ -6,7 +6,7 @@ var() const editconst DynamicLightEnvironmentComponent LightEnvironment;
 
 //the physical pickup that is seen in the world as a "Bag" which will contain any kind of inventory and a certain amount.
 
-var     U_InventoryManager	InvManager;
+var     DELInventoryManager	InvManager;
 
 var()	string	ItemName;
 
@@ -14,7 +14,7 @@ var()   string	PickupMessage;			// Human readable description when picked up.
 
 var() SoundCue PickupSound;
 
-var() class<U_Items> ItemType;
+var() class<DELItem> ItemType;
 
 var() int ItemAmount_ADD;
 

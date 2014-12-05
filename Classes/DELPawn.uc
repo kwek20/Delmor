@@ -63,8 +63,6 @@ var float detectionRange;
  */
 var float regenerationTimer;
 
-var array< class<Inventory> > DefaultInventory;
-
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -102,8 +100,8 @@ var bool bLockedToCamera;
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
 
-var class<U_InventoryManager> UInventory;
-var repnotify U_InventoryManager UManager;
+var class<DELInventoryManager> UInventory;
+var repnotify DELInventoryManager UManager;
 
 simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
@@ -116,17 +114,12 @@ simulated event PostBeginPlay(){
 	//Mesh.GetSocketByName(socketName);
 
 	 //Set up custom inventory manager
-        if (UInventory != None)
-	{
+     if (UInventory != None){
 		UManager = Spawn(UInventory, Self);
 		if ( UManager == None )
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
 
 	}
-}
-
-function AddDefaultInventory()
-{
 }
 
 /**
@@ -210,7 +203,7 @@ event Tick( float deltaTime ){
 	}
 }
 
-/*/**
+/**
  * Spawns the pawn's controller and deletes the previous one.
  */
 function SpawnController(){
@@ -220,7 +213,7 @@ function SpawnController(){
 
 	controller = spawn( ControllerClass );
 	controller.Pawn = self;
-}*/
+}
 
 /**
  * Animates the camera distance.
@@ -255,7 +248,7 @@ simulated exec function turnRight(){
 DefaultProperties
 {
 	bCanPickUpInventory = true
-	UInventory = U_InventoryManager
+	UInventory = DELInventoryManager
 
 
 	MaxFootstepDistSq=9000000.0

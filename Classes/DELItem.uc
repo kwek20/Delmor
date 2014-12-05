@@ -1,8 +1,10 @@
-class U_Items extends Actor abstract;
+class DELItem extends Actor abstract;
+
+var() const int maxSize;
 
 var() private string itemName;
 var() private string itemDescription;
-var() Texture2D texture;
+var() Texture2D texture, hoverTexture;
 var() SoundCue pickupSound;
 var() private int amount;
 var() bool playerBound;
@@ -36,4 +38,5 @@ defaultproperties
 	pickupSound=noSound
 	amount=0
 	playerBound=false
+	maxSize=20;
 }

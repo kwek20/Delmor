@@ -2,44 +2,44 @@ class DELInterfaceItemSlot extends DELInterfaceButton;
 
 var Texture2D default_bg;
 var Color bgColor;
-var bool isHover;
 
 function draw(DELPlayerHud hud){
-	drawStandardbackground(hud);
+	drawStandardbackground(hud.Canvas);
 
 	if (texture != None){
 		super.draw(hud);
-		drawText(hud);
+		drawText(hud.Canvas);
 	}
 }
 
-function click(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
-
-}
-
 function hover(DELPlayerHud hud, bool enter){
-	drawDescription(hud);
-	isHover = true;
-	SetTimer(0.1, false, 'noHover');
+	drawName(hud);
+	super.hover(hud, enter);
 }
 
-function noHover(){isHover=false;}
+function click(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+	local DELItem item;
 
-function drawStandardbackground(DELPlayerHud hud){
-	local int c;
-	c =  isHover ? 255 : 0;
-	hud.Canvas.SetPos(position.X, position.Y);
-	drawCTile(hud.Canvas, default_bg, position.Z, position.W, 0, c, 0, 255);
+	item = getItem(hud);
+	button.use(hud, mouseClicked, button);
+	hud.getPlayer().showSubtitle(item.getDescription());
 }
 
-function drawDescription(DELPlayerHud hud){
+function drawStandardbackground(Canvas c){
+	local int col;
+	col =  isHover ? 255 : 0;
+	c.SetPos(position.X, position.Y);
+	drawCTile(c, default_bg, position.Z, position.W, 0, col, 0, 255);
+}
+
+function drawName(DELPlayerHud hud){
 	local float Xstring, Ystring;
-	local U_Items item;
+	local DELItem item;
 
 	item = getItem(hud);
 	if (item == none) return;
 	hud.Canvas.Font = class'Engine'.static.GetMediumFont();    
-	hud.Canvas.TextSize(item.getDescription() $ "", Xstring, Ystring);
+	hud.Canvas.TextSize(item.getName() $ "", Xstring, Ystring);
 
 	hud.Canvas.SetPos(position.X + position.Z/2 - Xstring/2, position.Y - Ystring);
 	hud.Canvas.SetDrawColorStruct(bgColor);
@@ -47,10 +47,10 @@ function drawDescription(DELPlayerHud hud){
 
 	hud.Canvas.SetPos(position.X + position.Z/2 - Xstring/2, position.Y - Ystring);
 	hud.Canvas.SetDrawColor(255,255,255);
-	hud.Canvas.DrawText(item.getDescription());
+	hud.Canvas.DrawText(item.getName());
 }
 
-function U_Items getItem(DELPlayerHud hud){
+function DELItem getItem(DELPlayerHud hud){
 	if (hud.getPlayer().getPawn().UManager.UItems.Length < identifierKey) return none;
 	return hud.getPlayer().getPawn().UManager.UItems[identifierKey-1];
 }

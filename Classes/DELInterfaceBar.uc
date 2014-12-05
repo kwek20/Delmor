@@ -38,7 +38,8 @@ function load(DELPlayerHud hud){
 	}
 }
 
-function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton btn){
+function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+	button.use(hud, mouseClicked, button);
 	hud.log("RAN useMagic");
 }
 

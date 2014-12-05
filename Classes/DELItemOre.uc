@@ -1,4 +1,4 @@
-class DELItemOre extends U_Items;
+class DELItemOre extends DELItem;
 
 DefaultProperties
 {

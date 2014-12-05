@@ -6,8 +6,8 @@ var() float backgroundDimensionWidth;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceItemSlot button;
-	local array<U_Items> items;
-	local U_items item;
+	local array<DELItem> items;
+	local DELItem item;
 	local int startX, startY, i;
 	
 	startX = hud.sizeX/2 - ((AmountX*length)+((AmountX + 1)*inbetween))/2;
@@ -16,7 +16,6 @@ function load(DELPlayerHud hud){
 	items = hud.getPlayer().getPawn().UManager.UItems;
 
 	for(i = 0; i < (amountX*amountY); i++){
-
 		button = Spawn(class'DELInterfaceItemSlot');
 		button.setPosition( startX + ((i % amountX + 1)*inbetween) + ((i % amountX)*length), 
 							startY  + ((class'DELMath'.static.floor(i / amountX) + 1)*inbetween) 
@@ -24,9 +23,13 @@ function load(DELPlayerHud hud){
 							length, length, hud);
 
 		if (items.Length > i){
+			item = items[i];
 			button.setRun(button.click);
-			button.setText(items[i].getName());
-			button.setTexture(items[i].texture);
+			button.setText(item.getAmount()$"");
+			button.setTexture(item.texture);
+			button.setHoverTexture(item.hoverTexture);
+		} else {
+			button.setText(" ");
 		}
 
 		button.setHover(button.hover);
@@ -34,10 +37,17 @@ function load(DELPlayerHud hud){
 		addButton(button);
 	}
 
-	
+	super.load(hud);
 }
 
 function draw(DELPlayerHud hud){
+	local int w, h;
+
+	w = (amountX*length + amountX+2*inbetween) * 1.5;
+	h = (amountY*length + amountY+2*inbetween) * 1.5;
+
+	hud.Canvas.setPos(hud.sizeX/2 - w/2, hud.sizeY/2 - h/2);
+	drawTile(hud.Canvas, background, w, h);
 	super.draw(hud);
 }
 
@@ -47,5 +57,6 @@ DefaultProperties
 	length=100
 	amountX=4
 	amountY=4
-	background=Texture2D'UDKHUD.cursor_png'
+	background=Texture2D'DelmorHud.backpack'
+	openSound=SoundCue'a_interface.menu.UT3MenuScreenSpinCue'
 }
