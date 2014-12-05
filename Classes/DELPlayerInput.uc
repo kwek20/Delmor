@@ -323,8 +323,8 @@ exec function numberPress(name inKey){
 	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
 }
 
-exec function mousePress(){
-	DELPlayerController(Pawn.Controller).onMousePress(MousePosition);
+exec function mousePress(bool left=false){
+	DELPlayerController(Pawn.Controller).onMousePress(MousePosition, left);
 }
 
 /**
@@ -336,10 +336,11 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+
 		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
-		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
+		setKeyBinding( 'RightMouseButton' , "StartAimMode | mousePress false| OnRelease EndAimMode" );
 
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding( 'F10' , "openInventory" );

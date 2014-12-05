@@ -69,7 +69,6 @@ var bool bIsStunned;
  * The weapon that will be used by the pawn.
  */
 var DELWeapon myWeapon; 
-
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -106,8 +105,13 @@ var bool bLockedToCamera;
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
+
+var class<DELInventoryManager> UInventory;
+var repnotify DELInventoryManager UManager;
+
 simulated event PostBeginPlay(){
-	super.PostBeginPlay();
+	super.PostBeginPlay(); 
+
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , 48.0 );
 	SetThirdPersonCamera( true );
@@ -115,10 +119,14 @@ simulated event PostBeginPlay(){
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
 	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
-}
 
-function AddDefaultInventory()
-{
+	 //Set up custom inventory manager
+     if (UInventory != None){
+		UManager = Spawn(UInventory, Self);
+		if ( UManager == None )
+			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+
+	}
 }
 
 /**
@@ -201,7 +209,7 @@ private function regenerate(){
 	mana = Clamp( mana + manaRegeneration , 0 , manaMax );
 }
 
-/*/**
+/**
  * Spawns the pawn's controller and deletes the previous one.
  */
 function SpawnController(){
@@ -211,7 +219,7 @@ function SpawnController(){
 
 	controller = spawn( ControllerClass );
 	controller.Pawn = self;
-}*/
+}
 
 /**
  * Animates the camera distance.
@@ -261,6 +269,10 @@ simulated exec function turnRight(){
 
 DefaultProperties
 {
+	bCanPickUpInventory = true
+	UInventory = DELInventoryManager
+
+
 	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100

@@ -90,6 +90,8 @@ state Inventory extends MouseState{
 	drawBars = true;
 	drawSubtitles = true;
 	checkHuds();
+
+	addInterface(class'DELInterfaceInventory');
 }
 
 function swapState(name StateName){
@@ -129,14 +131,14 @@ public function onNumberPress(int key){
 	}
 }
 
-public function onMousePress(IntPoint pos){
+public function onMousePress(IntPoint pos, bool left){
 	local DELinterface interface;
 	local array<DELInterface> interfaces;
 
 	interfaces = getHud().getInterfaces();
 	foreach interfaces(interface){
 		if (DELInterfaceInteractible(interface) != None){
-			DELInterfaceInteractible(interface).onClick(getHud(), pos);
+			DELInterfaceInteractible(interface).onClick(getHud(), pos, left);
 		}
 	}
 }
@@ -174,7 +176,7 @@ function checkHuds(){
 		addInterface(class'DELInterfaceSubtitle');
 	}
 	if (drawbars){
-		addInterface(class'DELInterfaceHealthBars');
+		//addInterface(class'DELInterfaceHealthBars');
 	}
 	hudLoaded = true;
 }
@@ -259,8 +261,8 @@ function DELPlayerHud getHud(){
 	return DELPlayerHud(myHUD);
 }
 
-function Pawn getPawn(){
-	return self.Pawn;
+function DELPawn getPawn(){
+	return DELPawn(self.Pawn);
 }
 
 public function String getSubtitle(){
