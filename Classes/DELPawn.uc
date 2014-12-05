@@ -58,11 +58,6 @@ var float walkingSpeed;
  */
 var float detectionRange;
 
-/**
- * Timer for regeneration. If it hit zero, the timer will reset to 1.0 and the pawn will regain health and mana.
- */
-var float regenerationTimer;
-
 var array< class<Inventory> > DefaultInventory;
 
 /**
@@ -119,6 +114,7 @@ simulated event PostBeginPlay(){
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
+	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
 }
 
 function AddDefaultInventory()
@@ -174,8 +170,7 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 			Controller.SetRotation( newRotation );
 		//}
 
-		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
-		{
+		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none){
 			out_CamLoc = HitLocation;
 		}
 	}
@@ -187,14 +182,6 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
  * In this event the pawn will slowly regain health and mana.
  */
 event Tick( float deltaTime ){
-	regenerationTimer -= deltaTime;
-
-	if ( regenerationTimer <= 0.0 ){
-		regenerationTimer = 1.0;
-		health = Clamp( health + healthRegeneration , 0 , healthMax );
-		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
-	}
-
 	if ( bLockedToCamera )
 		camTargetDistance = 150.0;
 	else
@@ -204,6 +191,14 @@ event Tick( float deltaTime ){
 		//Animate the camera
 		adjustCameraDistance( deltaTime );
 	}
+}
+
+/**
+ * Regenerates health and mana.
+ */
+private function regenerate(){
+	health = Clamp( health + healthRegeneration , 0 , healthMax );
+	mana = Clamp( mana + manaRegeneration , 0 , manaMax );
 }
 
 /*/**
@@ -243,10 +238,17 @@ function adjustCameraDistance( float deltaTime ){
 /**
  * Knocks the pawn back.
  * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
- * @param direction int     The yaw at which the pawn should fly through the air.
+ * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
  */
-function knockBack( float intensity , int direction ){
-	velocity.z = 20.0;
+function knockBack( float intensity , vector direction ){
+	local DELKnockbackForce knockBack;
+	`log( ">>>>>>>>>>>>>>>>>>>>> KNOCK BACK" );
+
+	knockBack = spawn( class'DELKnockbackForce' );
+	knockBack.setPower( intensity );
+	knockBack.myPawn = self;
+	knockBack.direction = direction;
+	knockBack.beginZ = location.Z;
 }
 
 simulated exec function turnLeft(){
@@ -285,8 +287,8 @@ DefaultProperties
 
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
-	CollisionRadius = 32.0;
-	CollisionHeight = +44.0;
+		CollisionRadius = 32.0;
+		CollisionHeight = +44.0;
 	end object
 
 	//Mesh

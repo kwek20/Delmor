@@ -231,7 +231,7 @@ state flee{
 		if ( VSize( selfToPlayer ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
 			if ( pawn.Health >= pawn.HealthMax / 2 ){
-				changeState( 'attack' );
+				changeState( 'charge' );
 			}
 		}
 	}
@@ -300,16 +300,18 @@ state Charge{
 
 		//Set the playerPosition to the player's position PLUS a bit extra so that the MediumEnemy will charge a bit further and thus appear more realistic.
 		selfToPlayer = rotator( attackTarget.location - pawn.Location );
-		playerPosition.X = attackTarget.location.X + lengthDirX( -128.0 , selfToPlayer.yaw );
-		playerPosition.Y = attackTarget.location.Y + lengthDirY( -128.0 , selfToPlayer.yaw );
+		playerPosition.X = attackTarget.location.X + lengthDirX( 128.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.Y = attackTarget.location.Y + lengthDirY( 128.0 , -selfToPlayer.yaw % 65536 );
 		playerPosition.Z = attackTarget.location.Z;
+
+		DrawDebugSphere( playerPosition , 16 , 20 , 0 , 255 , 0 , true );
 	}
 
 	event tick( float deltaTime ){
 		local DELPawn collidingPawn;
 
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime ){
-			moveInDirection( playerPosition - pawn.Location , deltaTime * 4 /*We run to the player, so we move faster*/ );
+			moveInDirection( playerPosition - pawn.Location , deltaTime * 8 /*We run to the player, so we move faster*/ );
 			//TODO: Check for collision
 			
 			collidingPawn = checkCollision();
@@ -332,13 +334,22 @@ state Charge{
 	event collisionWithPawn( DELPawn p ){
 		local vector selfToPawn;
 
-		selfToPawn = p.location - pawn.Location;
-		p.knockBack( 75.0 , rotator( selfToPawn ).Yaw );
+		selfToPawn = adjustLocation( p.location , pawn.location.Z ) - adjustLocation( pawn.Location , pawn.location.Z );
+
+		if ( p.class != class'DELMediumMonsterPawn' ){
+			p.knockBack( 250.0 , selfToPawn );
+		}
+
+		if ( p.class == class'DELPlayer' ){
+			p.health -= 25;
+			stopPawn();
+			goToState( 'Attack' );
+		}
 	}
 }
 
 DefaultProperties
-{
+{ 
 	decisionInterval = 0.5
 	commandRadius = 512.0
 	wanderRadius = 512.0
