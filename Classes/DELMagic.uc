@@ -2,7 +2,7 @@ class DELMagic extends DELWeapon;
 /**
  * list of spells available to magician
  */
-var array< class<Projectile> > spells;
+var array< class<DElMagic> > spells;
 /**
  * location of active ability within spell list
  */
@@ -190,7 +190,8 @@ simulated function Vector GetSocketPosition(Pawn Holder){
 /**
  * gets the spell
  */
-function class<Projectile> getMagic(){
+function class<DELMagic> getMagic(){
+	`log(spells[ActiveAbilityNumber]);
 	return spells[ActiveAbilityNumber];
 }
 
@@ -224,9 +225,11 @@ DefaultProperties
 	newColor = false
 	newColorlevel = (X=1,Y=1,Z=2);
 	WeaponFireTypes(0)=EWFT_Custom
-	spells[0] = class'UTProj_LinkPlasma'
+	/*spells[0] = class'UTProj_LinkPlasma'
 	spells[1] = class'UTProj_Rocket'
 	spells[2] = class'UTProj_Grenade'
 	spells[3] = class'UTProj_LoadedRocket'
+*/	
+	spells[0] = class'DELMagicHeal'
 	ActiveAbilityNumber = 0;
 }

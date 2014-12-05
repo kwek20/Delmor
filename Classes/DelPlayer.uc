@@ -57,7 +57,8 @@ function AddDefaultInventory(){
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	magic = Spawn(class'DELMagicHeal',,,self.Location);
+	magic = Spawn(class'DELMagic',,,self.Location);
+	magic = Spawn(magic.getMagic(),,,self.Location);
 	magic.GiveTo(Controller.Pawn);
 }
 
@@ -65,6 +66,7 @@ function AddDefaultInventory(){
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+	magicSwitch(1);
 }
 
 /**
@@ -76,6 +78,8 @@ simulated function magicSwitch(int AbilityNumber){
 	}	
 	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
 		magic.switchMagic(AbilityNumber);
+		magic = Spawn(magic.getMagic(),,,self.Location);
+		magic.GiveTo(Controller.Pawn);
 	}
 }
 
