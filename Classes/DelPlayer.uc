@@ -24,6 +24,17 @@ simulated function bool IsFirstPerson(){
 	return false;
 }
 
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	
+	Global.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+	if(magic != none){
+		magic.Interrupt();
+	}
+}
+
+
+
 
 /**
  * selects a point in the animtree so it is easier acessible
@@ -46,7 +57,7 @@ function AddDefaultInventory(){
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	magic = Spawn(class'DELMagic',,,self.Location);
+	magic = Spawn(class'DELMagicHeal',,,self.Location);
 	magic.GiveTo(Controller.Pawn);
 }
 

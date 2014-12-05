@@ -8,32 +8,109 @@ var array< class<Projectile> > spells;
  */
 var int ActiveAbilityNumber;
 
-var vector newColorlevel;
+/**
+ * cost of the spell without the charging
+ * may not ba changed
+ */
+var int ManaCost;
 
-var bool newColor;
+/**
+ * manaCost with chargecosts added
+ */
+var int TotalManaCost;
 
+/**
+ * standard ammount of damage/heal the spell will do
+ */
+var int Damage;
+
+/**
+ * ammount of damage/heal with the charge added
+ */
+var int TotalDamage;
+
+/**
+ * if the spell can charge
+ */
+var bool bCanCharge;
+
+/**
+ * the user of the spell
+ */
+var DELPawn spellCaster;
+
+/**
+ * the cost that is added every iteration
+ */
+var int ChargeCost;
+
+/**
+ * the ammount that is added every charge iteration
+ */
+var int ChargeAdd;
+
+/**
+ * the state where a spell charges
+ */
 simulated state charging{
+	/**
+	 * beginning of the state
+	 */
 	simulated event beginstate(Name NextStateName){
-		SetTimer(3.0,false, NameOf(setColor));
+		SetTimer(1.0,bCanCharge, NameOf(chargeTick));
+		TotalManaCost = ManaCost;
+		TotalDamage = Damage;
 		`log("start charge");
+		`log("player has now " $ spellCaster.Health $" health");
+		`log("player has now " $ spellCaster.Mana $" mana");
 	}
 
-	function setColor(){
-		newColor = true;
-		`log("charge complete");
+	/**
+	 * a function that is called every iteration
+	 */
+	simulated function chargeTick(){
+		totalManaCost+= chargeCost;
+		totalDamage+= ChargeAdd;
+		`log("manacost:" $ totalManaCost);
+		`log("ammount of heal/damage:" $ totalDamage);
+		if(spellCaster.mana - (totalManaCost+chargeCost) <= 0){
+			`log("max chargetime reached");
+			ClearTimer(NameOf(chargeTick));
+		}
 	}
 
-	simulated event endstate(Name NextStateName){
+	/**
+	 * is called when key is released and the spell is charging
+	 */
+	simulated function FireStop(){
+		super.FireStop();
 		shoot();
+	}
+
+	/**
+	 * ending of the state
+	 */
+	simulated event endstate(Name NextStateName){
+		`log("charge Complete");
+
 	}
 }
 
+/**
+ * when there is no magic being called
+ */
 simulated state Nothing{
 	simulated event beginstate(Name NextStateName){
 		`log("kinda like a idle but my own");
 	}
 }
 
+/**
+ * is called when the player takes damage, interrupts spells
+ */
+simulated function interrupt(){
+	`log("spell interrupted if possible");
+}
 
 
 /**
@@ -41,14 +118,19 @@ simulated state Nothing{
  * in case of a chargeable spell, the charging will be initiated
  */
 simulated function FireStart(){
+	spellCaster = DELPawn(instigator);
+	spellCaster.Health = 20;
 	//super.StartFire(FireModeNum);
-	if(ActiveAbilityNumber == 0){
+	if(bCanCharge){
 		GoToState('Charging');
 	} else {
 		shoot();
 	}
 }
 
+/**
+ * is called when the key is released
+ */
 simulated function FireStop(){
 	GoToState('Nothing');
 }
@@ -128,14 +210,8 @@ simulated function CustomFire(){
 		
 		// Spawn projectile
 		SpawnedProjectile = Spawn(class'UTProj_LinkPlasma' ,self,, Spawnlocation);
-		if(newColor){
-			SpawnedProjectile.ColorLevel = newColorlevel;
-			SpawnedProjectile.DamageRadius = 20000;
-			SpawnedProjectile.Damage = 2000000;
-			`log("colorChanged");
-		}
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
-			//SpawnedProjectile.Init(AimDir);
+			SpawnedProjectile.Init(AimDir);
 			`log("shoot");
 		}
 	}
@@ -144,6 +220,7 @@ simulated function CustomFire(){
 
 DefaultProperties
 {
+	bCanCharge = true
 	newColor = false
 	newColorlevel = (X=1,Y=1,Z=2);
 	WeaponFireTypes(0)=EWFT_Custom
