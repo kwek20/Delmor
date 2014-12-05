@@ -38,6 +38,11 @@ function int modulo( int n , int mod ){
 	}
 }
 
+static function int floor(float number){
+
+	return number - number % 1;
+}
+
 DefaultProperties
 {
 }

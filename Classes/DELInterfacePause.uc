@@ -32,7 +32,8 @@ function draw(DELPlayerHud hud){
 	super.draw(hud);
 }
 
-function exit(DELPlayerHud hud){
+function exit(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+	button.use(hud, mouseClicked, button);
 	ConsoleCommand("exit");
 }
 

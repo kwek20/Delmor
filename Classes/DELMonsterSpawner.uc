@@ -55,7 +55,7 @@ var bool bCanSpawn;
 
 var() bool bUsedByKismet;
 
-var() bool bTriggered;
+var bool bTriggered;
 
 
 /**
