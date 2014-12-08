@@ -31,6 +31,7 @@ private function assignSoundSet(){
  * Say a line from the sound set. Only one sound can be played per 2 seconds.
  */
 function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
 	if ( mySoundSet.bCanPlay ){
 		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
 		mySoundSet.bCanPlay = false;

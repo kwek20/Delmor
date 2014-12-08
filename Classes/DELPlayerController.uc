@@ -34,16 +34,6 @@ state Playing extends PlayerWalking{
 		self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 	}
 
-	event Tick( float DeltaTime ){
-		local DELChickenPawn chicken;
-		chicken = chickenIsInFromOfMe();
-
-		//Kick a chicken!!
-		if ( chicken != none ){
-			kickChicken( chicken );
-		}
-	}
-
 Begin:
 	canWalk = true;
 	drawDefaultHud = true;
@@ -141,24 +131,6 @@ public function onMousePress(IntPoint pos, bool left){
 			DELInterfaceInteractible(interface).onClick(getHud(), pos, left);
 		}
 	}
-}
-
-/**
- * Checks whether a chicken is in front of the player pawn and returns that chicken
- */
-private function DELChickenPawn chickenIsInFromOfMe(){
-	local DELChickenPawn toReturn;
-
-	toReturn = none;
-
-	return toReturn;
-}
-
-/**
- * Kicks a chicken, sending it flying through the air.
- * @param c DELChicken  The chicken to kick.
- */
-private function kickChicken( DELChickenPawn c ){
 }
 
 /*################
@@ -345,7 +317,6 @@ function ScrubFileName(out string FileName)
     FileName = class'DELSaveGameState'.const.SAVE_LOCATION $ FileName; // Prepend the filename with the save folder location
 	`log(FileName);
 }
-
 
 DefaultProperties
 {
