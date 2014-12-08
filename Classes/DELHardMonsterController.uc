@@ -158,36 +158,17 @@ state maintainDistanceFromPlayer{
 
 }
 
-
-simulated function addAllNodes(){
-	local Pathnode P;
-	super.PostBeginPlay();
-		foreach WorldInfo.AllActors(class 'Pathnode', P){
-			_Pathnode = 0;
-			PathnodeList.AddItem(P);
-			`log("Node Added" $ P);
-		}
-}
-
-function Pathnode getNextNode(){
-	if(_Pathnode < PathnodeList.Length){
-		if(currentNode == none){
-		currentNode = PathnodeList[_Pathnode];
-		_Pathnode++;
-		}
-	}
-	return currentNode;
-}
-
-function moveToNextNode(){
+auto state Pathfinding{
 	local int minimumDistance;
 	local Vector tempDest;
-	local Pawn Player;
+	local Actor Player;
 	local Vector selfToPlayer;
+
+Begin:
 	Player = GetALocalPlayerController().Pawn;
 	selfToPlayer = self.Pawn.Location - Player.Location;
-	if(FindNavMeshPath()){
-		tempDest = getNextNode().location;
+	if(FindNavMeshPath() && calcPlayerDist(selfToPlayer) <= minimumDistance){
+		tempDest = getNextNode();
 		if(calcPlayerDist(selfToPlayer) <= minimumDistance){
 			NavigationHandle.SetFinalDestination(tempDest);
 			FlushPersistentDebugLines();
@@ -199,6 +180,41 @@ function moveToNextNode(){
 				}
 		}
 	}
+	if(calcPlayerDist(selfToPlayer) <= minimumDistance && _Pathnode != PathnodeList.Length){
+		Goto('Begin');
+	}
+	else{
+		GotoState('Attack');
+	}
+}
+
+simulated function PostBeginPlay(){
+	local Pathnode P;
+	_Pathnode = 0;
+	super.PostBeginPlay();
+		foreach WorldInfo.AllActors(class 'Pathnode', P){
+			PathnodeList.AddItem(P);
+			`log("Node Added" $ P);
+		}
+}
+
+function Vector getNextNode(){
+	local Vector nodeVect;
+	if(_Pathnode <= PathnodeList.Length){
+		currentNode = PathnodeList[_Pathnode];
+		`log("currentNode = " $ _Pathnode);
+	}
+	nodeVect = NodeToVect(currentNode);
+	`log("currentNode Vector = " $ nodeVect);
+	return nodeVect;
+}
+
+function Vector NodeToVect(Pathnode N){
+	local Vector V;
+	V.X = N.Location.X;
+	V.Y = N.Location.Y;
+	V.Z = N.Location.Z;
+	return V;
 }
 
 
