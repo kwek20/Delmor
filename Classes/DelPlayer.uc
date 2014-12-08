@@ -28,8 +28,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
 	super.PostInitAnimTree(SkelComp);
 
-	if (SkelComp == Mesh)
-	{
+	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
 		`log("-------------------__________-----------------");
 	}
@@ -100,8 +99,7 @@ exec function startSprint(){
 		GroundSpeed = 600.000;
 
 		//Recently sprinted?
-		if(isTimerActive('TimeSinceSprint'))
-		{
+		if(isTimerActive('TimeSinceSprint')){
 			//Pause timer
 			PauseTimer(true, 'TimeSinceSprint');
 			//Find how long sprint duration was
@@ -129,8 +127,7 @@ exec function startSprint(){
 			}
 		}
 		//else sprint normally
-		else
-		{
+		else{
 	
 			StopFiring();
 			setTimer(StamTimer, true, 'LowerStam');
@@ -212,10 +209,7 @@ simulated function RegenStam(){
 	if(bSprinting){
 		ClearTimer('RegenStam'); //if we start sprinting, cancel regen
 		return;
-	}
-
-	else
-	{
+	} else {
 		if(Stam < MaxStam){ //if current stam lower then max
 			Stam += StamRegenVal; //start regen
 
@@ -278,16 +272,104 @@ function Deserialize(JSonObject Data)
     SetRotation(SavedRotation);
 
     // Deserialize if this was a player controlled pawn, if it was then tell the game info about it
-    if (Data.GetBoolValue("IsPlayer"))
-    {
+    if (Data.GetBoolValue("IsPlayer")){
 		SGameInfo = DELGame(self.WorldInfo.Game);
 
-		if (SGameInfo != none)
-		{
+		if (SGameInfo != none){
 			SGameInfo.PendingPlayerPawn = self;
 		}
     }
 }
+
+/*
+ * ============================================
+ * Chicken kicking
+ * ============================================
+ */
+
+event Tick( float deltaTime ){
+	local DELChickenPawn chicken;
+
+	super.Tick( deltaTime );
+
+	chicken = chickenIsInFrontOfMe();
+
+	//Kick a chicken!!
+	if ( chicken != none ){
+		kickChicken( chicken );
+	}
+}
+
+/**
+ * Checks whether a chicken is in front of the player pawn and returns that chicken
+ */
+private function DELChickenPawn chickenIsInFrontOfMe(){
+	local DELChickenController c;
+	local DELChickenPawn toReturn;
+	local Vector inFrontLocation;
+
+	toReturn = none;
+
+	inFrontLocation = getInFrontLocation();
+
+	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
+		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
+			if ( c.CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
+				toReturn = DELChickenPawn( c.Pawn );
+			}
+		}
+	}
+
+	return toReturn;
+}
+
+/**
+ * Kicks a chicken, sending it flying through the air.
+ * @param c DELChicken  The chicken to kick.
+ */
+private function kickChicken( DELChickenPawn c ){
+	local Vector selfToChicken;
+
+	selfToChicken = c.location - Location;
+
+	c.knockBack( 250.0 , selfToChicken );
+}
+
+/**
+ * Return the player's position plus 8 in the player's direction.
+ */
+function Vector getInFrontLocation(){
+	local vector newLocation;
+
+	newLocation.X = location.X + lengthDirX( 16.0 , -Rotation.Yaw );
+	newLocation.Y = location.Y + lengthDirY( 16.0 , -Rotation.Yaw );
+	newLocation.Z = Location.Z;
+
+	return newLocation;
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+}
+
 
 DefaultProperties
 {

@@ -97,8 +97,7 @@ private function bool tooCloseToMonster(){
 private function bool tooCloseToCommander(){
 	if ( distanceToPoint( commander.Location ) < minimumDistance ){
 		return true;
-	}
-	else{
+	} else {
 		return false;
 	}
 }
@@ -286,6 +285,19 @@ private function vector seperation( vector targetLocation ){
 	return targetLocation;
 }
 
+/**
+ * The Pawn has died, notify a commander if you have one.
+ */
+function PawnDied( Pawn inPawn ){
+	if ( commander != none ){
+		DELMediumMonsterController( commander.controller ).minionDied();
+	}
+
+	super.PawnDied( inPawn );
+
+	destroy();
+}
+
 /*
  * =================================================
  * States
@@ -344,8 +356,7 @@ state Flock{
 			
 			//There's no commander, find one
 			commander = getNearbyCommander();
-		}
-		else{
+		} else {
 			targetLocation = cohesionCommander();
 		}
 		targetLocation = seperation( targetLocation );
@@ -354,8 +365,7 @@ state Flock{
 		//if ( !tooCloseToMonster() ){
 		if ( distanceToPoint( targetLocation ) > 32.0 ){
 			moveTowardsPoint( targetLocation , deltaTime );
-		}
-		else{
+		} else {
 			stopPawn();
 		}
 	}

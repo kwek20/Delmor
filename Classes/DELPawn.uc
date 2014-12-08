@@ -59,6 +59,7 @@ var float walkingSpeed;
 var float detectionRange;
 
 var array< class<Inventory> > DefaultInventory;
+
 /**
  * Timer for regeneration. If it hit zero, the timer will reset to 1.0 and the pawn will regain health and mana.
  */
@@ -263,6 +264,7 @@ function knockBack( float intensity , vector direction ){
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
+	bBlockActors = false;
 }
 
 simulated exec function turnLeft(){
