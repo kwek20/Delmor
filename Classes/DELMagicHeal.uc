@@ -21,7 +21,7 @@ simulated state Charging{
 
 
 simulated function CustomFire(){
-	spellCaster.ManaDrain(TotalManaCost);
+	consumeMana();
 	spellCaster.Heal(totalDamage);
 }
 
@@ -30,6 +30,8 @@ simulated function CustomFire(){
 
 DefaultProperties
 {
+	magicName="Heal"
+	bCanCharge=true
 	ChargeCost = 10;
 	ChargeAdd = 20;
 	manaCost = 10;

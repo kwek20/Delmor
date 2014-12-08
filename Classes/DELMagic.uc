@@ -1,12 +1,17 @@
 class DELMagic extends DELWeapon;
 /**
- * list of spells available to magician
+ * list of magical abilities available to magician
  */
-var array< class<DElMagic> > spells;
+var array< class<DElMagic> > magics;
 /**
  * location of active ability within spell list
  */
 var int ActiveAbilityNumber;
+
+/**
+ * projectile shot when using magic
+ */
+var class<UTProjectile> spell;
 
 /**
  * cost of the spell without the charging
@@ -50,19 +55,29 @@ var int ChargeCost;
 var int ChargeAdd;
 
 /**
+ * 
+ */
+var class<Projectile> spellProjectile;
+
+var String magicName;
+
+/**
+ * gets the name of the magical ability
+ */
+simulated function string getMagicName(){
+	return magicName;
+}
+
+/**
  * the state where a spell charges
  */
+
 simulated state charging{
 	/**
 	 * beginning of the state
 	 */
 	simulated event beginstate(Name NextStateName){
 		SetTimer(1.0,bCanCharge, NameOf(chargeTick));
-		TotalManaCost = ManaCost;
-		TotalDamage = Damage;
-		`log("start charge");
-		`log("player has now " $ spellCaster.Health $" health");
-		`log("player has now " $ spellCaster.Mana $" mana");
 	}
 
 	/**
@@ -72,9 +87,7 @@ simulated state charging{
 		totalManaCost+= chargeCost;
 		totalDamage+= ChargeAdd;
 		`log("manacost:" $ totalManaCost);
-		`log("ammount of heal/damage:" $ totalDamage);
 		if(spellCaster.mana - (totalManaCost+chargeCost) <= 0){
-			`log("max chargetime reached");
 			ClearTimer(NameOf(chargeTick));
 		}
 	}
@@ -119,12 +132,17 @@ simulated function interrupt(){
  */
 simulated function FireStart(){
 	spellCaster = DELPawn(instigator);
-	spellCaster.Health = 20;
-	//super.StartFire(FireModeNum);
+	if(ManaCost > spellCaster.mana){
+		`log("you have not enough mana bitch");
+		return;
+	}
+
 	if(bCanCharge){
 		GoToState('Charging');
 	} else {
 		shoot();
+		TotalManaCost = ManaCost;
+		TotalDamage = Damage;
 	}
 }
 
@@ -140,8 +158,8 @@ simulated function FireStop(){
  * @param spell the spel that is cast
  * @param chargeTime in case the spell is charged, the charge time will be added to the cost
  */
-simulated function consumeMana(DELMagicProjectile spell, optional int chargeTime){
-	spell.getCost();
+simulated function consumeMana(){
+	spellCaster.ManaDrain(TotalManaCost);
 }
 
 /**
@@ -155,7 +173,7 @@ simulated function shoot(){
  * gets the amount of spells the player knows
  */
 simulated function int getMaxSpells(){
-	return spells.Length;
+	return magics.Length;
 }
 
 /**
@@ -163,6 +181,7 @@ simulated function int getMaxSpells(){
  */
 simulated function switchMagic(int AbilityNumber){
 	ActiveAbilityNumber = AbilityNumber-1;
+	`log("now using:" $ magics[AbilityNumber]);
 }
 
 
@@ -191,8 +210,8 @@ simulated function Vector GetSocketPosition(Pawn Holder){
  * gets the spell
  */
 function class<DELMagic> getMagic(){
-	`log(spells[ActiveAbilityNumber]);
-	return spells[ActiveAbilityNumber];
+	`log(magics[ActiveAbilityNumber]);
+	return magics[ActiveAbilityNumber];
 }
 
 /**
@@ -201,7 +220,7 @@ function class<DELMagic> getMagic(){
  */
 simulated function CustomFire(){
 	local vector		Spawnlocation,AimDir;
-	local UTProj_LinkPlasma	SpawnedProjectile;
+	local UTProjectile	SpawnedProjectile;
 
 	if( Role == ROLE_Authority ){
 
@@ -210,26 +229,25 @@ simulated function CustomFire(){
 
 		
 		// Spawn projectile
-		SpawnedProjectile = Spawn(class'UTProj_LinkPlasma' ,self,, Spawnlocation);
+		SpawnedProjectile = Spawn(getSpell() ,self,, Spawnlocation);
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
 			SpawnedProjectile.Init(AimDir);
-			`log("shoot");
 		}
 	}
+}
+
+simulated function class<UTProjectile> getSpell(){
+	return spell;
 }
 
 
 DefaultProperties
 {
-	bCanCharge = true
-	newColor = false
-	newColorlevel = (X=1,Y=1,Z=2);
+	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
-	/*spells[0] = class'UTProj_LinkPlasma'
-	spells[1] = class'UTProj_Rocket'
-	spells[2] = class'UTProj_Grenade'
-	spells[3] = class'UTProj_LoadedRocket'
-*/	
-	spells[0] = class'DELMagicHeal'
+	spell = class'UTProj_Grenade'
+	magics[0] = class'DELMagicForce'
+	magics[1] = class'DELMagicHeal'
+	magics[2] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
 }
