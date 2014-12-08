@@ -41,10 +41,10 @@ function load(DELPlayerHud hud){
 
 
 //fucked around with this function to test my magical abilities. hope it doesn't break
-function useMagic(DELPlayerHud hud){
+function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
 	local DELPawn pawnee;
-	pawnee =DELPawn(hud.getPlayer().getPawn());
-	//button.use(hud, mouseClicked, button);
+	pawnee =hud.getPlayer().getPawn();
+	button.use(hud, mouseClicked, button);
 	hud.log("RAN useMagic");
 	key++;
 	pawnee.magicSwitch(key);
