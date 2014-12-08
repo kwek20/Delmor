@@ -8,6 +8,10 @@ class DELHardMonsterPawn extends DELHostilePawn
 
 defaultproperties
 {
+	Begin Object name=CollisionCylinder
+	CollisionHeight=+44.000000
+	end object
+	Components.Add(CollisionCylinder)
 	ControllerClass=class'Delmor.DELhardMonsterController'
 
 	health = 500

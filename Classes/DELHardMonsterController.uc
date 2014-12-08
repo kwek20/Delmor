@@ -11,6 +11,29 @@ class DELHardMonsterController extends DELHostileController;
  * The interval at which the monster makes a decision like: HealPawn or GiveOrderToPawn.
  */
 var float decisionInterval;
+
+/**
+ * The distance to keep from the player.
+ */
+var float distanceToPlayer;
+
+/**
+ * Array keeping track of pathnodes
+ */
+var array<Pathnode> PathnodeList;
+var int _Pathnode;
+var Pathnode currentNode;
+var Vector tempDest;
+/**
+ * Range to next pathnode
+ */
+var int closeEnough;
+
+/**
+ * Bool to check wether 1st quest is compelted or not
+ */
+var bool firstQuestComplete;
+
 /*
  * =================================
  * Utility functions
@@ -90,10 +113,7 @@ state attack{
  * In this state the mediumMonster will stay a few meters away from the player as long as there's easypawns nearby the player.
  */
 state maintainDistanceFromPlayer{
-	/**
-	 * The distance to keep from the player.
-	 */
-	local float distanceToPlayer;
+
 	/**
 	 * When the number of easymonsterpawns is smaller than this number, the medium pawn should attack.
 	 */
@@ -117,7 +137,7 @@ state maintainDistanceFromPlayer{
 		selfToPlayer = pawn.Location - attackTarget.location;
 
 		//Move away
-		if ( VSize( selfToPlayer ) < distanceToPlayer ){
+		if ( calcPlayerDist(selfToPlayer) < distanceToPlayer ){
 			moveInDirection( selfToPlayer , deltaTime );
 			pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
 		}
@@ -138,7 +158,69 @@ state maintainDistanceFromPlayer{
 
 }
 
+
+simulated function addAllNodes(){
+	local Pathnode P;
+	super.PostBeginPlay();
+		foreach WorldInfo.AllActors(class 'Pathnode', P){
+			_Pathnode = 0;
+			PathnodeList.AddItem(P);
+			`log("Node Added" $ P);
+		}
+}
+
+function Pathnode getNextNode(){
+	if(_Pathnode < PathnodeList.Length){
+		if(currentNode == none){
+		currentNode = PathnodeList[_Pathnode];
+		_Pathnode++;
+		}
+	}
+	return currentNode;
+}
+
+function moveToNextNode(){
+	local int minimumDistance;
+	local Vector tempDest;
+	local Pawn Player;
+	local Vector selfToPlayer;
+	Player = GetALocalPlayerController().Pawn;
+	selfToPlayer = self.Pawn.Location - Player.Location;
+	if(FindNavMeshPath()){
+		tempDest = getNextNode().location;
+		if(calcPlayerDist(selfToPlayer) <= minimumDistance){
+			NavigationHandle.SetFinalDestination(tempDest);
+			FlushPersistentDebugLines();
+			NavigationHandle.DrawPathCache(,true);
+				if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+				DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
+				DrawDebugSphere(tempDest,16,20,0,255,0,true);
+				MoveTo(tempDest, Player);
+				}
+		}
+	}
+}
+
+
+function float calcPlayerDist(Vector selfToPlayer){
+	local float distanceToPlayer;
+		distanceToPlayer = Abs(VSize(selfToPlayer));
+	return distanceToPlayer;
+}
+
+function bool FindNavMeshPath(){
+    NavigationHandle.PathConstraintList = none;
+    NavigationHandle.PathGoalList = none;
+    class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,tempDest);
+    class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, tempDest,32 );
+    return NavigationHandle.FindPath();
+}
+
 DefaultProperties
 {
 	decisionInterval = 0.5
+	minimumDistance = 500
+	bIsPlayer=true
+	closeEnough = 200
+	isAtLast = false
 }

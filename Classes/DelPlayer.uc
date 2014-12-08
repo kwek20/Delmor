@@ -1,6 +1,6 @@
 class DELPlayer extends DELCharacterPawn;
 
-var array< class<Inventory> > DefaultInventory;
+var array < class<Inventory> > DefaultInventory;
 var Weapon sword;
 var bool    bSprinting;
 var bool    bCanSprint;
@@ -25,7 +25,7 @@ simulated function bool IsFirstPerson(){
 
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
+{   
 	super.PostInitAnimTree(SkelComp);
 
 	if (SkelComp == Mesh)

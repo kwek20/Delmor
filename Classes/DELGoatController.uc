@@ -100,9 +100,6 @@ Begin:
 }
 
 state flee {
-	
-	local rotator direction;
-	local Controller C;
 	local Vector targetLocation;
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
