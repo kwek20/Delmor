@@ -5,7 +5,7 @@
 class DELMeleeWeapon extends DELWeapon;
 var() const name swordHiltSocketName,swordTipSocketName, swordAnimationName, handSocketName;
 var array<Actor> swingHitActors;
-var class<'DamageType'> dmgType;
+var class<DamageType> dmgType;
 
 var array<int> swings;
 var const int maxSwings;

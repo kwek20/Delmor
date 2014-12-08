@@ -5,6 +5,7 @@ class DELMagicForce extends DELMagic;
 simulated function CustomFire(){
 	super.CustomFire();
 	consumeMana();
+	`log("manacost:" $ totalManaCost);
 }
 
 
@@ -13,7 +14,7 @@ simulated function CustomFire(){
 DefaultProperties
 {
 	magicName="force"
-	spell = class'UTProj_LinkPlasma'
+	spell = class'DELMagicProjectileForce'
 	bCanCharge = true
 	ChargeCost = 10;
 	ChargeAdd = 20;
