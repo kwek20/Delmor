@@ -148,7 +148,7 @@ function checkHuds(){
 		addInterface(class'DELInterfaceSubtitle');
 	}
 	if (drawbars){
-		//addInterface(class'DELInterfaceHealthBars');
+		addInterface(class'DELInterfaceHealthBars');
 	}
 	hudLoaded = true;
 }

@@ -61,6 +61,11 @@ var float detectionRange;
 var array< class<Inventory> > DefaultInventory;
 
 /**
+ * Timer for regeneration. If it hit zero, the timer will reset to 1.0 and the pawn will regain health and mana.
+ */
+var float regenerationTimer;
+
+/**
  * When the pawn is stunned it may not move or attack.
  */
 var bool bIsStunned;
@@ -69,6 +74,7 @@ var bool bIsStunned;
  * The weapon that will be used by the pawn.
  */
 var DELWeapon myWeapon; 
+
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -107,6 +113,7 @@ var bool bLockedToCamera;
  */
 
 var class<DELInventoryManager> UInventory;
+
 var repnotify DELInventoryManager UManager;
 
 simulated event PostBeginPlay(){
