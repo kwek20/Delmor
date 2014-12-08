@@ -284,7 +284,7 @@ DefaultProperties
 	meleeRange = 100.0
 	physicalResistance = 0.0
 	magicResistance = 0.0
-	walkingSpeed = 100.0
+	GroundSpeed = 100
 	detectionRange = 960.0
 	regenerationTimer = 1.0
 

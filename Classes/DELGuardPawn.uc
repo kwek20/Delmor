@@ -23,5 +23,6 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-	ControllerClass=class'DELChickenController'
+	ControllerClass=class'DELGuardController'
+	GroundSpeed = 100
 }
