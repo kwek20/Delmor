@@ -338,9 +338,9 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
 		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 
-		setKeyBinding( 'LeftMouseButton' , "mousePress true | startFire" );
+		setKeyBinding( 'LeftMouseButton' , "mousePress true | startFire 0 | OnRelease stopFire 0" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
-		setKeyBinding( 'RightMouseButton' , "StartAimMode | mousePress false| OnRelease EndAimMode" );
+		setKeyBinding( 'RightMouseButton' , "StartAimMode | mousePress false| OnRelease EndAimMode | startFire 1 | OnRelease stopFire 1" );
 
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding( 'F10' , "openInventory" );

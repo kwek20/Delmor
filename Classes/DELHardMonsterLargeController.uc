@@ -63,7 +63,6 @@ state attack{
 
 	function beginState( name previousStateName ){
 		super.beginState( previousStateName );
-
 		timer = 0.0;
 	}
 
