@@ -15,6 +15,15 @@ var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 var() private string subtitle;
 var() int subtitleTime, currentTime;
 
+// Mouse event enum
+enum EMouseEvent {
+	LeftMouseButton,
+	RightMouseButton,
+	MiddleMouseButton,
+	ScrollWheelUp,
+	ScrollWheelDown,
+};
+
 /*##########
  * STATES
  #########*/
@@ -131,14 +140,14 @@ public function onNumberPress(int key){
 	}
 }
 
-public function onMousePress(IntPoint pos, bool left){
+public function onMouseUse(DELInputMouseStats stats){
 	local DELinterface interface;
 	local array<DELInterface> interfaces;
 
 	interfaces = getHud().getInterfaces();
 	foreach interfaces(interface){
 		if (DELInterfaceInteractible(interface) != None){
-			DELInterfaceInteractible(interface).onClick(getHud(), pos, left);
+			DELInterfaceInteractible(interface).onMouseUse(getHud(), stats);
 		}
 	}
 }

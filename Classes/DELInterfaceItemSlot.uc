@@ -17,11 +17,11 @@ function hover(DELPlayerHud hud, bool enter){
 	super.hover(hud, enter);
 }
 
-function click(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
 
 	item = getItem(hud);
-	button.use(hud, mouseClicked, button);
+	button.use(hud, stats, button);
 	hud.getPlayer().showSubtitle(item.getDescription());
 }
 

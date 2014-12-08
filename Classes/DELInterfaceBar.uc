@@ -34,12 +34,12 @@ function load(DELPlayerHud hud){
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
 		button.setTexture(textures[i-1]);
-		addButton(button);
+		addInteractible(button);
 	}
 }
 
-function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
-	button.use(hud, mouseClicked, button);
+function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	object.use(hud, stats, object);
 	hud.log("RAN useMagic");
 }
 

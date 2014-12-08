@@ -34,7 +34,7 @@ function load(DELPlayerHud hud){
 
 		button.setHover(button.hover);
 		button.setIdentifier(i+1);
-		addButton(button);
+		addInteractible(button);
 	}
 
 	super.load(hud);
