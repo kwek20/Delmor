@@ -37,9 +37,9 @@ event Tick( float deltaTime ){
 	`log( "zPower: "$zPower );
 	
 	//Move the pawn
-	newLocation.X = myPawn.location.X + power * normal( direction ).X * deltaTime;
-	newLocation.Y = myPawn.location.Y + power * normal( direction ).Y * deltaTime;
-	newLocation.Z = myPawn.location.Z + zPower * deltaTime;
+	newLocation.X = myPawn.location.X + ( power * normal( direction ).X * deltaTime );
+	newLocation.Y = myPawn.location.Y + ( power * normal( direction ).Y * deltaTime );
+	newLocation.Z = myPawn.location.Z + ( zPower * deltaTime );
 	`log( "newLocation.Z: "$newLocation.Z );
 	
 	//Collide with brushes
