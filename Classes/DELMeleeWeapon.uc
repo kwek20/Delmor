@@ -3,8 +3,9 @@
  * made bij Harmen Wiersma
  */
 class DELMeleeWeapon extends DELWeapon;
-var() const name swordHiltSocketName,swordTipSocketName, swordAnimationName;
+var() const name swordHiltSocketName,swordTipSocketName, swordAnimationName, handSocketName;
 var array<Actor> swingHitActors;
+var class<DamageType> dmgType;
 
 var array<int> swings;
 var const int maxSwings;
@@ -14,11 +15,6 @@ simulated state Swinging extends WeaponFiring {
 		super.Tick(DeltaTime);
 		TraceSwing();
 	}
-	/*simulated event BeginState(Name NextStateName){
-		`log("Swing that mothafucka");
-		FireAmmunition();
-	}*/
-	
 	simulated event EndState(Name NextStateName)
 	{
 		super.EndState(NextStateName);
@@ -35,7 +31,7 @@ function ResetSwings()
 simulated function TimeWeaponEquipping()
 {
     super.TimeWeaponEquipping();
-    AttachWeaponTo( Instigator.Mesh,'WeaponPoint' );
+    AttachWeaponTo( Instigator.Mesh,handSocketName );
 }
  
 simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
@@ -50,7 +46,7 @@ simulated event SetPosition(UDKPawn Holder){
  
     compo = Holder.Mesh;
     if (compo != none){
-        socket = compo.GetSocketByName('WeaponPoint');
+        socket = compo.GetSocketByName(handSocketName);
         if (socket != none){
             FinalLocation = compo.GetBoneLocation(socket.BoneName);
         }
@@ -75,7 +71,7 @@ simulated function TraceSwing(){
 		if (HitActor != self && AddToSwingHitActors(HitActor))
 		{
 			//Momentum = Normal(SwordTip - SwordHilt) * InstantHitMomentum[CurrentFireMode];
-			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, class'DamageType');
+			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);
 			//PlaySound(SwordClank);
 		}
 	}
@@ -148,31 +144,24 @@ simulated function bool HasAmmo(byte FireModeNum, optional int Ammount)
 	return Swings[FireModeNum] > Ammount;
 }
 
-simulated function FireAmmunition()
-{
+simulated function FireAmmunition(){
 	`log("FireAmmunition");
 	StopFire(CurrentFireMode);
 	SwingHitActors.Remove(0, SwingHitActors.Length);
 
-	if (HasAmmo(CurrentFireMode))
-	{
+	if (HasAmmo(CurrentFireMode)){
 		`log("Swing:");
 		`log(Swings[0]);
 		if (MaxSwings - Swings[0] == 0) {
-			`log(Swings[0]);
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.f,0.1f,0.1f,false,true);
 		} else if (MaxSwings - Swings[0] == 1){
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
-		}
-		else{
+		} else {
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
 		}
 		`log("swing complete?");
 
-
 		//PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
-
-
 		super.FireAmmunition();
 	}
 }
@@ -181,8 +170,11 @@ DefaultProperties
 	bHardAttach = true
 	swordHiltSocketName = SwordHiltSocket
 	swordTipSocketName = SwordTipSocket
+	handSocketName = WeaponPoint
 	//swordHiltSocketName = StartControl
 	//swordTipSocketName = EndControl
+
+	dmgType = class'DELDmgTypeMelee'
 
 
 	MaxSwings=3

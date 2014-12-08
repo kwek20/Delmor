@@ -137,6 +137,34 @@ simulated event PostBeginPlay(){
 }
 
 /**
+ * heals a pawn
+ * @param ammount the ammount to be healed
+ */
+function Heal(int ammount){
+	health += ammount;
+	if(health>healthMax){
+		health = clamp(health,0,healthMax);
+		`log("to much healed");
+	}
+	`log("new health" $ health);
+}
+
+/**
+ * subtracts the mana from the player
+ * @param ammount of mana to be subtracted
+ */
+function ManaDrain(int ammount){
+	mana -=ammount;
+	mana = clamp(mana,0,manaMax);
+	`log("new mana" $ mana);
+}
+
+function magicSwitch(int AbilityNumber);
+
+
+
+
+/**
  * Set the camera offset.
  * @param x float   x-offset.
  * @param y float   y-offset.

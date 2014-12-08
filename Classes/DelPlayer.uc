@@ -1,7 +1,8 @@
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
 var array< class<Inventory> > DefaultInventory;
-var Weapon sword;
+var DELWeapon sword;
+var DELMagic magic;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -23,9 +24,24 @@ simulated function bool IsFirstPerson(){
 	return false;
 }
 
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	
+	Global.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+	if(magic != none){
+		magic.Interrupt();
+	}
+}
 
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
+
+
+
+/**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 	super.PostInitAnimTree(SkelComp);
 
 	if (SkelComp == Mesh){
@@ -34,12 +50,16 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	}
 }
 
-function AddDefaultInventory()
-{
+/**
+ * adds the weapons(magic + masterSword to the player)
+ */
+function AddDefaultInventory(){
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
-	sword.bCanThrow = false; // don't allow default weapon to be thrown out
 	Controller.ClientSwitchToBestWeapon();
+	magic = Spawn(class'DELMagic',,,self.Location);
+	magic = Spawn(magic.getMagic(),,,self.Location);
+	magic.GiveTo(Controller.Pawn);
 }
 
 
@@ -47,6 +67,59 @@ simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
 	//Location.Z = 10000;
+	magicSwitch(1);
+}
+
+/**
+ * switches magical ability
+ */
+simulated function magicSwitch(int AbilityNumber){
+	if(bNoWeaponFiring){
+		return;
+	}	
+	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
+		magic.switchMagic(AbilityNumber);
+		magic = Spawn(magic.getMagic(),,,self.Location);
+		magic.GiveTo(Controller.Pawn);
+	}
+}
+
+
+/**
+ * Pawn starts firing!
+ * Called from PlayerController::StartFiring
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StartFire(byte FireModeNum){
+	if( bNoWeaponFiring){
+		return;
+	}
+	if(FireModeNum == 1 && magic!= None){
+		magic.FireStart();
+	}
+	if(FireModeNum == 0 && sword != None){
+		weapon.StartFire(FireModeNum);
+	}
+}
+
+
+/**
+ * Pawn stops firing!
+ * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StopFire(byte FireModeNum){
+	`log("mouse released");
+	if(FireModeNum == 1 && magic!= None){
+		magic.FireStop();
+	}
+	if(FireModeNum == 0 && sword != None){
+		sword.StopFire(FireModeNum);
+	}
 }
 
 
