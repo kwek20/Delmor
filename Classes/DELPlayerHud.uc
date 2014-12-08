@@ -90,7 +90,7 @@ function PlayerOwnerDied(){
 	PC.gotoState('End');
 }
 
-/*
+
 function PostRender(){
 	local InterFaceItem interface;
 	super.PostRender();
@@ -99,7 +99,7 @@ function PostRender(){
 		interface.interface.draw(self);
 
 	}
-}*/
+}
 
 function log(String text){
 	class'WorldInfo'.static.GetWorldInfo().Game.Broadcast(getPlayer(), text);
