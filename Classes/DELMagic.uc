@@ -11,7 +11,7 @@ var int ActiveAbilityNumber;
 /**
  * projectile shot when using magic
  */
-var class<UTProjectile> spell;
+var class<UDKProjectile> spell;
 
 /**
  * cost of the spell without the charging
@@ -141,9 +141,9 @@ simulated function FireStart(){
 		GoToState('Charging');
 	} else {
 		shoot();
-		TotalManaCost = ManaCost;
-		TotalDamage = Damage;
 	}
+	TotalManaCost = ManaCost;
+	TotalDamage = Damage;
 }
 
 /**
@@ -220,7 +220,7 @@ function class<DELMagic> getMagic(){
  */
 simulated function CustomFire(){
 	local vector		Spawnlocation,AimDir;
-	local UTProjectile	SpawnedProjectile;
+	local UDKProjectile	SpawnedProjectile;
 
 	if( Role == ROLE_Authority ){
 
@@ -236,7 +236,7 @@ simulated function CustomFire(){
 	}
 }
 
-simulated function class<UTProjectile> getSpell(){
+simulated function class<UDKProjectile> getSpell(){
 	return spell;
 }
 
@@ -246,8 +246,8 @@ DefaultProperties
 	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
-	magics[0] = class'DELMagicForce'
-	magics[1] = class'DELMagicHeal'
-	magics[2] = class'DELMagicParalyze'
+	//magics[1] = class'DELMagicForce'
+	//magics[2] = class'DELMagicHeal'
+	magics[0] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
 }
