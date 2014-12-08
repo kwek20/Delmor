@@ -333,6 +333,7 @@ private function kickChicken( DELChickenPawn c ){
 	selfToChicken = c.location - Location;
 
 	c.knockBack( 250.0 , selfToChicken );
+	c.kick();
 }
 
 /**

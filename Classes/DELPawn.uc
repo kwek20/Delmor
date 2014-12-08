@@ -300,7 +300,7 @@ DefaultProperties
 
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
-		CollisionRadius = 32.0;
+		CollisionRadius = 16.0;
 		CollisionHeight = +44.0;
 	end object
 
