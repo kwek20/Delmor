@@ -97,8 +97,7 @@ private function bool tooCloseToMonster(){
 private function bool tooCloseToCommander(){
 	if ( distanceToPoint( commander.Location ) < minimumDistance ){
 		return true;
-	}
-	else{
+	} else {
 		return false;
 	}
 }
@@ -145,13 +144,11 @@ private function DELMediumMonsterPawn isInTheWay(){
 	local DELMediumMonsterController c;
 	local vector adjustedLocation;
 
-		`log( "Check is in the way" );
-
 	obstructed = none;
 
 	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
 		//If the pawn is nearby
-		if ( VSize( pawn.Location - c.Pawn.Location ) <= minimumDistance && ( c.IsInState( 'Flee' ) || c.IsInState( 'maintainDistanceFromPlayer' ) || c.IsInState( 'Charge' ) ) ){
+		if ( VSize( pawn.Location - c.Pawn.Location ) <= minimumDistance && ( c.IsInState( 'Flee' ) || c.IsInState( 'maintainDistanceFromPlayer' )/* || c.IsInState( 'Charge' ) */) ){
 
 			adjustedLocation.X = c.Pawn.Location.X + lengthDirX( c.Pawn.GroundSpeed * 2 , c.Pawn.Rotation.Yaw * UnrRotToDeg + 180.0 );
 			adjustedLocation.Y = c.Pawn.Location.Y + lengthDirY( c.Pawn.GroundSpeed * 2 , c.Pawn.Rotation.Yaw * UnrRotToDeg + 180.0 );
@@ -288,6 +285,19 @@ private function vector seperation( vector targetLocation ){
 	return targetLocation;
 }
 
+/**
+ * The Pawn has died, notify a commander if you have one.
+ */
+function PawnDied( Pawn inPawn ){
+	if ( commander != none ){
+		DELMediumMonsterController( commander.controller ).minionDied();
+	}
+
+	super.PawnDied( inPawn );
+
+	destroy();
+}
+
 /*
  * =================================================
  * States
@@ -346,8 +356,7 @@ state Flock{
 			
 			//There's no commander, find one
 			commander = getNearbyCommander();
-		}
-		else{
+		} else {
 			targetLocation = cohesionCommander();
 		}
 		targetLocation = seperation( targetLocation );
@@ -356,8 +365,7 @@ state Flock{
 		//if ( !tooCloseToMonster() ){
 		if ( distanceToPoint( targetLocation ) > 32.0 ){
 			moveTowardsPoint( targetLocation , deltaTime );
-		}
-		else{
+		} else {
 			stopPawn();
 		}
 	}

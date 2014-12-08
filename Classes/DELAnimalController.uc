@@ -154,10 +154,13 @@ function bool FindNavMeshPath(Vector goal)
  * @return a Vector location
  */
 function Vector getRandomlocation() {
+	local int nTries;
 	local Vector temp;
+	nTries = 0;
 	temp = GetALocation();
-	while(VSize(temp - startPosition) > wanderRange) {
+	while(VSize(temp - startPosition) > wanderRange && nTries < 255 ) {
 		temp = GetALocation();
+		nTries ++;
 	}
 	return temp;
 }
