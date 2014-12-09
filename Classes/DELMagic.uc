@@ -249,7 +249,7 @@ DefaultProperties
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
 	magics[0] = class'DELMagicForce'
-	//magics[2] = class'DELMagicHeal'
-	//magics[1] = class'DELMagicParalyze'
+	magics[2] = class'DELMagicHeal'
+	magics[1] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
 }

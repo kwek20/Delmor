@@ -3,6 +3,7 @@ class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
+var class<DELMeleeWeapon> swordClass;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -54,7 +55,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  * adds the weapons(magic + masterSword to the player)
  */
 function AddDefaultInventory(){
-	sword = Spawn(class'DELMeleeWeaponTheButcher',,,self.Location);
+	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
 	magic = Spawn(class'DELMagic',,,self.Location);
@@ -446,6 +447,8 @@ function float lengthDirY( float len , float dir ){
 
 DefaultProperties
 {
+	swordClass = class'DELMeleeWeaponDemonSlayer';
+	//swordClass = class'DELMeleeWeaponTheButcher'
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 

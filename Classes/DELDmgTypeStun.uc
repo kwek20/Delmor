@@ -1,5 +1,6 @@
-class DELDmgTypeStun extends DamageType;
+class DELDmgTypeStun extends DELDamageType;
 
 DefaultProperties
 {
+	bMagical = true;
 }
