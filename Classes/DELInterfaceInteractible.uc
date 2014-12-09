@@ -2,7 +2,7 @@
  * DELInterfaceInteractible is a class meant for extension.
  * You can add buttons which you can interact with
  */
-class DELInterfaceInteractible extends DELInterface;
+class DELInterfaceInteractible extends DELInterfaceTexture;
 
 var() PrivateWrite array< DELInterfaceObject > objects;
 

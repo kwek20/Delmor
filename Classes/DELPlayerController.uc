@@ -69,35 +69,43 @@ state MouseState {
 	function load(){
 		canWalk=false;
 		drawDefaultHud=true;
+		drawBars = false;
+		drawSubtitles = true;
 		addInterfacePriority(class'DELInterfaceMouse', HIGH);
 	}
+
+Begin:
+	load();
+	checkHuds();
 }
 
 state Pauses extends MouseState{
 
 Begin:
 	load();
-	drawBars = false;
-	drawSubtitles = true;
 	checkHuds();
 	addInterface(class'DELInterfacePause');
 }
 
-state End extends MouseState{
+state Questlog extends MouseState{
 
 Begin:
 	load();
-	drawBars = false;
-	drawSubtitles = true;
+	drawDefaultHud = false;
 	checkHuds();
+	addInterface(class'DELInterfaceQuestLog');
 }
+
+state End extends MouseState{
+	
+}
+	
 
 state Inventory extends MouseState{
 
  Begin:
 	load();
 	drawBars = true;
-	drawSubtitles = true;
 	checkHuds();
 
 	addInterface(class'DELInterfaceInventory');

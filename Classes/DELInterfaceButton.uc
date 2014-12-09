@@ -33,24 +33,6 @@ public function bool identifiedBy(int key){
 	return (key == identifierKey);
 }
 
-/**
- * Set the button position
-
-* @param x
- * @param y
- * @param length
- * @param width
- * @param hud The player hud. Needed for size check
- */
-public function setPosition(int x, int y, int length, int width, DELPlayerHud hud){
-	position.X = Clamp(x, 0, hud.SizeX);
-	position.Y = Clamp(y, 0, hud.SizeY);
-
-	//can only be max size - start point
-	position.Z = Clamp(length, 0, hud.SizeX - x);
-	position.W = Clamp(width, 0, hud.SizeY - y);
-}
-
 public function drawText(Canvas c){
 	local float Xstring, Ystring;
 	c.Font = class'Engine'.static.GetLargeFont();    

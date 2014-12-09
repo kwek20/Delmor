@@ -1,18 +1,11 @@
-class DELInterfaceObject extends DELInterface abstract;
+class DELInterfaceObject extends DELInterfaceTexture abstract;
 
 var const int MAX_INT;
 
 /**
- * The positions for this button
- * z = xLength
- * w = yLength
- */
-var() Vector4 position;
-
-/**
  * The current texture of this button
  */
-var() Texture2D texture, hoverTexture; 
+var() Texture2D hoverTexture; 
 
 /**
  * The color of the button if no texture has been found
@@ -57,15 +50,6 @@ function PlayClickSound(){
 }
 
 /**
- * Checks if a position is inside this button
- * @param p The IntPoint to check
- */
-public function bool containsPos(IntPoint p){
-	if (!(p.X > position.X && p.X < position.X + position.Z)){return false;}
-	return (p.Y > position.Y && p.Y < position.Y + position.W);
-}
-
-/**
  * Draws the button. If no texture is defined it will draw a purple square with the key placed as text
  * @param hud The player hud.
  */
@@ -103,14 +87,6 @@ public function drawStandardbackground(Canvas c){
 }
 
 /**
- * Sets the texture for this button
- * @param mat The material to set
- */
-public function setTexture(Texture2D mat){
-	texture = mat;
-}
-
-/**
  * Sets the hover texture for this button
  * @param mat The material to set
  */
@@ -140,6 +116,19 @@ public function setHover(delegate<onHover> runMethod){
  */
 public function setColor(color c){
 	color = c;
+}
+
+public function setColorVars(int r, int g, int b, int a){
+	local Color c;
+	c.r = r;
+	c.g = g;
+	c.b = b;
+	c.a = a;
+	setColor(c);
+}
+
+public function setTranparant(){
+	setColorVars(255,255,255,0);
 }
 
 DefaultProperties

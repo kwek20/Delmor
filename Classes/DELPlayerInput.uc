@@ -253,12 +253,15 @@ exec function endAimMode(){
 }
 
 exec function openInventory() {
-	`log("openInventory");
 	DELPlayerController(Pawn.Controller).openInventory();
 }
 
 exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
+}
+
+exec function openQuestlog(){
+	DELPlayerController(Pawn.Controller).swapState('Questlog');
 }
 
 /*
@@ -437,6 +440,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding( 'F10' , "openInventory" );
+		setKeyBinding( 'l' , "openQuestlog" );
 		ChangeInputBinding("ToggleInventory", 'I');
 
 		setKeyBinding('Escape', "closeHud");
