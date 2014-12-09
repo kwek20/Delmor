@@ -11,10 +11,8 @@ simulated function init(vector Direction){
 
 simulated function SpawnFlightEffects(){
 	if(flying){
-		`log("flying");
 		Super.SpawnFlightEffects();
 	} else if (!Flying){
-		`log("charging");
 		ProjEffects = WorldInfo.MyEmitterPool.SpawnEmitterCustomLifetime(ProjChargeTemplate);
 		ProjEffects.SetAbsolute(false, false, false);
 		ProjEffects.SetLODLevel(WorldInfo.bDropDetail ? 1 : 0);

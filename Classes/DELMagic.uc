@@ -104,7 +104,6 @@ simulated state charging{
 	 * ending of the state
 	 */
 	simulated event endstate(Name NextStateName){
-		`log("charge Complete");
 
 	}
 }
@@ -114,7 +113,6 @@ simulated state charging{
  */
 simulated state Nothing{
 	simulated event beginstate(Name NextStateName){
-		`log("kinda like a idle but my own");
 	}
 }
 
@@ -181,7 +179,6 @@ simulated function int getMaxSpells(){
  */
 simulated function switchMagic(int AbilityNumber){
 	ActiveAbilityNumber = AbilityNumber-1;
-	`log("now using:" $ magics[AbilityNumber]);
 }
 
 

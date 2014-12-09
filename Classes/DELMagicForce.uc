@@ -28,7 +28,6 @@ simulated state Charging{
 simulated function shoot(){
 	super.shoot();
 	consumeMana();
-	`log("manacost:" $ totalManaCost);
 }
 
 

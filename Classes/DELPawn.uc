@@ -144,9 +144,7 @@ function Heal(int ammount){
 	health += ammount;
 	if(health>healthMax){
 		health = clamp(health,0,healthMax);
-		`log("to much healed");
 	}
-	`log("new health" $ health);
 }
 
 /**
@@ -156,7 +154,6 @@ function Heal(int ammount){
 function ManaDrain(int ammount){
 	mana -=ammount;
 	mana = clamp(mana,0,manaMax);
-	`log("new mana" $ mana);
 }
 
 function magicSwitch(int AbilityNumber);

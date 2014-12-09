@@ -47,7 +47,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 
 	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
-		`log("-------------------__________-----------------");
 	}
 }
 
@@ -113,7 +112,6 @@ simulated function StartFire(byte FireModeNum){
  * @param	FireModeNum		fire mode number
  */
 simulated function StopFire(byte FireModeNum){
-	`log("mouse released");
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStop();
 	}

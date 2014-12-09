@@ -5,7 +5,6 @@ simulated state Charging{
 		super.chargeTick();
 
 		if(spellCaster.health + totalDamage >= spellCaster.HealthMax){
-			`log("no need for further charging");
 			ClearTimer(NameOf(chargeTick));
 		}
 	}
@@ -13,7 +12,6 @@ simulated state Charging{
 		super.interrupt();
 		spellCaster.ManaDrain(TotalManaCost);
 		GoToState('Nothing');
-		`log("interrupted");
 	}
 }
 
