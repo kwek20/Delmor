@@ -141,6 +141,8 @@ function orderNearbyMinionsToAttackPlayer(){
 			c.engagePlayer( attackTarget );
 		}
 	}
+
+	DELMediumMonsterPawn( Pawn ).say( "OrderAttack" );
 }
 
 /*
@@ -220,7 +222,12 @@ state attack{
 
 		timer = 0.0;
 
-		DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
+		if ( getNumberOfMinions() > 0 ){
+			orderNearbyMinionsToAttackPlayer();
+		}
+		else{
+			DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
+		}
 	}
 
 	event tick( float deltaTime ){

@@ -23,13 +23,17 @@ function SoundCue getSound( string sName ){
 	case "TauntPlayer":
 		return soundsToPlay[ 4 ];
 		break;
+	case "Take Damage":
+		return soundsToPlay[ 5 ];
+		break;
 	}
 }
 DefaultProperties
 {
-	soundsToPlay[0] = none;
-	soundsToPlay[1] = none;
+	soundsToPlay[0] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_charge';
+	soundsToPlay[1] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_order';
 	soundsToPlay[2] = none;
 	soundsToPlay[3] = none;
-	soundsToPlay[4] = none;
+	soundsToPlay[4] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_taunt';
+	soundsToPlay[5] = none;
 }
