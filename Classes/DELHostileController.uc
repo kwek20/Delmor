@@ -39,7 +39,7 @@ function alertNearbyHostiles( DELPawn p ){
 		if ( VSize( c.Pawn.Location - Pawn.Location ) < alertDistance
 		&& !c.isInCombatState() ){
 			c.attackTarget = p;
-			c.goToState( 'Attack' );
+			c.changeState( 'Attack' );
 		}
 	}
 }
@@ -52,7 +52,7 @@ function engagePlayer( Pawn p ){
 	if ( VSize( p.Location - Pawn.Location ) <= DELPawn( Pawn ).detectionRange ){ //The player has to be whitin the detection range.
 		`log( self$" See player: "$p );
 		attackTarget = DELPawn( p );
-		goToState( 'Attack' );
+		changeState( 'Attack' );
 
 		alertNearbyHostiles( DELPawn( p ) );
 	}

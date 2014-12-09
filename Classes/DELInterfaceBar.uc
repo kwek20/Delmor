@@ -6,7 +6,7 @@ class DELInterfaceBar extends DELInterfaceInteractible;
 /**
  * Size of a button, length between 2 buttons and the amount of buttons we want to draw
  */
-var int squareSize, inbetween, amountBars;
+var int squareSize, inbetween, amountBars, key;
 
 /**
  * Array of textures linked to the buttons
@@ -17,6 +17,7 @@ var array<Texture2D> textures;
  * Array of delegate functions
  */
 var array< delegate<action> > actions;
+
 delegate action(DELPlayerHud hud);
 
 function load(DELPlayerHud hud){
@@ -37,15 +38,26 @@ function load(DELPlayerHud hud){
 	}
 }
 
-function useMagic(DELPlayerHud hud){
+
+
+//fucked around with this function to test my magical abilities. hope it doesn't break
+function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+	local DELPawn pawnee;
+	pawnee =hud.getPlayer().getPawn();
+	button.use(hud, mouseClicked, button);
 	hud.log("RAN useMagic");
+	key++;
+	pawnee.magicSwitch(key);
+	if(key == 7){ 
+		key = 0;
+	}
 }
 
 function draw(DELPlayerHud hud){
 	local int length, startX, startY;
 	local DELPawn pawn;
 	
-	pawn = DELPawn(hud.getPlayer().getPawn());
+	pawn = hud.getPlayer().getPawn();
 	if (pawn == None || pawn.Health <= 0)return;
 	
 	//Code for the box behind the buttons
@@ -102,6 +114,7 @@ function old(){
 
 DefaultProperties
 {
+	key = 0;
 	squareSize=40
 	inbetween=5;
 	amountBars=5;

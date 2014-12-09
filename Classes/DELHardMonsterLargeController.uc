@@ -5,7 +5,7 @@
  * 
  * @author Anders Egberts
  */
-class DELHardMonsterController extends DELHostileController;
+class DELHardMonsterLargeController extends DELHostileController;
 
 /**
  * The interval at which the monster makes a decision like: HealPawn or GiveOrderToPawn.
@@ -86,7 +86,6 @@ state attack{
 
 	function beginState( name previousStateName ){
 		super.beginState( previousStateName );
-
 		timer = 0.0;
 	}
 

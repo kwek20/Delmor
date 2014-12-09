@@ -1,6 +1,9 @@
 /**
  * Weapon to be used in Delmor.
  * @author Harmen Wiersma
+ * 
+ * EDIT: set bCanThrow to false in defaultProperties so that you won't have to
+ * do that when assigning the weapon to a pawn.
  */
 class DELWeapon extends UDKWeapon;
 /**
@@ -29,4 +32,5 @@ DefaultProperties
 {
 	criticalHitChance = 5;
 	criticalDamageMultiplier = 4;
+	bCanThrow = false
 }

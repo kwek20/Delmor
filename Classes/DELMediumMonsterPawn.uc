@@ -6,6 +6,39 @@ class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
 
+/**
+ * This soundset contains the pawn's voice
+ */
+var DELSoundSetMediumPawn mySoundSet;
+
+simulated event PostBeginPlay(){
+	super.PostBeginPlay();
+
+	assignSoundSet();
+}
+
+/**
+ * Assigns a soundSet to the pawn.
+ */
+private function assignSoundSet(){
+	if ( mySoundSet != none ){
+		mySoundSet.Destroy();
+	}
+	mySoundSet = spawn( class'DELSoundSetMediumPawn' );
+}
+
+/**
+ * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ */
+function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	if ( mySoundSet.bCanPlay ){
+		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+		mySoundSet.bCanPlay = false;
+		mySoundSet.setTimer( 2.0 , false , nameOf( mySoundSet.resetCanPlay ) );
+	}
+}
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELMediumMonsterController'
@@ -32,4 +65,6 @@ defaultproperties
 	healthRegeneration = 4
 	walkingSpeed = 80.0
 	detectionRange = 512.0
+
+	mySoundSet = none
 }

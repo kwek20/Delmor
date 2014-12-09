@@ -53,6 +53,10 @@ var DELPawn player;
  */
 var bool bCanSpawn;
 
+var() bool bUsedByKismet;
+
+var bool bTriggered;
+
 
 /**
  * standard event that is called when the game is started
@@ -81,7 +85,9 @@ auto state Idle {
 				selfToPlayer = C.Pawn.Location - self.Location;
 				distanceToSpawner = Abs(VSize(selfToPlayer));
 				if(distanceToSpawner < spawnRangeToPlayer) {
-					GotoState('Spawner');
+					if((bUsedByKismet && bTriggered) || !bUsedByKismet) {
+						GotoState('Spawner');
+					} 
 				}
 			}
 		}
@@ -145,10 +151,8 @@ function startSpawn(bool random) {
 	local DELSpawnPathNode C;
 	
 	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
-		
 		selfToPathnode = C.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
-		`log(distanceToSpawner);
 		if(distanceToSpawner < spawnArea) {
 			if(checkSpawnedMobsStillAlive() < maxMobsAlive) {
 				spawnPawn(random, C.Location); 
@@ -162,8 +166,8 @@ function startSpawn(bool random) {
  */
 function int checkSpawnedMobsStillAlive() {
 	local int tempMobsSpawned;
-	local Controller C;
-	foreach WorldInfo.AllControllers(class'Controller', C) {
+	local DELPlayerController C;
+	foreach WorldInfo.AllControllers(class'DELPlayerController', C) {
 		selfToPlayer = C.Pawn.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
 		if(distanceToSpawner < spawnArea) {
@@ -196,6 +200,8 @@ DefaultProperties
 	maxMobsAlive = 4
 	spawnDelay = 120
 	bCanSpawn = true
+	bUsedByKismet = false
+	bTriggered = false
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
 	End Object

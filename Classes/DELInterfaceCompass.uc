@@ -59,6 +59,8 @@ function draw(DELPlayerHud hud){
 
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
+	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
+	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
 }
 
 /**
@@ -119,7 +121,7 @@ function float getDegreeHeading(){
 
 /**
  * Returns playerheading
- * */
+ */
 function float getPlayerHeading()
 {
 	local Float PlayerHeading;

@@ -29,8 +29,8 @@ public function onKeyPress(DELPlayerHud p, int key){
  * @param p The playerhud
  * @param position The position where the mouse clicked
  */
-public function onClick(DELPlayerHud p, IntPoint position){
-	performAction(p, getButtonByPosition(position));
+public function onClick(DELPlayerHud p, IntPoint position, bool left){
+	performAction(p, getButtonByPosition(position), left);
 }
 
 /**
@@ -69,10 +69,10 @@ protected function DELInterfaceButton getButtonByPosition(IntPoint position){
  * @param p The player hud
  * @param b The button we want to perform the action for
  */
-public function performAction(DELPlayerHud p, DELInterfaceButton b){
+public function performAction(DELPlayerHud p, DELInterfaceButton b, optional bool left=false){
 	if (b == None || p == None) return;
 	`log("Button action for " $ b.identifierKey);
-	b.onUse(p);
+	b.onUse(p, left, b);
 }
 
 /**
@@ -83,6 +83,13 @@ public function draw(DELPlayerHud hud){
 	local DELInterfaceButton button;
 	foreach buttons(button){
 		button.draw(hud);
+	}
+
+	foreach buttons(button){
+		if (button.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).MousePosition)){
+			//mouse on button
+			button.onHover(hud, true);
+		}
 	}
 }
 

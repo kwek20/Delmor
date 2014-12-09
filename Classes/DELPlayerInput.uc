@@ -17,9 +17,6 @@ simulated event postBeginPlay(){
 	//super.PostBeginPlay();
 	`log("### Post begin play. PlayerInput: "$self );
 	setBindings();
-	`log( ">>>>>>>>>>>>>>>>>>>>> Spawn DELMath" );
-	math = spawn( class'DELMath' );
-	`log( "math: "$math );
 }
 
 /**
@@ -112,6 +109,14 @@ exec function startMovingBackward(){
 	goToState( 'movingBackward' );
 }
 
+exec function startSprint() {
+	DelPlayer( Pawn ).startSprint();
+}
+
+exec function stopSprint() {
+	DelPlayer( Pawn ).stopSprint();
+}
+
 /**
  * This function should rotate the playerinput's pawn along the yaw-axis to the target-yaw.
  * @param targetYaw	    int The targetYaw in unrealDegrees.
@@ -120,25 +125,20 @@ exec function startMovingBackward(){
 function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-	local int adjustedRotationSpeed;
-	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
-	//Spawn a math
-	if ( math == none ){
-		math = spawn( class'DELMath' );
-	}
 
-	yaw = pawn.Rotation.Yaw;
+	math = GetMath();
+	yaw = pawn.Rotation.Yaw % 65536;
+	targetYaw = targetYaw % 65536;
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
-        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
+	if ( yaw < targetYaw - ( rotationSpeed  - 10 ) || yaw > targetYaw + ( rotationSpeed - 10 ) ){
+        yaw += math.sign( ( ( ( targetYaw - yaw % 65536 ) + 98304 ) % 65536 ) - 32768 ) * rotationSpeed;
 	} else {
         yaw = targetYaw;
     }
 
 	newRotation.Pitch = pawn.Rotation.Pitch;
 	newRotation.Roll = pawn.Rotation.Roll;
-	newRotation.Yaw = yaw;
-
+	newRotation.Yaw = yaw % 65536;
 	pawn.SetRotation( newRotation );
 }
 
@@ -150,27 +150,40 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTime ){
 	local int yaw;
 	local rotator newRotation;
-	local int adjustedRotationSpeed; 
-	adjustedRotationSpeed = rotationSpeed;//round( abs( rotationSpeed * deltaTime ) );
-	//Spawn a math
-	if ( math == none ){
-		math = spawn( class'DELMath' );
-	}
 
+	math = GetMath();
 	yaw = pawn.Controller.Rotation.Yaw;
 
-	if ( yaw < targetYaw - adjustedRotationSpeed || yaw > targetYaw + adjustedRotationSpeed ){
-        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * adjustedRotationSpeed );
-	}
-    else{
+	if ( yaw < targetYaw - rotationSpeed || yaw > targetYaw + rotationSpeed ){
+        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed );
+	} else {
         yaw = targetYaw;
     }
 
 	newRotation.Pitch = pawn.Controller.Rotation.Pitch;
 	newRotation.Roll = pawn.Controller.Rotation.Roll;
 	newRotation.Yaw = yaw;
-
 	pawn.controller.SetRotation( newRotation );
+}
+
+/*
+ * =================================================
+ * Utility functions
+ * =================================================
+ */
+
+/**
+ * Spawns a new instance of DELMath if none exists and returns it OR - if
+ * an instance of DELMath already exists - return that instance.
+ * @return DELMath.
+ */
+private function DELMath GetMath(){
+	//Spawn a math
+	if ( math == none ){
+		math = spawn( class'DELMath' );
+	}
+
+	return math;
 }
 
 /**
@@ -310,8 +323,8 @@ exec function numberPress(name inKey){
 	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
 }
 
-exec function mousePress(){
-	DELPlayerController(Pawn.Controller).onMousePress(MousePosition);
+exec function mousePress(bool left=false){
+	DELPlayerController(Pawn.Controller).onMousePress(MousePosition, left);
 }
 
 
@@ -324,9 +337,11 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
-		setKeyBinding( 'LeftMouseButton' , "mousePress | startFire" );
+		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
+
+		setKeyBinding( 'LeftMouseButton' , "mousePress true | startFire 0 | OnRelease stopFire 0" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
-		setKeyBinding( 'RightMouseButton' , "StartAimMode | OnRelease EndAimMode" );
+		setKeyBinding( 'RightMouseButton' , "StartAimMode | mousePress false| OnRelease EndAimMode | startFire 1 | OnRelease stopFire 1" );
 
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding( 'F10' , "openInventory" );
@@ -398,5 +413,5 @@ function setKeyBinding( name inKey , String inCommand ){
 
 DefaultProperties
 {
-	defaultRotationSpeed = 1800.0
+	defaultRotationSpeed = 1600.0
 }

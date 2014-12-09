@@ -70,10 +70,10 @@ private function int nPawnsNearPlayer(){
 	local float nearDistance;
 
 	nPawns = 0;
-	nearDistance = 192.0;
+	nearDistance = 256.0;
 
 	foreach WorldInfo.AllControllers( class'DELEasyMonsterController' , c ){
-		if ( VSize( c.Pawn.Location - attackTarget.Location ) <= nearDistance ){
+		if ( VSize( c.Pawn.Location - player.Location ) <= nearDistance ){
 			nPawns ++;
 		}
 	}
@@ -95,6 +95,35 @@ private function vector getRandomLocation(){
 	return randomLoc;
 }
 
+/**
+ * Returns the number minions the pawn has.
+ */
+function int getNumberOfMinions(){
+	local DELEasyMonsterController c;
+	local int nMinions;
+
+	nMinions = 0;
+
+	foreach WorldInfo.AllControllers( class'DELEasyMonsterController' , c ){
+		if ( c.commander == pawn ){
+			nMinions ++;
+		}
+	}
+
+	return nMinions;
+}
+
+/**
+ * Returns whether the pawn should charge. It should not charge when he is too far from the player.
+ */
+function bool shouldCharge(){
+	if ( distanceToPoint( attackTarget.location ) < 256.0 ){
+		return false;
+	} else {
+		return true;
+	}
+}
+
 /*
  * ===============================================================
  * Action-functions
@@ -112,6 +141,8 @@ function orderNearbyMinionsToAttackPlayer(){
 			c.engagePlayer( attackTarget );
 		}
 	}
+
+	DELMediumMonsterPawn( Pawn ).say( "OrderAttack" );
 }
 
 /*
@@ -133,7 +164,7 @@ auto state idle{
 		super.Tick( deltaTime );
 		
 		if( pawn != none ){
-			goToState( 'wander' );
+			changeState( 'wander' );
 		}
 	}
 }
@@ -153,8 +184,7 @@ state wander{
 	event tick( float deltaTime ){
 		if ( distanceToPoint( targetLocation ) > 32.0 ){
 			self.moveTowardsPoint( targetLocation , deltaTime );
-		}
-		else{
+		} else {
 			stopPawn();
 			timeAtLocation += deltaTime;
 
@@ -191,6 +221,13 @@ state attack{
 		super.beginState( previousStateName );
 
 		timer = 0.0;
+
+		if ( getNumberOfMinions() > 0 ){
+			orderNearbyMinionsToAttackPlayer();
+		}
+		else{
+			DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
+		}
 	}
 
 	event tick( float deltaTime ){
@@ -200,7 +237,7 @@ state attack{
 			//Flee from the player if the health is low and the player is too close.
 			if ( checkIsInDanger() ){
 				`log( self$" I'm in danger" );
-				goToState( 'Flee' );
+				changeState( 'Flee' );
 
 				//Call for backup
 				orderNearbyMinionsToAttackPlayer();
@@ -208,7 +245,7 @@ state attack{
 
 			//Wait till the player has killed the easypawns before attacking
 			if ( nPawnsNearPlayer() > 2 ){
-				goToState( 'maintainDistanceFromPlayer' );
+				changeState( 'maintainDistanceFromPlayer' );
 			}
 
 			//Reset the timer
@@ -221,12 +258,6 @@ state attack{
  * When the distance to the player is greater than this number, stop fleeing and heal yourself.
  */
 state flee{
-	local float fleeDistance;
-
-	function beginState( name previousStateName ){
-		fleeDistance = 512.0;
-	}
-
 	event tick( float deltaTime ){
 		local vector selfToPlayer;
 		
@@ -234,13 +265,10 @@ state flee{
 
 		selfToPlayer = pawn.Location - attackTarget.location;
 
-		if ( VSize( selfToPlayer ) < fleeDistance ){
-			moveInDirection( selfToPlayer , deltaTime );
-		}
-		else{
+		if ( VSize( selfToPlayer ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
-			if ( pawn.Health >= pawn.HealthMax / 2 ){
-				goToState( 'attack' );
+			if ( pawn.Health >= pawn.HealthMax / 2 && shouldCharge() ){
+				changeState( 'charge' );
 			}
 		}
 	}
@@ -280,15 +308,14 @@ state maintainDistanceFromPlayer{
 		if ( VSize( selfToPlayer ) < distanceToPlayer ){
 			moveInDirection( selfToPlayer , deltaTime );
 			pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
-		}
-		else{
+		} else {
 			stopPawn();
 		}
 
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
-			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer ){
-				goToState( 'attack' );
+			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer && shouldCharge() ){
+				changeState( 'Charge' );
 			}
 
 			//Reset timer
@@ -297,9 +324,86 @@ state maintainDistanceFromPlayer{
 	}
 
 }
+/**
+ * Charge towards the player in hopes to stun him.
+ */
+state Charge{
+	local vector playerPosition;
+	function beginState( name previousStateName ){
+		local rotator selfToPlayer;
+
+		super.BeginState( previousStateName );
+
+		//Set the playerPosition to the player's position PLUS a bit extra so that the MediumEnemy will charge a bit further and thus appear more realistic.
+		selfToPlayer = rotator( attackTarget.location - pawn.Location );
+		playerPosition.X = attackTarget.location.X + lengthDirX( 256.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.Y = attackTarget.location.Y + lengthDirY( 256.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.Z = attackTarget.location.Z;
+
+		DELMediumMonsterPawn( Pawn ).say( "InitCharge" );
+	}
+
+	event tick( float deltaTime ){
+		local DELPawn collidingPawn;
+
+		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 5.0 ){
+			moveInDirection( playerPosition - pawn.Location , deltaTime * 8 /*We run to the player, so we move faster*/ );
+			//TODO: Check for collision
+			
+			collidingPawn = checkCollision();
+			if ( collidingPawn != none ){
+				collisionWithPawn( collidingPawn );
+			}
+		} else {
+			stopPawn();
+			changeState( 'attack' );
+		}
+	}
+
+	/**
+	 * Called when the pawn collides with another pawn.
+	 * 
+	 * If the pawn collides with an easyMinion it should push him away.
+	 * But if the pawn collides with the player, the pawn should exit the charge state
+	 * and the player should be stunned.
+	 */
+	event collisionWithPawn( DELPawn p ){
+		local vector selfToPawn;
+
+		selfToPawn = adjustLocation( p.location , pawn.location.Z ) - adjustLocation( pawn.Location , pawn.location.Z );
+
+		if ( p.class != class'DELMediumMonsterPawn' ){
+			p.knockBack( 250.0 , selfToPawn );
+		}
+
+		if ( p.class == class'DELPlayer' ){
+			p.health -= 25;
+			stopPawn();
+			goToState( 'Attack' );
+		}
+	}
+}
+
+/*
+ * ===================================
+ * Events
+ * ===================================
+ */
+
+/**
+ * Called when a pawn that belongs to this commander dies.
+ * It should play a sound belitteling the minions for their incompetence.
+ */
+event minionDied(){
+	if ( getNumberOfMinions() > 0 ){
+		DELMediumMonsterPawn( Pawn ).say( "MinionDied" );
+	} else {
+		DELMediumMonsterPawn( Pawn ).say( "NoMoreMinions" );
+	}
+}
 
 DefaultProperties
-{
+{ 
 	decisionInterval = 0.5
 	commandRadius = 512.0
 	wanderRadius = 512.0

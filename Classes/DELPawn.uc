@@ -58,12 +58,22 @@ var float walkingSpeed;
  */
 var float detectionRange;
 
+var array< class<Inventory> > DefaultInventory;
+
 /**
  * Timer for regeneration. If it hit zero, the timer will reset to 1.0 and the pawn will regain health and mana.
  */
 var float regenerationTimer;
 
-var array< class<Inventory> > DefaultInventory;
+/**
+ * When the pawn is stunned it may not move or attack.
+ */
+var bool bIsStunned;
+
+/**
+ * The weapon that will be used by the pawn.
+ */
+var DELWeapon myWeapon; 
 
 /* ==========================================
  * Camera stuff
@@ -101,19 +111,58 @@ var bool bLockedToCamera;
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
+
+var class<DELInventoryManager> UInventory;
+
+var repnotify DELInventoryManager UManager;
+
 simulated event PostBeginPlay(){
-	super.PostBeginPlay();
+	super.PostBeginPlay(); 
+
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 64.0 );
+	setCameraOffset( 0.0 , 0.0 , 48.0 );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
+	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
+
+	 //Set up custom inventory manager
+     if (UInventory != None){
+		UManager = Spawn(UInventory, Self);
+		if ( UManager == None )
+			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+
+	}
 }
 
-function AddDefaultInventory()
-{
+/**
+ * heals a pawn
+ * @param ammount the ammount to be healed
+ */
+function Heal(int ammount){
+	health += ammount;
+	if(health>healthMax){
+		health = clamp(health,0,healthMax);
+		`log("to much healed");
+	}
+	`log("new health" $ health);
 }
+
+/**
+ * subtracts the mana from the player
+ * @param ammount of mana to be subtracted
+ */
+function ManaDrain(int ammount){
+	mana -=ammount;
+	mana = clamp(mana,0,manaMax);
+	`log("new mana" $ mana);
+}
+
+function magicSwitch(int AbilityNumber);
+
+
+
 
 /**
  * Set the camera offset.
@@ -164,8 +213,7 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 			Controller.SetRotation( newRotation );
 		//}
 
-		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
-		{
+		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none){
 			out_CamLoc = HitLocation;
 		}
 	}
@@ -177,18 +225,10 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
  * In this event the pawn will slowly regain health and mana.
  */
 event Tick( float deltaTime ){
-	regenerationTimer -= deltaTime;
-
-	if ( regenerationTimer <= 0.0 ){
-		regenerationTimer = 1.0;
-		health = Clamp( health + healthRegeneration , 0 , healthMax );
-		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
-	}
-
 	if ( bLockedToCamera )
 		camTargetDistance = 150.0;
 	else
-		camTargetDistance = 300.0;
+		camTargetDistance = 200.0;
 
 	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
 		//Animate the camera
@@ -196,7 +236,15 @@ event Tick( float deltaTime ){
 	}
 }
 
-/*/**
+/**
+ * Regenerates health and mana.
+ */
+private function regenerate(){
+	health = Clamp( health + healthRegeneration , 0 , healthMax );
+	mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+}
+
+/**
  * Spawns the pawn's controller and deletes the previous one.
  */
 function SpawnController(){
@@ -206,7 +254,7 @@ function SpawnController(){
 
 	controller = spawn( ControllerClass );
 	controller.Pawn = self;
-}*/
+}
 
 /**
  * Animates the camera distance.
@@ -230,6 +278,23 @@ function adjustCameraDistance( float deltaTime ){
 	}
 }
 
+/**
+ * Knocks the pawn back.
+ * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
+ */
+function knockBack( float intensity , vector direction ){
+	local DELKnockbackForce knockBack;
+	`log( ">>>>>>>>>>>>>>>>>>>>> KNOCK BACK" );
+
+	knockBack = spawn( class'DELKnockbackForce' );
+	knockBack.setPower( intensity );
+	knockBack.myPawn = self;
+	knockBack.direction = direction;
+	knockBack.beginZ = location.Z;
+	bBlockActors = false;
+}
+
 simulated exec function turnLeft(){
 	`log( self$" TurnLeft" );
 }
@@ -240,6 +305,10 @@ simulated exec function turnRight(){
 
 DefaultProperties
 {
+	bCanPickUpInventory = true
+	UInventory = DELInventoryManager
+
+
 	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
@@ -250,12 +319,14 @@ DefaultProperties
 	meleeRange = 100.0
 	physicalResistance = 0.0
 	magicResistance = 0.0
-	walkingSpeed = 100.0
+	GroundSpeed = 100
 	detectionRange = 960.0
-	regenerationTimer = 1.0;
+	regenerationTimer = 1.0
 
-	camOffsetDistance = 300.0
-	camTargetDistance = 300.0
+	bIsStunned = false
+
+	camOffsetDistance = 200.0
+	camTargetDistance = 200.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
@@ -264,8 +335,8 @@ DefaultProperties
 
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
-	CollisionRadius = 32.0;
-	CollisionHeight = +44.0;
+		CollisionRadius = 16.0;
+		CollisionHeight = +44.0;
 	end object
 
 	//Mesh

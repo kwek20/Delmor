@@ -15,7 +15,7 @@ simulated function draw(DELPlayerHud hud){
 	local int length, startX, startY;
 	local DELPawn pawn;
 	
-	pawn = DELPawn(hud.getPlayer().getPawn());
+	pawn = hud.getPlayer().getPawn();
 	if (pawn == None || pawn.Health <= 0)return;
 	
 
@@ -25,7 +25,7 @@ simulated function draw(DELPlayerHud hud){
 	startY = bg.SizeY/6-barSize;
 
 	hud.Canvas.SetPos(0,0);
-	//drawTile(hud.Canvas, bg, bg.SizeX/2, bg.SizeY/2);
+	drawTile(hud.Canvas, bg, bg.SizeX/2, bg.SizeY/2);
 
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red
 	hud.Canvas.SetPos(startX, startY);   
@@ -40,6 +40,6 @@ simulated function draw(DELPlayerHud hud){
 
 DefaultProperties
 {
-	bg=Texture2D'MyPackage.combars'
+	bg=Texture2D'DelmorHud.combars'
 	barSize=23;
 }

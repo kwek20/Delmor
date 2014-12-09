@@ -1,7 +1,10 @@
-class DELPlayer extends DELCharacterPawn;
+class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
-var array < class<Inventory> > DefaultInventory;
-var Weapon sword;
+
+var array< class<Inventory> > DefaultInventory;
+var DELWeapon sword;
+var DELMagic magic;
+
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -23,30 +26,101 @@ simulated function bool IsFirstPerson(){
 	return false;
 }
 
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	
+	Global.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+	if(magic != none){
+		magic.Interrupt();
+	}
+}
 
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{   
+
+
+/**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 	super.PostInitAnimTree(SkelComp);
 
-	if (SkelComp == Mesh)
-	{
+	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
 		`log("-------------------__________-----------------");
 	}
 }
 
-function AddDefaultInventory()
-{
+/**
+ * adds the weapons(magic + masterSword to the player)
+ */
+function AddDefaultInventory(){
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
-	sword.bCanThrow = false; // don't allow default weapon to be thrown out
 	Controller.ClientSwitchToBestWeapon();
+	magic = Spawn(class'DELMagic',,,self.Location);
+	magic = Spawn(magic.getMagic(),,,self.Location);
+	magic.GiveTo(Controller.Pawn);
 }
 
 
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+	//Location.Z = 10000;
+	magicSwitch(1);
+}
+
+/**
+ * switches magical ability
+ */
+simulated function magicSwitch(int AbilityNumber){
+	if(bNoWeaponFiring){
+		return;
+	}	
+	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
+		magic.switchMagic(AbilityNumber);
+		magic = Spawn(magic.getMagic(),,,self.Location);
+		magic.GiveTo(Controller.Pawn);
+	}
+}
+
+
+/**
+ * Pawn starts firing!
+ * Called from PlayerController::StartFiring
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StartFire(byte FireModeNum){
+	if( bNoWeaponFiring){
+		return;
+	}
+	if(FireModeNum == 1 && magic!= None){
+		magic.FireStart();
+	}
+	if(FireModeNum == 0 && sword != None){
+		weapon.StartFire(FireModeNum);
+	}
+}
+
+
+/**
+ * Pawn stops firing!
+ * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StopFire(byte FireModeNum){
+	`log("mouse released");
+	if(FireModeNum == 1 && magic!= None){
+		magic.FireStop();
+	}
+	if(FireModeNum == 0 && sword != None){
+		sword.StopFire(FireModeNum);
+	}
 }
 
 
@@ -65,7 +139,7 @@ simulated function int getStamCount(){
  * Function to start sprinting
  * Works on timers according to a logarithm
  */
-exec function StartSprint(){
+exec function startSprint(){
 	local float TimeSinceLast;
 	local float Log;
 	//ConsoleCommand("Sprint");
@@ -99,8 +173,7 @@ exec function StartSprint(){
 		GroundSpeed = 600.000;
 
 		//Recently sprinted?
-		if(isTimerActive('TimeSinceSprint'))
-		{
+		if(isTimerActive('TimeSinceSprint')){
 			//Pause timer
 			PauseTimer(true, 'TimeSinceSprint');
 			//Find how long sprint duration was
@@ -128,8 +201,7 @@ exec function StartSprint(){
 			}
 		}
 		//else sprint normally
-		else
-		{
+		else{
 	
 			StopFiring();
 			setTimer(StamTimer, true, 'LowerStam');
@@ -143,7 +215,7 @@ exec function StartSprint(){
  * checks if certain timer (exhausted) is active
  * if so, stop sprinting
  */
-exec function StopSprint(){
+exec function stopSprint(){
 	Groundspeed = 375.0;
 	bSprinting = false;
 	ClearTimer('LowerStam');
@@ -211,10 +283,7 @@ simulated function RegenStam(){
 	if(bSprinting){
 		ClearTimer('RegenStam'); //if we start sprinting, cancel regen
 		return;
-	}
-
-	else
-	{
+	} else {
 		if(Stam < MaxStam){ //if current stam lower then max
 			Stam += StamRegenVal; //start regen
 
@@ -226,6 +295,156 @@ simulated function RegenStam(){
 		}
 	}
 }
+
+function String Serialize()
+{
+    local JSonObject PJSonObject;
+
+    // Instance the JSonObject, abort if one could not be created
+    PJSonObject = new class'JSonObject';
+
+    if (PJSonObject == None)
+    {
+		`Warn(Self$" could not be serialized for saving the game state.");
+		return "";
+    }
+
+    // Save the location
+    PJSonObject.SetFloatValue("Location_X", Location.X);
+    PJSonObject.SetFloatValue("Location_Y", Location.Y);
+    PJSonObject.SetFloatValue("Location_Z", Location.Z);
+
+    // Save the rotation
+    PJSonObject.SetIntValue("Rotation_Pitch", Rotation.Pitch);
+    PJSonObject.SetIntValue("Rotation_Yaw", Rotation.Yaw);
+    PJSonObject.SetIntValue("Rotation_Roll", Rotation.Roll);
+
+    // If the controller is the player controller, then saved a flag to say that it should be repossessed
+    //by the player when we reload the game state
+    PJSonObject.SetBoolValue("IsPlayer", DELPlayerController(self.Controller) != none);
+
+    // Send the encoded JSonObject
+    return class'JSonObject'.static.EncodeJson(PJSonObject);
+}
+
+function Deserialize(JSonObject Data)
+{
+    local Vector SavedLocation;
+    local Rotator SavedRotation;
+    local DELGAME SGameInfo;
+
+    // Deserialize the location and set it
+    SavedLocation.X = Data.GetFloatValue("Location_X");
+    SavedLocation.Y = Data.GetFloatValue("Location_Y");
+    SavedLocation.Z = Data.GetFloatValue("Location_Z");
+    SetLocation(SavedLocation);
+
+    // Deserialize the rotation and set it
+    SavedRotation.Pitch = Data.GetIntValue("Rotation_Pitch");
+    SavedRotation.Yaw = Data.GetIntValue("Rotation_Yaw");
+    SavedRotation.Roll = Data.GetIntValue("Rotation_Roll");
+    SetRotation(SavedRotation);
+
+    // Deserialize if this was a player controlled pawn, if it was then tell the game info about it
+    if (Data.GetBoolValue("IsPlayer")){
+		SGameInfo = DELGame(self.WorldInfo.Game);
+
+		if (SGameInfo != none){
+			SGameInfo.PendingPlayerPawn = self;
+		}
+    }
+}
+
+/*
+ * ============================================
+ * Chicken kicking
+ * ============================================
+ */
+
+event Tick( float deltaTime ){
+	local DELChickenPawn chicken;
+
+	super.Tick( deltaTime );
+
+	chicken = chickenIsInFrontOfMe();
+
+	//Kick a chicken!!
+	if ( chicken != none ){
+		kickChicken( chicken );
+	}
+}
+
+/**
+ * Checks whether a chicken is in front of the player pawn and returns that chicken
+ */
+private function DELChickenPawn chickenIsInFrontOfMe(){
+	local DELChickenController c;
+	local DELChickenPawn toReturn;
+	local Vector inFrontLocation;
+
+	toReturn = none;
+
+	inFrontLocation = getInFrontLocation();
+
+	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
+		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
+			if ( c.CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
+				toReturn = DELChickenPawn( c.Pawn );
+			}
+		}
+	}
+
+	return toReturn;
+}
+
+/**
+ * Kicks a chicken, sending it flying through the air.
+ * @param c DELChicken  The chicken to kick.
+ */
+private function kickChicken( DELChickenPawn c ){
+	local Vector selfToChicken;
+
+	selfToChicken = c.location - Location;
+
+	c.knockBack( 250.0 , selfToChicken );
+	c.kick();
+}
+
+/**
+ * Return the player's position plus 8 in the player's direction.
+ */
+function Vector getInFrontLocation(){
+	local vector newLocation;
+
+	newLocation.X = location.X + lengthDirX( 16.0 , -Rotation.Yaw );
+	newLocation.Y = location.Y + lengthDirY( 16.0 , -Rotation.Yaw );
+	newLocation.Z = Location.Z;
+
+	return newLocation;
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+}
+
 
 DefaultProperties
 {
