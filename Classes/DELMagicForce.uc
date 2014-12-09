@@ -1,15 +1,50 @@
 class DELMagicForce extends DELMagic;
+var Projectile chargingProjectile;
+var vector locationOfProjectile;
+
+simulated state Charging{
+	simulated event beginstate(Name NextStateName){
+		super.beginstate(NextStateName);
+		locationOfProjectile = GetSocketPosition(instigator);
+		chargingProjectile = Spawn(getSpell() ,self,, locationOfProjectile);
+	}
+	simulated event Tick(float DeltaTime){
+		super.Tick(DeltaTime);
+		locationOfProjectile = GetSocketPosition(instigator);
+		chargingProjectile.SetLocation(locationOfProjectile);
+		chargingProjectile.LifeSpan += 0.4;
+	}
+
+	simulated function ChargeTick(){
+		super.chargeTick();
+		chargingProjectile.SetDrawScale(chargingProjectile.DrawScale + 0.5);
+	}
+
+
+}
 
 
 
-simulated function CustomFire(){
-	super.CustomFire();
+simulated function shoot(){
+	super.shoot();
 	consumeMana();
 	`log("manacost:" $ totalManaCost);
 }
 
 
+simulated function CustomFire(){
+	local vector AimDir;
 
+	if( Role == ROLE_Authority ){
+
+		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, locationOfProjectile));
+
+		
+		if( chargingProjectile != None && !chargingProjectile.bDeleteMe ){
+			chargingProjectile.Init(AimDir);
+		}
+	}
+}
 
 DefaultProperties
 {

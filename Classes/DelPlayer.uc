@@ -67,7 +67,6 @@ simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
 	//Location.Z = 10000;
-	magicSwitch(1);
 }
 
 /**
