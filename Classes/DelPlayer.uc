@@ -54,7 +54,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  * adds the weapons(magic + masterSword to the player)
  */
 function AddDefaultInventory(){
-	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
+	sword = Spawn(class'DELMeleeWeaponTheButcher',,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
 	magic = Spawn(class'DELMagic',,,self.Location);
