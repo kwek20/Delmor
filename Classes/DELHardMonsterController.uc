@@ -164,10 +164,23 @@ auto state Pathfinding{
 	local Actor Player;
 	local Vector selfToPlayer;
 
-Begin:
+	function beginState( name previousStateName ){
+
 	Player = GetALocalPlayerController().Pawn;
 	selfToPlayer = self.Pawn.Location - Player.Location;
-	if(FindNavMeshPath() && calcPlayerDist(selfToPlayer) <= minimumDistance){
+	`log( "Finding  path" );
+	}
+
+	simulated function findNext(){
+		if (FindNavMeshPath(tempDest) && calcPlayerDist(selfToPlayer) <= minimumDistance && _Pathnode != PathnodeList.Length){
+		tempDest = getNextNode();
+		goto 'Begin';
+		}
+	}
+
+Begin:
+	
+	if(FindNavMeshPath(tempDest) && calcPlayerDist(selfToPlayer) <= minimumDistance){
 		tempDest = getNextNode();
 		if(calcPlayerDist(selfToPlayer) <= minimumDistance){
 			NavigationHandle.SetFinalDestination(tempDest);
@@ -181,16 +194,15 @@ Begin:
 		}
 	}
 	if(calcPlayerDist(selfToPlayer) <= minimumDistance && _Pathnode != PathnodeList.Length){
-		Goto('Begin');
+		Goto 'Begin';
 	}
-	else{
-		GotoState('Attack');
+	else if(_Pathnode == PathnodeList.Length && calcPlayerDist(selfToPlayer) <= minimumDistance){
+			GotoState('Attack');
 	}
 }
 
 simulated function PostBeginPlay(){
 	local Pathnode P;
-	_Pathnode = 0;
 	super.PostBeginPlay();
 		foreach WorldInfo.AllActors(class 'Pathnode', P){
 			PathnodeList.AddItem(P);
@@ -200,8 +212,10 @@ simulated function PostBeginPlay(){
 
 function Vector getNextNode(){
 	local Vector nodeVect;
+
 	if(_Pathnode <= PathnodeList.Length){
-		currentNode = PathnodeList[_Pathnode];
+			_Pathnode++;
+		currentNode = PathnodeList[Rand(PathnodeList.length)];
 		`log("currentNode = " $ _Pathnode);
 	}
 	nodeVect = NodeToVect(currentNode);
@@ -224,7 +238,7 @@ function float calcPlayerDist(Vector selfToPlayer){
 	return distanceToPlayer;
 }
 
-function bool FindNavMeshPath(){
+function bool FindNavMeshPath(Vector tempDest){
     NavigationHandle.PathConstraintList = none;
     NavigationHandle.PathGoalList = none;
     class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,tempDest);
@@ -235,8 +249,9 @@ function bool FindNavMeshPath(){
 DefaultProperties
 {
 	decisionInterval = 0.5
-	minimumDistance = 500
+	minimumDistance = 200
 	bIsPlayer=true
 	closeEnough = 200
 	isAtLast = false
+	bAdjustFromWalls=true
 }
