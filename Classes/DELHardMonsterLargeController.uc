@@ -55,6 +55,17 @@ private function int nPawnsNearPlayer(){
  * =================================
  */
 
+auto state Idle{
+
+	event tick( float deltaTime ){
+		super.tick( deltaTime );
+
+		if ( player != none ){
+			engagePlayer( player );
+		}
+	}
+}
+
 state attack{
 	/**
 	 * Timer for decisions.
@@ -70,7 +81,7 @@ state attack{
 	event tick( float deltaTime ){
 		super.Tick( deltaTime );
 
-		timer -= deltaTime;
+		/*timer -= deltaTime;
 
 		if ( timer <= 0.0 ){
 			`log( self$" It is time to make a decision" );
@@ -82,7 +93,7 @@ state attack{
 
 			//Reset the timer
 			timer = decisionInterval;
-		}
+		}*/
 	}
 }
 
