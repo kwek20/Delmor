@@ -19,7 +19,6 @@ simulated state Swinging extends WeaponFiring {
 	{
 		super.EndState(NextStateName);
 		SetTimer(GetFireInterval(CurrentFireMode), false, nameof(ResetSwings));
-		`log("i have swinged my sword");
 	}
 }
 
@@ -145,21 +144,19 @@ simulated function bool HasAmmo(byte FireModeNum, optional int Ammount)
 }
 
 simulated function FireAmmunition(){
-	`log("FireAmmunition");
 	StopFire(CurrentFireMode);
 	SwingHitActors.Remove(0, SwingHitActors.Length);
 
 	if (HasAmmo(CurrentFireMode)){
-		`log("Swing:");
 		`log(Swings[0]);
 		if (MaxSwings - Swings[0] == 0) {
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.f,0.1f,0.1f,false,true);
 		} else if (MaxSwings - Swings[0] == 1){
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
+			`log("surprise motherf***er");
 		} else {
 			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
 		}
-		`log("swing complete?");
 
 		//PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
 		super.FireAmmunition();
@@ -192,40 +189,4 @@ DefaultProperties
 	FiringStatesArray(0)="Swinging"
 
 	WeaponFireTypes(0)=EWFT_Custom
-
-	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
-        SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian_sword'
-        FOV=60
-		HiddenGame=FALSE
-        HiddenEditor=FALSE
-        //Animations=MeshSequenceA
-        AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
-		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
-        bForceUpdateAttachmentsInTick=True
-		bCacheAnimSequenceNodes=false
-		AlwaysLoadOnClient=true
-		AlwaysLoadOnServer=true
-		CastShadow=true
-		BlockRigidBody=true
-		bUpdateSkelWhenNotRendered=false
-		bIgnoreControllersWhenNotRendered=true
-		bUpdateKinematicBonesFromAnimation=true
-		bCastDynamicShadow=true
-		RBChannel=RBCC_Untitled3
-		RBCollideWithChannels=(Untitled3=true)
-		bOverrideAttachmentOwnerVisibility=true
-		bAcceptsDynamicDecals=false
-		bHasPhysicsAssetInstance=true
-		TickGroup=TG_PreAsyncWork
-		MinDistFactorForKinematicUpdate=0.2f
-		bChartDistanceFactor=true
-		RBDominanceGroup=20
-		Scale=1.f
-		bAllowAmbientOcclusion=false
-		bUseOnePassLightingOnTranslucency=true
-		bPerBoneMotionBlur=true
-	End Object
-    Mesh=MeleeWeapon
-	
-    Components.Add(MeleeWeapon)
 }
