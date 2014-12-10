@@ -10,12 +10,9 @@ var float pawnRotationSpeed;
  */
 var DELMath math;
 
-// Stored mouse position. Set to private write as we don't want other classes to modify it, but still allow other classes to access it.
-var PrivateWrite IntPoint MousePosition; 
+var DELInputMouseStats stats;
 
 simulated event postBeginPlay(){
-	//super.PostBeginPlay();
-	`log("### Post begin play. PlayerInput: "$self );
 	setBindings();
 }
 
@@ -254,12 +251,15 @@ exec function endAimMode(){
 }
 
 exec function openInventory() {
-	`log("openInventory");
 	DELPlayerController(Pawn.Controller).openInventory();
 }
 
 exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
+}
+
+exec function openQuestlog(){
+	DELPlayerController(Pawn.Controller).swapState('Questlog');
 }
 
 /*
@@ -319,12 +319,103 @@ state movingRight{
 	}
 }
 
+// Handle mouse inputs
+function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent){
+	// Detect what kind of input this is
+	if (InputEvent == IE_Pressed){
+		// Handle pressed event
+		switch (MouseEvent){
+			case LeftMouseButton:
+				stats.PendingLeftPressed = true;
+				stats.PendingLeftReleased = false;
+				break;
+
+			case RightMouseButton:
+				stats.PendingRightPressed = true;
+				stats.PendingRightReleased = false;
+				break;
+
+			case MiddleMouseButton:
+				stats.PendingMiddlePressed = true;
+				stats.PendingMiddleReleased = false;
+				break;
+
+			case ScrollWheelUp:
+				stats.PendingScrollUp = true;
+				stats.PendingScrollDown = false;
+				break;
+
+			case ScrollWheelDown:
+				stats.PendingScrollDown = true;
+				stats.PendingScrollUp = false;
+				break;
+
+			default:
+				 break;
+		}
+	} else if (InputEvent == IE_Released) {
+		// Handle released event
+		switch (MouseEvent){
+			case LeftMouseButton:
+				stats.PendingLeftReleased = true;
+				stats.PendingLeftPressed = false;
+				break;
+
+			case RightMouseButton:
+				stats.PendingRightReleased = true;
+				stats.PendingRightPressed = false;
+				break;
+
+			case MiddleMouseButton:
+				stats.PendingMiddleReleased = true;
+				stats.PendingMiddlePressed = false;
+				break;
+
+			default:
+				break;
+		}
+	}
+	DELPlayerController(Pawn.Controller).onMouseUse(stats);
+	stats.clear();
+}
+
 exec function numberPress(name inKey){
 	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
 }
 
 exec function mousePress(bool left=false){
-	DELPlayerController(Pawn.Controller).onMousePress(MousePosition, left);
+	HandleMouseInput(left ? LeftMouseButton : RightMouseButton, IE_Pressed);
+
+	if (stats.PendingRightPressed) StartAimMode();
+	DELPawn( Pawn ).startFire(int(!left));
+}
+
+exec function mouseRelease(bool left=false){
+	HandleMouseInput(left ? LeftMouseButton : RightMouseButton, IE_Released);
+	if (stats.PendingRightReleased) EndAimMode();
+	DELPawn( Pawn ).stopFire(int(!left));
+}
+
+// Called when the middle mouse button is pressed
+exec function MiddleMousePressed(){
+  HandleMouseInput(MiddleMouseButton, IE_Pressed);
+  if (stats.PendingMiddlePressed) StartLookMode();
+}
+
+// Called when the middle mouse button is released
+exec function MiddleMouseReleased(){
+  HandleMouseInput(MiddleMouseButton, IE_Released);
+  if (stats.PendingMiddleReleased) EndLookMode();
+}
+
+// Called when the middle mouse wheel is scrolled up
+exec function MiddleMouseScrollUp(){
+  HandleMouseInput(ScrollWheelUp, IE_Pressed);
+}
+
+// Called when the middle mouse wheel is scrolled down
+exec function MiddleMouseScrollDown(){
+  HandleMouseInput(ScrollWheelDown, IE_Pressed);
 }
 
 exec function save(){
@@ -340,25 +431,29 @@ exec function load(){
  */
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	if(!change) {
+		stats = Spawn(class'DELInputMouseStats');
 		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMovingForward" );
 		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
 		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
 		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
 		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 
-		setKeyBinding( 'LeftMouseButton' , "mousePress true | startFire 0 | OnRelease stopFire 0" );
-		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
-		setKeyBinding( 'RightMouseButton' , "StartAimMode | mousePress false| OnRelease EndAimMode | startFire 1 | OnRelease stopFire 1" );
+		setKeyBinding('MouseScrollUp', "GBA_PrevWeapon | MiddleMouseScrollUp");
+		setKeyBinding('MouseScrollDown', "GBA_NextWeapon | MiddleMouseScrollDown");
+
+		setKeyBinding('MiddleMouseButton', "MiddleMousePressed | OnRelease MiddleMouseReleased");
+		setKeyBinding( 'LeftMouseButton' , "mousePress true | OnRelease mouseRelease true" );
+		setKeyBinding( 'RightMouseButton' , "mousePress false | OnRelease mouseRelease false" );
 
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding( 'F10' , "openInventory" );
+		setKeyBinding( 'l' , "openQuestlog" );
 		ChangeInputBinding("ToggleInventory", 'I');
 
 		setKeyBinding('Escape', "closeHud");
 
 		setKeyBinding('Z', "save");
 		setKeyBinding('X', "load");
-
 
 		setKeyBinding('one', "numberPress 1");
 		setKeyBinding('two', "numberPress 2");
@@ -389,19 +484,17 @@ simulated exec function ChangeInputBinding(string Command, name BindName){
 
 function setMousePos(int x, int y){
 	// Add the aMouseX to the mouse position and clamp it within the viewport width
-    MousePosition.X = Clamp(x, 0, myHUD.SizeX); 
+    stats.MousePosition.X = Clamp(x, 0, myHUD.SizeX); 
     // Add the aMouseY to the mouse position and clamp it within the viewport height
-    MousePosition.Y = Clamp(y, 0, myHUD.SizeY); 
+    stats.MousePosition.Y = Clamp(y, 0, myHUD.SizeY); 
 }
 
 event PlayerInput(float DeltaTime){
   // Handle mouse 
   // Ensure we have a valid HUD
   if (myHUD != None) {
-    // Add the aMouseX to the mouse position and clamp it within the viewport width
-    MousePosition.X = Clamp(MousePosition.X + aMouseX, 0, myHUD.SizeX); 
-    // Add the aMouseY to the mouse position and clamp it within the viewport height
-    MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
+	setMousePos(stats.MousePosition.X + aMouseX, stats.MousePosition.Y - aMouseY);
+    // Add the aMouse to the mouse position and clamp it within the viewport width
   }
 
   Super.PlayerInput(DeltaTime);
@@ -416,10 +509,7 @@ event tick( float deltaTime ){
  * Set a specific keybinding.
  */
 function setKeyBinding( name inKey , String inCommand ){
-	//local name key;
-	//key = inKey;
 	SetBind( inKey , inCommand );
-	`log( GetBind( inKey ) );
 }
 
 DefaultProperties

@@ -80,7 +80,7 @@ function AddInventory(class<DELItem> ItemType, int amount ){
 //Remove items from the current inventory either when used or dropped.
 function RemoveInventory(class<DELItem> ItemToRemove, int Amount){
 	local int i;
-    local DELItem	Item;
+    local DELItem Item;
 
 	for (i=0;i<UItems.Length;i++){
 		//When the iterator reaches a class that macthes the one that you want to use or remove. 

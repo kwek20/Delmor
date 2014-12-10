@@ -2,16 +2,25 @@
  * DELInterfaceInteractible is a class meant for extension.
  * You can add buttons which you can interact with
  */
-class DELInterfaceInteractible extends DELInterface;
+class DELInterfaceInteractible extends DELInterfaceTexture;
 
-var() PrivateWrite array< DELInterfaceButton > buttons;
+var() PrivateWrite array< DELInterfaceObject > objects;
+
+function load(DELPlayerHud hud){
+	local DELInterfaceObject obj;
+	foreach objects(obj){obj.load(hud);}
+}
+
+function bool requiresUse(DELInputMouseStats stats){
+	return false;
+}
 
 /**
  * Adds a button to the list
  * @param btn The button to add
  */
-public function bool addButton(DELInterfaceButton btn){
-	buttons.AddItem(btn); 
+public function bool addInteractible(DELInterfaceObject obj){
+	objects.AddItem(obj); 
 	return true;
 }
 
@@ -26,11 +35,13 @@ public function onKeyPress(DELPlayerHud p, int key){
 
 /**
  * Function which handles mouse click
- * @param p The playerhud
- * @param position The position where the mouse clicked
+ * @param hud The playerhud
+ * @param stats The mouse statistics
  */
-public function onClick(DELPlayerHud p, IntPoint position, bool left){
-	performAction(p, getButtonByPosition(position), left);
+public function onMouseUse(DELPlayerHud hud, DELInputMouseStats stats){
+	local DELInterfaceObject object;
+	object = getObjectByPosition(stats.MousePosition);
+	if (object != None && object.requiresUse(stats)) performAction(hud, object, stats);
 }
 
 /**
@@ -39,10 +50,10 @@ public function onClick(DELPlayerHud p, IntPoint position, bool left){
  * @param key The key we want the button of
  */
 protected function DELInterfaceButton getButtonByKey(int key){
-	local DELInterfaceButton button;
-	foreach buttons(button){
-		if (button.identifiedBy(key)) {
-			return button;
+	local DELInterfaceObject object;
+	foreach objects(object){
+		if (DELInterfaceButton(object) != None && DELInterfaceButton(object).identifiedBy(key)) {
+			return DELInterfaceButton(object);
 		}
 	}
 	return None;
@@ -53,11 +64,11 @@ protected function DELInterfaceButton getButtonByKey(int key){
  * Returns None if it does not exist
  * @param position the position wher we want to check for a button
  */
-protected function DELInterfaceButton getButtonByPosition(IntPoint position){
-	local DELInterfaceButton button;
-	foreach buttons(button){
-		if (button.containsPos(position)) {
-			return button;
+protected function DELInterfaceObject getObjectByPosition(IntPoint position){
+	local DELInterfaceObject object;
+	foreach objects(object){
+		if (object.containsPos(position)) {
+			return object;
 		}
 	}
 	return None;
@@ -69,10 +80,10 @@ protected function DELInterfaceButton getButtonByPosition(IntPoint position){
  * @param p The player hud
  * @param b The button we want to perform the action for
  */
-public function performAction(DELPlayerHud p, DELInterfaceButton b, optional bool left=false){
+public function performAction(DELPlayerHud p, DELInterfaceObject b, optional DELInputMouseStats stats){
 	if (b == None || p == None) return;
-	`log("Button action for " $ b.identifierKey);
-	b.onUse(p, left, b);
+	b.use();
+	b.onUse(p, stats, b);
 }
 
 /**
@@ -80,15 +91,16 @@ public function performAction(DELPlayerHud p, DELInterfaceButton b, optional boo
  * @param hud the playerhud
  */
 public function draw(DELPlayerHud hud){
-	local DELInterfaceButton button;
-	foreach buttons(button){
-		button.draw(hud);
+	local DELInterfaceObject object;
+	foreach objects(object){
+		object.draw(hud);
 	}
 
-	foreach buttons(button){
-		if (button.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).MousePosition)){
+	foreach objects(object){
+		if (object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
 			//mouse on button
-			button.onHover(hud, true);
+			object.hover();
+			object.onHover(hud, true);
 		}
 	}
 }

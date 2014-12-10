@@ -445,8 +445,8 @@ function float lengthDirY( float len , float dir ){
 
 DefaultProperties
 {
-	swordClass = class'DELMeleeWeaponDemonSlayer';
-	//swordClass = class'DELMeleeWeaponTheButcher'
+	//swordClass = class'DELMeleeWeaponDemonSlayer';
+	swordClass = class'DELMeleeWeaponTheButcher'
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 
