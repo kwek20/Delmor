@@ -17,7 +17,7 @@ DefaultProperties
 {
 	Components.Remove(ThirdPersonMesh);
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'Delmor_Character.Chicken'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.sk_chicken'
 		AnimSets(0)=AnimSet'Delmor_Character.Chicken_anim'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Chicken_animTree'
 		HiddenGame=False

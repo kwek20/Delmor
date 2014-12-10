@@ -7,6 +7,15 @@ class DELMediumMonsterPawn extends DELHostilePawn
 	  Config(Game);
 
 /**
+ * Overridden so that a take damage call will be sent to the controller.
+ */
+event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+
+	DELMediumMonsterController( controller ).pawnHit();
+}
+
+/**
  * Overriden so the pawn will receive a soundSet.
  */
 simulated event PostBeginPlay(){
@@ -24,6 +33,8 @@ private function assignSoundSet(){
 	}
 	mySoundSet = spawn( class'DELSoundSetMediumPawn' );
 }
+
+event
 
 defaultproperties
 {
