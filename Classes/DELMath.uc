@@ -39,8 +39,17 @@ function int modulo( int n , int mod ){
 }
 
 static function int floor(float number){
-
 	return number - number % 1;
+}
+
+static function int ceil(float number){
+	return number + (1- number % 1);
+}
+
+static function int roud(float number){
+	local float decimal;
+	decimal = number%1;
+	return number + decimal < 0.5 ? -decimal : 1-decimal;
 }
 
 DefaultProperties
