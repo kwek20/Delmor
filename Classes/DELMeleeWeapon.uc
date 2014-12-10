@@ -194,7 +194,7 @@ DefaultProperties
 	WeaponFireTypes(0)=EWFT_Custom
 
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
-        SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian_sword'
+        SkeletalMesh=SkeletalMesh'Delmor_Character.lucian_sword'
         FOV=60
 		HiddenGame=FALSE
         HiddenEditor=FALSE

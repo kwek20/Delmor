@@ -327,6 +327,14 @@ exec function mousePress(bool left=false){
 	DELPlayerController(Pawn.Controller).onMousePress(MousePosition, left);
 }
 
+exec function save(){
+	DELPlayerController(Pawn.Controller).SaveGameState("DelmorSave");
+}
+
+exec function load(){
+	DELPlayerController(Pawn.Controller).LoadGameState("DelmorSave");
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
@@ -347,6 +355,10 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		ChangeInputBinding("ToggleInventory", 'I');
 
 		setKeyBinding('Escape', "closeHud");
+
+		setKeyBinding('Z', "save");
+		setKeyBinding('X', "load");
+
 
 		setKeyBinding('one', "numberPress 1");
 		setKeyBinding('two', "numberPress 2");

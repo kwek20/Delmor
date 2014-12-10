@@ -315,8 +315,72 @@ function ScrubFileName(out string FileName)
 
     FileName = Repl(FileName, " ", "_");                            // If the file name has spaces, replace then with under scores
     FileName = class'DELSaveGameState'.const.SAVE_LOCATION $ FileName; // Prepend the filename with the save folder location
+
 	`log(FileName);
 }
+
+
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
+/**
+ * This exec function will save the game state to the file name provided.
+ *
+ * @param      FileName      File name to save the SaveGameState to
+ */
+exec function SaveGameState(string FileName)
+{
+  local DELSaveGameState SaveGameState;
+
+  // Instance the save game state
+  SaveGameState = new () class'DELSaveGameState';
+  if (SaveGameState == None)
+  {
+    return;
+  }
+
+  // Scrub the file name
+  ScrubFileName(FileName);
+
+  // Ask the save game state to save the game
+  SaveGameState.SaveGameState();
+
+  // Serialize the save game state object onto disk
+  if (class'Engine'.static.BasicSaveObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION))
+  {
+    // If successful then send a message
+    ClientMessage("Saved game state to "$FileName$".", 'System');
+  }
+}
+
+/**
+ * This exec function will load the game state from the file name provided
+ *
+ * @param    FileName    File name of load the SaveGameState from
+ */
+exec function LoadGameState(string FileName)
+{
+  local DELSaveGameState SaveGameState;
+
+
+  // Instance the save game state
+  SaveGameState = new () class'DELSaveGameState';
+  if (SaveGameState == None)
+  {
+    return;
+  }
+
+  // Scrub the file name
+  ScrubFileName(FileName);
+
+  // Attempt to deserialize the save game state object from disk
+  if (class'Engine'.static.BasicLoadObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION))
+  {
+  }
+
+  SaveGameState.LoadGameState();
+}
+
+
 
 DefaultProperties
 {
