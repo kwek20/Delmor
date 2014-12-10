@@ -472,7 +472,7 @@ event minionDied(){
 event pawnHit(){
 	nTimesHit ++;
 
-	if ( nTimes >= 3 ){
+	if( nTimesHit >= 3 ){
 		self.block();
 	}
 

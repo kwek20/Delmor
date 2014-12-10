@@ -30,7 +30,7 @@ var float criticalDamageMultiplier;
  */
 DefaultProperties
 {
-	criticalHitChance = 5
-	criticalDamageMultiplier = 4
+	criticalHitChance = 5;
+	criticalDamageMultiplier = 4;
 	bCanThrow = false
 }

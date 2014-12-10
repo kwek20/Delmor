@@ -148,6 +148,31 @@ simulated event PostBeginPlay(){
 }
 
 /**
+ * heals a pawn
+ * @param ammount the ammount to be healed
+ */
+function Heal(int ammount){
+	health += ammount;
+	if(health>healthMax){
+		health = clamp(health,0,healthMax);
+	}
+}
+
+/**
+ * subtracts the mana from the player
+ * @param ammount of mana to be subtracted
+ */
+function ManaDrain(int ammount){
+	mana -=ammount;
+	mana = clamp(mana,0,manaMax);
+}
+
+function magicSwitch(int AbilityNumber);
+
+
+
+
+/**
  * Set the camera offset.
  * @param x float   x-offset.
  * @param y float   y-offset.
@@ -302,7 +327,7 @@ DefaultProperties
 	meleeRange = 100.0
 	physicalResistance = 0.0
 	magicResistance = 0.0
-	walkingSpeed = 100.0
+	GroundSpeed = 100
 	detectionRange = 960.0
 	regenerationTimer = 1.0
 
@@ -318,7 +343,7 @@ DefaultProperties
 
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
-		CollisionRadius = 32.0;
+		CollisionRadius = 16.0;
 		CollisionHeight = +44.0;
 	end object
 

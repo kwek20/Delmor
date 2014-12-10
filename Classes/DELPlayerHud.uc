@@ -90,6 +90,7 @@ function PlayerOwnerDied(){
 	PC.gotoState('End');
 }
 
+
 function PostRender(){
 	local InterFaceItem interface;
 	super.PostRender();

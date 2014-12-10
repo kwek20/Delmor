@@ -12,7 +12,9 @@ class DELMediumMonsterPawn extends DELHostilePawn
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
 
-	DELMediumMonsterController( controller ).pawnHit();
+	if ( DamageType == class'DELDmgTypeMelee' ){
+		DELMediumMonsterController( controller ).pawnHit();
+	}
 }
 
 /**
@@ -33,8 +35,6 @@ private function assignSoundSet(){
 	}
 	mySoundSet = spawn( class'DELSoundSetMediumPawn' );
 }
-
-event
 
 defaultproperties
 {
