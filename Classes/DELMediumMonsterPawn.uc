@@ -7,10 +7,8 @@ class DELMediumMonsterPawn extends DELHostilePawn
 	  Config(Game);
 
 /**
- * This soundset contains the pawn's voice
+ * Overriden so the pawn will receive a soundSet.
  */
-var DELSoundSetMediumPawn mySoundSet;
-
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 
@@ -25,18 +23,6 @@ private function assignSoundSet(){
 		mySoundSet.Destroy();
 	}
 	mySoundSet = spawn( class'DELSoundSetMediumPawn' );
-}
-
-/**
- * Say a line from the sound set. Only one sound can be played per 2 seconds.
- */
-function say( String dialogue ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet.bCanPlay ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 2.0 , false , nameOf( mySoundSet.resetCanPlay ) );
-	}
 }
 
 defaultproperties
@@ -63,8 +49,6 @@ defaultproperties
 	health = 150
 	healthMax = 150
 	healthRegeneration = 4
-	walkingSpeed = 80.0
+	GroundSpeed = 80.0
 	detectionRange = 512.0
-
-	mySoundSet = none
 }

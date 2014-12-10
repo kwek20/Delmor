@@ -112,6 +112,17 @@ var bool bLockedToCamera;
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
 
+/*
+ * ====================================
+ * Sound
+ * ====================================
+ */
+
+/**
+ * This soundset contains the pawn's voice
+ */
+var DELSoundSet mySoundSet;
+
 var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
@@ -357,4 +368,6 @@ DefaultProperties
 
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
+
+	mySoundSet = none
 }

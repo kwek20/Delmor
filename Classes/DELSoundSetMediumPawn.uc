@@ -1,7 +1,7 @@
 /**
  * This is the soundSet for the medium pawn"s voice.
  */
-class DELSoundSetMediumPawn extends DELSoundSet;
+class DELSoundSetMediumPawn extends DELSoundSetMonster;
 
 /**
  * Returns a soundCue based on a string. i.e.: InitCharge return soundsToPlay[0]
@@ -23,7 +23,7 @@ function SoundCue getSound( string sName ){
 	case "TauntPlayer":
 		return soundsToPlay[ 4 ];
 		break;
-	case "Take Damage":
+	case "TakeDamage":
 		return soundsToPlay[ 5 ];
 		break;
 	}
@@ -35,5 +35,5 @@ DefaultProperties
 	soundsToPlay[2] = none;
 	soundsToPlay[3] = none;
 	soundsToPlay[4] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_taunt';
-	soundsToPlay[5] = none;
+	soundsToPlay[5] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_take_damage';
 }
