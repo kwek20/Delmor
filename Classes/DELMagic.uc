@@ -54,19 +54,21 @@ var int ChargeCost;
  */
 var int ChargeAdd;
 
+var float ProjectileSizeTotal;
+
+var float ProjectileSize;
+
+var float ProjectileSizeIncrease;
+
 /**
  * 
  */
 var class<Projectile> spellProjectile;
 
-var String magicName;
-
 /**
- * gets the name of the magical ability
+ * Time in secconds for every iteration
  */
-simulated function string getMagicName(){
-	return magicName;
-}
+var float ChargeTime;
 
 /**
  * the state where a spell charges
@@ -77,7 +79,7 @@ simulated state charging{
 	 * beginning of the state
 	 */
 	simulated event beginstate(Name NextStateName){
-		SetTimer(1.0,bCanCharge, NameOf(chargeTick));
+		SetTimer(ChargeTime,bCanCharge, NameOf(chargeTick));
 	}
 
 	/**
@@ -86,7 +88,6 @@ simulated state charging{
 	simulated function chargeTick(){
 		totalManaCost+= chargeCost;
 		totalDamage+= ChargeAdd;
-		`log("manacost:" $ totalManaCost);
 		if(spellCaster.mana - (totalManaCost+chargeCost) <= 0){
 			ClearTimer(NameOf(chargeTick));
 		}
@@ -104,7 +105,6 @@ simulated state charging{
 	 * ending of the state
 	 */
 	simulated event endstate(Name NextStateName){
-		`log("charge Complete");
 
 	}
 }
@@ -114,7 +114,6 @@ simulated state charging{
  */
 simulated state Nothing{
 	simulated event beginstate(Name NextStateName){
-		`log("kinda like a idle but my own");
 	}
 }
 
@@ -181,7 +180,6 @@ simulated function int getMaxSpells(){
  */
 simulated function switchMagic(int AbilityNumber){
 	ActiveAbilityNumber = AbilityNumber-1;
-	`log("now using:" $ magics[AbilityNumber]);
 }
 
 
@@ -236,6 +234,8 @@ simulated function CustomFire(){
 	}
 }
 
+
+
 simulated function class<UDKProjectile> getSpell(){
 	return spell;
 }
@@ -246,8 +246,9 @@ DefaultProperties
 	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
-	magics[1] = class'DELMagicForce'
+	magics[0] = class'DELMagicForce'
 	magics[2] = class'DELMagicHeal'
-	magics[0] = class'DELMagicParalyze'
+	magics[1] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
+	ChargeTime = 0.1;
 }
