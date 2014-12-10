@@ -26,11 +26,13 @@ simulated function CustomFire(){
 
 
 
+
 DefaultProperties
 {
 	magicName="Heal"
 	bCanCharge=true
-	ChargeCost = 10;
-	ChargeAdd = 20;
+	ChargeCost = 1;
+	ChargeAdd = 2;
 	manaCost = 10;
+	damage = 20;
 }

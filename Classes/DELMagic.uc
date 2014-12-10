@@ -54,19 +54,21 @@ var int ChargeCost;
  */
 var int ChargeAdd;
 
+var float ProjectileSizeTotal;
+
+var float ProjectileSize;
+
+var float ProjectileSizeIncrease;
+
 /**
  * 
  */
 var class<Projectile> spellProjectile;
 
-var String magicName;
-
 /**
- * gets the name of the magical ability
+ * Time in secconds for every iteration
  */
-simulated function string getMagicName(){
-	return magicName;
-}
+var float ChargeTime;
 
 /**
  * the state where a spell charges
@@ -77,7 +79,7 @@ simulated state charging{
 	 * beginning of the state
 	 */
 	simulated event beginstate(Name NextStateName){
-		SetTimer(1.0,bCanCharge, NameOf(chargeTick));
+		SetTimer(ChargeTime,bCanCharge, NameOf(chargeTick));
 	}
 
 	/**
@@ -86,7 +88,6 @@ simulated state charging{
 	simulated function chargeTick(){
 		totalManaCost+= chargeCost;
 		totalDamage+= ChargeAdd;
-		`log("manacost:" $ totalManaCost);
 		if(spellCaster.mana - (totalManaCost+chargeCost) <= 0){
 			ClearTimer(NameOf(chargeTick));
 		}
@@ -249,4 +250,5 @@ DefaultProperties
 	magics[2] = class'DELMagicHeal'
 	magics[1] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
+	ChargeTime = 0.1;
 }

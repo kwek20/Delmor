@@ -7,6 +7,7 @@ simulated state Charging{
 		super.beginstate(NextStateName);
 		locationOfProjectile = GetSocketPosition(instigator);
 		chargingProjectile = Spawn(getSpell() ,self,, locationOfProjectile);
+		ProjectileSizeTotal = projectileSize;
 	}
 	simulated event Tick(float DeltaTime){
 		super.Tick(DeltaTime);
@@ -17,7 +18,8 @@ simulated state Charging{
 
 	simulated function ChargeTick(){
 		super.chargeTick();
-		chargingProjectile.SetDrawScale(chargingProjectile.DrawScale + 0.5);
+		ProjectileSizeTotal += projectileSizeIncrease;
+		chargingProjectile.SetDrawScale(ProjectileSizeTotal);
 	}
 
 
@@ -47,10 +49,13 @@ simulated function CustomFire(){
 
 DefaultProperties
 {
+	projectileSize = 1.0
+	projectileSizeIncrease = 0.1
 	magicName="force"
 	spell = class'DELMagicProjectileForce'
 	bCanCharge = true
-	ChargeCost = 10;
-	ChargeAdd = 20;
+	ChargeCost = 1;
+	ChargeAdd = 2;
 	manaCost = 10;
+	damage = 10;
 }
