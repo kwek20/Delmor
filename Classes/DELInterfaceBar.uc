@@ -40,9 +40,8 @@ function load(DELPlayerHud hud){
 }
 
 
-//fucked around with this function to test my magical abilities. hope it doesn't break
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
-	hud.log("RAN useMagic");
+	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
 }
 
 function draw(DELPlayerHud hud){
@@ -69,12 +68,7 @@ DefaultProperties
 	key = 0;
 	squareSize=40
 	inbetween=5;
-	amountBars=5;
+	amountBars=4;
 
-	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
-	actions[0] = useMagic
-	actions[1] = useMagic
-	actions[2] = useMagic
-	actions[3] = useMagic
-	actions[4] = useMagic
+	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
 }

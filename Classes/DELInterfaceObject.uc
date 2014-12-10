@@ -30,6 +30,10 @@ var() bool transparant;
  */
 delegate onUse(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object);
 
+/**
+ * Private function which will be called before onUse<br/>
+ * DONT CALL MANUALLY UNLESS YOU WANT THIS BUTTON TO BE "used"
+ */
 function use(){
 	PlayClickSound();
 }
