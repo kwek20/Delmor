@@ -5,14 +5,14 @@ function load(DELPlayerHud hud){
 	local float x,y;
 
 	getScaledCoords(hud.SizeX, hud.SizeY, texture, x, y);
+	setPosition(hud.CenterX-x/2, hud.CenterY-y/2, x, y, hud);
 
-	text = Spawn(class'DELInterfaceScrollbar');
-	text.setPosition(hud.CenterX-x/2, hud.CenterY-y/2, x, y, hud);
-	text.setTranparant();
+	text = Spawn(class'DELInterfaceQuestText');
+	text.toggleTranparant();
+	text.setLocked(self);
 
 	addInteractible(text);
-
-	setPosition(hud.CenterX-x/2, hud.CenterY-y/2, x, y, hud);
+	super.load(hud);
 }
 
 function draw(DELPlayerHud hud){ 

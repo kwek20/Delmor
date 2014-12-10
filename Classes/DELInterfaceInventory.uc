@@ -32,7 +32,7 @@ function load(DELPlayerHud hud){
 			button.setText(" ");
 		}
 
-		button.setHover(button.hover);
+		button.setHover(button.onHover);
 		button.setIdentifier(i+1);
 		addInteractible(button);
 	}

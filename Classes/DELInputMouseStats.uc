@@ -24,6 +24,8 @@ private function removeRelease(){
 	PendingLeftReleased = false;
 	PendingMiddleReleased = false;
 	PendingRightReleased = false;
+	PendingScrollUp = false;
+	PendingScrollDown = false;
 }
 
 function clear(){

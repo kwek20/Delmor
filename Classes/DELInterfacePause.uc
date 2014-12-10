@@ -18,6 +18,8 @@ function load(DELPlayerHud hud){
 	button.setText("Exit");
 	button.setColor(buttonColor);
 	addInteractible(button);
+
+	super.load(hud);
 }
 
 function draw(DELPlayerHud hud){
@@ -33,7 +35,6 @@ function draw(DELPlayerHud hud){
 }
 
 function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	object.use(hud, stats, object);
 	ConsoleCommand("quit");
 }
 

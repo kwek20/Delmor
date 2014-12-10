@@ -6,6 +6,15 @@ class DELInterfaceInteractible extends DELInterfaceTexture;
 
 var() PrivateWrite array< DELInterfaceObject > objects;
 
+function load(DELPlayerHud hud){
+	local DELInterfaceObject obj;
+	foreach objects(obj){obj.load(hud);}
+}
+
+function bool requiresUse(DELInputMouseStats stats){
+	return false;
+}
+
 /**
  * Adds a button to the list
  * @param btn The button to add
@@ -73,6 +82,7 @@ protected function DELInterfaceObject getObjectByPosition(IntPoint position){
  */
 public function performAction(DELPlayerHud p, DELInterfaceObject b, optional DELInputMouseStats stats){
 	if (b == None || p == None) return;
+	b.use();
 	b.onUse(p, stats, b);
 }
 
@@ -89,6 +99,7 @@ public function draw(DELPlayerHud hud){
 	foreach objects(object){
 		if (object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
 			//mouse on button
+			object.hover();
 			object.onHover(hud, true);
 		}
 	}

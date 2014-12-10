@@ -36,10 +36,10 @@ function load(DELPlayerHud hud){
 		button.setTexture(textures[i-1]);
 		addInteractible(button);
 	}
+	super.load(hud);
 }
 
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	object.use(hud, stats, object);
 	hud.log("RAN useMagic");
 }
 

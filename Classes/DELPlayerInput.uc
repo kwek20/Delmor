@@ -13,8 +13,6 @@ var DELMath math;
 var DELInputMouseStats stats;
 
 simulated event postBeginPlay(){
-	//super.PostBeginPlay();
-	`log("### Post begin play. PlayerInput: "$self );
 	setBindings();
 }
 
@@ -499,10 +497,7 @@ event tick( float deltaTime ){
  * Set a specific keybinding.
  */
 function setKeyBinding( name inKey , String inCommand ){
-	//local name key;
-	//key = inKey;
 	SetBind( inKey , inCommand );
-	`log( GetBind( inKey ) );
 }
 
 DefaultProperties

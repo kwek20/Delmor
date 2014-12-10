@@ -22,13 +22,15 @@ var bool isHover;
  */
 var() SoundCue clickSound;
 
+var() bool transparant;
+
 /**
  * This function gets called when the button is used(mouse/key)
  * @param hud The player hud
  */
 delegate onUse(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object);
 
-function use(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
+function use(){
 	PlayClickSound();
 }
 
@@ -38,7 +40,11 @@ function bool requiresUse(DELInputMouseStats stats){
 
 delegate onHover(DELPlayerHud hud, bool enter);
 
-function hover(DELPlayerHud hud, bool enter){
+/**
+ * Private function which will be called before onHover<br/>
+ * DONT CALL MANUALLY UNLESS YOU WANT THIS BUTTON TO BE "HOVERED"
+ */
+function hover(){
 	isHover = true;
 	SetTimer(0.1, false, 'noHover');
 }
@@ -64,7 +70,7 @@ public function draw(DELPlayerHud hud){
 }
 
 public function drawTexture(Canvas c){
-	if (texture == None) return;
+	if (texture == None || transparant) return;
 	if (isHover && (hoverTexture != none || hoverColorSet())){
 		if (hoverTexture != none){
 			drawTile(c, hoverTexture, position.Z, position.W);
@@ -81,6 +87,7 @@ private function bool hoverColorSet(){
 }
 
 public function drawStandardbackground(Canvas c){
+	if (transparant) return;
 	c.SetPos(position.X, position.Y);
 	c.SetDrawColorStruct(isHover ? hoverColor : color);
 	c.DrawRect(position.Z, position.W);
@@ -127,8 +134,8 @@ public function setColorVars(int r, int g, int b, int a){
 	setColor(c);
 }
 
-public function setTranparant(){
-	setColorVars(255,255,255,0);
+public function toggleTranparant(){
+	transparant = !transparant;
 }
 
 DefaultProperties

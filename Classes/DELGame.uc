@@ -17,6 +17,7 @@ function InitGame( string Options, out string ErrorMessage )
 		GameMinimap = ThisMinimap;
 		break;
 	}
+
 	if (HasOption(Options, "SaveGameState"))
     {
 		PendingSaveGameFileName = ParseOption(Options, "SaveGameState");

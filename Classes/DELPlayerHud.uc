@@ -15,6 +15,8 @@ struct InterFaceItem {
  */
 var() PrivateWrite array< InterFaceItem > interfaces;
 
+var bool loadedInterfaces;
+
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
 var MaterialInstanceConstant GameMiniMapMIC;
@@ -56,6 +58,7 @@ function addInterface(DELInterface interface, EPriority priority){
  */
 function clearInterfaces(){
 	interfaces.Length = 0;
+	loadedInterfaces = false;
 }
 
 /**
@@ -93,11 +96,22 @@ function PlayerOwnerDied(){
 function PostRender(){
 	local InterFaceItem interface;
 	super.PostRender();
+	
+	if (!loadedInterfaces)loadInterfaces();
 
 	foreach interfaces(interface){
 		interface.interface.draw(self);
 
 	}
+}
+
+function loadInterfaces(){
+	local InterFaceItem interface;
+	foreach interfaces(interface){
+		interface.interface.load(self);
+	}
+
+	loadedInterfaces = true;
 }
 
 function log(String text){
