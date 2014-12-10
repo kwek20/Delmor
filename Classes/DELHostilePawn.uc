@@ -33,6 +33,7 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	super.TakeDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 }
 
+
 function AddDefaultInventory()
 {
 	sword = Spawn(class'DELMeleeWeapon',,,self.Location);

@@ -150,7 +150,7 @@ function spawnPawn(bool random, vector spawnLocation)
 function startSpawn(bool random) {
 	local DELSpawnPathNode C;
 	
-	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
+	foreach WorldInfo.AllActors(class'DELSpawnPathNode', C) {
 		selfToPathnode = C.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
 		if(distanceToSpawner < spawnArea) {
@@ -202,6 +202,7 @@ DefaultProperties
 	bCanSpawn = true
 	bUsedByKismet = false
 	bTriggered = false
+	bHidden = true
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
 	End Object
