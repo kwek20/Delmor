@@ -28,6 +28,17 @@ var float commandRadius;
  */
 var float wanderRadius;
 
+/**
+ * Determines whether the pawn is allowed to charge.
+ */
+var bool bCanCharge;
+
+/**
+ * Counts the number of times the pawn has been hit by the player's melee attack.
+ * If it's hit three times in a row, it should start blocking.
+ */
+var int nTimesHit;
+
 /*
  * ===============================================================
  * Utility functions
@@ -141,6 +152,21 @@ function orderNearbyMinionsToAttackPlayer(){
 			c.engagePlayer( attackTarget );
 		}
 	}
+}
+
+/**
+ * Sets the nTimesHit variable to 0.
+ */
+function resetNumberOfTimesHit(){
+	nTimesHit = 0;
+}
+
+/**
+ * Starts blocking.
+ * While blocking, the pawn cannot be hit by mêlee-attacks but is still vurnable to magic.
+ */
+function block(){
+	`log( ">>>>>>>>>>>>>>> BLOCK" );
 }
 
 /*
@@ -393,6 +419,20 @@ event minionDied(){
 	} else {
 		DELMediumMonsterPawn( Pawn ).say( "NoMoreMinions" );
 	}
+}
+
+/**
+ * Called when the pawn has been hit by a mêlee attack.
+ * If the pawn has been hit three times in a row it should block.
+ */
+event pawnHit(){
+	nTimesHit ++;
+
+	if( nTimesHit >= 3 ){
+		self.block();
+	}
+
+	setTimer( 1.0 , false , 'resetNumberOfTimesHit' );
 }
 
 DefaultProperties

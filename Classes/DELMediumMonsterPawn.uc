@@ -5,11 +5,26 @@
 class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
-
 /**
  * This soundset contains the pawn's voice
  */
 var DELSoundSetMediumPawn mySoundSet;
+
+/**
+ * Overridden so that a take damage call will be sent to the controller.
+ */
+event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+
+	if ( DamageType == class'DELDmgTypeMelee' ){
+		DELMediumMonsterController( controller ).pawnHit();
+	}
+}
+
+/**
+ * This soundset contains the pawn's voice
+ * Overriden so the pawn will receive a soundSet.
+ */
 
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();

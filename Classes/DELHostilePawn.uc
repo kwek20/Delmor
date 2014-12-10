@@ -7,6 +7,10 @@ simulated event PostBeginPlay(){
 	AddDefaultInventory();
 }
 
+/**
+ * Modified for the magic damage.
+ * Will also play a pain sound when hit.
+ */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	local int newDamage;
@@ -14,6 +18,8 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	if(DamageType == class'DELDmgTypeMelee'){
 		newDamage = damage - (damage * physicalResistance);
 
+		//Play hit sound
+		say( "TakeDamage" );
 	} else if(DamageType == class'DELDmgTypeMagical') {
 		newDamage = damage - (damage * magicResistance);
 
@@ -25,7 +31,6 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 		}
 	}
 	super.TakeDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
-
 }
 
 function AddDefaultInventory()
