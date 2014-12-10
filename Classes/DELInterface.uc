@@ -51,7 +51,7 @@ function drawTile(Canvas c, Texture2D texture, float XL, float YL, optional floa
  */
 function drawCTile(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, optional float U = 0.f, optional float V = 0.f){
 	c.SetDrawColor(r,g,b,a);
-	c.DrawTile(texture, XL, YL, U,V, texture.SizeX, texture.SizeY);
+	c.DrawTile(texture, XL, YL, U, V, texture.SizeX, texture.SizeY);
 }
 
 

@@ -34,17 +34,16 @@ function load(DELPlayerHud hud){
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
 		button.setTexture(textures[i-1]);
-		addButton(button);
+		addInteractible(button);
 	}
+	super.load(hud);
 }
 
-
-
 //fucked around with this function to test my magical abilities. hope it doesn't break
-function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELPawn pawnee;
-	pawnee =hud.getPlayer().getPawn();
-	button.use(hud, mouseClicked, button);
+	pawnee = hud.getPlayer().getPawn();
+
 	hud.log("RAN useMagic");
 	key++;
 	pawnee.magicSwitch(key);
@@ -70,46 +69,6 @@ function draw(DELPlayerHud hud){
 	hud.Canvas.DrawRect(length, squareSize+inbetween*2); 
 
 	super.draw(hud);
-}
-
-function old(){
-	/*
-	 i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	button.setRun();
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-	*/
 }
 
 DefaultProperties
