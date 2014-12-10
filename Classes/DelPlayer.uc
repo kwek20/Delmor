@@ -453,7 +453,7 @@ DefaultProperties
 	Components.Remove(ThirdPersonMesh);
 
 		Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian_walking'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian'
 		AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.Lucian_walking_Physics'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
