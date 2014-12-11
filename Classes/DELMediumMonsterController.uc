@@ -197,6 +197,9 @@ function resetNumberOfTimesHit(){
  */
 function block(){
 	`log( ">>>>>>>>>>>>>>> BLOCK" );
+
+	goToState( 'Blocking' );
+	DELMediumMonsterPawn( pawn ).startBlocking();
 }
 
 /*
@@ -391,8 +394,8 @@ state Charge{
 
 		//Set the playerPosition to the player's position PLUS a bit extra so that the MediumEnemy will charge a bit further and thus appear more realistic.
 		selfToPlayer = rotator( attackTarget.location - pawn.Location );
-		playerPosition.X = attackTarget.location.X + lengthDirX( 256.0 , -selfToPlayer.yaw % 65536 );
-		playerPosition.Y = attackTarget.location.Y + lengthDirY( 256.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.X = attackTarget.location.X + lengthDirX( 512.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.Y = attackTarget.location.Y + lengthDirY( 512.0 , -selfToPlayer.yaw % 65536 );
 		playerPosition.Z = attackTarget.location.Z;
 
 		DELMediumMonsterPawn( Pawn ).say( "InitCharge" );
@@ -401,7 +404,7 @@ state Charge{
 	event tick( float deltaTime ){
 		local DELPawn collidingPawn;
 
-		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 5.0 ){
+		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 10.0 ){
 			moveInDirection( playerPosition - pawn.Location , deltaTime * 8 /*We run to the player, so we move faster*/ );
 			//TODO: Check for collision
 			
@@ -447,6 +450,19 @@ state Charge{
 	}
 }
 
+/**
+ * When the pawn is blocking, also go to a blocking state so that the pawn will not move.
+ * When un-blocking see if you should perform a charge attack.
+ */
+state Blocking{
+
+	event tick( float deltaTime ){
+		super.Tick( deltaTime );
+
+		pawn.SetDesiredRotation( rotator( player.location - pawn.Location ) );
+	}
+}
+
 /*
  * ===================================
  * Events
@@ -470,13 +486,33 @@ event minionDied(){
  * If the pawn has been hit three times in a row it should block.
  */
 event pawnHit(){
+	`log( ">>>>>>>>>>>>>>>>>> My pawn has been hit" );
 	nTimesHit ++;
 
+	`log( "nTimesHit: "$nTimesHit );
 	if( nTimesHit >= 3 ){
-		self.block();
+		`log( "Start blocking" );
+		block();
 	}
 
 	setTimer( 1.0 , false , 'resetNumberOfTimesHit' );
+}
+
+/**
+ * When un-blocking see if you should perform a charge attack.
+ */
+event PawnStoppedBlocking(){
+	if ( shouldCharge() ){
+		startCharge();
+	} else {
+		changeState( 'Attack' );
+	}
+}
+/**
+ * When the block is broken. Go to flee state
+ */
+event PawnBlockBroken(){
+	changeState( 'Flee' );
 }
 
 DefaultProperties

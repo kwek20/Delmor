@@ -71,6 +71,11 @@ var float regenerationTimer;
 var bool bIsStunned;
 
 /**
+ * Determines whether the pawn can block or not.
+ */
+var bool bCanBlock;
+
+/**
  * The weapon that will be used by the pawn.
  */
 var DELWeapon myWeapon; 
@@ -169,8 +174,28 @@ function ManaDrain(int ammount){
 
 function magicSwitch(int AbilityNumber);
 
+/**
+ * Starts blocking by going into the blocking-state
+ */
+function startBlocking(){
+	if ( !bIsStunned && bCanBlock ){
+		goToState( 'Blocking' );
+	}
+}
 
+/**
+ * Stop blocking by going into the LandMovementState
+ */
+function stopBlocking(){
+	goToState( LandMovementState );
+}
 
+/**
+ * Sets bCanBlock to true.
+ */
+function resetCanBlock(){
+	bCanBlock = true;
+}
 
 /**
  * Set the camera offset.

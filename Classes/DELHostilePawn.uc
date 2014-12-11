@@ -54,6 +54,29 @@ function say( String dialogue ){
 	}
 }
 
+/**
+ * Stub to play a blocking sound.
+ */
+function playBlockingSound(){
+}
+
+/**
+ * Blocking state.
+ * While in the blocking state the pawn should get no damage from melee attacks.
+ */
+state Blocking{
+
+	/**
+	 * Overridden so that the pawn take no damage.
+	 */
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		if(DamageType == class'DELDmgTypeMelee'){
+			playBlockingSound();
+		}
+	}
+}
+
 DefaultProperties
 {
 }

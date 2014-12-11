@@ -121,6 +121,10 @@ state Flock{
 		} else {
 			moveTowardsPoint( targetLocation , deltaTime );
 		}
+
+		if ( commander == none ){
+			commanderDied();
+		}
 		
 	}
 
