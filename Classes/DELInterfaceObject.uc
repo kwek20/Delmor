@@ -73,10 +73,13 @@ public function draw(DELPlayerHud hud){
 	}
 }
 
+/**
+ * javadoc voor brood
+ */
 public function drawTexture(Canvas c){
 	if (texture == None || transparant) return;
 	if (isHover && (hoverTexture != none || hoverColorSet())){
-		if (hoverTexture != none){
+		if (hoverTexture != none&& false){
 			drawTile(c, hoverTexture, position.Z, position.W);
 		} else {
 			drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);

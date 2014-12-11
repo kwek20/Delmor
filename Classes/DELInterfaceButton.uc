@@ -5,6 +5,14 @@ class DELInterfaceButton extends DELInterfaceObject;
 
 var() bool bCanActivate;
 
+var Color clickedColor;
+
+
+/**
+ * checks if the button is the last one clicked
+ */
+var bool bLastClicked;
+
 /**
  * The key you use to activate this button. None if not existing
  */
@@ -43,6 +51,34 @@ public function drawText(Canvas c){
 	c.DrawText(getText());
 }
 
+
+/**
+ * an addition to the draw texture
+ * draws an outline around the used button
+ * !warning has magic numbers for the extra space around buttons
+ * @author harmen wiersma
+ */
+public function drawTexture(Canvas c){
+	super.drawTexture(c);
+	if(bLastClicked && texture != none){
+		c.SetDrawColor(clickedColor.R,clickedColor.G,clickedColor.B,clickedColor.A);
+		c.SetPos(position.X-5,position.Y-5,position.Z);
+		c.DrawBox(position.W + 2*5 , position.Z + 2*5); 
+	}
+}
+
+/**
+ * checks if this item from the quick menu is the last used one
+ * if not, then it will be
+ * if it is then it won't be anymore
+ * @author harmen wiersma
+ */
+public function useQItem(){
+	if(bLastClicked){ bLastClicked = false;}
+	else{ bLastClicked =true;}
+}
+
+
 /**
  * Sets the indentifier key for this button.<br/>
  * This means when you press this indentifier on the keyboard, the button will activate
@@ -74,4 +110,5 @@ DefaultProperties
 	bCanActivate=true
 
 	textOffset=(X=0.5,Y=0.5)
+	clickedColor=(R=255,G=215,B=0,A=255)
 }
