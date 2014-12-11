@@ -19,6 +19,13 @@ function load(DELPlayerHud hud){
 	button.setColor(buttonColor);
 	addInteractible(button);
 
+	button = Spawn(class'DELInterfaceButton');
+	button.setPosition(startX, startY+buttonHeight+inbetween, length, buttonHeight, hud);
+	button.setRun(credits);
+	button.setText("Credits");
+	button.setColor(buttonColor);
+	addInteractible(button);
+
 	super.load(hud);
 }
 
@@ -32,6 +39,10 @@ function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(startX, startY);   
 	hud.Canvas.DrawRect(hud.sizeX*backgroundDimensionWidth, buttonHeight*buttonAmount + inbetween*(buttonAmount+2)); 
 	super.draw(hud);
+}
+
+function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	hud.getPlayer().swapState('Credits');
 }
 
 function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){

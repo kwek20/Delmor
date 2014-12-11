@@ -89,6 +89,15 @@ state Questlog extends MouseState{
 Begin:
 }
 
+state Credits extends MouseState{
+	function BeginState(Name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		drawDefaultHud = false;
+		addInterface(class'DELInterfaceCredits');
+		checkHuds();
+	}
+}
+
 state End extends MouseState{
 	
 }
