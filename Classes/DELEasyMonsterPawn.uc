@@ -67,7 +67,7 @@ state Blocking{
 		stopBlocking();
 		bCanBlock = false;
 		setTimer( 5.0 , false , 'resetCanBlock' );
-		knockBack( 200.0 , location - DELHostileController( controller ).player.location );
+		knockBack( 50.0 , location - DELHostileController( controller ).player.location );
 	}
 }
 

@@ -54,10 +54,12 @@ event Tick( float deltaTime ){
 		myPawn.setLocation( adjustLocation( HitNormal , newLocation.Z ) );
 		endForce();
 	}
-	myPawn.setLocation( newLocation );
+
+	myPawn.velocity = normal( newLocation - myPawn.Location ) * power * deltaTime;
+	myPawn.move( myPawn.velocity );
 
 	//We've hit the ground
-	if ( myPawn.location.Z <= beginZ + 4.0 && zPower <= 0 ){
+	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0 ){
 		`log( "HIT GROUND" );
 		endForce();
 	}
@@ -71,7 +73,7 @@ event Tick( float deltaTime ){
  */
 function setPower( float inPower ){
 	power = inPower;
-	zPower = inPower;
+	zPower = inPower * 2.0;
 }
 
 /**
@@ -104,6 +106,6 @@ DefaultProperties
 		CollisionHeight = +32.0
 	end object
 
-	gravity = 12.5
+	gravity = 65.0
 	zPower = 800.0
 }

@@ -349,6 +349,7 @@ function knockBack( float intensity , vector direction ){
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
 	knockBack.pawnsPreviousState = controller.GetStateName();
+	controller.GotoState( 'KnockedBack' );
 	bBlockActors = false;
 }
 

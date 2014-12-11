@@ -28,14 +28,11 @@ simulated function bool IsFirstPerson(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
-	Global.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+	super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	if(magic != none){
 		magic.Interrupt();
 	}
 }
-
-
-
 
 /**
  * selects a point in the animtree so it is easier acessible
