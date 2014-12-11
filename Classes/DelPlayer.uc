@@ -228,6 +228,12 @@ exec function stopSprint(){
 	}
 }
 
+/**
+ * Ends the stun.
+ */
+function endStun(){
+	controller.goToState( 'Playing' );
+}
 
 /**
  * Lowers the stamina at a -5 rate per second

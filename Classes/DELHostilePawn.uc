@@ -61,6 +61,18 @@ function playBlockingSound(){
 }
 
 /**
+ * Ends the stun.
+ */
+function endStun(){
+	`log( "***************************" );
+	`log( "###########################" );
+	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
+	`log( "###########################" );
+	`log( "***************************" );
+	controller.goToState( 'Attack' );
+}
+
+/**
  * Blocking state.
  * While in the blocking state the pawn should get no damage from melee attacks.
  */

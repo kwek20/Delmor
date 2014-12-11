@@ -198,6 +198,29 @@ function resetCanBlock(){
 }
 
 /**
+ * Stuns the pawn for a given time.
+ */
+function stun( float duration ){
+	velocity.x = 0.0;
+	velocity.y = 0.0;
+	velocity.z = 0.0;
+	controller.goToState( 'Stunned' );
+	setTimer( duration , false , 'endStun' );
+}
+
+/**
+ * Ends the stun.
+ */
+function endStun(){
+	`log( "***************************" );
+	`log( "###########################" );
+	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
+	`log( "###########################" );
+	`log( "***************************" );
+	controller.goToState( 'Idle' );
+}
+
+/**
  * Set the camera offset.
  * @param x float   x-offset.
  * @param y float   y-offset.
@@ -325,6 +348,7 @@ function knockBack( float intensity , vector direction ){
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
+	knockBack.pawnsPreviousState = controller.GetStateName();
 	bBlockActors = false;
 }
 

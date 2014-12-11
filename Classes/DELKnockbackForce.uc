@@ -27,6 +27,11 @@ var float beginZ;
 
 var float gravity;
 
+/**
+ * When landed, set the pawn's controller's state back to this state.
+ */
+var name pawnsPreviousState;
+
 event Tick( float deltaTime ){
 	local vector newLocation , HitLocation, HitNormal;
 	if ( myPawn == none ){
@@ -74,6 +79,7 @@ function setPower( float inPower ){
  */
 function endForce(){
 	myPawn.bBlockActors = true;
+	myPawn.controller.goToState( pawnsPreviousState );
 	destroy();
 }
 /**

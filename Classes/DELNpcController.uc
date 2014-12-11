@@ -114,6 +114,18 @@ state flee{
 	}
 }
 
+/**
+ * When stunned the pawn and controller will not be able to do anything.
+ */
+state Stunned{
+
+	function beginState( name previousStateName ){
+		super.beginState( previousStateName );
+
+		stopPawn();
+	}
+}
+
 /*
  * ==============================================
  * Utility functions
@@ -358,7 +370,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 		//Move Pawn
 		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.GroundSpeed;
 		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.GroundSpeed;
-		Pawn.setRotation( rotator( selfToPoint ) );
+		Pawn.setDesiredRotation( rotator( selfToPoint ) );
 		Pawn.move( Pawn.velocity * deltaTime );
 	}
 }
@@ -380,7 +392,7 @@ function moveInDirection( vector to , float deltaTime ){
 		//Move Pawn
 		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
 		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
-		Pawn.setRotation( adjustedRotation  );
+		Pawn.setDesiredRotation( adjustedRotation  );
 		Pawn.move( Pawn.velocity * deltaTime );
 	}
 }
@@ -393,6 +405,44 @@ function stopPawn(){
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
+}
+
+state Blocking{
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * NOTE: This function is to be used ONLY in the Tick-event!
+	 * @param l         Vector  The location to where the pawn should move.
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveTowardsPoint( Vector l , float deltaTime ){
+	}
+
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveInDirection( vector to , float deltaTime ){
+	}
+}
+
+state knockedBack{
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * NOTE: This function is to be used ONLY in the Tick-event!
+	 * @param l         Vector  The location to where the pawn should move.
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveTowardsPoint( Vector l , float deltaTime ){
+	}
+
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveInDirection( vector to , float deltaTime ){
+	}
 }
 
 DefaultProperties
