@@ -3,13 +3,54 @@
  * ALL NPCControllers SHOULD BE EXTENDED FROM THIS ONE!
  * @author Anders Egberts
  */
-class DELNpcController extends AIController;
+class DELNpcController extends DELCharacterController;
 
+/**
+ * A special variable to save the player-pawn in.
+ */
+var DELPlayer player;
 /**
  * When in attack-state. The pawn should strive to attack this pawn.
  */
 var DELPawn attackTarget;
+/**
+ * When fleeing, the pawn will try be this far away from the agressor.
+ */
+var float fleeDistance;
+/**
+ * When a pawn is closer the controller's pawn than this number, it will be "too close".
+ */
+var float tooCloseDistance;
 
+/*
+ * ==============================================
+ * States
+ * ==============================================
+ */
+
+event Possess( Pawn inPawn , bool bVehicleTransition ){
+	super.Possess( inPawn , bVehicleTransition );
+
+	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
+	
+}
+
+
+auto state Idle{
+	event Tick( float deltaTime ){
+
+		super.Tick( deltaTime );
+
+		if ( player == none ){
+			//Find the player
+			player = findPlayer();
+			`log( "findPlayer: player: "$player );
+		}
+	}
+}
+/**
+ * In this state the NPC will chase it's target and attack if it's close enough.
+ */
 state Attack{
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
@@ -20,9 +61,8 @@ state Attack{
 		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
-		}
-		else{
-			moveTowardsActor( attackTarget , deltaTime ); //Move to our target (Should stop when target is whitin range.
+		} else {
+			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
@@ -39,14 +79,12 @@ state Attack{
 		 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 		 */
 		local vector adjustedLocation;
-		`log( self$" Target In Range" );
+		//`log( self$" Target In Range" );
 		//Don't attack while moving, set the pawn still.
 		stopPawn();
 
 		//Adjust the location so the pawns will not suddenly point upwards or downwards when the player jumps.
-		adjustedLocation.X = attackTarget.location.X;
-		adjustedLocation.Y = attackTarget.location.Y;
-		adjustedLocation.Z = Pawn.Location.Z;
+		adjustedLocation = adjustLocation( attackTarget.location , Pawn.Location.Z );
 
 		//Turn pawn to the target
 		Pawn.setRotation( rotator( adjustedLocation - Pawn.Location ) );
@@ -56,10 +94,231 @@ state Attack{
 }
 
 /**
+ * Flee from the player
+ */
+state flee{
+
+	event tick( float deltaTime ){
+		local vector selfToPlayer;
+		
+		super.Tick( deltaTime );
+
+		selfToPlayer = pawn.Location - player.location;
+
+		if ( VSize( selfToPlayer ) < fleeDistance ){
+			moveInDirection( selfToPlayer , deltaTime );
+		}
+		else{
+			stopPawn();
+		}
+	}
+}
+
+/*
+ * ==============================================
+ * Utility functions
+ * ==============================================
+ */
+
+/**
+ * Returns the distance between two points.
+ */
+function float distanceToPoint( vector l ){
+	return VSize( pawn.Location - l );
+}
+
+/**
+ * Checks whether a pawn is whitin the pawn's attack range.
+ * Returns true when pawn is whitin range.
+ * @param p DELPawn The pawn that should be whitin range.
+ * @return boolean.
+ */
+function bool checkTargetWhitinRange( DELPawn p ){
+	local float distanceToPawn;
+	distanceToPawn = VSize( p.Location - Pawn.Location );
+	
+	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
+		return false;
+	} else {
+		return true;
+	}
+}
+
+/**
+ * Returns true if the pawn exists and has more than one health.
+ */
+function bool targetIsAlive(){
+	if ( attackTarget.health > 0 && attackTarget != none ){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Returns true when attackTarget is too far away.
+ */
+function bool targetIsTooFarAway(){
+	local float distanceToPawn;
+
+	distanceToPawn = VSize( attackTarget.Location - Pawn.Location );
+
+	if( distanceToPawn > DELPawn( Pawn ).detectionRange && !pawn.LineOfSightTo( attackTarget ) ){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Returns whether the controller is in a combat-related state.
+ * Combat states are (Amongst others): Attack, Keep distance, flee.
+ * States that won't be seen as combat states are: Idle, Flock, Wander.
+ */
+function bool isInCombatState(){
+	if ( isInState( 'Attack' )
+	|| isInState( 'Flee' )
+	|| isInState( 'MaintainDistanceFromPlayer' )
+	|| isInState( 'Charge' )
+	){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Checks whether two circles collide. Useful for collision-checking between Pawns.
+ * @return bool
+ */
+function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
+	local float distance , totalRadius;
+
+	distance = VSize( circleLocationA - circleLocationB );
+	totalRadius = circleRadiusA + circleRadiusB;
+
+	if ( distance <= totalRadius ){
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+/**
+ * Adjusts a given location so that it's z-variable will be set to a given value while ignoring
+ * the other values.
+ * Useful for locking z-values.
+ */
+function vector adjustLocation( vector inLocation , float targetZ ){
+	local vector newLocation;
+
+	newLocation.X = inLocation.X;
+	newLocation.Y = inLocation.Y;
+	newLocation.Z = targetZ;
+
+	return newLocation;
+}
+
+/**
+ * Adjust a rotation so that it's yaw-value will be locked to a given value.
+ */
+function rotator adjustRotation( rotator inRotation , float targetYaw ){
+	local rotator adjustedRotation;
+
+	adjustedRotation.Pitch = inRotation.Pitch;
+	adjustedRotation.Roll = inRotation.Roll;
+	adjustedRotation.Yaw = targetYaw;
+
+	return adjustedRotation;
+}
+
+/**
+ * Checks whether a pawn to too close to this pawn.
+ */
+function bool tooCloseToPawn( DELPawn p ){
+	if ( VSize( p.location - Pawn.Location ) < tooCloseDistance ){
+		return true;
+	}
+	else
+		return false;
+}
+
+/**
+ * Get the player-pawn.
+ */
+function DELPlayer findPlayer(){
+	local DELPlayer playerPawn;
+
+	playerPawn = none;
+	foreach WorldInfo.AllPawns( class'DELPlayer' , playerPawn ){
+		return playerPawn;
+	}
+	return playerPawn;
+}
+
+/**
+ * Same as GoToState exept this one will only change states
+ * if the player variable is not null.
+ */
+function changeState( name newState ){
+	if ( player != none ){
+		goToState( newState );
+	}
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+}
+
+/**
+ * Checks whether the pawn collides and if so,
+ * returns the instance of the pawn that the controller's
+ * pawn collides with.
+ * @return DELPawn
+ */
+function DELPawn checkCollision(){
+	local Controller c;
+
+	foreach WorldInfo.AllControllers( class'Controller' , c ){
+		if ( distanceToPoint( c.Pawn.Location ) < 64.0 + self.Pawn.GetCollisionRadius() && c != self ){
+			if ( CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
+				return DELPawn( c.Pawn );
+			}
+		}
+	}
+	return none;
+}
+
+/*
+ * ==============================================
+ * Action functions
+ * ==============================================
+ */
+
+/**
  * Starts the meleeAttack pipeline.
  */
 function meleeAttack(){
-	`log( self$" MeleeAttack" );
+	//`log( self$" MeleeAttack" );
 
 	//TODO: Melee attack
 }
@@ -90,46 +349,39 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
 	dPawn = DELPawn( Pawn );
 
-	adjustedLocation.X = l.X;
-	adjustedLocation.Y = l.Y;
-	adjustedLocation.Z = Pawn.Location.Z;
+	if ( !dPawn.bIsStunned ){//You may only move if you are not stunned
+		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
 	
-	//Caluclate direction
-	selfToPoint = adjustedLocation - Pawn.Location;
+		//Caluclate direction
+		selfToPoint = adjustedLocation - Pawn.Location;
 
-	//Move Pawn
-	Pawn.velocity = Normal( selfToPoint ) * dPawn.walkingSpeed;
-	Pawn.setRotation( rotator( selfToPoint ) );
-	Pawn.move( Pawn.velocity * deltaTime );
-}
-
-/**
- * Checks whether a pawn is whitin the pawn's attack range.
- * Returns true when pawn is whitin range.
- * @param p DELPawn The pawn that should be whitin range.
- * @return boolean.
- */
-function bool checkTargetWhitinRange( DELPawn p ){
-	local float distanceToPawn;
-	distanceToPawn = VSize( p.Location - Pawn.Location );
-	
-	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
-		return false;
-	}
-	else{
-		return true;
+		//Move Pawn
+		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.walkingSpeed;
+		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.walkingSpeed;
+		Pawn.setRotation( rotator( selfToPoint ) );
+		Pawn.move( Pawn.velocity * deltaTime );
 	}
 }
 
 /**
- * Returns true if the pawn exists and has more than one health.
+ * Move the pawn in a certain direction.
+ * This direction will be calculated from a vector.
+ * NOTE: This function is to be used ONLY in the Tick-event!
+ * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
+ * @param deltaTime float   The deltaTime from the Tick-event
  */
-function bool targetIsAlive(){
-	if ( attackTarget.health > 0 && attackTarget != none ){
-		return true;
-	}
-	else{
-		return false;
+function moveInDirection( vector to , float deltaTime ){
+	local rotator adjustedRotation;
+
+	if ( !DELPawn( pawn ).bIsStunned ){
+		//Adjust the rotation so that only the Yaw will be modified.
+		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
+
+		//Move Pawn
+		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).walkingSpeed;
+		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).walkingSpeed;
+		Pawn.setRotation( adjustedRotation  );
+		Pawn.move( Pawn.velocity * deltaTime );
 	}
 }
 
@@ -137,28 +389,15 @@ function bool targetIsAlive(){
  * Sets the controller's pawn still.
  */
 function stopPawn(){
-	`log( self$" Stop pawn" );
+	//www`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
-	Pawn.Velocity.Z = 0.0;
-}
-
-/**
- * Returns true when attackTarget is too far away.
- */
-function bool targetIsTooFarAway(){
-	local float distanceToPawn;
-
-	distanceToPawn = VSize( attackTarget.Location - Pawn.Location );
-
-	if( distanceToPawn > DELPawn( Pawn ).detectionRange && !pawn.LineOfSightTo( attackTarget ) ){
-		return true;
-	}
-	else{
-		return false;
-	}
+	//Pawn.Velocity.Z = 0.0;
 }
 
 DefaultProperties
 {
+	player = none
+	fleeDistance = 512.0
+	tooCloseDistance = 256.0
 }

@@ -6,11 +6,12 @@
  * 
  * @author Anders Egberts.
  */
-class DELPlayerController extends PlayerController
+class DELPlayerController extends PlayerController dependson(DELInterface)
 	config(Game);
 
 var SoundCue soundSample; 
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
+
 var() private string subtitle;
 var() int subtitleTime, currentTime;
 
@@ -23,13 +24,15 @@ function BeginState(Name PreviousStateName){
 	self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 }
 
-auto state PlayerWaiting {
-
+auto state PlayerWalking {
 Begin:
-      gotoState('Playing');
+	Sleep(0.1); gotoState('Playing');
 }
 
 state Playing extends PlayerWalking{
+	function BeginState(Name PreviousStateName){
+		self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
+	}
 
 Begin:
 	canWalk = true;
@@ -39,32 +42,59 @@ Begin:
 	checkHuds();
 }
 
-state End {
+state MouseState {
+	function UpdateRotation(float DeltaTime);   
+	exec function StartFire(optional byte FireModeNum);
+	exec function StopFire(optional byte FireModeNum);
+
+	function load(){
+		canWalk=false;
+		drawDefaultHud=true;
+		addInterfacePriority(class'DELInterfaceMouse', HIGH);
+	}
+}
+
+state Pauses extends MouseState{
 
 Begin:
-	canWalk = false;
-	drawDefaultHud = false;
+	load();
+	drawBars = false;
+	drawSubtitles = true;
+	checkHuds();
+	addInterface(class'DELInterfacePause');
+}
+
+state End extends MouseState{
+
+Begin:
+	load();
 	drawBars = false;
 	drawSubtitles = true;
 	checkHuds();
 }
 
-state Inventory {
+state Inventory extends MouseState{
 
  Begin:
-	canWalk = false;
-	drawDefaultHud = false;
-	drawBars = false;
+	load();
+	drawBars = true;
 	drawSubtitles = true;
 	checkHuds();
+
+	addInterface(class'DELInterfaceInventory');
 }
 
 function swapState(name StateName){
 	if (StateName == GetStateName()) {
-		gotoState('Playing');
-	} else {
-		gotoState(StateName);
+		if (StateName == 'Playing') {
+			StateName = 'Pauses';
+		} else {
+			StateName = 'Playing';
+		}
 	}
+	`log("-- Switching state to "$StateName$"--");
+	getHud().clearInterfaces();
+	ClientGotoState(StateName);
 }
 
 /*#####################
@@ -79,6 +109,30 @@ exec function closeHud(){
 	swapState('Playing');
 }
 
+public function onNumberPress(int key){
+	local DELinterface interface;
+	local array<DELInterface> interfaces;
+
+	interfaces = getHud().getInterfaces();
+	foreach interfaces(interface){
+		if (DELInterfaceInteractible(interface) != None){
+			DELInterfaceInteractible(interface).onKeyPress(getHud(), key);
+		}
+	}
+}
+
+public function onMousePress(IntPoint pos, bool left){
+	local DELinterface interface;
+	local array<DELInterface> interfaces;
+
+	interfaces = getHud().getInterfaces();
+	foreach interfaces(interface){
+		if (DELInterfaceInteractible(interface) != None){
+			DELInterfaceInteractible(interface).onClick(getHud(), pos, left);
+		}
+	}
+}
+
 /*################
  * HUD functions
  ###############*/
@@ -86,10 +140,9 @@ exec function closeHud(){
 function checkHuds(){
 	if (getHud() == None)return;
 
-	getHud().interfaces.Length = 0;
 	if (drawDefaultHud){
-		//addInterface(class'DELInterfaceSpells');
-		//addInterface(class'DELInterfaceCompass');
+		addInterface(class'DELInterfaceBar');
+		addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
 		addInterface(class'DELInterfaceSubtitle');
@@ -101,8 +154,18 @@ function checkHuds(){
 }
 
 function addInterface(class<DELInterface> interface){
-	`log("Added interface " $ interface);
-	getHud().interfaces.AddItem(Spawn(interface, self));
+	addInterfacePriority(interface, NORMAL);
+}
+
+function addInterfacePriority(class<DELInterface> interface, EPriority priority){
+	local DELInterface delinterface;
+
+	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
+	`log("Added interface"@interface);
+	
+	delinterface = Spawn(interface, self);
+	getHud().addInterface(delinterface, priority);
+	delinterface.load(getHud());
 }
 
 public function showSubtitle(string text){
@@ -115,6 +178,7 @@ public function showSubtitle(string text){
  ###############*/
 
 simulated function PostBeginPlay() {
+	
 	super.PostBeginPlay();
 }
 
@@ -129,8 +193,8 @@ function UpdateRotation(float DeltaTime)
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
-	pitchClampMax = -10000.0;
-	pitchClampMin = -500.0;
+	pitchClampMax = -15000.0;
+	pitchClampMin = 4500.0;
 
     //super.UpdateRotation(DeltaTime);
 
@@ -169,8 +233,8 @@ function DELPlayerHud getHud(){
 	return DELPlayerHud(myHUD);
 }
 
-function Pawn getPawn(){
-	return self.Pawn;
+function DELPawn getPawn(){
+	return DELPawn(self.Pawn);
 }
 
 public function String getSubtitle(){
@@ -193,6 +257,135 @@ public function int getSeconds(){
 	GetSystemTime(a,a,a,a,a,a,sec,a);
 	return sec;
 }
+
+exec function SaveGame(string FileName)
+{
+    local DELSaveGameState GameSave;
+
+    // Instance the save game state
+    GameSave = new class'DELSaveGameState';
+
+    if (GameSave == None)
+    {
+		return;
+    }
+
+    ScrubFileName(FileName);    // Scrub the file name
+    GameSave.SaveGameState();   // Ask the save game state to save the game
+
+    // Serialize the save game state object onto disk
+    if (class'Engine'.static.BasicSaveObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION))
+    {
+        // If successful then send a message
+		ClientMessage("Saved game state to " $ FileName $ ".", 'System');
+    }
+}
+
+exec function LoadGame(string FileName)
+{
+    local DELSaveGameState GameSave;
+
+    // Instance the save game state
+    GameSave = new class'DELSaveGameState';
+
+    if (GameSave == None)
+    {
+		return;
+    }
+
+    // Scrub the file name
+    ScrubFileName(FileName);
+
+    // Attempt to deserialize the save game state object from disk
+    if (class'Engine'.static.BasicLoadObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION))
+    {
+        // Start the map with the command line parameters required to then load the save game state
+		ConsoleCommand("start " $ GameSave.PersistentMapFileName $ "?Game=DELSaveGameState.DELGame?DELSaveGameState=" $ FileName);
+    }
+	GameSave.LoadGameState();
+}
+
+function ScrubFileName(out string FileName)
+{
+    // Add the extension if it does not exist
+    if (InStr(FileName, ".sav",, true) == INDEX_NONE)
+    {
+		FileName $= ".sav";
+    }
+
+    FileName = Repl(FileName, " ", "_");                            // If the file name has spaces, replace then with under scores
+    FileName = class'DELSaveGameState'.const.SAVE_LOCATION $ FileName; // Prepend the filename with the save folder location
+
+	`log(FileName);
+}
+
+exec function AddItem(string item, int amount)
+{
+	
+}
+
+
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
+/**
+ * This exec function will save the game state to the file name provided.
+ *
+ * @param      FileName      File name to save the SaveGameState to
+ */
+exec function SaveGameState(string FileName)
+{
+  local DELSaveGameState SaveGameState;
+
+  // Instance the save game state
+  SaveGameState = new () class'DELSaveGameState';
+  if (SaveGameState == None)
+  {
+    return;
+  }
+
+  // Scrub the file name
+  ScrubFileName(FileName);
+
+  // Ask the save game state to save the game
+  SaveGameState.SaveGameState();
+
+  // Serialize the save game state object onto disk
+  if (class'Engine'.static.BasicSaveObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION))
+  {
+    // If successful then send a message
+    ClientMessage("Saved game state to "$FileName$".", 'System');
+  }
+}
+
+/**
+ * This exec function will load the game state from the file name provided
+ *
+ * @param    FileName    File name of load the SaveGameState from
+ */
+exec function LoadGameState(string FileName)
+{
+  local DELSaveGameState SaveGameState;
+
+
+  // Instance the save game state
+  SaveGameState = new () class'DELSaveGameState';
+  if (SaveGameState == None)
+  {
+    return;
+  }
+
+  // Scrub the file name
+  ScrubFileName(FileName);
+
+  // Attempt to deserialize the save game state object from disk
+  if (class'Engine'.static.BasicLoadObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION))
+  {
+  }
+
+  SaveGameState.LoadGameState();
+}
+
+
 
 DefaultProperties
 {

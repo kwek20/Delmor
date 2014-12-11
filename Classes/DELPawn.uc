@@ -4,11 +4,6 @@
  * So MonsterPawns and VillagerPawns will both inherit from DELPawn.
  * DELCharacterPawn will extend from this and if you create a new pawn, it should extend from DELCharacterPawn.
  * 
- * KNOWN ISSUES:
- * Collision, if I give the pawn a large height in the collision cylinder, it will somehow float above the ground.
- * However, if I set collisionheight to 1, the pawns will automaticly jump over one another. Problem can be solved by
- * removing the jumping from the pawn.
- * 
  * @author Anders Egberts
  */
 class DELPawn extends UTPawn;
@@ -18,7 +13,6 @@ class DELPawn extends UTPawn;
  * Stats
  * ==========================================
  */
-
 
 
 /**
@@ -64,11 +58,22 @@ var float walkingSpeed;
  */
 var float detectionRange;
 
+var array< class<Inventory> > DefaultInventory;
+
 /**
  * Timer for regeneration. If it hit zero, the timer will reset to 1.0 and the pawn will regain health and mana.
  */
 var float regenerationTimer;
 
+/**
+ * When the pawn is stunned it may not move or attack.
+ */
+var bool bIsStunned;
+
+/**
+ * The weapon that will be used by the pawn.
+ */
+var DELWeapon myWeapon; 
 
 /* ==========================================
  * Camera stuff
@@ -78,7 +83,12 @@ var float regenerationTimer;
 /**
  * Distance of the camera to this pawn.
  */
-var const float camOffsetDistance;
+var float camOffsetDistance;
+/**
+ * The distance of the camera that we want, if camera is not at this distance it will adjust
+ * the actualdistance till it is.
+ */
+var float camTargetDistance;
 /**
  * The pitch of the camera.
  */
@@ -90,21 +100,69 @@ var Vector cameraOffset;
 
 /**
  * Determines whether the player is in look mode.
- * When in look mode, the pawn will rotate with the camara.
+ * When in look mode, the pawn will not rotate with the camara.
  * Else the camera will rotate with the pawn.
  */
 var bool bLookMode;
-
+/**
+ * If locked to camera, the pawn's direction will be determined by the camera-direction.
+ */
+var bool bLockedToCamera;
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
+
+var class<DELInventoryManager> UInventory;
+
+var repnotify DELInventoryManager UManager;
+
 simulated event PostBeginPlay(){
-	super.PostBeginPlay();
+	super.PostBeginPlay(); 
+
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 44.0 );
+	setCameraOffset( 0.0 , 0.0 , 48.0 );
+	SetThirdPersonCamera( true );
 	SetMovementPhysics();
-	`log("IK SPEEL SOUND UIT " $self.SoundGroupClass);
+	//Mesh.GetSocketByName("");
+	//Mesh.GetSocketByName(socketName);
+	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
+
+	 //Set up custom inventory manager
+     if (UInventory != None){
+		UManager = Spawn(UInventory, Self);
+		if ( UManager == None )
+			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+
+	}
 }
+
+/**
+ * heals a pawn
+ * @param ammount the ammount to be healed
+ */
+function Heal(int ammount){
+	health += ammount;
+	if(health>healthMax){
+		health = clamp(health,0,healthMax);
+		`log("to much healed");
+	}
+	`log("new health" $ health);
+}
+
+/**
+ * subtracts the mana from the player
+ * @param ammount of mana to be subtracted
+ */
+function ManaDrain(int ammount){
+	mana -=ammount;
+	mana = clamp(mana,0,manaMax);
+	`log("new mana" $ mana);
+}
+
+function magicSwitch(int AbilityNumber);
+
+
+
 
 /**
  * Set the camera offset.
@@ -128,36 +186,37 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 	 */
 	local Rotator newRotation;
 
-	//Get the controller's rotation as camera angle.
-	targetRotation = Controller.Rotation;
+	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
+		//Get the controller's rotation as camera angle.
+		targetRotation = Controller.Rotation;
 
-    out_CamLoc = Location;
-    out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-    out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-    out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
-	out_CamLoc = out_CamLoc + cameraOffset;
+		out_CamLoc = Location;
+		out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc = out_CamLoc + cameraOffset;
 
-    out_CamRot.Yaw = targetRotation.Yaw;
-    out_CamRot.Pitch = camPitch;
-    out_CamRot.Roll = 0;
+		out_CamRot.Yaw = targetRotation.Yaw;
+		out_CamRot.Pitch = camPitch;
+		out_CamRot.Roll = 0;
 
-	//If in look mode, change the pawn's rotation based on the camera
-	newRotation.Pitch = Rotation.Pitch;
-	newRotation.Roll = Rotation.Roll;
-	newRotation.Yaw = targetRotation.Yaw;
+		//If in look mode, change the pawn's rotation based on the camera
+		newRotation.Pitch = Rotation.Pitch;
+		newRotation.Roll = Rotation.Roll;
+		newRotation.Yaw = targetRotation.Yaw;
 
-	//If in look mode, rotate the pawn according to the camera's rotation
-	if ( bLookMode ){
-		self.SetRotation( newRotation );
+		//If in look mode, rotate the pawn according to the camera's rotation
+		//if ( bLockedToCamera ){
+		//	self.SetRotation( newRotation );
+		//}
+		//else{
+			Controller.SetRotation( newRotation );
+		//}
+
+		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none){
+			out_CamLoc = HitLocation;
+		}
 	}
-	//else{
-	//	Controller.SetRotation( newRotation );
-	//}
-
-    if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none)
-    {
-        out_CamLoc = HitLocation;
-    }
 
     return true;
 }
@@ -166,16 +225,26 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
  * In this event the pawn will slowly regain health and mana.
  */
 event Tick( float deltaTime ){
-	regenerationTimer -= deltaTime;
+	if ( bLockedToCamera )
+		camTargetDistance = 150.0;
+	else
+		camTargetDistance = 200.0;
 
-	if ( regenerationTimer <= 0.0 ){
-		regenerationTimer = 1.0;
-		health = Clamp( health + healthRegeneration , 0 , healthMax );
-		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
+		//Animate the camera
+		adjustCameraDistance( deltaTime );
 	}
 }
 
-/*/**
+/**
+ * Regenerates health and mana.
+ */
+private function regenerate(){
+	health = Clamp( health + healthRegeneration , 0 , healthMax );
+	mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+}
+
+/**
  * Spawns the pawn's controller and deletes the previous one.
  */
 function SpawnController(){
@@ -185,7 +254,46 @@ function SpawnController(){
 
 	controller = spawn( ControllerClass );
 	controller.Pawn = self;
-}*/
+}
+
+/**
+ * Animates the camera distance.
+ * THIS FUNCTION MAY ONLY BE EXECUTED IN THE TICK EVENT.
+ * @param deltaTime float   The deltaTime from the tick-event.
+ */
+function adjustCameraDistance( float deltaTime ){
+	local float difference , distanceSpeed;
+	difference = max( camOffsetDistance , camTargetDistance ) - min( camOffsetDistance , camTargetDistance );
+	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
+
+	if ( camOffsetDistance < camTargetDistance ){
+		camOffsetDistance += distanceSpeed;
+	}
+	if ( camOffsetDistance > camTargetDistance ){
+		camOffsetDistance -= distanceSpeed;
+	}
+	//Lock
+	if ( camOffsetDistance + distanceSpeed > camTargetDistance && camOffsetDistance - distanceSpeed < camTargetDistance ){
+		camOffsetDistance = camTargetDistance;
+	}
+}
+
+/**
+ * Knocks the pawn back.
+ * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
+ */
+function knockBack( float intensity , vector direction ){
+	local DELKnockbackForce knockBack;
+	`log( ">>>>>>>>>>>>>>>>>>>>> KNOCK BACK" );
+
+	knockBack = spawn( class'DELKnockbackForce' );
+	knockBack.setPower( intensity );
+	knockBack.myPawn = self;
+	knockBack.direction = direction;
+	knockBack.beginZ = location.Z;
+	bBlockActors = false;
+}
 
 simulated exec function turnLeft(){
 	`log( self$" TurnLeft" );
@@ -197,32 +305,38 @@ simulated exec function turnRight(){
 
 DefaultProperties
 {
+	bCanPickUpInventory = true
+	UInventory = DELInventoryManager
+
+
 	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
-	healthRegeneration = 0
-	mana = 0
-	manaMax = 0
-	manaRegeneration = 0
+	healthRegeneration = 1
+	mana = 100
+	manaMax = 100
+	manaRegeneration = 1
 	meleeRange = 100.0
 	physicalResistance = 0.0
 	magicResistance = 0.0
-	walkingSpeed = 100.0
-	detectionRange = 1024.0
-	regenerationTimer = 1.0;
-	
-	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
+	GroundSpeed = 100
+	detectionRange = 960.0
+	regenerationTimer = 1.0
 
-	camOffsetDistance = 300.0
+	bIsStunned = false
+
+	camOffsetDistance = 200.0
+	camTargetDistance = 200.0
 	camPitch = -5000.0
 	bLookMode = false
+	bLockedToCamera = false
 
 	ControllerClass = class'DELNpcController'
 
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
-	CollisionRadius = 32.0;
-	CollisionHeight = +44.0;
+		CollisionRadius = 16.0;
+		CollisionHeight = +44.0;
 	end object
 
 	//Mesh
@@ -240,6 +354,7 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
+
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
 }

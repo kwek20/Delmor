@@ -1,8 +1,11 @@
 /**
  * Weapon to be used in Delmor.
  * @author Harmen Wiersma
+ * 
+ * EDIT: set bCanThrow to false in defaultProperties so that you won't have to
+ * do that when assigning the weapon to a pawn.
  */
-class DELWeapon extends Weapon;
+class DELWeapon extends UDKWeapon;
 /**
  * Minimal damage to deal on hit.
  * Damage dealt will be between DamageMin.
@@ -14,11 +17,11 @@ var int damageMin;
  */
 var int damageMax;
 /**
- * Critical Strike chance.
+ * Critical Strike chance. will be done in full percentages, standard 5 percent
  */
-var float criticalStrikeChance;
+var float criticalHitChance;
 /**
- * multiplier that is added to the danage when a crit hits
+ * multiplier that is added to the danage when a crit hits, standard 4
  */
 var float criticalDamageMultiplier;
 
@@ -27,6 +30,7 @@ var float criticalDamageMultiplier;
  */
 DefaultProperties
 {
-	criticalStrikeChance = 0.05;
-	criticalDamageMultiplier = 5;
+	criticalHitChance = 5;
+	criticalDamageMultiplier = 4;
+	bCanThrow = false
 }

@@ -5,6 +5,13 @@ class DELPlayerInput extends PlayerInput;
  */
 var float defaultRotationSpeed;
 var float pawnRotationSpeed;
+/**
+ * An instance of DELmath. This instance will later be used to execute various mathematical functions.
+ */
+var DELMath math;
+
+// Stored mouse position. Set to private write as we don't want other classes to modify it, but still allow other classes to access it.
+var PrivateWrite IntPoint MousePosition; 
 
 simulated event postBeginPlay(){
 	//super.PostBeginPlay();
@@ -13,60 +20,208 @@ simulated event postBeginPlay(){
 }
 
 /**
- * Turns the player's pawn left if not in look mode.
- * 
- * TODO:
- * Strafe when in look mode.
+ * Move in the camera's direction.
  */
-simulated exec function turnLeft(){
-	if ( !DELPawn( pawn ).bLookMode ){
-		pawnRotationSpeed = -defaultRotationSpeed;
+simulated exec function moveForward( float deltaTime ){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( 0.0 );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+		}
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
+/**
+ * Move right in aspect to the camera.
+ */
+simulated exec function moveRight( float deltaTime ){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( 90.0 );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+		}
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
+/**
+ * Move left in aspect to the camera.
+ */
+simulated exec function moveLeft( float deltaTime ){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( -90.0 );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+		}
+		//Pawn.Velocity = Normal( camToPawn );
+	}
+}
+/**
+ * Move down in aspect to the camera.
+ */
+simulated exec function moveBackward( float deltaTime ){
+	local Vector camToPawn;
+	if ( Pawn != none ){
+		camToPawn = cameraToPawn( -180.0 );
+		if ( !DELPawn( pawn ).bLookMode ){
+			//Pawn.SetRotation( Rotator( camToPawn ) );
+			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+		}
+		//Pawn.Velocity = Normal( camToPawn );
 	}
 }
 
-/**
- * Turns the player's pawn right if not in look mode.
- * 
- * TODO:
- * Strafe when in look mode.
+/*
+ * ========================================
+ * Start moving function.
+ * ========================================
  */
-simulated exec function turnRight(){
-	if ( !DELPawn( pawn ).bLookMode ){
-		pawnRotationSpeed = defaultRotationSpeed;
+
+/**
+ * Goes to state movingForward
+ */
+exec function startMovingForward(){
+	goToState( 'movingForward' );
+}
+
+/**
+ * Goes to state movingLeft
+ */
+exec function startMovingLeft(){
+	goToState( 'movingLeft' );
+}
+
+/**
+ * Goes to state movingLeft
+ */
+exec function startMovingRight(){
+	goToState( 'movingRight' );
+}
+/**
+ * Goes to state movingBackward
+ */
+exec function startMovingBackward(){
+	goToState( 'movingBackward' );
+}
+
+exec function startSprint() {
+	DelPlayer( Pawn ).startSprint();
+}
+
+exec function stopSprint() {
+	DelPlayer( Pawn ).stopSprint();
+}
+
+/**
+ * This function should rotate the playerinput's pawn along the yaw-axis to the target-yaw.
+ * @param targetYaw	    int The targetYaw in unrealDegrees.
+ * @param rotationSpeed int The number of unrealdegrees to rotate per tick.
+ */
+function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaTime ){
+	local int yaw;
+	local rotator newRotation;
+
+	math = GetMath();
+	yaw = pawn.Rotation.Yaw % 65536;
+	targetYaw = targetYaw % 65536;
+
+	if ( yaw < targetYaw - ( rotationSpeed  - 10 ) || yaw > targetYaw + ( rotationSpeed - 10 ) ){
+        yaw += math.sign( ( ( ( targetYaw - yaw % 65536 ) + 98304 ) % 65536 ) - 32768 ) * rotationSpeed;
+	} else {
+        yaw = targetYaw;
+    }
+
+	newRotation.Pitch = pawn.Rotation.Pitch;
+	newRotation.Roll = pawn.Rotation.Roll;
+	newRotation.Yaw = yaw % 65536;
+	pawn.SetRotation( newRotation );
+}
+
+/**
+ * This function should rotate the pawn's controller (thus the camera) to the player's direction.
+ * @param targetYaw	    int The targetYaw in unrealDegrees.
+ * @param rotationSpeed int The number of unrealdegrees to rotate per tick.
+ */
+function rotateCameraToPlayer( int targetYaw , int rotationSpeed , float deltaTime ){
+	local int yaw;
+	local rotator newRotation;
+
+	math = GetMath();
+	yaw = pawn.Controller.Rotation.Yaw;
+
+	if ( yaw < targetYaw - rotationSpeed || yaw > targetYaw + rotationSpeed ){
+        yaw += round( math.sign( math.modulo( ( ( targetYaw - math.modulo( yaw , 360 * DegToUnrRot ) ) + 540 * DegToUnrRot ) , 360 * DegToUnrRot ) - 180 * DegToUnrRot ) * rotationSpeed );
+	} else {
+        yaw = targetYaw;
+    }
+
+	newRotation.Pitch = pawn.Controller.Rotation.Pitch;
+	newRotation.Roll = pawn.Controller.Rotation.Roll;
+	newRotation.Yaw = yaw;
+	pawn.controller.SetRotation( newRotation );
+}
+
+/*
+ * =================================================
+ * Utility functions
+ * =================================================
+ */
+
+/**
+ * Spawns a new instance of DELMath if none exists and returns it OR - if
+ * an instance of DELMath already exists - return that instance.
+ * @return DELMath.
+ */
+private function DELMath GetMath(){
+	//Spawn a math
+	if ( math == none ){
+		math = spawn( class'DELMath' );
 	}
+
+	return math;
 }
 
 /**
- * Perform rotation in tick event.
+ * Calculates a vector based on the pawn's location and the player's camera's location.
+ * Additionally you can set an offset.
  */
-event Tick( float deltaTime ){
-	if ( pawnRotationSpeed != 0.0 ){
-		rotatePawn( pawnRotationSpeed );
-	}
+function vector cameraToPawn( float offSet ){
+	local vector camPositionPlusOffset;
+
+	camPositionPlusOffset.X = Pawn.Location.X + lengthDirX( 80 , - ( Rotation.Yaw + offset * DegToUnrRot ) );
+	camPositionPlusOffset.Y = Pawn.Location.Y + lengthDirY( 80 , - ( Rotation.Yaw + offset * DegToUnrRot ) );
+	camPositionPlusOffset.Z = Pawn.Location.Z;
+
+	return camPositionPlusOffset - Pawn.location;
 }
 
 /**
- * Rotates the pawn along the yaw
- * @param degrees   float   The number of unreal degrees to rotate.
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
  */
-function rotatePawn( float degrees ){
-	local Rotator newRotation;
+private function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
 
-	`log( "Rotate Pawn. Degrees: "$degrees$". Pawn.Rotation.Yaw: "$Pawn.Rotation.Yaw );
+	return len * cos( Radians );
 
-	newRotation.Roll = Pawn.Rotation.Roll;
-	newRotation.Pitch = Pawn.Rotation.Pitch;
-	newRotation.Yaw = Pawn.Rotation.Yaw + int( degrees );
-
-	Pawn.SetRotation( newRotation );
-	Pawn.SetDesiredRotation( newRotation );
 }
 
 /**
- * Set pawnRotationSpeed to 0.0
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
  */
-exec function resetRotationSpeed(){
-	pawnRotationSpeed = 0.0;
+private function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+
 }
 
 /**
@@ -81,9 +236,25 @@ exec function startLookMode(){
  */
 exec function endLookMode(){
 	DELPawn( Pawn ).bLookMode = false;
+	//goToState( 'idle' );
+}
+
+/**
+ * Enter aim mode before performing a spell.
+ */
+exec function startAimMode(){
+	DELPawn( Pawn ).bLockedToCamera = true;
+}
+
+/**
+ * Exit aim mode before performing a spell.
+ */
+exec function endAimMode(){
+	DELPawn( Pawn ).bLockedToCamera = false;
 }
 
 exec function openInventory() {
+	`log("openInventory");
 	DELPlayerController(Pawn.Controller).openInventory();
 }
 
@@ -91,19 +262,154 @@ exec function closeHud() {
 	DELPlayerController(Pawn.Controller).closeHud();
 }
 
+/*
+ * ==========================================
+ * States
+ * ==========================================
+ */
+
+state idle{
+}
+
+state movingForward{
+	event tick( float deltaTime ){
+		moveForward( deltaTime );
+	}
+	/**
+	 * Exits the movingForward state.
+	 */
+	exec function stopMovingForward(){
+		goToState( 'idle' );
+	}
+}
+state movingBackward{
+	event tick( float deltaTime ){
+		moveBackward( deltaTime );
+	}
+	/**
+	 * Exits the movingBackward state.
+	 */
+	exec function stopMovingBackward(){
+		goToState( 'idle' );
+	}
+}
+
+state movingLeft{
+	event tick( float deltaTime ){
+		moveLeft( deltaTime );
+		//rotateCameraToPlayer( pawn.Rotation.Yaw + 90 * DegToUnrRot , defaultRotationSpeed , deltaTime );
+	}
+	/**
+	 * Exits the movingLeft state.
+	 */
+	exec function stopMovingLeft(){
+		goToState( 'idle' );
+	}
+}
+
+state movingRight{
+	event tick( float deltaTime ){
+		moveRight( deltaTime );
+	}
+	/**
+	 * Exits the movingRight state.
+	 */
+	exec function stopMovingRight(){
+		goToState( 'idle' );
+	}
+}
+
+exec function numberPress(name inKey){
+	DELPlayerController(Pawn.Controller).onNumberPress(int(string(inKey)));
+}
+
+exec function mousePress(bool left=false){
+	DELPlayerController(Pawn.Controller).onMousePress(MousePosition, left);
+}
+
+exec function save(){
+	DELPlayerController(Pawn.Controller).SaveGameState("DelmorSave");
+}
+
+exec function load(){
+	DELPlayerController(Pawn.Controller).LoadGameState("DelmorSave");
+}
+
 /**
  * Sets all keybindings for Delmor.
  */
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
-	`log( "Set bindings" );
 	if(!change) {
-		setKeyBinding( 'A' , "turnLeft | onrelease resetRotationSpeed" );
-		setKeyBinding( 'D' , "turnRight | onrelease resetRotationSpeed" );
+		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMovingForward" );
+		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
+		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
+		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
+
+		setKeyBinding( 'LeftMouseButton' , "mousePress true | startFire 0 | OnRelease stopFire 0" );
 		setKeyBinding( 'MiddleMouseButton' , "StartLookMode | OnRelease EndLookMode" );
+		setKeyBinding( 'RightMouseButton' , "StartAimMode | mousePress false| OnRelease EndAimMode | startFire 1 | OnRelease stopFire 1" );
+
 		setKeyBinding( 'I' , "openInventory" );
+		setKeyBinding( 'F10' , "openInventory" );
+		ChangeInputBinding("ToggleInventory", 'I');
+
 		setKeyBinding('Escape', "closeHud");
+
+		setKeyBinding('Z', "save");
+		setKeyBinding('X', "load");
+
+
+		setKeyBinding('one', "numberPress 1");
+		setKeyBinding('two', "numberPress 2");
+		setKeyBinding('three', "numberPress 3");
+		setKeyBinding('four', "numberPress 4");
+		setKeyBinding('five', "numberPress 5");
 	} else {
 		setKeyBinding(inKey, inCommand);
+	}
+}
+
+/**
+ * Changes the bound key from a command
+ */
+simulated exec function ChangeInputBinding(string Command, name BindName){
+	local int BindIndex;
+
+	if (Command == "none") Command = "";
+
+	for( BindIndex = Bindings.Length-1; BindIndex >= 0; BindIndex--){
+		if(Bindings[BindIndex].Command == Command){
+			Bindings[BindIndex].Name = BindName;
+			SaveConfig();
+			return;
+		}
+	}
+}
+
+function setMousePos(int x, int y){
+	// Add the aMouseX to the mouse position and clamp it within the viewport width
+    MousePosition.X = Clamp(x, 0, myHUD.SizeX); 
+    // Add the aMouseY to the mouse position and clamp it within the viewport height
+    MousePosition.Y = Clamp(y, 0, myHUD.SizeY); 
+}
+
+event PlayerInput(float DeltaTime){
+  // Handle mouse 
+  // Ensure we have a valid HUD
+  if (myHUD != None) {
+    // Add the aMouseX to the mouse position and clamp it within the viewport width
+    MousePosition.X = Clamp(MousePosition.X + aMouseX, 0, myHUD.SizeX); 
+    // Add the aMouseY to the mouse position and clamp it within the viewport height
+    MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
+  }
+
+  Super.PlayerInput(DeltaTime);
+}
+
+event tick( float deltaTime ){
+	if ( DELPawn( pawn ).bLockedToCamera ){
+		rotatePawnToDirection( pawn.Controller.Rotation.Yaw , defaultRotationSpeed , deltaTime );
 	}
 }
 /**
@@ -118,5 +424,5 @@ function setKeyBinding( name inKey , String inCommand ){
 
 DefaultProperties
 {
-	defaultRotationSpeed = 600.0
+	defaultRotationSpeed = 1600.0
 }

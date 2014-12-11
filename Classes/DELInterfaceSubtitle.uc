@@ -1,6 +1,7 @@
+/**
+ * Interface for drawing subtitles on the screen.
+ */
 class DELInterfaceSubtitle extends DELInterface;
-
-var() int subtitleTime, current;
 
 simulated function draw(DELPlayerHud hud){
 	local int X, Y;
@@ -10,10 +11,11 @@ simulated function draw(DELPlayerHud hud){
 	message = hud.getPlayer().getSubtitle();
 	if (message == "") return;
 
+	hud.Canvas.Font = class'Engine'.static.GetSmallFont();    
 	hud.Canvas.TextSize(message, Xstring, Ystring);
 
 	X = hud.CenterX - (Xstring/2);
-	Y = hud.SizeY/10*9;
+	Y = hud.SizeY/10*8.8;
 	
 	hud.Canvas.SetPos(X, Y);
 	hud.Canvas.SetDrawColor(0, 0, 0, 120);
