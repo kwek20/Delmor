@@ -5,7 +5,6 @@ simulated state Charging{
 		super.chargeTick();
 
 		if(spellCaster.health + totalDamage >= spellCaster.HealthMax){
-			`log("no need for further charging");
 			ClearTimer(NameOf(chargeTick));
 		}
 	}
@@ -13,7 +12,6 @@ simulated state Charging{
 		super.interrupt();
 		spellCaster.ManaDrain(TotalManaCost);
 		GoToState('Nothing');
-		`log("interrupted");
 	}
 }
 
@@ -28,11 +26,13 @@ simulated function CustomFire(){
 
 
 
+
 DefaultProperties
 {
 	magicName="Heal"
 	bCanCharge=true
-	ChargeCost = 10;
-	ChargeAdd = 20;
+	ChargeCost = 1;
+	ChargeAdd = 2;
 	manaCost = 10;
+	damage = 20;
 }

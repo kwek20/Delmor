@@ -5,6 +5,9 @@ var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
 
+
+
+var class<DELMeleeWeapon> swordClass;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -47,7 +50,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 
 	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
-		`log("-------------------__________-----------------");
 	}
 }
 
@@ -55,7 +57,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  * adds the weapons(magic + masterSword to the player)
  */
 function AddDefaultInventory(){
-	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
+	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
 	magic = Spawn(class'DELMagic',,,self.Location);
@@ -68,7 +70,6 @@ simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
 	//Location.Z = 10000;
-	magicSwitch(1);
 }
 
 /**
@@ -114,7 +115,6 @@ simulated function StartFire(byte FireModeNum){
  * @param	FireModeNum		fire mode number
  */
 simulated function StopFire(byte FireModeNum){
-	`log("mouse released");
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStop();
 	}
@@ -448,13 +448,15 @@ function float lengthDirY( float len , float dir ){
 
 DefaultProperties
 {
+	//swordClass = class'DELMeleeWeaponDemonSlayer';
+	swordClass = class'DELMeleeWeaponTheButcher'
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 
 	Components.Remove(ThirdPersonMesh);
 
 		Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'Delmor_Character.Lucian_walking'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian'
 		AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.Lucian_walking_Physics'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'

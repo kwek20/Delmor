@@ -28,6 +28,17 @@ var float commandRadius;
  */
 var float wanderRadius;
 
+/**
+ * Determines whether the pawn is allowed to charge.
+ */
+var bool bCanCharge;
+
+/**
+ * Counts the number of times the pawn has been hit by the player's melee attack.
+ * If it's hit three times in a row, it should start blocking.
+ */
+var int nTimesHit;
+
 /*
  * ===============================================================
  * Utility functions
@@ -117,7 +128,7 @@ function int getNumberOfMinions(){
  * Returns whether the pawn should charge. It should not charge when he is too far from the player.
  */
 function bool shouldCharge(){
-	if ( distanceToPoint( attackTarget.location ) < 256.0 ){
+	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge ){
 		return false;
 	} else {
 		return true;
@@ -143,6 +154,52 @@ function orderNearbyMinionsToAttackPlayer(){
 	}
 
 	DELMediumMonsterPawn( Pawn ).say( "OrderAttack" );
+}
+
+/**
+ * Sends the transformation order to the hardpawns.
+ */
+function orderHardMonsterToTransform(){
+	local DELHardMonsterSmallController c;
+
+	foreach WorldInfo.AllControllers( class'DELHardMonsterSmallController' , c ){
+		if ( c.commander == pawn ){
+			c.commanderOrderedAttack();
+		}
+	}
+}
+
+/**
+ * Start the charge attack.
+ */
+function startCharge(){
+	bCanCharge = false;
+	changeState( 'Charge' );
+}
+
+/**
+ * Sets bCanCharge to true
+ */
+function resetCanCharge(){
+	bCanCharge = true;
+}
+
+/**
+ * Sets the nTimesHit variable to 0.
+ */
+function resetNumberOfTimesHit(){
+	nTimesHit = 0;
+}
+
+/**
+ * Starts blocking.
+ * While blocking, the pawn cannot be hit by mêlee-attacks but is still vurnable to magic.
+ */
+function block(){
+	`log( ">>>>>>>>>>>>>>> BLOCK" );
+
+	goToState( 'Blocking' );
+	DELMediumMonsterPawn( pawn ).startBlocking();
 }
 
 /*
@@ -268,7 +325,7 @@ state flee{
 		if ( VSize( selfToPlayer ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
 			if ( pawn.Health >= pawn.HealthMax / 2 && shouldCharge() ){
-				changeState( 'charge' );
+				startCharge();
 			}
 		}
 	}
@@ -314,8 +371,9 @@ state maintainDistanceFromPlayer{
 
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
-			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer && shouldCharge() ){
-				changeState( 'Charge' );
+			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ self.getNumberOfMinions() == 0 && shouldCharge() ){
+				orderHardMonsterToTransform();
+				startCharge();
 			}
 
 			//Reset timer
@@ -336,8 +394,8 @@ state Charge{
 
 		//Set the playerPosition to the player's position PLUS a bit extra so that the MediumEnemy will charge a bit further and thus appear more realistic.
 		selfToPlayer = rotator( attackTarget.location - pawn.Location );
-		playerPosition.X = attackTarget.location.X + lengthDirX( 256.0 , -selfToPlayer.yaw % 65536 );
-		playerPosition.Y = attackTarget.location.Y + lengthDirY( 256.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.X = attackTarget.location.X + lengthDirX( 512.0 , -selfToPlayer.yaw % 65536 );
+		playerPosition.Y = attackTarget.location.Y + lengthDirY( 512.0 , -selfToPlayer.yaw % 65536 );
 		playerPosition.Z = attackTarget.location.Z;
 
 		DELMediumMonsterPawn( Pawn ).say( "InitCharge" );
@@ -346,7 +404,7 @@ state Charge{
 	event tick( float deltaTime ){
 		local DELPawn collidingPawn;
 
-		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 5.0 ){
+		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 10.0 ){
 			moveInDirection( playerPosition - pawn.Location , deltaTime * 8 /*We run to the player, so we move faster*/ );
 			//TODO: Check for collision
 			
@@ -382,6 +440,27 @@ state Charge{
 			goToState( 'Attack' );
 		}
 	}
+
+	/**
+	 * When we're done charging, set a timer that will eventually set bCanCharge to through.
+	 */
+	event EndState( name NextStateName ){
+		super.EndState( NextStateName );
+		setTimer( 5.0 , false , 'resetCanCharge' );
+	}
+}
+
+/**
+ * When the pawn is blocking, also go to a blocking state so that the pawn will not move.
+ * When un-blocking see if you should perform a charge attack.
+ */
+state Blocking{
+
+	event tick( float deltaTime ){
+		super.Tick( deltaTime );
+
+		pawn.SetDesiredRotation( rotator( player.location - pawn.Location ) );
+	}
 }
 
 /*
@@ -402,8 +481,43 @@ event minionDied(){
 	}
 }
 
+/**
+ * Called when the pawn has been hit by a mêlee attack.
+ * If the pawn has been hit three times in a row it should block.
+ */
+event pawnHit(){
+	`log( ">>>>>>>>>>>>>>>>>> My pawn has been hit" );
+	nTimesHit ++;
+
+	`log( "nTimesHit: "$nTimesHit );
+	if( nTimesHit >= 3 ){
+		`log( "Start blocking" );
+		block();
+	}
+
+	setTimer( 1.0 , false , 'resetNumberOfTimesHit' );
+}
+
+/**
+ * When un-blocking see if you should perform a charge attack.
+ */
+event PawnStoppedBlocking(){
+	if ( shouldCharge() ){
+		startCharge();
+	} else {
+		changeState( 'Attack' );
+	}
+}
+/**
+ * When the block is broken. Go to flee state
+ */
+event PawnBlockBroken(){
+	changeState( 'Flee' );
+}
+
 DefaultProperties
 { 
+	bCanCharge = true;
 	decisionInterval = 0.5
 	commandRadius = 512.0
 	wanderRadius = 512.0

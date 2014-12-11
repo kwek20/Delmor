@@ -71,6 +71,11 @@ var float regenerationTimer;
 var bool bIsStunned;
 
 /**
+ * Determines whether the pawn can block or not.
+ */
+var bool bCanBlock;
+
+/**
  * The weapon that will be used by the pawn.
  */
 var DELWeapon myWeapon; 
@@ -112,6 +117,17 @@ var bool bLockedToCamera;
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
 
+/*
+ * ====================================
+ * Sound
+ * ====================================
+ */
+
+/**
+ * This soundset contains the pawn's voice
+ */
+var DELSoundSet mySoundSet;
+
 var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
@@ -144,9 +160,7 @@ function Heal(int ammount){
 	health += ammount;
 	if(health>healthMax){
 		health = clamp(health,0,healthMax);
-		`log("to much healed");
 	}
-	`log("new health" $ health);
 }
 
 /**
@@ -156,13 +170,32 @@ function Heal(int ammount){
 function ManaDrain(int ammount){
 	mana -=ammount;
 	mana = clamp(mana,0,manaMax);
-	`log("new mana" $ mana);
 }
 
 function magicSwitch(int AbilityNumber);
 
+/**
+ * Starts blocking by going into the blocking-state
+ */
+function startBlocking(){
+	if ( !bIsStunned && bCanBlock ){
+		goToState( 'Blocking' );
+	}
+}
 
+/**
+ * Stop blocking by going into the LandMovementState
+ */
+function stopBlocking(){
+	goToState( LandMovementState );
+}
 
+/**
+ * Sets bCanBlock to true.
+ */
+function resetCanBlock(){
+	bCanBlock = true;
+}
 
 /**
  * Set the camera offset.
@@ -357,4 +390,6 @@ DefaultProperties
 
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
+
+	mySoundSet = none
 }

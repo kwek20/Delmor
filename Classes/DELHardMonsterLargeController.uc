@@ -24,7 +24,7 @@ var array<Pathnode> PathnodeList;
 var int _Pathnode;
 var Pathnode currentNode;
 var Vector tempDest;
-var Actor Player;
+var DelPlayer Player;
 var int minimumDistance;
 var Pathnode endNode;
 /**
@@ -43,37 +43,6 @@ var bool firstQuestComplete;
  * =================================
  */
 
-/**
- * Gets the number of easypawns and mediumpawns near the player.
- * @return int.
- */
-private function int nPawnsNearPlayer(){
-	local DELEasyMonsterController ec;
-	local DELMediumMonsterController mc;
-	local int nPawns;
-	/**
-	 * The distance at wich a pawn is considered near the player.
-	 */
-	local float nearDistance;
-
-	nPawns = 0;
-	nearDistance = 192.0;
-
-	//Count the easyminions
-	foreach WorldInfo.AllControllers( class'DELEasyMonsterController' , ec ){
-		if ( VSize( ec.Pawn.Location - attackTarget.Location ) <= nearDistance ){
-			nPawns ++;
-		}
-	}
-	//Count the mediumminions
-	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , mc ){
-		if ( VSize( mc.Pawn.Location - attackTarget.Location ) <= nearDistance ){
-			nPawns ++;
-		}
-	}
-
-	return nPawns;
-}
 
 /*
  * =================================
@@ -81,126 +50,50 @@ private function int nPawnsNearPlayer(){
  * =================================
  */
 
-state attack{
-	/**
-	 * Timer for decisions.
-	 */
-	local float timer;
-
-	function beginState( name previousStateName ){
-		super.beginState( previousStateName );
-		timer = 0.0;
-	}
+state Idle{
 
 	event tick( float deltaTime ){
-		super.Tick( deltaTime );
-
-	}
-		
-		timer -= deltaTime;
-
-		if ( timer <= 0.0 ){
-			`log( self$" It is time to make a decision" );
-
-			//Wait till the player has killed the easypawns before attacking
-			if ( nPawnsNearPlayer() > 4 ){
-				goToState( 'maintainDistanceFromPlayer' );
-			}
-
-			//Reset the timer
-			timer = decisionInterval;
-		}
-}
-
-
-/**
- * In this state the mediumMonster will stay a few meters away from the player as long as there's easypawns nearby the player.
- */
-state maintainDistanceFromPlayer{
-
-	/**
-	 * When the number of easymonsterpawns is smaller than this number, the medium pawn should attack.
-	 */
-	local int maximumPawnsNearPlayer;
-	local float timer;
-
-	function beginState( name previousStateName ){
-		distanceToPlayer = 384.0;
-		maximumPawnsNearPlayer = 5;
-		timer = decisionInterval;
-
-		`log( "Maintain your distance" );
-	}
+		super.tick( deltaTime );
 	
-	event tick( float deltaTime ){
-		local vector selfToPlayer;
 
-		timer -= deltaTime;
-
-		//Calculate direction
-		selfToPlayer = pawn.Location - attackTarget.location;
-
-		//Move away
-		if ( calcPlayerDist(selfToPlayer) < distanceToPlayer ){
-			moveInDirection( selfToPlayer , deltaTime );
-			pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
-		}
-		else{
-			stopPawn();
-		}
-
-		//Return to the fight when the easy pawns have died.
-		if ( timer <= 0.0 ){
-			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer ){
-				goToState( 'attack' );
-			}
-
-			//Reset timer
-			timer = decisionInterval;
+		if( player != none ){
+			engagePlayer( player );
 		}
 	}
-
 }
 
-
-state RegularPathfinding{
+auto state RegularPathfinding{
 	local int minimumDistance;
 	local Vector tempDest;
-	local Actor Player;
-	local Vector selfToPlayer;
+	local float selfToPlayer;
 
 	function beginState( name previousStateName ){
-
-	Player = GetALocalPlayerController().Pawn;
+	selfToPlayer = Abs(VSize(self.Pawn.Location - Player.Location));
 	`log( "Finding  path" );
 	}
 
 Begin:
-		`log('ROBROBROBROB');
-	if(FindNavMeshPath(tempDest) && (calcPlayerDist(selfToPlayer) <= minimumDistance)){
-		selfToPlayer = self.Pawn.Location - Player.Location;
-		tempDest = getNextNode();
-		NavigationHandle.SetFinalDestination(tempDest);
-		FlushPersistentDebugLines();
-		NavigationHandle.DrawPathCache(,true);
-			if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
-				DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
-				DrawDebugSphere(tempDest,16,20,0,255,0,true);
-				MoveTo(tempDest, Player);
+
+		if(selfToPlayer <= minimumDistance){
+			engagePlayer(Player);
+		}
+			else if(FindNavMeshPath(tempDest)){
+				tempDest = getNextNode();
+				NavigationHandle.SetFinalDestination(tempDest);
+				FlushPersistentDebugLines();
+				NavigationHandle.DrawPathCache(,true);
+					if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+						DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
+						DrawDebugSphere(tempDest,16,20,0,255,0,true);
+						MoveTo(tempDest, Player);
+					}
+				Goto 'Begin';
 			}
-		if(calcPlayerDist(selfToPlayer) > minimumDistance){
-			`log('Jews');
-			Goto 'Begin';
-		}
-		else{
-			GotoState('Attack');
-		}
-	}
 }
 
 
 
-auto state FirstQuestPathfinding{
+state FirstQuestPathfinding{
 	local Vector tempDest;
 	local float selfToPlayer;
 
@@ -211,7 +104,6 @@ auto state FirstQuestPathfinding{
 	}
 
 	event Tick(float deltaTime){
-		Player = GetALocalPlayerController().Pawn;
 		selfToPlayer = Abs(VSize(self.Pawn.Location - Player.Location));
 	}
 
@@ -219,11 +111,8 @@ auto state FirstQuestPathfinding{
 Begin:
 	
 	if(FindNavMeshPath(tempDest)){
-		`log("MinimumDist ="$minimumDistance);
-		`log("tempdest ="$ tempDest);
-		`log("selfToPlayer = "$selfToPlayer);
 		if((selfToPlayer <= minimumDistance) && (PathnodeList[_Pathnode] == endNode)){
-			GotoState('Attack');
+			engagePlayer( player );
 		}
 		else {
 			`log("_Pathnode ="$_Pathnode);
@@ -245,6 +134,7 @@ Begin:
 simulated function PostBeginPlay(){
 	local Pathnode P;
 	super.PostBeginPlay();
+	//	Player = Player.Pawn;
 		foreach WorldInfo.AllActors(class 'Pathnode', P){
 			PathnodeList.AddItem(P);
 			`log("Node Added" $ P);
@@ -262,8 +152,8 @@ function Vector getNextNode(){
 	}
 	else if(GetStateName() == 'RegularPathfinding'){
 			if(_Pathnode <= PathnodeList.Length){
-				_Pathnode++;
 			currentNode = PathnodeList[Rand(PathnodeList.Length)];
+			_Pathnode++;
 			`log("current (RANDOM) Node = " $ _Pathnode);
 		}
 		if(_Pathnode == PathnodeList.Length){
@@ -298,6 +188,8 @@ function bool FindNavMeshPath(Vector tempDest){
     class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, tempDest,32 );
     return NavigationHandle.FindPath();
 }
+
+
 
 DefaultProperties
 {

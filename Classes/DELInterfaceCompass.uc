@@ -24,7 +24,7 @@ function load(DELPlayerHud hud){
  * Draws compass to hud
  * */
 function draw(DELPlayerHud hud){
-	local float TrueNorth, PlayerHeading;
+	/*local float TrueNorth, PlayerHeading;
 	local Vector2D MapPosition;
 	local float CompassRotation, MapRotation;
 	
@@ -60,7 +60,7 @@ function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
-	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
+	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);*/
 }
 
 /**

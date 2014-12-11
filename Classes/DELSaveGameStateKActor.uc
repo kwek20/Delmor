@@ -1,16 +1,14 @@
 class DELSaveGameStateKActor extends KActor implements(DELSaveGameStateInterface);
 
-function String Serialize()
-{
+function String Serialize() {
     local JSonObject KJSonObject;
 
     // Instance the JSonObject, abort if one could not be created
     KJSonObject = new class'JSonObject';
 
-    if (KJSonObject == None)
-    {
+    if (KJSonObject == None) {
         `Warn(Self$" could not be serialized for saving the game state.");
-	return "";
+		return "";
     }
 
     // Save the location
@@ -27,8 +25,7 @@ function String Serialize()
     return class'JSonObject'.static.EncodeJson(KJSonObject);
 }
 
-function Deserialize(JSonObject Data)
-{
+function Deserialize(JSonObject Data) {
     local Vector SavedLocation;
     local Rotator SavedRotation;
 
@@ -42,8 +39,7 @@ function Deserialize(JSonObject Data)
     SavedRotation.Yaw = Data.GetIntValue("Rotation_Yaw");
     SavedRotation.Roll = Data.GetIntValue("Rotation_Roll");
 
-    if (self.StaticMeshComponent != None)
-    {
+    if (self.StaticMeshComponent != None) {
         self.StaticMeshComponent.SetRBPosition(SavedLocation);
         self.StaticMeshComponent.SetRBRotation(SavedRotation);
     }
