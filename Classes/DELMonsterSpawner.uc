@@ -149,13 +149,15 @@ function spawnPawn(bool random, vector spawnLocation)
  */
 function startSpawn(bool random) {
 	local DELSpawnPathNode C;
-	
-	foreach WorldInfo.AllActors(class'DELSpawnPathNode', C) {
+	local Vector newLocation;
+	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
 		selfToPathnode = C.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
 		if(distanceToSpawner < spawnArea) {
 			if(checkSpawnedMobsStillAlive() < maxMobsAlive) {
-				spawnPawn(random, C.Location); 
+				newLocation = C.Location;
+				newLocation.Z = newLocation.Z + C.zOffset;
+				spawnPawn(random, newLocation); 
 			}
 		}
 	}
