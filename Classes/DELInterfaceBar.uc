@@ -52,6 +52,7 @@ function getIcons(DELPlayerHud hud){
 	textures = DELPlayer(hud.getPlayer().getPawn()).magic.getIcons();
 	textures.AddItem(Texture2D'UDKHUD.cursor_png');
 	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+	`log(textures[0]);
 }
 
 /**
