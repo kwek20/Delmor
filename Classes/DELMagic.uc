@@ -60,6 +60,10 @@ var float ProjectileSize;
 
 var float ProjectileSizeIncrease;
 
+var Texture2D IconTexture;
+
+var array<Texture2D> Icons;
+
 /**
  * 
  */
@@ -241,14 +245,25 @@ simulated function class<UDKProjectile> getSpell(){
 }
 
 
+simulated function array<Texture2D> getIcons(){
+	local class<DELMagic> magic;
+	local int index;
+	forEach magics(magic, index){
+		icons.InsertItem(index,spawn(magic).IconTexture);
+	}
+	return icons;
+}
+
+
 DefaultProperties
 {
 	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
-	magics[0] = class'DELMagicForce'
+	conTexture = Texture2D'UDKHUD.cursor_png'
+	magics[1] = class'DELMagicForce'
 	magics[2] = class'DELMagicHeal'
-	magics[1] = class'DELMagicParalyze'
+	magics[0] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
 	ChargeTime = 0.1;
 }

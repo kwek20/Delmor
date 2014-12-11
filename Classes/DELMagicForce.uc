@@ -58,4 +58,5 @@ DefaultProperties
 	ChargeAdd = 2;
 	manaCost = 10;
 	damage = 10;
+	IconTexture = Texture2D'EditorResources.LookTarget'
 }

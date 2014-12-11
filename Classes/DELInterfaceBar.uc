@@ -8,6 +8,8 @@ class DELInterfaceBar extends DELInterfaceInteractible;
  */
 var int squareSize, inbetween, amountBars, key;
 
+var DELInterfaceButton lastClicked;
+
 /**
  * Array of textures linked to the buttons
  */
@@ -28,6 +30,7 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - length/2;
 	startY = hud.sizeY - squareSize*1.5;
 
+	getIcons(hud);
 	for (i=1; i<=amountBars; i++){
 		button = Spawn(class'DELInterfaceButton');
 		button.setIdentifier(i);
@@ -39,9 +42,32 @@ function load(DELPlayerHud hud){
 	super.load(hud);
 }
 
+/**
+ * gets the icons from the items themselves
+ * !has magic number in the place for potions
+ * @param hud the hud where the interface belongs to
+ * @author harmen wiersma
+ */
+function getIcons(DELPlayerHud hud){
+	textures = DELPlayer(hud.getPlayer().getPawn()).magic.getIcons();
+	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+}
 
+/**
+ * lets the magical items be actually used
+ * @author harmen wiersma, brood van wierst
+ * @param hud the hud this thing belongs to
+ * @param stats stats of the mouse that activated the use of this function
+ * @param button button the mouse clicked
+ */
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
+	if(lastClicked != none){
+		lastClicked.useQItem();
+	}
+	lastClicked = DELInterfaceButton(button);
+	lastClicked.useQItem();
 }
 
 function draw(DELPlayerHud hud){
@@ -68,7 +94,7 @@ DefaultProperties
 	key = 0;
 	squareSize=40
 	inbetween=5;
-	amountBars=4;
+	amountBars=5;
 
-	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
+	//textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
 }
