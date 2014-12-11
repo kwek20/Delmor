@@ -261,9 +261,9 @@ DefaultProperties
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
 	conTexture = Texture2D'UDKHUD.cursor_png'
-	magics[1] = class'DELMagicForce'
+	magics[0] = class'DELMagicForce'
 	magics[2] = class'DELMagicHeal'
-	magics[0] = class'DELMagicParalyze'
+	magics[1] = class'DELMagicParalyze'
 	ActiveAbilityNumber = 0;
 	ChargeTime = 0.1;
 }

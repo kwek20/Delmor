@@ -35,5 +35,5 @@ DefaultProperties
 	ChargeAdd = 2;
 	manaCost = 10;
 	damage = 20;
-	IconTexture = Texture2D'UDKHUD.cursor_png'
+	IconTexture = Texture2D'EditorResources.VolumePath'
 }
