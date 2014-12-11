@@ -9,7 +9,6 @@ class DELGuardPawn extends DELNPCPawn
 DefaultProperties
 {
 	Components.Remove(ThirdPersonMesh)
-
 	Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_guard'
 		AnimSets(0)=AnimSet'Delmor_Character.Guard_anim'
