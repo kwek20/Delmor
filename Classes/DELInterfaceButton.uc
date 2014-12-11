@@ -19,7 +19,7 @@ var() Vector2D textOffset;
 
 public function draw(DELPlayerHud hud){
 	super.draw(hud);
-	if (texture == None){
+	if (textures.Length == 0){
 		drawText(hud.Canvas);
 	}
 }

@@ -9,11 +9,6 @@ class DELInterfaceBar extends DELInterfaceInteractible;
 var int squareSize, inbetween, amountBars, key;
 
 /**
- * Array of textures linked to the buttons
- */
-var array<Texture2D> textures;
-
-/**
  * Array of delegate functions
  */
 var array< delegate<action> > actions;
@@ -33,7 +28,7 @@ function load(DELPlayerHud hud){
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
-		button.setTexture(textures[i-1]);
+		//button.setTexture(textures[i-1]);
 		addInteractible(button);
 	}
 	super.load(hud);
@@ -69,6 +64,4 @@ DefaultProperties
 	squareSize=40
 	inbetween=5;
 	amountBars=4;
-
-	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
 }

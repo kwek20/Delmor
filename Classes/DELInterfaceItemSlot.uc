@@ -6,7 +6,7 @@ var Color bgColor;
 function draw(DELPlayerHud hud){
 	drawStandardbackground(hud.Canvas);
 
-	if (texture != None){
+	if (textures.Length > 0){
 		super.draw(hud);
 		drawText(hud.Canvas);
 	}
@@ -56,7 +56,7 @@ function DELItem getItem(DELPlayerHud hud){
 DefaultProperties
 {
 	default_bg=Texture2D'DelmorHud.empty_item_bg'
-	texture=Texture2D'DelmorHud.empty_item_bg'
+	textures=(Texture2D'DelmorHud.empty_item_bg')
 	textOffset=(X=0.8, Y=0.8)
 	color=(R=255,G=50,B=255,A=200)
 	bgColor=(R=50,G=50,B=50,A=150)
