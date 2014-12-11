@@ -15,6 +15,8 @@ var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 var() private string subtitle;
 var() int subtitleTime, currentTime;
 
+var name previousState;
+
 // Mouse event enum
 enum EMouseEvent {
 	LeftMouseButton,
@@ -125,7 +127,13 @@ function swapState(name StateName){
 	}
 	`log("-- Switching state to "$StateName$"--");
 	getHud().clearInterfaces();
+
+	previousState = getStateName();
 	GotoState(StateName);
+}
+
+function goToPreviousState(){
+	swapState(previousState);
 }
 
 /*#####################

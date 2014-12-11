@@ -29,7 +29,7 @@ function end(){
 
 function draw(DELPlayerHud hud){
 	if (ended){
-		hud.getPlayer().swapState('Pauses'); 
+		hud.getPlayer().goToPreviousState();
 		return;
 	}
 

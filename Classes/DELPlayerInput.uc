@@ -255,7 +255,11 @@ exec function openInventory() {
 }
 
 exec function closeHud() {
-	DELPlayerController(Pawn.Controller).closeHud();
+	if (Pawn.Controller.getStateName() == 'Playing' || Pawn.Controller.getStateName() == 'Pauses'){
+		DELPlayerController(Pawn.Controller).closeHud();
+	} else {
+		DELPlayerController(Pawn.Controller).goToPreviousState();
+	}
 }
 
 exec function openQuestlog(){
