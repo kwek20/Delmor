@@ -24,6 +24,9 @@ var array<Pathnode> PathnodeList;
 var int _Pathnode;
 var Pathnode currentNode;
 var Vector tempDest;
+var Actor Player;
+var int minimumDistance;
+var Pathnode endNode;
 /**
  * Range to next pathnode
  */
@@ -92,6 +95,8 @@ state attack{
 	event tick( float deltaTime ){
 		super.Tick( deltaTime );
 
+	}
+		
 		timer -= deltaTime;
 
 		if ( timer <= 0.0 ){
@@ -105,8 +110,8 @@ state attack{
 			//Reset the timer
 			timer = decisionInterval;
 		}
-	}
 }
+
 
 /**
  * In this state the mediumMonster will stay a few meters away from the player as long as there's easypawns nearby the player.
@@ -157,7 +162,8 @@ state maintainDistanceFromPlayer{
 
 }
 
-auto state Pathfinding{
+
+state RegularPathfinding{
 	local int minimumDistance;
 	local Vector tempDest;
 	local Actor Player;
@@ -166,39 +172,75 @@ auto state Pathfinding{
 	function beginState( name previousStateName ){
 
 	Player = GetALocalPlayerController().Pawn;
-	selfToPlayer = self.Pawn.Location - Player.Location;
 	`log( "Finding  path" );
 	}
 
-	simulated function findNext(){
-		if (FindNavMeshPath(tempDest) && calcPlayerDist(selfToPlayer) <= minimumDistance && _Pathnode != PathnodeList.Length){
-		tempDest = getNextNode();
-		goto 'Begin';
-		}
-	}
-
 Begin:
-	
-	if(FindNavMeshPath(tempDest) && calcPlayerDist(selfToPlayer) <= minimumDistance){
+		`log('ROBROBROBROB');
+	if(FindNavMeshPath(tempDest) && (calcPlayerDist(selfToPlayer) <= minimumDistance)){
+		selfToPlayer = self.Pawn.Location - Player.Location;
 		tempDest = getNextNode();
-		if(calcPlayerDist(selfToPlayer) <= minimumDistance){
-			NavigationHandle.SetFinalDestination(tempDest);
-			FlushPersistentDebugLines();
-			NavigationHandle.DrawPathCache(,true);
-				if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+		NavigationHandle.SetFinalDestination(tempDest);
+		FlushPersistentDebugLines();
+		NavigationHandle.DrawPathCache(,true);
+			if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
 				DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
 				DrawDebugSphere(tempDest,16,20,0,255,0,true);
 				MoveTo(tempDest, Player);
-				}
+			}
+		if(calcPlayerDist(selfToPlayer) > minimumDistance){
+			`log('Jews');
+			Goto 'Begin';
+		}
+		else{
+			GotoState('Attack');
 		}
 	}
-	if(calcPlayerDist(selfToPlayer) <= minimumDistance && _Pathnode != PathnodeList.Length){
+}
+
+
+
+auto state FirstQuestPathfinding{
+	local Vector tempDest;
+	local float selfToPlayer;
+
+	function beginState( name previousStateName ){
+	`log( "Finding  path" );
+	_Pathnode = 0;
+	endNode = PathnodeList[PathnodeList.Length];
+	}
+
+	event Tick(float deltaTime){
+		Player = GetALocalPlayerController().Pawn;
+		selfToPlayer = Abs(VSize(self.Pawn.Location - Player.Location));
+	}
+
+
+Begin:
+	
+	if(FindNavMeshPath(tempDest)){
+		`log("MinimumDist ="$minimumDistance);
+		`log("tempdest ="$ tempDest);
+		`log("selfToPlayer = "$selfToPlayer);
+		if((selfToPlayer <= minimumDistance) && (PathnodeList[_Pathnode] == endNode)){
+			GotoState('Attack');
+		}
+		else {
+			`log("_Pathnode ="$_Pathnode);
+			tempDest = getNextNode();
+		}
+		NavigationHandle.SetFinalDestination(tempDest);
+		FlushPersistentDebugLines();
+		NavigationHandle.DrawPathCache(,true);
+			if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+				DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
+				DrawDebugSphere(tempDest,16,20,0,255,0,true);
+				MoveTo(tempDest, Player);
+			}
 		Goto 'Begin';
 	}
-	else if(_Pathnode == PathnodeList.Length && calcPlayerDist(selfToPlayer) <= minimumDistance){
-			GotoState('Attack');
-	}
 }
+
 
 simulated function PostBeginPlay(){
 	local Pathnode P;
@@ -211,12 +253,24 @@ simulated function PostBeginPlay(){
 
 function Vector getNextNode(){
 	local Vector nodeVect;
-
-	if(_Pathnode <= PathnodeList.Length){
+	if(GetStateName() == 'FirstQuestPathfinding'){
+		if(PathnodeList[_Pathnode] != endNode){
+			currentNode = PathnodeList[_Pathnode];
 			_Pathnode++;
-		currentNode = PathnodeList[Rand(PathnodeList.length)];
-		`log("currentNode = " $ _Pathnode);
+			`log("currentNode = " $ _Pathnode);
+		}
 	}
+	else if(GetStateName() == 'RegularPathfinding'){
+			if(_Pathnode <= PathnodeList.Length){
+				_Pathnode++;
+			currentNode = PathnodeList[Rand(PathnodeList.Length)];
+			`log("current (RANDOM) Node = " $ _Pathnode);
+		}
+		if(_Pathnode == PathnodeList.Length){
+			_Pathnode = 0;
+		}
+	}
+		
 	nodeVect = NodeToVect(currentNode);
 	`log("currentNode Vector = " $ nodeVect);
 	return nodeVect;
@@ -248,9 +302,10 @@ function bool FindNavMeshPath(Vector tempDest){
 DefaultProperties
 {
 	decisionInterval = 0.5
-	minimumDistance = 200
+	minimumDistance = 300
 	bIsPlayer=true
 	closeEnough = 200
 	isAtLast = false
 	bAdjustFromWalls=true
+	_Pathnode = 0;
 }

@@ -6,6 +6,7 @@ class DELHardMonsterLargePawn extends DELHostilePawn
       placeable
 	  Config(Game);
 
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELHardMonsterLargeController'
@@ -13,5 +14,5 @@ defaultproperties
 	health = 1000
 	healthMax = 1000
 	healthRegeneration = 0
-	walkingSpeed = 80.0
+	groundSpeed = 250.0
 }
