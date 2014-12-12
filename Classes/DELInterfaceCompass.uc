@@ -37,7 +37,6 @@ function draw(DELPlayerHud hud){
 
 	TrueNorth = GameMinimap.getRadianHeading();
 	Playerheading = getPlayerHeading();
-
 	
 	if(GameMinimap.bForwardAlwaysUp){
 		MapRotation = PlayerHeading;

@@ -24,7 +24,8 @@ DefaultProperties
 	FiringStatesArray(0)="Swinging"
 	WeaponFireTypes(0)=EWFT_Custom
 
-	Begin Object Name=MeleeWeapon
+
+	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'delmor_character.Meshes.sk_lucian_sword2'
         FOV=60
 		HiddenGame=FALSE

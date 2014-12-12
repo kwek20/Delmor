@@ -34,23 +34,14 @@ function load(DELPlayerHud hud){
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
 		button.setTexture(textures[i-1]);
-		addButton(button);
+		addInteractible(button);
 	}
+	super.load(hud);
 }
 
 
-
-//fucked around with this function to test my magical abilities. hope it doesn't break
-function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
-	local DELPawn pawnee;
-	pawnee =hud.getPlayer().getPawn();
-	button.use(hud, mouseClicked, button);
-	hud.log("RAN useMagic");
-	key++;
-	pawnee.magicSwitch(key);
-	if(key == 7){ 
-		key = 0;
-	}
+function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
+	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
 }
 
 function draw(DELPlayerHud hud){
@@ -72,57 +63,12 @@ function draw(DELPlayerHud hud){
 	super.draw(hud);
 }
 
-function old(){
-	/*
-	 i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	button.setRun();
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-	*/
-}
-
 DefaultProperties
 {
 	key = 0;
 	squareSize=40
 	inbetween=5;
-	amountBars=5;
+	amountBars=4;
 
-	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
-	actions[0] = useMagic
-	actions[1] = useMagic
-	actions[2] = useMagic
-	actions[3] = useMagic
-	actions[4] = useMagic
+	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
 }

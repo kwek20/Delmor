@@ -49,6 +49,7 @@ function alertNearbyHostiles( DELPawn p ){
  * Also alert nearby monsters.
  */
 function engagePlayer( Pawn p ){
+	p = GetALocalPlayerController().Pawn;
 	if ( VSize( p.Location - Pawn.Location ) <= DELPawn( Pawn ).detectionRange ){ //The player has to be whitin the detection range.
 		`log( self$" See player: "$p );
 		attackTarget = DELPawn( p );

@@ -128,7 +128,7 @@ function int getNumberOfMinions(){
  * Returns whether the pawn should charge. It should not charge when he is too far from the player.
  */
 function bool shouldCharge(){
-	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge ){
+	if ( distanceToPoint( attackTarget.location ) < 256.0 ){
 		return false;
 	} else {
 		return true;
@@ -152,36 +152,6 @@ function orderNearbyMinionsToAttackPlayer(){
 			c.engagePlayer( attackTarget );
 		}
 	}
-
-	DELMediumMonsterPawn( Pawn ).say( "OrderAttack" );
-}
-
-/**
- * Sends the transformation order to the hardpawns.
- */
-function orderHardMonsterToTransform(){
-	local DELHardMonsterSmallController c;
-
-	foreach WorldInfo.AllControllers( class'DELHardMonsterSmallController' , c ){
-		if ( c.commander == pawn ){
-			c.commanderOrderedAttack();
-		}
-	}
-}
-
-/**
- * Start the charge attack.
- */
-function startCharge(){
-	bCanCharge = false;
-	changeState( 'Charge' );
-}
-
-/**
- * Sets bCanCharge to true
- */
-function resetCanCharge(){
-	bCanCharge = true;
 }
 
 /**
@@ -279,12 +249,7 @@ state attack{
 
 		timer = 0.0;
 
-		if ( getNumberOfMinions() > 0 ){
-			orderNearbyMinionsToAttackPlayer();
-		}
-		else{
-			DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
-		}
+		DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
 	}
 
 	event tick( float deltaTime ){
@@ -325,7 +290,7 @@ state flee{
 		if ( VSize( selfToPlayer ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
 			if ( pawn.Health >= pawn.HealthMax / 2 && shouldCharge() ){
-				startCharge();
+				changeState( 'charge' );
 			}
 		}
 	}
@@ -371,9 +336,8 @@ state maintainDistanceFromPlayer{
 
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
-			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ self.getNumberOfMinions() == 0 && shouldCharge() ){
-				orderHardMonsterToTransform();
-				startCharge();
+			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer && shouldCharge() ){
+				changeState( 'Charge' );
 			}
 
 			//Reset timer
@@ -440,14 +404,6 @@ state Charge{
 			goToState( 'Attack' );
 		}
 	}
-
-	/**
-	 * When we're done charging, set a timer that will eventually set bCanCharge to through.
-	 */
-	event EndState( name NextStateName ){
-		super.EndState( NextStateName );
-		setTimer( 5.0 , false , 'resetCanCharge' );
-	}
 }
 
 /**
@@ -503,7 +459,7 @@ event pawnHit(){
  */
 event PawnStoppedBlocking(){
 	if ( shouldCharge() ){
-		startCharge();
+	//	startCharge();
 	} else {
 		changeState( 'Attack' );
 	}
@@ -517,7 +473,6 @@ event PawnBlockBroken(){
 
 DefaultProperties
 { 
-	bCanCharge = true;
 	decisionInterval = 0.5
 	commandRadius = 512.0
 	wanderRadius = 512.0

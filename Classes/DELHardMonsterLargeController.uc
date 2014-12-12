@@ -21,12 +21,42 @@ var float distanceToPlayer;
  * Array keeping track of pathnodes
  */
 var array<Pathnode> PathnodeList;
+
+/**
+ * Counter for said array
+ */
 var int _Pathnode;
+
+/**
+ * The current node the bot is moving to
+ */
 var Pathnode currentNode;
+
+/**
+ * Temporary destination
+ */
 var Vector tempDest;
-var DelPlayer Player;
+
+/**
+ * The player pawn
+ */
+var DELPawn Player;
+
+/**
+ * Minimum distance for triggering new state
+ */
 var int minimumDistance;
+
+/**
+ * Node the bot will end at
+ */
 var Pathnode endNode;
+
+/**
+ * Distance from bot to player
+ */
+var float selfToPlayer;
+
 /**
  * Range to next pathnode
  */
@@ -43,6 +73,64 @@ var bool firstQuestComplete;
  * =================================
  */
 
+simulated function PostBeginPlay(){
+	local Pathnode P;
+	endNode = PathnodeList[PathnodeList.Length];
+	super.PostBeginPlay();
+	`log("POSTBEGINPLAY");
+		foreach WorldInfo.AllActors(class 'Pathnode', P){
+			PathnodeList.AddItem(P);
+			`log("Node Added" $ P);
+		}
+}
+
+/**
+ * Gets the next node determined by state
+ */
+function Vector getNextNode(){
+	local Vector nodeVect;
+	if(GetStateName() == 'FirstQuestPathfinding'){
+		if((PathnodeList[_Pathnode] != endNode) && (_Pathnode < PathnodeList.Length)){
+			currentNode = PathnodeList[_Pathnode];
+			`log("currentNode = " $ _Pathnode);
+			_Pathnode++;
+		}
+	}
+	nodeVect = NodeToVect(currentNode);
+	`log("currentNode Vector = " $ nodeVect);
+	return nodeVect;
+}
+
+/**
+ * Converts pathnode to vector location
+ */
+function Vector NodeToVect(Pathnode N){
+	local Vector V;
+	V.X = N.Location.X;
+	V.Y = N.Location.Y;
+	V.Z = N.Location.Z;
+	return V;
+}
+
+/**
+ * Function to determine wether or not a destination is reachable
+ */
+function bool FindNavMeshPathVect(Vector tempDest){
+    NavigationHandle.PathConstraintList = none;
+    NavigationHandle.PathGoalList = none;
+    class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,tempDest);
+    class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, tempDest,32 );
+    return NavigationHandle.FindPath();
+}
+
+
+function bool FindNavMeshPath(){
+			NavigationHandle.PathConstraintList = none;
+			NavigationHandle.PathGoalList = none;
+			class'NavMeshPath_Toward'.static.TowardGoal(NavigationHandle, Player);
+			class'NavMeshGoal_At'.static.AtActor(NavigationHandle, Player, 25);
+			return NavigationHandle.FindPath();
+}
 
 /*
  * =================================
@@ -54,67 +142,40 @@ state Idle{
 
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
-	
 
-		if( player != none ){
-			engagePlayer( player );
+		if( Player != none ){
+			engagePlayer( Player );
 		}
 	}
 }
 
-auto state RegularPathfinding{
-	local int minimumDistance;
-	local Vector tempDest;
-	local float selfToPlayer;
-
-	function beginState( name previousStateName ){
-	selfToPlayer = Abs(VSize(self.Pawn.Location - Player.Location));
-	`log( "Finding  path" );
-	}
-
-Begin:
-
-		if(selfToPlayer <= minimumDistance){
-			engagePlayer(Player);
-		}
-			else if(FindNavMeshPath(tempDest)){
-				tempDest = getNextNode();
-				NavigationHandle.SetFinalDestination(tempDest);
-				FlushPersistentDebugLines();
-				NavigationHandle.DrawPathCache(,true);
-					if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
-						DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
-						DrawDebugSphere(tempDest,16,20,0,255,0,true);
-						MoveTo(tempDest, Player);
-					}
-				Goto 'Begin';
-			}
-}
 
 
-
-state FirstQuestPathfinding{
-	local Vector tempDest;
-	local float selfToPlayer;
+auto state FirstQuestPathfinding{
 
 	function beginState( name previousStateName ){
 	`log( "Finding  path" );
-	_Pathnode = 0;
-	endNode = PathnodeList[PathnodeList.Length];
+
+
 	}
 
 	event Tick(float deltaTime){
+		local Pawn Player;
+		Player = GetALocalPlayerController().Pawn;
 		selfToPlayer = Abs(VSize(self.Pawn.Location - Player.Location));
+
 	}
 
 
 Begin:
 	
-	if(FindNavMeshPath(tempDest)){
-		if((selfToPlayer <= minimumDistance) && (PathnodeList[_Pathnode] == endNode)){
-			engagePlayer( player );
+	if(FindNavMeshPathVect(tempDest)){
+		if(((selfToPlayer < minimumDistance) && (PathnodeList[_Pathnode] == endNode))){
+			self.Pawn.GroundSpeed = 85.0;
+			GotoState('Idle');
 		}
-		else {
+		else{
+			self.Pawn.GroundSpeed = 400.0;
 			`log("_Pathnode ="$_Pathnode);
 			tempDest = getNextNode();
 		}
@@ -130,74 +191,14 @@ Begin:
 	}
 }
 
-
-simulated function PostBeginPlay(){
-	local Pathnode P;
-	super.PostBeginPlay();
-	//	Player = Player.Pawn;
-		foreach WorldInfo.AllActors(class 'Pathnode', P){
-			PathnodeList.AddItem(P);
-			`log("Node Added" $ P);
-		}
-}
-
-function Vector getNextNode(){
-	local Vector nodeVect;
-	if(GetStateName() == 'FirstQuestPathfinding'){
-		if(PathnodeList[_Pathnode] != endNode){
-			currentNode = PathnodeList[_Pathnode];
-			_Pathnode++;
-			`log("currentNode = " $ _Pathnode);
-		}
-	}
-	else if(GetStateName() == 'RegularPathfinding'){
-			if(_Pathnode <= PathnodeList.Length){
-			currentNode = PathnodeList[Rand(PathnodeList.Length)];
-			_Pathnode++;
-			`log("current (RANDOM) Node = " $ _Pathnode);
-		}
-		if(_Pathnode == PathnodeList.Length){
-			_Pathnode = 0;
-		}
-	}
-		
-	nodeVect = NodeToVect(currentNode);
-	`log("currentNode Vector = " $ nodeVect);
-	return nodeVect;
-}
-
-function Vector NodeToVect(Pathnode N){
-	local Vector V;
-	V.X = N.Location.X;
-	V.Y = N.Location.Y;
-	V.Z = N.Location.Z;
-	return V;
-}
-
-
-function float calcPlayerDist(Vector selfToPlayer){
-	local float distanceToPlayer;
-		distanceToPlayer = Abs(VSize(selfToPlayer));
-	return distanceToPlayer;
-}
-
-function bool FindNavMeshPath(Vector tempDest){
-    NavigationHandle.PathConstraintList = none;
-    NavigationHandle.PathGoalList = none;
-    class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,tempDest);
-    class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, tempDest,32 );
-    return NavigationHandle.FindPath();
-}
-
-
-
 DefaultProperties
 {
 	decisionInterval = 0.5
-	minimumDistance = 300
+	minimumDistance = 800
 	bIsPlayer=true
 	closeEnough = 200
 	isAtLast = false
 	bAdjustFromWalls=true
-	_Pathnode = 0;
+	_Pathnode = 0
+
 }

@@ -5,6 +5,10 @@
 class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
+/**
+ * This soundset contains the pawn's voice
+ */
+var DELSoundSetMediumPawn mySoundSet;
 
 /**
  * Overridden so that a take damage call will be sent to the controller.
@@ -18,8 +22,10 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
 }
 
 /**
+ * This soundset contains the pawn's voice
  * Overriden so the pawn will receive a soundSet.
  */
+
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 
@@ -37,6 +43,7 @@ private function assignSoundSet(){
 }
 
 /**
+<<<<<<< HEAD
  * Blocking state.
  * While in the blocking state the pawn should get no damage from melee attacks.
  */
@@ -94,6 +101,19 @@ state Blocking{
 }
 
 
+/*
+ * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ */
+function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	if ( mySoundSet.bCanPlay ){
+		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+		mySoundSet.bCanPlay = false;
+		mySoundSet.setTimer( 2.0 , false , nameOf( mySoundSet.resetCanPlay ) );
+	}
+}
+
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELMediumMonsterController'
@@ -118,7 +138,8 @@ defaultproperties
 	health = 150
 	healthMax = 150
 	healthRegeneration = 4
-	GroundSpeed = 80.0
+	walkingSpeed = 80.0
 	detectionRange = 512.0
 	bCanBlock = true
+	mySoundSet = none
 }

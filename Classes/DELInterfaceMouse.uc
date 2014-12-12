@@ -31,7 +31,7 @@ simulated function draw(DELPlayerHud hud){
 
 		if (MouseInterfacePlayerInput != None){
 			// Set the canvas position to the mouse position
-			hud.Canvas.SetPos(MouseInterfacePlayerInput.MousePosition.X, MouseInterfacePlayerInput.MousePosition.Y); 
+			hud.Canvas.SetPos(MouseInterfacePlayerInput.stats.MousePosition.X, MouseInterfacePlayerInput.stats.MousePosition.Y); 
 			// Set the cursor color
 			hud.Canvas.DrawColor = CursorColor;
 

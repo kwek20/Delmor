@@ -201,8 +201,8 @@ DefaultProperties
 	spawnDelay = 120
 	bCanSpawn = true
 	bUsedByKismet = false
-	bHidden = true
 	bTriggered = false
+	bHidden = true
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'EditorResources.S_Pickup'
 	End Object
