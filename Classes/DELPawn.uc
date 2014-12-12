@@ -118,9 +118,11 @@ var bool bLookMode;
  * If locked to camera, the pawn's direction will be determined by the camera-direction.
  */
 var bool bLockedToCamera;
-/**
- * In this event, the pawn will get his movement physics, camera offset and controller.
- */
+
+
+var float defaultCameraHeight;
+var float cameraZoomHeight;
+var float cameraTargetHeight;
 
 /*
  * ====================================
@@ -150,16 +152,14 @@ var AnimNodePlayCustomAnim SwingAnim;
 
 var Name SwingAnimationName;
 
-
-
-
-
-
+/**
+ * In this event, the pawn will get his movement physics, camera offset and controller.
+ */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
 
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 48.0 );
+	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
@@ -313,14 +313,18 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
  * In this event the pawn will slowly regain health and mana.
  */
 event Tick( float deltaTime ){
-	if ( bLockedToCamera )
+	if ( bLockedToCamera ){
 		camTargetDistance = 150.0;
-	else
+		cameraTargetHeight = cameraZoomHeight;
+	} else {
 		camTargetDistance = 200.0;
+		cameraTargetHeight = defaultCameraHeight;
+	}
 
 	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
 		//Animate the camera
 		adjustCameraDistance( deltaTime );
+		adjustCameraOffset( deltaTime );
 	}
 }
 
@@ -366,6 +370,23 @@ function adjustCameraDistance( float deltaTime ){
 	}
 }
 
+function adjustCameraOffset( float deltaTime ){
+	local float difference , distanceSpeed;
+	difference = max( cameraOffset.Z , cameraTargetHeight ) - min( cameraOffset.Z , cameraTargetHeight );
+	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
+
+	if ( cameraOffset.Z < cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z + distanceSpeed );
+	}
+	if ( cameraOffset.Z > cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z - distanceSpeed );
+	}
+	//Lock
+	if ( cameraOffset.Z + distanceSpeed > cameraTargetHeight && cameraOffset.Z - distanceSpeed < cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraTargetHeight );
+	}
+}
+
 /**
  * Knocks the pawn back.
  * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
@@ -373,7 +394,6 @@ function adjustCameraDistance( float deltaTime ){
  */
 function knockBack( float intensity , vector direction ){
 	local DELKnockbackForce knockBack;
-	`log( ">>>>>>>>>>>>>>>>>>>>> KNOCK BACK" );
 
 	knockBack = spawn( class'DELKnockbackForce' );
 	knockBack.setPower( intensity );
@@ -482,6 +502,9 @@ DefaultProperties
 
 	camOffsetDistance = 200.0
 	camTargetDistance = 200.0
+	defaultCameraHeight = 48.0
+	cameraTargetHeight = 48.0
+	cameraZoomHeight = 64.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
