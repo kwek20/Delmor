@@ -30,7 +30,7 @@ defaultproperties
 {	
 	Components.Remove(ThirdPersonMesh);
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'delmor_character.sk_ratman'
+		SkeletalMesh=SkeletalMesh'delmor_character.meshes.sk_ratman'
 		AnimSets(0)=AnimSet'Delmor_Character.Ratman_anim'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Ratman_AnimTree'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.sk_ratman_Physics'

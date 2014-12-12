@@ -113,6 +113,27 @@ var bool bLockedToCamera;
  */
 
 /*
+ * ==========================================================
+ * Weapons and shite
+ * ==========================================================
+ */
+/**
+ * the meleeWeapon that the pawn holds
+ */
+var DELWeapon sword;
+
+/**
+ * class of the sword
+ */
+var class<DELMeleeWeapon> swordClass;
+
+
+var() const array<Name> SwingAnimationNames;
+var AnimNodePlayCustomAnim SwingAnim;
+
+
+
+/*
  * ====================================
  * Sound
  * ====================================
@@ -145,6 +166,30 @@ simulated event PostBeginPlay(){
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
 
 	}
+	AddDefaultInventory();
+}
+
+
+/**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
+	super.PostInitAnimTree(SkelComp);
+
+	if (SkelComp == Mesh){
+		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
+	}
+}
+
+/**
+ * adds the weapons(magic + masterSword to the player)
+ */
+function AddDefaultInventory(){
+	sword = Spawn(swordClass,,,self.Location);
+	sword.GiveTo(Controller.Pawn);
+	Controller.ClientSwitchToBestWeapon();
 }
 
 /**
@@ -362,6 +407,8 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
+
+	swordClass = class'DELMeleeWeaponDemonSlayer';
 
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
