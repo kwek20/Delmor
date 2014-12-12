@@ -43,18 +43,6 @@ function AddDefaultInventory()
 }
 
 /**
- * Say a line from the sound set. Only one sound can be played per 2 seconds.
- */
-function say( String dialogue ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet != none && mySoundSet.bCanPlay ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
-	}
-}
-
-/**
  * Stub to play a blocking sound.
  */
 function playBlockingSound(){

@@ -330,9 +330,7 @@ function DELPawn checkCollision(){
  * Starts the meleeAttack pipeline.
  */
 function meleeAttack(){
-	//`log( self$" MeleeAttack" );
-
-	//TODO: Melee attack
+	DELPawn( pawn ).attack();
 }
 
 /**
@@ -407,7 +405,17 @@ function stopPawn(){
 	//Pawn.Velocity.Z = 0.0;
 }
 
-state Blocking{
+/**
+ * A state in which the pawn is not allowed to move on its own.
+ */
+state NonMovingState{
+
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+		
+		pawn.SetDesiredRotation( pawn.Rotation );
+		stopPawn();
+	}
 	/**
 	 * These functions are now made empty so that the pawn will not move while blocking.
 	 * NOTE: This function is to be used ONLY in the Tick-event!
@@ -426,22 +434,32 @@ state Blocking{
 	}
 }
 
-state knockedBack{
-	/**
-	 * These functions are now made empty so that the pawn will not move while blocking.
-	 * NOTE: This function is to be used ONLY in the Tick-event!
-	 * @param l         Vector  The location to where the pawn should move.
-	 * @param deltaTime float   The deltaTime from the Tick-event
-	 */
-	function moveTowardsPoint( Vector l , float deltaTime ){
+state Blocking extends NonMovingState{
+}
+
+state knockedBack extends NonMovingState{
+}
+
+/**
+ * In this state the pawn is performing an actual attack (i.e.: sword swing).
+ * The pawn is not allowed to move and the controller should return to it's previous state once the swing is done.
+ */
+state Attacking extends NonMovingState{
+	local name previousState;
+
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+
+		//Save the previous state in a variable.
+		previousState = previousStateName;
+
+		//Set a timer to end the state.
+		setTimer( DELPawn( pawn ).myWeapon.FireInterval[0] , false , 'SwingFinished' );
 	}
 
-	/**
-	 * These functions are now made empty so that the pawn will not move while blocking.
-	 * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
-	 * @param deltaTime float   The deltaTime from the Tick-event
-	 */
-	function moveInDirection( vector to , float deltaTime ){
+	function SwingFinished(){
+		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
+		goToState( previousState );
 	}
 }
 

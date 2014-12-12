@@ -78,7 +78,12 @@ var bool bCanBlock;
 /**
  * The weapon that will be used by the pawn.
  */
-var DELWeapon myWeapon; 
+var DELWeapon myWeapon;
+
+/**
+ * The class for the weapon that should be spawned.
+ */
+var class<DELMeleeWeapon> weaponClass;
 
 /* ==========================================
  * Camera stuff
@@ -132,6 +137,24 @@ var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
 
+/*
+ * ===================================
+ * Animation
+ * ===================================
+ */
+
+/**
+ * Reference to the swing animation in the anim tree.
+ */
+var AnimNodePlayCustomAnim SwingAnim;
+
+var Name SwingAnimationName;
+
+
+
+
+
+
 simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
 
@@ -150,6 +173,15 @@ simulated event PostBeginPlay(){
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
 
 	}
+}
+
+/**
+ * Spawn the weapon.
+ */
+function AddDefaultInventory(){
+	myWeapon = Spawn(weaponClass,,,self.Location);
+	myWeapon.GiveTo(Controller.Pawn);
+	Controller.ClientSwitchToBestWeapon();
 }
 
 /**
@@ -361,6 +393,70 @@ simulated exec function turnRight(){
 	`log( self$" TurnRight" );
 }
 
+/**
+ * Pawn starts firing!
+ * Called from PlayerController::StartFiring
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StartFire(byte FireModeNum){
+	if(/* sword != None */true){
+		weapon.StartFire(0);
+	}
+}
+
+/**
+ * Pawn stops firing!
+ * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StopFire(byte FireModeNum){
+	if(/*FireModeNum == 0 && sword != None*/true){
+		weapon.StopFire(0);
+	}
+}
+
+/**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
+	super.PostInitAnimTree(SkelComp);
+
+	if (SkelComp == Mesh){
+		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
+	}
+}
+
+/*
+ * Performs an attack.
+ */
+function attack(){
+	//TODO: Attack
+}
+/**
+ * Plays a weapon-swing animation.
+ */
+function playSwingAnimation(){
+	SwingAnim.PlayCustomAnim(SwingAnimationName, 1.0);
+}
+
+/**
+ * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ */
+function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	if ( mySoundSet != none && mySoundSet.bCanPlay ){
+		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+		mySoundSet.bCanPlay = false;
+		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
+	}
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true
@@ -380,6 +476,7 @@ DefaultProperties
 	GroundSpeed = 100
 	detectionRange = 960.0
 	regenerationTimer = 1.0
+	weaponClass = class'DELMeleeWeaponRatClaws'
 
 	bIsStunned = false
 
