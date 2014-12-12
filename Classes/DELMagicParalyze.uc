@@ -15,4 +15,5 @@ DefaultProperties
 	bCanCharge = false
 	manaCost = 10;
 	damage= 10;
+	IconTexture = Texture2D'EditorResources.Ambientcreatures'
 }

@@ -8,6 +8,8 @@ class DELInterfaceBar extends DELInterfaceInteractible;
  */
 var int squareSize, inbetween, amountBars, key;
 
+var DELInterfaceButton lastClicked;
+
 /**
  * Array of textures linked to the buttons
  */
@@ -28,29 +30,45 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - length/2;
 	startY = hud.sizeY - squareSize*1.5;
 
+	getIcons(hud);
 	for (i=1; i<=amountBars; i++){
 		button = Spawn(class'DELInterfaceButton');
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
 		button.setTexture(textures[i-1]);
-		addButton(button);
+		addInteractible(button);
 	}
+	super.load(hud);
 }
 
+/**
+ * gets the icons from the items themselves
+ * !has magic number in the place for potions
+ * @param hud the hud where the interface belongs to
+ * @author harmen wiersma
+ */
+function getIcons(DELPlayerHud hud){
+	textures = DELPlayer(hud.getPlayer().getPawn()).magic.getIcons();
+	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+	`log(textures[0]);
+}
 
-
-//fucked around with this function to test my magical abilities. hope it doesn't break
-function useMagic(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
-	local DELPawn pawnee;
-	pawnee =hud.getPlayer().getPawn();
-	button.use(hud, mouseClicked, button);
-	hud.log("RAN useMagic");
-	key++;
-	pawnee.magicSwitch(key);
-	if(key == 7){ 
-		key = 0;
+/**
+ * lets the magical items be actually used
+ * @author harmen wiersma, brood van wierst
+ * @param hud the hud this thing belongs to
+ * @param stats stats of the mouse that activated the use of this function
+ * @param button button the mouse clicked
+ */
+function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
+	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
+	if(lastClicked != none){
+		lastClicked.useQItem();
 	}
+	lastClicked = DELInterfaceButton(button);
+	lastClicked.useQItem();
 }
 
 function draw(DELPlayerHud hud){
@@ -72,46 +90,6 @@ function draw(DELPlayerHud hud){
 	super.draw(hud);
 }
 
-function old(){
-	/*
-	 i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	button.setRun();
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-
-	i++;
-	button = Spawn(class'DELInterfaceButton');
-	button.setTexture(textures[i-1]);
-	button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-	button.setIdentifier(i);
-	AddButton(button);
-	*/
-}
-
 DefaultProperties
 {
 	key = 0;
@@ -119,10 +97,5 @@ DefaultProperties
 	inbetween=5;
 	amountBars=5;
 
-	textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
-	actions[0] = useMagic
-	actions[1] = useMagic
-	actions[2] = useMagic
-	actions[3] = useMagic
-	actions[4] = useMagic
+	//textures = (Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png', Texture2D'UDKHUD.cursor_png')
 }

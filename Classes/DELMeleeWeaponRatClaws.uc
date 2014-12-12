@@ -23,6 +23,4 @@ DefaultProperties
 
 	FiringStatesArray(0)="Swinging"
 	WeaponFireTypes(0)=EWFT_Custom
-
-	Components.remove(MeleeWeapon)
 }

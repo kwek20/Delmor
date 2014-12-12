@@ -4,8 +4,7 @@
  * 
  * @author Anders Egberts
  */
-class DELHardMonsterSmallController extends DELNPCController;
-
+class DELHardMonsterSmallController extends DELHostileController;
 /*
  * ===============================================
  * Vars
@@ -74,7 +73,6 @@ function vector cohesion( pawn p ){
 
 	return newLocation;
 }
-
 /*
  * ===============================================
  * States functions
@@ -85,14 +83,6 @@ auto state Idle{
 
 	event Tick( float deltaTime ){
 
-		super.Tick( deltaTime );
-
-		commander = getNearbyCommander();
-
-		if ( commander != none ){
-			changeState( 'Flock' );
-		}
-		//Flee from the player
 		if ( player != none && tooCloseToPawn( player ) ){
 			goToState( 'Flee' );
 		}
@@ -161,7 +151,4 @@ event commanderOrderedAttack(){
 
 DefaultProperties
 {
-	tooCloseDistance = 512.0
-	desiredDistanceToCommander = 384.0
-	maximumDistance = 1024.0
 }

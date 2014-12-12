@@ -1,5 +1,5 @@
 /**
- * @author Bram
+ * @author Anders Egberts
  * Controller class for the medium enemy.
  * 
  * The medium monster will command easymonsters. Also the medium monster can perform a series of magic spells.

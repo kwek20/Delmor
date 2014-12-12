@@ -12,12 +12,47 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - hud.sizeX*backgroundDimensionWidth/2 + inbetween;
 	startY = hud.sizeY/2 - (buttonHeight*buttonAmount + inbetween*(buttonAmount+2))/2 + inbetween;
 
+	
+	button = Spawn(class'DELInterfaceButton');
+	button.setPosition(startX, startY, length, buttonHeight, hud);
+	button.setRun(resume);
+	button.setText("Resume");
+	button.setColor(buttonColor);
+	addInteractible(button);
+
+	startY+=buttonHeight+inbetween;
+	button = Spawn(class'DELInterfaceButton');
+	button.setPosition(startX, startY, length, buttonHeight, hud);
+	button.setRun(saveGame);
+	button.setText("Save");
+	button.setColor(buttonColor);
+	addInteractible(button);
+
+	startY+=buttonHeight+inbetween;
+	button = Spawn(class'DELInterfaceButton');
+	button.setPosition(startX, startY, length, buttonHeight, hud);
+	button.setRun(loadGame);
+	button.setText("Load");
+	button.setColor(buttonColor);
+	addInteractible(button);
+
+	startY+=buttonHeight+inbetween;
+	button = Spawn(class'DELInterfaceButton');
+	button.setPosition(startX, startY, length, buttonHeight, hud);
+	button.setRun(credits);
+	button.setText("Credits");
+	button.setColor(buttonColor);
+	addInteractible(button);
+
+	startY+=buttonHeight+inbetween;
 	button = Spawn(class'DELInterfaceButton');
 	button.setPosition(startX, startY, length, buttonHeight, hud);
 	button.setRun(exit);
 	button.setText("Exit");
 	button.setColor(buttonColor);
-	addButton(button);
+	addInteractible(button);
+
+	super.load(hud);
 }
 
 function draw(DELPlayerHud hud){
@@ -28,20 +63,35 @@ function draw(DELPlayerHud hud){
 
 	hud.Canvas.SetDrawColor(20, 20, 20, 200); // semi-transparant grey
 	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawRect(hud.sizeX*backgroundDimensionWidth, buttonHeight*buttonAmount + inbetween*(buttonAmount+2)); 
+	hud.Canvas.DrawRect(hud.sizeX*backgroundDimensionWidth, buttonHeight*buttonAmount + inbetween*(buttonAmount+1)); 
 	super.draw(hud);
 }
 
-function exit(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
-	button.use(hud, mouseClicked, button);
-	ConsoleCommand("exit");
+function resume(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	hud.getPlayer().swapState('Playing');
+}
+
+function saveGame(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	
+}
+
+function loadGame(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	
+}
+
+function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	hud.getPlayer().swapState('Credits');
+}
+
+function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
+	ConsoleCommand("quit");
 }
 
 DefaultProperties
 {
 	inbetween=10
 	buttonHeight=30
-	buttonAmount=4
+	buttonAmount=5
 	backgroundDimensionWidth=0.4
 
 	buttonColor=(R=255,G=255,B=255,A=255)

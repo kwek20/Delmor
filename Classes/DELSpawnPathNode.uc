@@ -7,9 +7,5 @@ class DELSpawnPathNode extends Actor placeable;
 DefaultProperties
 {
 	bCollideActors=false
-	bTriggered = false
-	Begin Object Class=SpriteComponent Name=Sprite
-		Sprite=Texture2D'EditorResources.S_Pickup'
-	End Object
-	Components.Add(Sprite)
+	bHidden = true
 }

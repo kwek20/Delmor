@@ -72,28 +72,25 @@ state Blocking{
 }
 
 defaultproperties
-{
-
-	//Mesh
-	Components.Remove(ThirdPersonMesh)
+{	
+	Components.Remove(ThirdPersonMesh);
 	Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_ratman'
 		AnimSets(0)=AnimSet'Delmor_Character.Ratman_anim'
-		PhysicsAsset=PhysicsAsset'Delmor_Character.sk_ratman_Physics'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Ratman_AnimTree'
-		Scale3D=(X=1, Y=1, Z=1)
+		PhysicsAsset=PhysicsAsset'Delmor_Character.sk_ratman_Physics'
 		HiddenGame=False
 		HiddenEditor=False
-		bHasPhysicsAssetInstance=True
+		Scale3D=(X=1, Y=1, Z=1)
+		bHasPhysicsAssetInstance=false
 		bAcceptsLights=true
-		Translation=(Z=-4.0)
+		Translation=(Z=-42.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-
 	ControllerClass=class'DELEasyMonsterController'
 	magicResistance = 0.8
-	GroundSpeed = 105.0
+	groundSpeed = 120.0
 	meleeRange = 50.0
 	bCanBlock = true
 

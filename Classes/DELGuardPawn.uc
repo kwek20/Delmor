@@ -11,7 +11,7 @@ DefaultProperties
 	Components.Remove(ThirdPersonMesh)
 
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'Delmor_Character.sk_guard'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_guard'
 		AnimSets(0)=AnimSet'Delmor_Character.Guard_anim'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Guard_AnimTree'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.Guard_idle_Physics'

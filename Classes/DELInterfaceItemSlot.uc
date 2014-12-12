@@ -12,16 +12,14 @@ function draw(DELPlayerHud hud){
 	}
 }
 
-function hover(DELPlayerHud hud, bool enter){
+function onHover(DELPlayerHud hud, bool enter){
 	drawName(hud);
-	super.hover(hud, enter);
 }
 
-function click(DELPlayerHud hud, bool mouseClicked, DELInterfaceButton button){
+function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
 
 	item = getItem(hud);
-	button.use(hud, mouseClicked, button);
 	hud.getPlayer().showSubtitle(item.getDescription());
 }
 
