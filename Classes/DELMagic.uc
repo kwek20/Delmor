@@ -1,12 +1,4 @@
 class DELMagic extends DELWeapon;
-/**
- * list of magical abilities available to magician
- */
-var array< class<DElMagic> > magics;
-/**
- * location of active ability within spell list
- */
-var int ActiveAbilityNumber;
 
 /**
  * projectile shot when using magic
@@ -42,7 +34,7 @@ var bool bCanCharge;
 /**
  * the user of the spell
  */
-var DELPawn spellCaster;
+var DELPlayer spellCaster;
 
 /**
  * the cost that is added every iteration
@@ -58,16 +50,11 @@ var float ProjectileSizeTotal;
 
 var float ProjectileSize;
 
+var() const float maxProjectileSize;
+
 var float ProjectileSizeIncrease;
 
 var Texture2D IconTexture;
-
-var array<Texture2D> Icons;
-
-/**
- * 
- */
-var class<Projectile> spellProjectile;
 
 /**
  * Time in secconds for every iteration
@@ -134,7 +121,8 @@ simulated function interrupt(){
  * in case of a chargeable spell, the charging will be initiated
  */
 simulated function FireStart(){
-	spellCaster = DELPawn(instigator);
+	spellCaster = DELPlayer(instigator);
+	spellcaster.Grimoire.startCharge();
 	if(ManaCost > spellCaster.mana){
 		`log("you have not enough mana bitch");
 		return;
@@ -153,6 +141,7 @@ simulated function FireStart(){
  * is called when the key is released
  */
 simulated function FireStop(){
+	spellcaster.Grimoire.stopCharge();
 	GoToState('Nothing');
 }
 
@@ -172,19 +161,6 @@ simulated function shoot(){
 	CustomFire();
 }
 
-/**
- * gets the amount of spells the player knows
- */
-simulated function int getMaxSpells(){
-	return magics.Length;
-}
-
-/**
- * changes the spell that will be used
- */
-simulated function switchMagic(int AbilityNumber){
-	ActiveAbilityNumber = AbilityNumber-1;
-}
 
 
 /**
@@ -208,13 +184,7 @@ simulated function Vector GetSocketPosition(Pawn Holder){
 	return FinalLocation;
 }
 
-/**
- * gets the spell
- */
-function class<DELMagic> getMagic(){
-	`log(magics[ActiveAbilityNumber]);
-	return magics[ActiveAbilityNumber];
-}
+
 
 /**
  * checks if you are able to use magic.
@@ -244,25 +214,14 @@ simulated function class<UDKProjectile> getSpell(){
 }
 
 
-simulated function array<Texture2D> getIcons(){
-	local class<DELMagic> magic;
-	local int index;
-	forEach magics(magic, index){
-		icons.InsertItem(index,spawn(magic).IconTexture);
-	}
-	return icons;
-}
 
 
 DefaultProperties
 {
+	projectileSize = 0.1
 	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
-	conTexture = Texture2D'UDKHUD.cursor_png'
-	magics[0] = class'DELMagicForce'
-	magics[2] = class'DELMagicHeal'
-	magics[1] = class'DELMagicParalyze'
-	ActiveAbilityNumber = 0;
+	iconTexture = Texture2D'UDKHUD.cursor_png'
 	ChargeTime = 0.1;
 }

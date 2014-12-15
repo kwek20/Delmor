@@ -29,7 +29,8 @@ function load(DELPlayerHud hud){
 	images = getIcons(hud);
 	`log("iamges length:"@images.Length);
 	for (i=1; i<=amountBars; i++){
-		button = Spawn(class'DELInterfaceButton');
+		if(i < 4){button = Spawn(class'DELInterfaceButtonMagic');}
+		else{button = Spawn(class'DELInterfaceButton');}
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
@@ -47,13 +48,10 @@ function load(DELPlayerHud hud){
  */
 function array<Texture2D> getIcons(DELPlayerHud hud){
 	local array<Texture2D> textures;
-	local int i;
-
-	textures = DELPlayer(hud.getPlayer().getPawn()).magic.getIcons();
-	for (i=textures.Length-1; i<amountBars; i++){
-		textures.AddItem(Texture2D'UDKHUD.cursor_png');
-	}
-	return textures;
+	textures = DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons();
+	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+	textures.AddItem(Texture2D'UDKHUD.cursor_png');
+	`log(textures[0]);
 }
 
 /**
@@ -65,11 +63,11 @@ function array<Texture2D> getIcons(DELPlayerHud hud){
  */
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
-	if(lastClicked != none){
+	/*if(lastClicked != none){
 		lastClicked.useQItem();
 	}
 	lastClicked = DELInterfaceButton(button);
-	lastClicked.useQItem();
+	lastClicked.useQItem();*/
 }
 
 function draw(DELPlayerHud hud){

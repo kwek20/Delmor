@@ -34,7 +34,7 @@ defaultproperties
 {
 	itemName="None"
 	itemDescription="No description"
-	texture=Texture2D'DelmorHud.empty_item_bg'
+	texture=Texture2D'DelmorHud.freeze_spell'
 	pickupSound=noSound
 	amount=0
 	playerBound=false

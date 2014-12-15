@@ -4,11 +4,10 @@ var Texture2D default_bg;
 var Color bgColor;
 
 function draw(DELPlayerHud hud){
-	drawStandardbackground(hud.Canvas);
-
+	//drawStandardbackground(hud.Canvas);
 	if (textures.Length > 0){
-		super.draw(hud);
 		drawText(hud.Canvas);
+		super.draw(hud);
 	}
 }
 

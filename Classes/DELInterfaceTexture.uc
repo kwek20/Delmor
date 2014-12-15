@@ -18,8 +18,8 @@ public function draw(DELPlayerHud hud){
 
 public function drawAllTextures(Canvas c){
 	local Texture2D tex;
-	c.SetPos(position.X, position.Y);
 	foreach textures(tex){
+		c.SetPos(position.X, position.Y);
 		drawTile(c, tex, position.Z, position.W);
 	}
 }
