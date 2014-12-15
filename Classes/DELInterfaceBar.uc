@@ -8,14 +8,7 @@ class DELInterfaceBar extends DELInterfaceInteractible;
  */
 var int squareSize, inbetween, amountBars, key;
 
-var DELInterfaceButton lastClicked;
-
-/**
- * Array of delegate functions
- */
-var array< delegate<action> > actions;
-
-delegate action(DELPlayerHud hud);
+var Texture2D glass, shadow;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceButton button;
@@ -26,15 +19,18 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - length/2;
 	startY = hud.sizeY - squareSize*1.5;
 
+	setPos(startX, startY, length, squareSize+2*inbetween, hud);
 	images = getIcons(hud);
-	`log("iamges length:"@images.Length);
 	for (i=1; i<=amountBars; i++){
 		if(i < 4){button = Spawn(class'DELInterfaceButtonMagic');}
 		else{button = Spawn(class'DELInterfaceButton');}
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
+
+		button.setTexture(glass);
 		button.setTexture(images[i-1]);
+		button.setTexture(shadow);
 		addInteractible(button);
 	}
 	super.load(hud);
@@ -51,7 +47,7 @@ function array<Texture2D> getIcons(DELPlayerHud hud){
 	textures = DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons();
 	textures.AddItem(Texture2D'UDKHUD.cursor_png');
 	textures.AddItem(Texture2D'UDKHUD.cursor_png');
-	`log(textures[0]);
+	return textures;
 }
 
 /**
@@ -63,37 +59,15 @@ function array<Texture2D> getIcons(DELPlayerHud hud){
  */
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
-	/*if(lastClicked != none){
-		lastClicked.useQItem();
-	}
-	lastClicked = DELInterfaceButton(button);
-	lastClicked.useQItem();*/
-}
-
-function draw(DELPlayerHud hud){
-	local int length, startX, startY;
-	local DELPawn pawn;
-	
-	pawn = hud.getPlayer().getPawn();
-	if (pawn == None || pawn.Health <= 0)return;
-	
-	//Code for the box behind the buttons
-	length = 5*squareSize + 6*inbetween;
-	startX = hud.sizeX/2 - length/2;
-	startY = hud.sizeY - squareSize*1.5;
-
-	hud.Canvas.SetDrawColor(0, 0, 0); // black
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawRect(length, squareSize+inbetween*2); 
-
-	super.draw(hud);
 }
 
 DefaultProperties
 {
 	key = 0;
 	squareSize=40
-	inbetween=5;
+	inbetween=10;
 	amountBars=5;
 	textures=(Texture2D'DelmorHud.balk_inventory')
+	glass=Texture2D'DelmorHud.Glass'
+	shadow=Texture2D'DelmorHud.Shadow_belowglass'
 }
