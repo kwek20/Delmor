@@ -494,6 +494,7 @@ function attack(){
 		controller.goToState( 'Attacking' );
 		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
 		increaseAttackNumber();
+		say( "AttackSwing" );
 	}
 
 	//weapon.StartFire(0);
