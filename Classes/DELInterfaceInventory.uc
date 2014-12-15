@@ -5,7 +5,29 @@ var() int inbetween, length, buttonAmount, amountX, amountY;
 var() float backgroundDimensionWidth;
 
 function draw(DELPlayerHud hud){
+	local DELInterfaceObject obj;
+	local DELItem item;
+
+	foreach objects(obj){
+		if (!obj.isA('DELInterfaceItemSlot')) continue;
+		item = DELInterfaceItemSlot(obj).getItem(hud);
+
+		if (item == None) {
+			if (DELInterfaceItemSlot(obj).getText() != " "){
+				//remove it
+				removeActiveItem(DELInterfaceItemSlot(obj));
+			}
+			continue;
+		}
+		DELInterfaceItemSlot(obj).setText(item.getAmount()$"");
+	}
 	super.draw(hud);
+}
+
+function removeActiveItem(DELInterfaceItemSlot item){
+	item.removeTextures();
+	item.setText(" ");
+	item.setRun(None);
 }
 
 function load(DELPlayerHud hud){
