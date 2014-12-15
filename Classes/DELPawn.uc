@@ -85,6 +85,11 @@ var DELWeapon myWeapon;
  */
 var class<DELMeleeWeapon> weaponClass;
 
+/**
+ * The interval in which the pawn can attack in seconds.
+ */
+var float attackInterval;
+
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -140,10 +145,11 @@ var DELWeapon sword;
 var class<DELMeleeWeapon> swordClass;
 
 
+/**
+ * Reference to the swing animation in the anim tree.
+ */
 var() const array<Name> SwingAnimationNames;
 var AnimNodePlayCustomAnim SwingAnim;
-
-
 
 /*
  * ====================================
@@ -161,17 +167,15 @@ var class<DELInventoryManager> UInventory;
 var repnotify DELInventoryManager UManager;
 
 /*
- * ===================================
+ * =========================================
  * Animation
- * ===================================
+ * =========================================
  */
-
+var array<name> animname;
 /**
- * Reference to the swing animation in the anim tree.
+ * An int to point to the attack-animation array.
  */
-var AnimNodePlayCustomAnim SwingAnim;
-
-var Name SwingAnimationName;
+var int attackNumber;
 
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
@@ -217,15 +221,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
-	Controller.ClientSwitchToBestWeapon();
-}
-
-/**
- * Spawn the weapon.
- */
-function AddDefaultInventory(){
-	myWeapon = Spawn(weaponClass,,,self.Location);
-	myWeapon.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
 }
 
@@ -485,29 +480,47 @@ simulated function StopFire(byte FireModeNum){
 }
 
 /**
- * selects a point in the animtree so it is easier acessible
- * it is unknown to me what the super does
- * @param SkelComp the skeletalmesh component linked to the animtree
- */
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
-	super.PostInitAnimTree(SkelComp);
-
-	if (SkelComp == Mesh){
-		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
-	}
-}
-
-/*
  * Performs an attack.
  */
 function attack(){
-	//TODO: Attack
+	/*
+	 * TODO:
+	 * Play anim
+	 * Check if hit someone.
+	 * Go to attacking state.
+	 */
+	if ( !controller.IsInState( 'Attacking' ) ){
+		playAttackAnimation();
+		controller.goToState( 'Attacking' );
+		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
+		increaseAttackNumber();
+	}
+
+	//weapon.StartFire(0);
 }
+
 /**
- * Plays a weapon-swing animation.
+ * Play an attack animation.
  */
-function playSwingAnimation(){
-	SwingAnim.PlayCustomAnim(SwingAnimationName, 1.0);
+function playAttackAnimation(){
+	self.SwingAnim.PlayCustomAnim(animname[ attackNumber ], 1.0 , 0.1 , 0.1f , false , true );
+}
+
+/**
+ * Sets the attack number to 0
+ */
+function resetAttackCombo(){
+	attackNumber = 0;
+}
+
+/**
+ * Increases the attackNumber after an attack so that we'll play a different animation.
+ */
+function increaseAttackNumber(){
+	attackNumber ++;
+	if ( attackNumber >= 3 ){
+		resetAttackCombo();
+	}
 }
 
 /**
@@ -527,7 +540,6 @@ DefaultProperties
 	bCanPickUpInventory = true
 	UInventory = DELInventoryManager
 
-
 	MaxFootstepDistSq=9000000.0
 	health = 100
 	healthMax = 100
@@ -542,6 +554,7 @@ DefaultProperties
 	detectionRange = 960.0
 	regenerationTimer = 1.0
 	weaponClass = class'DELMeleeWeaponRatClaws'
+	attackInterval = 1.0
 
 	bIsStunned = false
 
@@ -584,4 +597,10 @@ DefaultProperties
 	ArmsMesh[1] = none
 
 	mySoundSet = none
+
+	animname[ 0 ] = ratman_attack1
+	animname[ 1 ] = ratman_attack2
+	animname[ 2 ] = ratman_jumpattack
+
+	attackNumber = 0
 }

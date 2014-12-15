@@ -73,6 +73,12 @@ state Blocking{
 
 defaultproperties
 {	
+	//Collision cylinder
+	Begin Object Name=CollisionCylinder
+		CollisionRadius = 32.0;
+		CollisionHeight = +44.0;
+	end object
+
 	Components.Remove(ThirdPersonMesh);
 	Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_ratman'
@@ -90,9 +96,9 @@ defaultproperties
     Components.Add(ThirdPersonMesh)
 	ControllerClass=class'DELEasyMonsterController'
 	magicResistance = 0.8
-	groundSpeed = 120.0
+	groundSpeed = 380.0
 	meleeRange = 50.0
 	bCanBlock = true
 
-	SwingAnimationName = 'ratman_attack1'
+	//swordClass = class'DELMeleeWeaponFists'
 }

@@ -409,12 +409,18 @@ function stopPawn(){
  * A state in which the pawn is not allowed to move on its own.
  */
 state NonMovingState{
+	local Rotator startingRotation;
 
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
 		
-		pawn.SetDesiredRotation( pawn.Rotation );
+		startingRotation = pawn.Rotation;
+		pawn.SetDesiredRotation( startingRotation );
 		stopPawn();
+	}
+
+	event Tick( float deltaTime ){
+		pawn.SetRotation( startingRotation );
 	}
 	/**
 	 * These functions are now made empty so that the pawn will not move while blocking.
@@ -454,7 +460,7 @@ state Attacking extends NonMovingState{
 		previousState = previousStateName;
 
 		//Set a timer to end the state.
-		setTimer( DELPawn( pawn ).myWeapon.FireInterval[0] , false , 'SwingFinished' );
+		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );
 	}
 
 	function SwingFinished(){
