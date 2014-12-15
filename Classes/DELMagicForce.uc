@@ -62,8 +62,8 @@ DefaultProperties
 	spell = class'DELMagicProjectileForce'
 	bCanCharge = true
 	ChargeCost = 5;
-	ChargeAdd = 8;
+	ChargeAdd = 20;
 	manaCost = 1;
-	damage = 10;
+	damage = 20;
 	IconTexture = Texture2D'DelmorHud.damage_spell'
 }
