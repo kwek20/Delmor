@@ -47,11 +47,24 @@ function drawTile(Canvas c, Texture2D texture, float XL, float YL, optional floa
 }
 
 /**
+ * Draws a texture on the current position
+ * Default colors will be used. Stretch from the entire image.
+ */
+function drawTileForced(Canvas c, Texture2D texture, float XL, float YL, optional float U = 0.f, optional float V = 0.f){
+	drawCTileForced(c, texture, XL, YL, 255, 255, 255, 255, U, V);
+}
+
+/**
  * Draw a colored tile
  */
 function drawCTile(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, optional float U = 0.f, optional float V = 0.f){
 	c.SetDrawColor(r,g,b,a);
 	c.DrawTile(texture, XL, YL, U, V, texture.SizeX, texture.SizeY);
+}
+
+function drawCTileForced(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, optional float U = 0.f, optional float V = 0.f){
+	c.SetDrawColor(r,g,b,a);
+	c.DrawTile(texture, XL, YL, U, V, XL, YL);
 }
 
 

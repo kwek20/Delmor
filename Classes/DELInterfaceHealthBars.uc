@@ -1,7 +1,7 @@
 /**
  * Interface for the health and mana bar
  */
-class DELInterfaceHealthBars extends DELInterface;
+class DELInterfaceHealthBars extends DELInterfaceTexture;
 
 var() Texture2D bg; 
 
@@ -11,21 +11,23 @@ var() Texture2D bg;
  */
 var() int barSize;
 
+function load(DELPlayerHud hud){
+	setPos(0,0,hud.SizeX/3, hud.SizeY/6, hud);
+	super.load(hud);
+}
+
 simulated function draw(DELPlayerHud hud){
 	local int length, startX, startY;
 	local DELPawn pawn;
 	
 	pawn = hud.getPlayer().getPawn();
 	if (pawn == None || pawn.Health <= 0)return;
-	
+	super.draw(hud);
 
 	hud.Canvas.Font = class'Engine'.static.GetLargeFont();   
-	length = bg.SizeX/4;
-	startX = bg.SizeX/4-barSize/2;
-	startY = bg.SizeY/6-barSize;
-
-	hud.Canvas.SetPos(0,0);
-	drawTile(hud.Canvas, bg, bg.SizeX/2, bg.SizeY/2);
+	length = position.Z/2;//bg.SizeX/4;
+	startX = position.Z-length;
+	startY = barSize;
 
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red
 	hud.Canvas.SetPos(startX, startY);   
@@ -40,6 +42,7 @@ simulated function draw(DELPlayerHud hud){
 
 DefaultProperties
 {
-	bg=Texture2D'DelmorHud.combars'
+	bg=
+	textures=(Texture2D'DelmorHud.balk_kompass');
 	barSize=23;
 }

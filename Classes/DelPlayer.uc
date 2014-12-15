@@ -3,6 +3,7 @@ class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
+var DELMagicFactory Grimoire;
 var class<DELMeleeWeapon> swordClass;
 var bool    bSprinting;
 var bool    bCanSprint;
@@ -54,9 +55,8 @@ function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	magic = Spawn(class'DELMagic',,,self.Location);
-	magic = Spawn(magic.getMagic(),,,self.Location);
-	magic.GiveTo(Controller.Pawn);
+	grimoire = Spawn(class'DELMagicFactory');
+	magic = grimoire.getMagic();
 }
 
 
@@ -73,10 +73,8 @@ simulated function magicSwitch(int AbilityNumber){
 	if(bNoWeaponFiring){
 		return;
 	}	
-	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
-		magic.switchMagic(AbilityNumber);
-		magic = Spawn(magic.getMagic(),,,self.Location);
-		magic.GiveTo(Controller.Pawn);
+	if(grimoire != None && AbilityNumber <= grimoire.getMaxSpells()){
+		magic = grimoire.getMagic(AbilityNumber);
 	}
 }
 
@@ -448,8 +446,8 @@ function float lengthDirY( float len , float dir ){
 
 DefaultProperties
 {
-	//swordClass = class'DELMeleeWeaponDemonSlayer';
-	swordClass = class'DELMeleeWeaponTheButcher'
+	swordClass = class'DELMeleeWeaponDemonSlayer';
+	//swordClass = class'DELMeleeWeaponTheButcher'
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 

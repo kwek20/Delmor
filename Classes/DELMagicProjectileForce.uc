@@ -25,14 +25,15 @@ simulated function SpawnFlightEffects(){
 
 DefaultProperties
 {
-	ProjFlightTemplate=ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Projectile'
-	ProjChargeTemplate = ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Projectile'
+	ProjFlightTemplate = ParticleSystem'Particlepackage.Particles.PS_Fire_Small'
+	ProjChargeTemplate = ParticleSystem'Particlepackage.Particles.PS_Fire_Small'
+
 	ProjExplosionTemplate=ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Impact'
 	MaxEffectDistance=7000.0
 	Flying = false
 
-	Speed=1400
-	MaxSpeed=5000
+	Speed=500.0
+	MaxSpeed=3000.0
 	AccelRate=3000.0
 
 	Damage=20
@@ -44,7 +45,7 @@ DefaultProperties
 	LifeSpan=3.0
 	NetCullDistanceSquared=+144000000.0
 	bCollideWorld=true
-	DrawScale=1.2
+	DrawScale=1.0
 	//AmbientSound=SoundCue'A_Weapon_RocketLauncher.Cue.A_Weapon_RL_Travel_Cue'
 	ExplosionSound=SoundCue'A_Weapon_Link.Cue.A_Weapon_Link_ImpactCue'
 	ColorLevel=(X=1,Y=1.3,Z=1)

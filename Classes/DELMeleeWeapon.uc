@@ -3,9 +3,10 @@
  * made bij Harmen Wiersma
  */
 class DELMeleeWeapon extends DELWeapon;
-var() const name swordHiltSocketName,swordTipSocketName, swordAnimationName, handSocketName;
+var() const name swordHiltSocketName,swordTipSocketName, handSocketName;
 var array<Actor> swingHitActors;
 var class<DamageType> dmgType;
+var name animname1,animname2,animname3;
 
 var array<int> swings;
 var const int maxSwings;
@@ -15,26 +16,22 @@ simulated state Swinging extends WeaponFiring {
 		super.Tick(DeltaTime);
 		TraceSwing();
 	}
-	simulated event EndState(Name NextStateName)
-	{
+	simulated event EndState(Name NextStateName){
 		super.EndState(NextStateName);
 		SetTimer(GetFireInterval(CurrentFireMode), false, nameof(ResetSwings));
 	}
 }
 
-function ResetSwings()
-{
+function ResetSwings(){
 	RestoreAmmo(MaxSwings);
 }
 
-simulated function TimeWeaponEquipping()
-{
+simulated function TimeWeaponEquipping(){
     super.TimeWeaponEquipping();
     AttachWeaponTo( Instigator.Mesh,handSocketName );
 }
  
-simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
-{
+simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName ){
     MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
 }
 
@@ -65,25 +62,19 @@ simulated function TraceSwing(){
 	DamageAmount = calculateDamage();
 
 
-	foreach TraceActors(class'Actor', HitActor, HitLoc, HitNorm, SwordTip, SwordHilt)
-	{
-		if (HitActor != self && AddToSwingHitActors(HitActor))
-		{
-			//Momentum = Normal(SwordTip - SwordHilt) * InstantHitMomentum[CurrentFireMode];
+	foreach TraceActors(class'Actor', HitActor, HitLoc, HitNorm, SwordTip, SwordHilt){
+		if (HitActor != self && AddToSwingHitActors(HitActor)){
 			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);
 			//PlaySound(SwordClank);
 		}
 	}
 }
 
-function bool AddToSwingHitActors(Actor HitActor)
-{
+function bool AddToSwingHitActors(Actor HitActor){
 	local int i;
 
-	for (i = 0; i < SwingHitActors.Length; i++)
-	{
-		if (SwingHitActors[i] == HitActor)
-		{
+	for (i = 0; i < SwingHitActors.Length; i++){
+		if (SwingHitActors[i] == HitActor){
 			return false;
 		}
 	}
@@ -108,7 +99,7 @@ simulated function Vector GetSwordSocketLocation(Name SocketName){
 simulated function int CalculateDamage(){
 	local int damageRange, damage;
 	damageRange = (damageMax - damageMin);
-	damage = Rand(damageRange);
+	damage = damageMin +Rand(damageRange);
 	if (doesCrit()) damage = addCrit(damage);
 	return damage;
 }
@@ -125,21 +116,17 @@ simulated function int addCrit(int damage){
 
 
 
-function RestoreAmmo(int Amount, optional byte FireModeNum)
-{
+function RestoreAmmo(int Amount, optional byte FireModeNum){
 	Swings[FireModeNum] = Min(Amount, MaxSwings);
 }
 
-function ConsumeAmmo(byte FireModeNum)
-{
-	if (HasAmmo(FireModeNum))
-	{
+function ConsumeAmmo(byte FireModeNum){
+	if (HasAmmo(FireModeNum)){
 		Swings[FireModeNum]--;
 	}
 }
 
-simulated function bool HasAmmo(byte FireModeNum, optional int Ammount)
-{
+simulated function bool HasAmmo(byte FireModeNum, optional int Ammount){
 	return Swings[FireModeNum] > Ammount;
 }
 
@@ -150,20 +137,21 @@ simulated function FireAmmunition(){
 	if (HasAmmo(CurrentFireMode)){
 		`log(Swings[0]);
 		if (MaxSwings - Swings[0] == 0) {
-			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.f,0.1f,0.1f,false,true);
+			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname1, 1.f,0.1f,0.1f,false,true);
 		} else if (MaxSwings - Swings[0] == 1){
-			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
+			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname2, 1.0);
 			`log("surprise motherf***er");
 		} else {
-			DelPlayer(Owner).SwingAnim.PlayCustomAnim('Lucian_slash1', 1.0);
+			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname3, 1.0);
 		}
-
-		//PlayWeaponAnimation(SwordAnimationName, GetFireInterval(CurrentFireMode));
 		super.FireAmmunition();
 	}
 }
 DefaultProperties
 {
+	animname1 = Lucian_slash1
+	animname2 = Lucian_slash2
+	animname3 = Lucian_slash1
 	bHardAttach = true
 	swordHiltSocketName = SwordHiltSocket
 	swordTipSocketName = SwordTipSocket
@@ -180,7 +168,7 @@ DefaultProperties
 	FireInterval(0)=0.25
 
 	damageMin = 10;
-	damageMax = 50;
+	damageMax = 30;
 
 	bMeleeWeapon=true;
 	bInstantHit=true;

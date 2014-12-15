@@ -27,7 +27,7 @@ var() Vector2D textOffset;
 
 public function draw(DELPlayerHud hud){
 	super.draw(hud);
-	if (texture == None){
+	if (textures.Length == 0){
 		drawText(hud.Canvas);
 	}
 }
@@ -60,7 +60,7 @@ public function drawText(Canvas c){
  */
 public function drawTexture(Canvas c){
 	super.drawTexture(c);
-	if(bLastClicked && texture != none){
+	if(bLastClicked && textures.Length>0){
 		c.SetDrawColor(clickedColor.R,clickedColor.G,clickedColor.B,clickedColor.A);
 		c.SetPos(position.X-5,position.Y-5,position.Z);
 		c.DrawBox(position.W + 2*5 , position.Z + 2*5); 

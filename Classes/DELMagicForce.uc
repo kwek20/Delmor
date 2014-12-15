@@ -5,20 +5,24 @@ var vector locationOfProjectile;
 simulated state Charging{
 	simulated event beginstate(Name NextStateName){
 		super.beginstate(NextStateName);
-		locationOfProjectile = GetSocketPosition(instigator);
+		locationOfProjectile = GetSocketPosition(spellcaster);
 		chargingProjectile = Spawn(getSpell() ,self,, locationOfProjectile);
+		chargingProjectile.SetDrawScale(projectileSize);
 		ProjectileSizeTotal = projectileSize;
 	}
 	simulated event Tick(float DeltaTime){
 		super.Tick(DeltaTime);
-		locationOfProjectile = GetSocketPosition(instigator);
+		locationOfProjectile = GetSocketPosition(spellcaster);
 		chargingProjectile.SetLocation(locationOfProjectile);
 		chargingProjectile.LifeSpan += 0.4;
 	}
 
 	simulated function ChargeTick(){
 		super.chargeTick();
-		ProjectileSizeTotal += projectileSizeIncrease;
+		
+		if(ProjectileSizeTotal <= maxProjectileSize){
+			ProjectileSizeTotal += projectileSizeIncrease;
+		}
 		chargingProjectile.SetDrawScale(ProjectileSizeTotal);
 	}
 
@@ -49,14 +53,15 @@ simulated function CustomFire(){
 
 DefaultProperties
 {
-	projectileSize = 1.0
-	projectileSizeIncrease = 0.1
-	magicName="force"
+	projectileSize = 0.1
+	projectileSizeIncrease = 0.01
+	maxProjectileSize = 0.4
+
 	spell = class'DELMagicProjectileForce'
 	bCanCharge = true
 	ChargeCost = 1;
 	ChargeAdd = 2;
-	manaCost = 10;
+	manaCost = 5;
 	damage = 10;
 	IconTexture = Texture2D'EditorResources.LookTarget'
 }
