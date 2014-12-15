@@ -165,7 +165,7 @@ DefaultProperties
 	MaxSwings=3
 	Swings(0)=3
 
-	FireInterval(0)=0.25
+	FireInterval(0)=1
 
 	damageMin = 10;
 	damageMax = 30;
