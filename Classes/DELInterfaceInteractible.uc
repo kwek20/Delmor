@@ -8,6 +8,7 @@ var() PrivateWrite array< DELInterfaceObject > objects;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceObject obj;
+	super.load(hud);
 	foreach objects(obj){obj.load(hud);}
 }
 
@@ -92,6 +93,9 @@ public function performAction(DELPlayerHud p, DELInterfaceObject b, optional DEL
  */
 public function draw(DELPlayerHud hud){
 	local DELInterfaceObject object;
+	local Texture2D tex;
+	super.draw(hud);
+
 	foreach objects(object){
 		object.draw(hud);
 	}

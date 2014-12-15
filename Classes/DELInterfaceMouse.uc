@@ -1,17 +1,7 @@
 /**
  * Mouse interface. This draws the mouse on the screen
  */
-class DELInterfaceMouse extends DELInterface;
-
-/**
- * The texture which represents the cursor on the screen
- */
-var const Texture2D CursorTexture; 
-
-/**
- * The color of the cursor
- */
-var const Color CursorColor;
+class DELInterfaceMouse extends DELInterfaceTexture;
 
 simulated function load(DELPlayerHud hud){
 	//set the mouse in the center
@@ -28,19 +18,10 @@ simulated function draw(DELPlayerHud hud){
 	if (hud.PlayerOwner != None) {
 		// Cast to get the MouseInterfacePlayerInput
 		MouseInterfacePlayerInput = DELPlayerInput(hud.PlayerOwner.PlayerInput); 
-
 		if (MouseInterfacePlayerInput != None){
 			// Set the canvas position to the mouse position
-			hud.Canvas.SetPos(MouseInterfacePlayerInput.stats.MousePosition.X, MouseInterfacePlayerInput.stats.MousePosition.Y); 
-			// Set the cursor color
-			hud.Canvas.DrawColor = CursorColor;
-
-			// Draw the texture on the screen
-			if (CursorTexture != None){
-				drawTile(hud.Canvas, CursorTexture, CursorTexture.SizeX, CursorTexture.SizeY);
-			} else {
-				hud.Canvas.DrawRect(20, 20); 
-			}
+			setPosition(MouseInterfacePlayerInput.stats.MousePosition.X, MouseInterfacePlayerInput.stats.MousePosition.Y, 64, 64, hud); 
+			super.draw(hud);
 		}
 	}
 }
@@ -54,6 +35,5 @@ simulated function bool update();
 
 DefaultProperties
 {
-	CursorColor=(R=255,G=255,B=255,A=255)
-	CursorTexture=Texture2D'UDKHUD.cursor_png'
+	textures=(Texture2D'DelmorHud.cursor')
 }

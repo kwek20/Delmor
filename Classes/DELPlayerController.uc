@@ -53,7 +53,11 @@ state Playing extends PlayerWalking{
 Begin:
 }
 
-state MouseState {
+state BaseState {
+	
+}
+
+state MouseState extends BaseState{
 	function UpdateRotation(float DeltaTime);   
 	exec function StartFire(optional byte FireModeNum);
 	exec function StopFire(optional byte FireModeNum);
@@ -91,10 +95,11 @@ state Questlog extends MouseState{
 Begin:
 }
 
-state Credits extends MouseState{
+state Credits extends BaseState{
 	function BeginState(Name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		drawDefaultHud = false;
+		canWalk=false;
 		addInterface(class'DELInterfaceCredits');
 		checkHuds();
 	}
@@ -184,7 +189,7 @@ function checkHuds(){
 		addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
-		addInterface(class'DELInterfaceSubtitle');
+		addInterfacePriority(class'DELInterfaceSubtitle', HIGH);
 	}
 	if (drawbars){
 		addInterface(class'DELInterfaceHealthBars');
@@ -225,8 +230,7 @@ simulated function PostBeginPlay() {
  * the camera. However when the player moves the mouse, the camera will rotate.
  * @author Anders Egberts
  */
-function UpdateRotation(float DeltaTime)
-{
+function UpdateRotation(float DeltaTime){
     local DELPawn dPawn;
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
