@@ -91,7 +91,7 @@ public function drawTexture(Canvas c){
 
 public function drawAllTexturesColored(Canvas c, color hoverColor){
 	local Texture2D texture;
-
+	c.SetPos(position.X, position.Y);
 	foreach textures(texture){
 		drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);
 	}
@@ -99,6 +99,7 @@ public function drawAllTexturesColored(Canvas c, color hoverColor){
 
 public function drawAllHoverTextures(Canvas c){
 	local Texture2D hoverTexture;
+	c.SetPos(position.X, position.Y);
 	foreach hoverTextures(hoverTexture){
 		drawTile(c, hoverTexture, position.Z, position.W);
 	}

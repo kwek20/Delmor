@@ -97,13 +97,14 @@ public function draw(DELPlayerHud hud){
 	super.draw(hud);
 
 	foreach objects(object){
+		`log(object@object.position.X@object.position.Y);
 		object.draw(hud);
 	}
 
 	foreach objects(object){
 		if (object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
 			//mouse on button
-			//object.hover();
+			object.hover();
 			object.onHover(hud, true);
 		}
 	}
