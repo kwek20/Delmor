@@ -93,6 +93,7 @@ public function setIdentifier(int key){
  * Only works if there is no texture
  */
 public function setText(string text){
+	if (self.text == text) return;
 	self.text = text;
 }
 

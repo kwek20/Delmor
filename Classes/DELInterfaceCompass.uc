@@ -45,6 +45,7 @@ function draw(DELPlayerHud hud){
 		MapRotation = PlayerHeading - TrueNorth;
 		CompassRotation = MapRotation;
 	}
+
 	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
 	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
 	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
@@ -140,27 +141,11 @@ function float getPlayerHeading()
 
 DefaultProperties
 {
-	Begin Object Class=ArrowComponent Name=Arrow
-		ArrowColor=(B=80,G=80,R=200,A=255)
-		ArrowSize = 1.000000
-		Name="North Heading"
-		end Object
-	Components(0) = Arrow
-
-	Begin Object Class=SpriteComponent Name=Sprite
-		Sprite=Texture2D'CompassContent.compass'
-		HiddenGame=True
-		AlwaysLoadOnClient=false
-		AlwaysLoadOnServer = False
-		Name = "Sprite"
-		End Object
-	Components(1) = Sprite
-
 	bMoveable=false
 
 	MapDim=150
 	TileSize=0.4
-	  BoxSize=12
-	 MapPosition=(X=0.000000,Y=0.000000)
+	BoxSize=12
+	MapPosition=(X=0.000000,Y=0.000000)
 	ResolutionScale=1.0
 }

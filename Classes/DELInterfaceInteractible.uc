@@ -25,6 +25,18 @@ public function bool addInteractible(DELInterfaceObject obj){
 	return true;
 }
 
+public function bool removeInteractible(DELInterfaceObject obj){
+	local int i;
+
+	for (i=0; i<objects.Length; i++){
+		if (objects[i] == obj){
+			objects[i] = none;
+			return true;
+		}
+	}
+	return false;
+}
+
 /**
  * Function which handles keypress
  * @param p The playerhud
@@ -93,14 +105,14 @@ public function performAction(DELPlayerHud p, DELInterfaceObject b, optional DEL
  */
 public function draw(DELPlayerHud hud){
 	local DELInterfaceObject object;
-	local Texture2D tex;
 	super.draw(hud);
 
 	foreach objects(object){
-		object.draw(hud);
+		if (object != None)object.draw(hud);
 	}
 
 	foreach objects(object){
+		if (object == None) continue;
 		if (object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
 			//mouse on button
 			object.hover();

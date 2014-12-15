@@ -1,15 +1,15 @@
 /**
  * Extended playercontroller that changes the camera.
- * 
+ *
  * KNOWN BUGS:
  * - Fix player movement.
- * 
+ *
  * @author Anders Egberts.
  */
 class DELPlayerController extends PlayerController dependson(DELInterface)
 	config(Game);
 
-var SoundCue soundSample; 
+var SoundCue soundSample;
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 
 var() private string subtitle;
@@ -54,11 +54,11 @@ Begin:
 }
 
 state BaseState {
-	
+
 }
 
 state MouseState extends BaseState{
-	function UpdateRotation(float DeltaTime);   
+	function UpdateRotation(float DeltaTime);
 	exec function StartFire(optional byte FireModeNum);
 	exec function StopFire(optional byte FireModeNum);
 
@@ -106,9 +106,9 @@ state Credits extends BaseState{
 }
 
 state End extends MouseState{
-	
+
 }
-	
+
 
 state Inventory extends MouseState{
 
@@ -206,7 +206,7 @@ function addInterfacePriority(class<DELInterface> interface, EPriority priority)
 
 	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
 	`log("Added interface"@interface);
-	
+
 	delinterface = Spawn(interface, self);
 	getHud().addInterface(delinterface, priority);
 }
@@ -221,7 +221,7 @@ public function showSubtitle(string text){
  ###############*/
 
 simulated function PostBeginPlay() {
-	
+
 	super.PostBeginPlay();
 }
 
@@ -298,6 +298,37 @@ public function int getSeconds(){
 	local int sec, a;
 	GetSystemTime(a,a,a,a,a,a,sec,a);
 	return sec;
+}
+
+exec function AddItem(string item, int amount){
+	AddToInventory(item, amount);
+}
+
+function AddToInventory(string item, int amount) {
+    if (amount > 20) {
+		`log("Amount to big");
+    } else {
+		switch (item) {
+			case "herb":
+				addHerb(amount);
+			break;
+
+			case "ore":
+				addOre(amount);
+			break;
+
+			default:
+			break;
+			}
+	}
+}
+
+function addHerb(int amount) {
+	getPawn().UManager.AddInventory(class'DELItemHerb', amount);
+}
+
+function addOre(int amount) {
+	getPawn().UManager.AddInventory(class'DELItemOre', amount);
 }
 
 exec function SaveGame(string FileName)

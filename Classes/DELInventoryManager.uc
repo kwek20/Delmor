@@ -31,7 +31,6 @@ function bool CheckInventorySize(class<DELItem> ItemToCheck, int AmountWantingTo
 	//When the iterator reaches a class that macthes the one that you want add it to itemamountininventory
 	if (UItems[i].Class == ItemToCheck){
         ItemAmountInInventory ++;
-        `log(""@ItemToCheck$" Has"@ItemAmountInInventory$"Items");
 	}
   }
 
@@ -52,6 +51,8 @@ function StartingInventory(){
 	AddInventory(class'DELItemOre', 4);
 	AddInventory(class'DELItemOre', 2);
 	AddInventory(class'DELItemOre', 1);
+	AddInventory(class'DELItemPotionHealth', 5);
+	//AddInventory(class'DELItemPotionMana', 25);
 }
 
 
@@ -75,6 +76,42 @@ function AddInventory(class<DELItem> ItemType, int amount ){
 	AddItem = Spawn(ItemType);
 	AddItem.setAmount(amount);
     UItems.AddItem(AddItem);
+}
+
+function remove(DELItem item){
+	local int i;
+
+	for (i=0; i<UItems.Length; i++){
+		if (UItems[i] == item){
+			UItems[i] = none;
+			return;
+		}
+	}
+}
+
+function bool hasItem(class<DELItem> item){
+	local DELItem temp;
+	foreach UItems(temp){
+		if (temp.class == item) return true;
+	}
+	return false;
+}
+
+function DELItem getFirst(class<DELItem> item){
+	local DELItem temp;
+	foreach UItems(temp){
+		if (temp.class == item) return temp;
+	}
+	return None;
+}
+
+function int getAmount(class<DELItem> item){
+	local DELItem temp;
+	local int amount;
+	foreach UItems(temp){
+		if (temp.class == item) amount+=temp.getAmount();
+	}
+	return amount;
 }
 
 //Remove items from the current inventory either when used or dropped.
