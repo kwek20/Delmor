@@ -29,7 +29,7 @@ function load(DELPlayerHud hud){
 							startY  + ((class'DELMath'.static.floor(i / amountX) + 1)*inbetween) 
 									+ ((class'DELMath'.static.floor(i / amountX))*length),
 							length, length, hud);
-		if (items.Length > i){
+		if (items.Length > i && items[i] != None){
 			item = items[i];
 			button.setRun(button.click);
 			button.setText(item.getAmount()$"");
