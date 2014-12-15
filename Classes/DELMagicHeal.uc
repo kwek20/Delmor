@@ -23,6 +23,7 @@ simulated function FireStart(){
 		`log("thyne health is " $ spellCaster.Health);
 		`log("the maximum thyne health caneth be is " $ spellCaster.HealthMax);
 		`log("the strength of thyne spell is "$ damage);
+		gotoState('nothing');
 		return;
 	}
 	consumeMana(manaCost);
