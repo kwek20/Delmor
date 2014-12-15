@@ -78,12 +78,31 @@ function AddInventory(class<DELItem> ItemType, int amount ){
     UItems.AddItem(AddItem);
 }
 
+function remove(DELItem item){
+	local int i;
+
+	for (i=0; i<UItems.Length; i++){
+		if (UItems[i] == item){
+			UItems[i] = none;
+			return;
+		}
+	}
+}
+
 function bool hasItem(class<DELItem> item){
 	local DELItem temp;
 	foreach UItems(temp){
 		if (temp.class == item) return true;
 	}
 	return false;
+}
+
+function DELItem getFirst(class<DELItem> item){
+	local DELItem temp;
+	foreach UItems(temp){
+		if (temp.class == item) return temp;
+	}
+	return None;
 }
 
 function int getAmount(class<DELItem> item){

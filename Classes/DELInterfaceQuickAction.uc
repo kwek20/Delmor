@@ -3,10 +3,14 @@ class DELInterfaceQuickAction extends DELInterfaceButton;
 var class<DELItem> focusItem;
 
 var Texture2D empty;
-var bool added;
+var private bool added;
 
 function load(DELPlayerHud hud){
 	super.load(hud);
+}
+
+function bool isActive(){
+	return !added;
 }
 
 function draw(DELPlayerHud hud){

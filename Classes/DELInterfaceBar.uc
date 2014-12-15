@@ -29,13 +29,14 @@ function load(DELPlayerHud hud){
 
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
-		button.setRun(useMagic);
 
 		button.setTexture(glass);
 		if (images.Length>=i){
 			button.setTexture(images[i-1]);
+			button.setRun(useMagic);
 		} else if (hotbarItems.Length >=i-images.Length){
 			DELInterfaceQuickAction(button).setFocus(hud, hotbarItems[i-images.Length-1]);
+			button.setRun(usePotion);
 		}
 
 		if (i==0)button.setTexture(vlekje);
@@ -67,6 +68,14 @@ function array<Texture2D> getIcons(DELPlayerHud hud){
  */
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
+}
+
+function usePotion(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
+	local DELItem item;
+	if (!button.isA('DELInterfaceQuickAction') || !DELInterfaceQuickAction(button).isActive()) return;
+	item = hud.getPlayer().getPawn().UManager.getFirst(DELInterfaceQuickAction(button).focusItem);
+	if (!item.isA('DELItemInteractible')) return;
+	DELItemInteractible(item).use(hud);
 }
 
 DefaultProperties
