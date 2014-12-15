@@ -33,10 +33,6 @@ simulated function CustomFire(){
 	spellCaster.Heal(totalDamage);
 }
 
-
-
-
-
 DefaultProperties
 {
 	magicName="Heal"
@@ -46,5 +42,5 @@ DefaultProperties
 	ChargeAdd = 5;
 	manaCost = 10;
 	damage = 20;
-	IconTexture = Texture2D'EditorResources.VolumePath'
+	IconTexture = Texture2D'DelmorHud.healing_spell'
 }

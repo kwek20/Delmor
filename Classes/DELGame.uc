@@ -18,15 +18,11 @@ function InitGame( string Options, out string ErrorMessage )
 		break;
 	}
 
-	if (HasOption(Options, "SaveGameState"))
-    {
+	if (HasOption(Options, "SaveGameState")){
 		PendingSaveGameFileName = ParseOption(Options, "SaveGameState");
-    }
-    else
-    {
+    } else {
 		PendingSaveGameFileName = "";
     }
-	
 }
 
 
@@ -43,17 +39,14 @@ function startMatch(){
     local name CurrentStreamingMap;
 
 	foreach WorldInfo.AllControllers( class'DELPlayerController' , pc ){
-		`log( "pc.playerInput: "$pc.PlayerInput );
 		DELPlayerInput( pc.PlayerInput ).setBindings();
 	}
 
-    if (PendingSaveGameFileName != "")
-    {
+    if (PendingSaveGameFileName != "") {
 		// Instance the save game state
 		SaveGame = new class'DELSaveGameState';
 
-		if (SaveGame == none)
-		{
+		if (SaveGame == none){
 			return;
 		}
 

@@ -65,5 +65,5 @@ DefaultProperties
 	ChargeAdd = 8;
 	manaCost = 1;
 	damage = 10;
-	IconTexture = Texture2D'EditorResources.LookTarget'
+	IconTexture = Texture2D'DelmorHud.damage_spell'
 }

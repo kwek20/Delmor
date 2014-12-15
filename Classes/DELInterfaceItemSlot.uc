@@ -6,8 +6,8 @@ var Color bgColor;
 function draw(DELPlayerHud hud){
 	//drawStandardbackground(hud.Canvas);
 	if (textures.Length > 0){
-		drawText(hud.Canvas);
 		super.draw(hud);
+		drawText(hud.Canvas);
 	}
 }
 
