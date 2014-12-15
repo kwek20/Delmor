@@ -8,7 +8,9 @@ class DELInterfaceBar extends DELInterfaceInteractible;
  */
 var int squareSize, inbetween, amountBars, key;
 
-var Texture2D glass, shadow;
+var Texture2D glass, shadow, vlekje;
+
+var array< class<DELItem> > hotbarItems;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceButton button;
@@ -22,15 +24,23 @@ function load(DELPlayerHud hud){
 	setPos(startX, startY, length, squareSize+2*inbetween, hud);
 	images = getIcons(hud);
 	for (i=1; i<=amountBars; i++){
-		if(i < 4){button = Spawn(class'DELInterfaceButtonMagic');}
-		else{button = Spawn(class'DELInterfaceButton');}
+		if(i <= images.Length){button = Spawn(class'DELInterfaceButtonMagic');}
+		else{button = Spawn(class'DELInterfaceQuickAction');}
+
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 		button.setRun(useMagic);
 
 		button.setTexture(glass);
-		button.setTexture(images[i-1]);
+		if (images.Length>=i){
+			button.setTexture(images[i-1]);
+		} else if (hotbarItems.Length >=i-images.Length){
+			DELInterfaceQuickAction(button).setFocus(hud, hotbarItems[i-images.Length-1]);
+		}
+
+		if (i==0)button.setTexture(vlekje);
 		button.setTexture(shadow);
+		
 		addInteractible(button);
 	}
 	super.load(hud);
@@ -45,8 +55,6 @@ function load(DELPlayerHud hud){
 function array<Texture2D> getIcons(DELPlayerHud hud){
 	local array<Texture2D> textures;
 	textures = DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons();
-	textures.AddItem(Texture2D'UDKHUD.cursor_png');
-	textures.AddItem(Texture2D'UDKHUD.cursor_png');
 	return textures;
 }
 
@@ -70,4 +78,7 @@ DefaultProperties
 	textures=(Texture2D'DelmorHud.balk_inventory')
 	glass=Texture2D'DelmorHud.Glass'
 	shadow=Texture2D'DelmorHud.Shadow_belowglass'
+	vlek=Texture2D'DelmorHud.vlekje2'
+
+	hotbarItems=(class'DELItemPotionHealth', class'DELItemPotionMana')
 }
