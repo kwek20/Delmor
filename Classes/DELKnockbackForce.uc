@@ -27,6 +27,11 @@ var float beginZ;
 
 var float gravity;
 
+/**
+ * When landed, set the pawn's controller's state back to this state.
+ */
+var name pawnsPreviousState;
+
 event Tick( float deltaTime ){
 	local vector newLocation , HitLocation, HitNormal;
 	if ( myPawn == none ){
@@ -49,10 +54,12 @@ event Tick( float deltaTime ){
 		myPawn.setLocation( adjustLocation( HitNormal , newLocation.Z ) );
 		endForce();
 	}
-	myPawn.setLocation( newLocation );
+
+	myPawn.velocity = normal( newLocation - myPawn.Location ) * power * deltaTime;
+	myPawn.move( myPawn.velocity );
 
 	//We've hit the ground
-	if ( myPawn.location.Z <= beginZ + 4.0 && zPower <= 0 ){
+	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0 ){
 		`log( "HIT GROUND" );
 		endForce();
 	}
@@ -66,7 +73,7 @@ event Tick( float deltaTime ){
  */
 function setPower( float inPower ){
 	power = inPower;
-	zPower = inPower;
+	zPower = inPower * 2.0;
 }
 
 /**
@@ -74,6 +81,7 @@ function setPower( float inPower ){
  */
 function endForce(){
 	myPawn.bBlockActors = true;
+	myPawn.controller.goToState( pawnsPreviousState );
 	destroy();
 }
 /**
@@ -98,6 +106,6 @@ DefaultProperties
 		CollisionHeight = +32.0
 	end object
 
-	gravity = 12.5
+	gravity = 65.0
 	zPower = 800.0
 }

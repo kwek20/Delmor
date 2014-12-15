@@ -43,14 +43,59 @@ private function assignSoundSet(){
 }
 
 /**
- * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ * Blocking state.
+ * While in the blocking state the pawn should get no damage from melee attacks.
  */
-function say( String dialogue ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet.bCanPlay ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 2.0 , false , nameOf( mySoundSet.resetCanPlay ) );
+state Blocking{
+
+	function beginState( name previousStateName ){
+		super.beginState( previousStateName );
+
+		//Stop after five seconds
+		setTimer( 5.0 , false , 'stopBlocking' );
+	}
+	/**
+	 * Overridden so that the pawn take no damage from melee-attacks.
+	 * However when hit by a force attack, the pawn will be knocked back and the block will end.
+	 */
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+
+		switch( DamageType ){
+		case class'DELDmgTypeMelee':
+			playBlockingSound();
+			//Block even longer
+			setTimer( 5.0 , false , 'stopBlocking' );
+			knockBack( 100.0 , location - DELHostileController( controller ).player.location );
+			break;
+
+		case class'DELDmgTypeMagical':
+			breakBlock();
+			knockBack( 400.0 , location - DELHostileController( controller ).player.location );
+		}
+	}
+
+	/**
+	 * Stop blocking and notify the controller that we've stopped blocking.
+	 * Also we will not be able to block for only two seconds.
+	 */
+	function stopBlocking(){
+		super.stopBlocking();
+		DELMediumMonsterController( controller ).PawnStoppedBlocking();
+		bCanBlock = false;
+		setTimer( 2.0 , false , 'resetCanBlock' );
+	}
+
+	/**
+	 * Called when hit a by player's force attack.
+	 * When the block is broken the pawn will not be able to block for five seconds.\
+	 * Also notify the controller that our block was broken.
+	 */
+	function breakBlock(){
+		super.stopBlocking();
+		DELMediumMonsterController( controller ).PawnBlockBroken();
+		bCanBlock = false;
+		setTimer( 5.0 , false , 'resetCanBlock' );
 	}
 }
 
@@ -80,6 +125,5 @@ defaultproperties
 	healthRegeneration = 4
 	walkingSpeed = 80.0
 	detectionRange = 512.0
-
-	mySoundSet = none
+	bCanBlock = true
 }

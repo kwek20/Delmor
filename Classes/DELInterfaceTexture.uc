@@ -66,6 +66,10 @@ public function setTexture(Texture2D mat){
 	textures.AddItem(mat);
 }
 
+public function removeTextures(){
+	textures.Length=0;
+}
+
 /**
  * Set the button position\
  * @param x

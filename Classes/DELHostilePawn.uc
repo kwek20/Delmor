@@ -43,14 +43,37 @@ function AddDefaultInventory()
 }
 
 /**
- * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ * Stub to play a blocking sound.
  */
-function say( String dialogue ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet != none && mySoundSet.bCanPlay ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
+function playBlockingSound(){
+}
+
+/**
+ * Ends the stun.
+ */
+function endStun(){
+	`log( "***************************" );
+	`log( "###########################" );
+	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
+	`log( "###########################" );
+	`log( "***************************" );
+	controller.goToState( 'Attack' );
+}
+
+/**
+ * Blocking state.
+ * While in the blocking state the pawn should get no damage from melee attacks.
+ */
+state Blocking{
+
+	/**
+	 * Overridden so that the pawn take no damage.
+	 */
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		if(DamageType == class'DELDmgTypeMelee'){
+			playBlockingSound();
+		}
 	}
 }
 

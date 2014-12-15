@@ -114,6 +114,18 @@ state flee{
 	}
 }
 
+/**
+ * When stunned the pawn and controller will not be able to do anything.
+ */
+state Stunned{
+
+	function beginState( name previousStateName ){
+		super.beginState( previousStateName );
+
+		stopPawn();
+	}
+}
+
 /*
  * ==============================================
  * Utility functions
@@ -318,9 +330,7 @@ function DELPawn checkCollision(){
  * Starts the meleeAttack pipeline.
  */
 function meleeAttack(){
-	//`log( self$" MeleeAttack" );
-
-	//TODO: Melee attack
+	DELPawn( pawn ).attack();
 }
 
 /**
@@ -356,9 +366,9 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 		selfToPoint = adjustedLocation - Pawn.Location;
 
 		//Move Pawn
-		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.walkingSpeed;
-		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.walkingSpeed;
-		Pawn.setRotation( rotator( selfToPoint ) );
+		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.GroundSpeed;
+		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.GroundSpeed;
+		Pawn.setDesiredRotation( rotator( selfToPoint ) );
 		Pawn.move( Pawn.velocity * deltaTime );
 	}
 }
@@ -378,9 +388,9 @@ function moveInDirection( vector to , float deltaTime ){
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
 
 		//Move Pawn
-		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).walkingSpeed;
-		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).walkingSpeed;
-		Pawn.setRotation( adjustedRotation  );
+		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
+		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
+		Pawn.setDesiredRotation( adjustedRotation  );
 		Pawn.move( Pawn.velocity * deltaTime );
 	}
 }
@@ -393,6 +403,70 @@ function stopPawn(){
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
+}
+
+/**
+ * A state in which the pawn is not allowed to move on its own.
+ */
+state NonMovingState{
+	local Rotator startingRotation;
+
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+		
+		startingRotation = pawn.Rotation;
+		pawn.SetDesiredRotation( startingRotation );
+		stopPawn();
+	}
+
+	event Tick( float deltaTime ){
+		pawn.SetRotation( startingRotation );
+	}
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * NOTE: This function is to be used ONLY in the Tick-event!
+	 * @param l         Vector  The location to where the pawn should move.
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveTowardsPoint( Vector l , float deltaTime ){
+	}
+
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveInDirection( vector to , float deltaTime ){
+	}
+}
+
+state Blocking extends NonMovingState{
+}
+
+state knockedBack extends NonMovingState{
+}
+
+/**
+ * In this state the pawn is performing an actual attack (i.e.: sword swing).
+ * The pawn is not allowed to move and the controller should return to it's previous state once the swing is done.
+ */
+state Attacking extends NonMovingState{
+	local name previousState;
+
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+
+		//Save the previous state in a variable.
+		previousState = previousStateName;
+
+		//Set a timer to end the state.
+		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );
+	}
+
+	function SwingFinished(){
+		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
+		goToState( previousState );
+	}
 }
 
 DefaultProperties

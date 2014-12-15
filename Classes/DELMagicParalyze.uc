@@ -2,7 +2,7 @@ class DELMagicParalyze extends DELMagic;
 
 simulated function CustomFire(){
 	super.CustomFire();
-	consumeMana();
+	consumeMana(TotalManaCost);
 }
 
 

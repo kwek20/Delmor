@@ -6,8 +6,8 @@ var Color bgColor;
 function draw(DELPlayerHud hud){
 	//drawStandardbackground(hud.Canvas);
 	if (textures.Length > 0){
-		drawText(hud.Canvas);
 		super.draw(hud);
+		drawText(hud.Canvas);
 	}
 }
 
@@ -15,9 +15,14 @@ function onHover(DELPlayerHud hud, bool enter){
 	drawName(hud);
 }
 
+function removeTextures(){
+	textures.Length = 1;
+}
+
 function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
 	item = getItem(hud);
+	if (item == None) return;
 	hud.getPlayer().showSubtitle(item.getDescription());
 }
 

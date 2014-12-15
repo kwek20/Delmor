@@ -71,9 +71,24 @@ var float regenerationTimer;
 var bool bIsStunned;
 
 /**
+ * Determines whether the pawn can block or not.
+ */
+var bool bCanBlock;
+
+/**
  * The weapon that will be used by the pawn.
  */
-var DELWeapon myWeapon; 
+var DELWeapon myWeapon;
+
+/**
+ * The class for the weapon that should be spawned.
+ */
+var class<DELMeleeWeapon> weaponClass;
+
+/**
+ * The interval in which the pawn can attack in seconds.
+ */
+var float attackInterval;
 
 /* ==========================================
  * Camera stuff
@@ -108,9 +123,11 @@ var bool bLookMode;
  * If locked to camera, the pawn's direction will be determined by the camera-direction.
  */
 var bool bLockedToCamera;
-/**
- * In this event, the pawn will get his movement physics, camera offset and controller.
- */
+
+
+var float defaultCameraHeight;
+var float cameraZoomHeight;
+var float cameraTargetHeight;
 
 /*
  * ==========================================================
@@ -128,10 +145,11 @@ var DELWeapon sword;
 var class<DELMeleeWeapon> swordClass;
 
 
+/**
+ * Reference to the swing animation in the anim tree.
+ */
 var() const array<Name> SwingAnimationNames;
 var AnimNodePlayCustomAnim SwingAnim;
-
-
 
 /*
  * ====================================
@@ -148,11 +166,25 @@ var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
 
+/*
+ * =========================================
+ * Animation
+ * =========================================
+ */
+var array<name> animname;
+/**
+ * An int to point to the attack-animation array.
+ */
+var int attackNumber;
+
+/**
+ * In this event, the pawn will get his movement physics, camera offset and controller.
+ */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
 
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 48.0 );
+	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
 	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
@@ -214,8 +246,51 @@ function ManaDrain(int ammount){
 
 function magicSwitch(int AbilityNumber);
 
+/**
+ * Starts blocking by going into the blocking-state
+ */
+function startBlocking(){
+	if ( !bIsStunned && bCanBlock ){
+		goToState( 'Blocking' );
+	}
+}
 
+/**
+ * Stop blocking by going into the LandMovementState
+ */
+function stopBlocking(){
+	goToState( LandMovementState );
+}
 
+/**
+ * Sets bCanBlock to true.
+ */
+function resetCanBlock(){
+	bCanBlock = true;
+}
+
+/**
+ * Stuns the pawn for a given time.
+ */
+function stun( float duration ){
+	velocity.x = 0.0;
+	velocity.y = 0.0;
+	velocity.z = 0.0;
+	controller.goToState( 'Stunned' );
+	setTimer( duration , false , 'endStun' );
+}
+
+/**
+ * Ends the stun.
+ */
+function endStun(){
+	`log( "***************************" );
+	`log( "###########################" );
+	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
+	`log( "###########################" );
+	`log( "***************************" );
+	controller.goToState( 'Idle' );
+}
 
 /**
  * Set the camera offset.
@@ -278,14 +353,18 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
  * In this event the pawn will slowly regain health and mana.
  */
 event Tick( float deltaTime ){
-	if ( bLockedToCamera )
+	if ( bLockedToCamera ){
 		camTargetDistance = 150.0;
-	else
+		cameraTargetHeight = cameraZoomHeight;
+	} else {
 		camTargetDistance = 200.0;
+		cameraTargetHeight = defaultCameraHeight;
+	}
 
 	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
 		//Animate the camera
 		adjustCameraDistance( deltaTime );
+		adjustCameraOffset( deltaTime );
 	}
 }
 
@@ -331,6 +410,23 @@ function adjustCameraDistance( float deltaTime ){
 	}
 }
 
+function adjustCameraOffset( float deltaTime ){
+	local float difference , distanceSpeed;
+	difference = max( cameraOffset.Z , cameraTargetHeight ) - min( cameraOffset.Z , cameraTargetHeight );
+	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
+
+	if ( cameraOffset.Z < cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z + distanceSpeed );
+	}
+	if ( cameraOffset.Z > cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z - distanceSpeed );
+	}
+	//Lock
+	if ( cameraOffset.Z + distanceSpeed > cameraTargetHeight && cameraOffset.Z - distanceSpeed < cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraTargetHeight );
+	}
+}
+
 /**
  * Knocks the pawn back.
  * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
@@ -338,13 +434,14 @@ function adjustCameraDistance( float deltaTime ){
  */
 function knockBack( float intensity , vector direction ){
 	local DELKnockbackForce knockBack;
-	`log( ">>>>>>>>>>>>>>>>>>>>> KNOCK BACK" );
 
 	knockBack = spawn( class'DELKnockbackForce' );
 	knockBack.setPower( intensity );
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
+	knockBack.pawnsPreviousState = controller.GetStateName();
+	controller.GotoState( 'KnockedBack' );
 	bBlockActors = false;
 }
 
@@ -356,11 +453,93 @@ simulated exec function turnRight(){
 	`log( self$" TurnRight" );
 }
 
+/**
+ * Pawn starts firing!
+ * Called from PlayerController::StartFiring
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StartFire(byte FireModeNum){
+	if(/* sword != None */true){
+		weapon.StartFire(0);
+	}
+}
+
+/**
+ * Pawn stops firing!
+ * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StopFire(byte FireModeNum){
+	if(/*FireModeNum == 0 && sword != None*/true){
+		weapon.StopFire(0);
+	}
+}
+
+/**
+ * Performs an attack.
+ */
+function attack(){
+	/*
+	 * TODO:
+	 * Play anim
+	 * Check if hit someone.
+	 * Go to attacking state.
+	 */
+	if ( !controller.IsInState( 'Attacking' ) ){
+		playAttackAnimation();
+		controller.goToState( 'Attacking' );
+		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
+		increaseAttackNumber();
+		say( "AttackSwing" );
+	}
+
+	//weapon.StartFire(0);
+}
+
+/**
+ * Play an attack animation.
+ */
+function playAttackAnimation(){
+	self.SwingAnim.PlayCustomAnim(animname[ attackNumber ], 1.0 , 0.1 , 0.1f , false , true );
+}
+
+/**
+ * Sets the attack number to 0
+ */
+function resetAttackCombo(){
+	attackNumber = 0;
+}
+
+/**
+ * Increases the attackNumber after an attack so that we'll play a different animation.
+ */
+function increaseAttackNumber(){
+	attackNumber ++;
+	if ( attackNumber >= 3 ){
+		resetAttackCombo();
+	}
+}
+
+/**
+ * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ */
+function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	if ( mySoundSet != none && mySoundSet.bCanPlay ){
+		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+		mySoundSet.bCanPlay = false;
+		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
+	}
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true
 	UInventory = DELInventoryManager
-
 
 	MaxFootstepDistSq=9000000.0
 	health = 100
@@ -375,11 +554,16 @@ DefaultProperties
 	GroundSpeed = 100
 	detectionRange = 960.0
 	regenerationTimer = 1.0
+	weaponClass = class'DELMeleeWeaponRatClaws'
+	attackInterval = 1.0
 
 	bIsStunned = false
 
 	camOffsetDistance = 200.0
 	camTargetDistance = 200.0
+	defaultCameraHeight = 48.0
+	cameraTargetHeight = 48.0
+	cameraZoomHeight = 64.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
@@ -414,4 +598,10 @@ DefaultProperties
 	ArmsMesh[1] = none
 
 	mySoundSet = none
+
+	animname[ 0 ] = ratman_attack1
+	animname[ 1 ] = ratman_attack2
+	animname[ 2 ] = ratman_jumpattack
+
+	attackNumber = 0
 }

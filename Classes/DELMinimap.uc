@@ -23,12 +23,12 @@ function PostBeginPlay()
 
 defaultproperties
 {
-   Begin Object Class=DrawSphereComponent Name=DrawSphere0
+	Begin Object Class=DrawSphereComponent Name=DrawSphere0
         SphereColor=(R=0,G=255,B=0,A=255)
         SphereRadius=1024.000000
-   End Object
-   MapExtentsComponent=DrawSphere0
-   Components.Add(DrawSphere0)
+	End Object
+	MapExtentsComponent=DrawSphere0
+	Components.Add(DrawSphere0)
    
    bForwardAlwaysUp=True
    Minimap=MaterialInstanceConstant'CompassContent.te_compass_base_Mat_INST'
