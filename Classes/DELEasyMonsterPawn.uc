@@ -101,4 +101,9 @@ defaultproperties
 	bCanBlock = true
 
 	//swordClass = class'DELMeleeWeaponFists'
+
+	animname[ 0 ] = ratman_attack1
+	animname[ 1 ] = ratman_attack2
+	animname[ 2 ] = ratman_jumpattack
+	deathAnimName = ratman_death
 }

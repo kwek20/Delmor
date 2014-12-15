@@ -144,13 +144,6 @@ var DELWeapon sword;
  */
 var class<DELMeleeWeapon> swordClass;
 
-
-/**
- * Reference to the swing animation in the anim tree.
- */
-var() const array<Name> SwingAnimationNames;
-var AnimNodePlayCustomAnim SwingAnim;
-
 /*
  * ====================================
  * Sound
@@ -171,7 +164,16 @@ var repnotify DELInventoryManager UManager;
  * Animation
  * =========================================
  */
+
+/**
+ * Reference to the swing animation in the anim tree.
+ */
+var() const array<Name> SwingAnimationNames;
+var AnimNodePlayCustomAnim SwingAnim;
+var AnimNodePlayCustomAnim DeathAnim;
+
 var array<name> animname;
+var name deathAnimName;
 /**
  * An int to point to the attack-animation array.
  */
@@ -212,6 +214,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 
 	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
+		DeathAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('DeathCustomAnim'));
 	}
 }
 
@@ -494,16 +497,34 @@ function attack(){
 		controller.goToState( 'Attacking' );
 		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
 		increaseAttackNumber();
+		say( "AttackSwing" );
 	}
-
-	//weapon.StartFire(0);
 }
 
 /**
- * Play an attack animation.
+ * Play a die sound and dying animation upon death.
+ */
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+	super.Died( killer , damageType , hitlocation );
+
+	//Play died sound
+	say( "Die" );
+	//Play death animation
+	playDeathAnimation();
+}
+
+/**
+ * Plays an attack animation.
  */
 function playAttackAnimation(){
 	self.SwingAnim.PlayCustomAnim(animname[ attackNumber ], 1.0 , 0.1 , 0.1f , false , true );
+}
+
+/**
+ * Plays a death-animation.
+ */
+function playDeathAnimation(){
+	self.SwingAnim.PlayCustomAnim(deathAnimName, 1.0 , 0.1 , 0.1f , false , true );
 }
 
 /**
@@ -597,10 +618,6 @@ DefaultProperties
 	ArmsMesh[1] = none
 
 	mySoundSet = none
-
-	animname[ 0 ] = ratman_attack1
-	animname[ 1 ] = ratman_attack2
-	animname[ 2 ] = ratman_jumpattack
 
 	attackNumber = 0
 }
