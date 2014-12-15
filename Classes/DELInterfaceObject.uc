@@ -101,9 +101,9 @@ public function drawAllHoverTextures(Canvas c){
 	local Texture2D hoverTexture;
 	c.SetPos(position.X, position.Y);
 	foreach hoverTextures(hoverTexture){
+		`log(hoverTexture);
 		drawTile(c, hoverTexture, position.Z, position.W);
 	}
-
 }
 private function bool hoverColorSet(){
 	return hoverColor.R > 0 || hoverColor.G > 0 || hoverColor.B > 0 || hoverColor.A > 0;

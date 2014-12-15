@@ -189,7 +189,7 @@ function checkHuds(){
 		addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
-		addInterface(class'DELInterfaceSubtitle');
+		addInterfacePriority(class'DELInterfaceSubtitle', HIGH);
 	}
 	if (drawbars){
 		addInterface(class'DELInterfaceHealthBars');

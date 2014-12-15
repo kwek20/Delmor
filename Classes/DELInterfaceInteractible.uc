@@ -97,7 +97,6 @@ public function draw(DELPlayerHud hud){
 	super.draw(hud);
 
 	foreach objects(object){
-		`log(object@object.position.X@object.position.Y);
 		object.draw(hud);
 	}
 

@@ -23,20 +23,18 @@ function load(DELPlayerHud hud){
 	startY = hud.sizeY/2 - ((AmountY*length)+((AmountY + 1)*inbetween))/2;
 
 	items = hud.getPlayer().getPawn().UManager.UItems;
-	`log("loading"@startX@startY);
 	for(i = 0; i < (amountX*amountY); i++){
 		button = Spawn(class'DELInterfaceItemSlot');
 		button.setPosition( startX + ((i % amountX + 1)*inbetween) + ((i % amountX)*length), 
 							startY  + ((class'DELMath'.static.floor(i / amountX) + 1)*inbetween) 
 									+ ((class'DELMath'.static.floor(i / amountX))*length),
 							length, length, hud);
-		`log(button@button.position.X@button.position.Y);
 		if (items.Length > i){
 			item = items[i];
 			button.setRun(button.click);
 			button.setText(item.getAmount()$"");
 			button.setTexture(item.texture);
-			button.setHoverTexture(item.hoverTexture);
+			if (item.hoverTexture != None)button.setHoverTexture(item.hoverTexture);
 		} else {
 			button.setText(" ");
 		}
@@ -45,7 +43,6 @@ function load(DELPlayerHud hud){
 		button.setIdentifier(i+1);
 		addInteractible(button);
 	}
-	`log("Loading done");
 	super.load(hud);
 }
 

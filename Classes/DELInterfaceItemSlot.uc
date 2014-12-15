@@ -18,7 +18,6 @@ function onHover(DELPlayerHud hud, bool enter){
 
 function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
-
 	item = getItem(hud);
 	hud.getPlayer().showSubtitle(item.getDescription());
 }
