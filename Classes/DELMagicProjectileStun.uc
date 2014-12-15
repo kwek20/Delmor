@@ -3,7 +3,7 @@ class DELMagicProjectileStun extends DELMagicProjectile;
 
 defaultproperties
 {
-	ProjFlightTemplate=ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketTrail'
+	ProjFlightTemplate=ParticleSystem'Particlepackage.Particles.PS_ice_Small'
 	ProjExplosionTemplate=ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketExplosion'
 	MaxEffectDistance=7000.0
 
@@ -20,7 +20,7 @@ defaultproperties
 	LifeSpan=3.0
 	NetCullDistanceSquared=+144000000.0
 	bCollideWorld=true
-	DrawScale=1.2
+	DrawScale=0.3
 	AmbientSound=SoundCue'A_Weapon_RocketLauncher.Cue.A_Weapon_RL_Travel_Cue'
 	ExplosionSound=SoundCue'A_Weapon_RocketLauncher.Cue.A_Weapon_RL_Impact_Cue'
 	ColorLevel=(X=1,Y=1.3,Z=1)
