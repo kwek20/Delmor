@@ -5,7 +5,7 @@ var const int MAX_INT;
 /**
  * The current texture of this button
  */
-var() Texture2D hoverTexture; 
+var() array<Texture2D> hoverTextures; 
 
 /**
  * The color of the button if no texture has been found
@@ -65,7 +65,7 @@ function PlayClickSound(){
  */
 public function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(position.X, position.Y);
-	if (texture != None){
+	if (textures.Length > 0){
 		drawTexture(hud.Canvas);
 	} else {
 		//behind the text square
@@ -77,18 +77,33 @@ public function draw(DELPlayerHud hud){
  * javadoc voor brood
  */
 public function drawTexture(Canvas c){
-	if (texture == None || transparant) return;
-	if (isHover && (hoverTexture != none || hoverColorSet())){
-		if (hoverTexture != none&& false){
-			drawTile(c, hoverTexture, position.Z, position.W);
+	if (textures.Length == 0 || transparant) return;
+	if (isHover && (hoverTextures.Length > 0 || hoverColorSet())){
+		if (hoverTextures.Length > 0){
+			drawAllHoverTextures(c);
 		} else {
-			drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);
+			drawAllTexturesColored(c, hoverColor);
 		}
 	} else {
-		drawTile(c, texture, position.Z, position.W);
+		drawAllTextures(c);
 	}
 }
 
+public function drawAllTexturesColored(Canvas c, color hoverColor){
+	local Texture2D texture;
+
+	foreach textures(texture){
+		drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);
+	}
+}
+
+public function drawAllHoverTextures(Canvas c){
+	local Texture2D hoverTexture;
+	foreach hoverTextures(hoverTexture){
+		drawTile(c, hoverTexture, position.Z, position.W);
+	}
+
+}
 private function bool hoverColorSet(){
 	return hoverColor.R > 0 || hoverColor.G > 0 || hoverColor.B > 0 || hoverColor.A > 0;
 }
@@ -105,7 +120,7 @@ public function drawStandardbackground(Canvas c){
  * @param mat The material to set
  */
 public function setHoverTexture(Texture2D mat){
-	hoverTexture = mat;
+	hoverTextures.AddItem(mat);
 }
 
 /**

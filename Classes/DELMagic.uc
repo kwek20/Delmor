@@ -239,7 +239,6 @@ simulated function CustomFire(){
 }
 
 
-
 simulated function class<UDKProjectile> getSpell(){
 	return spell;
 }

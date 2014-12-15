@@ -83,6 +83,7 @@ simulated exec function moveBackward( float deltaTime ){
  * Goes to state movingForward
  */
 exec function startMovingForward(){
+	if (!getController().canWalk) return;
 	goToState( 'movingForward' );
 }
 
@@ -90,6 +91,7 @@ exec function startMovingForward(){
  * Goes to state movingLeft
  */
 exec function startMovingLeft(){
+	if (!getController().canWalk) return;
 	goToState( 'movingLeft' );
 }
 
@@ -97,12 +99,14 @@ exec function startMovingLeft(){
  * Goes to state movingLeft
  */
 exec function startMovingRight(){
+	if (!getController().canWalk) return;
 	goToState( 'movingRight' );
 }
 /**
  * Goes to state movingBackward
  */
 exec function startMovingBackward(){
+	if (!getController().canWalk) return;
 	goToState( 'movingBackward' );
 }
 
@@ -225,6 +229,7 @@ private function float lengthDirY( float len , float dir ){
  * Starts the look mode in the pawn. When in lookMode, the player can rotate the view and the pawn with the mouse.
  */
 exec function startLookMode(){
+	if (!getController().canWalk) return;
 	DELPawn( Pawn ).bLookMode = true;
 }
 
@@ -232,6 +237,7 @@ exec function startLookMode(){
  * Ends the look mode.
  */
 exec function endLookMode(){
+	if (!getController().canWalk) return;
 	DELPawn( Pawn ).bLookMode = false;
 	//goToState( 'idle' );
 }
@@ -240,6 +246,7 @@ exec function endLookMode(){
  * Enter aim mode before performing a spell.
  */
 exec function startAimMode(){
+	if (!getController().canWalk) return;
 	DELPawn( Pawn ).bLockedToCamera = true;
 }
 
@@ -247,23 +254,28 @@ exec function startAimMode(){
  * Exit aim mode before performing a spell.
  */
 exec function endAimMode(){
+	if (!getController().canWalk) return;
 	DELPawn( Pawn ).bLockedToCamera = false;
 }
 
 exec function openInventory() {
-	DELPlayerController(Pawn.Controller).openInventory();
+	getController().openInventory();
 }
 
 exec function closeHud() {
 	if (Pawn.Controller.getStateName() == 'Playing' || Pawn.Controller.getStateName() == 'Pauses'){
-		DELPlayerController(Pawn.Controller).closeHud();
+		getController().closeHud();
 	} else {
-		DELPlayerController(Pawn.Controller).goToPreviousState();
+		getController().goToPreviousState();
 	}
 }
 
 exec function openQuestlog(){
-	DELPlayerController(Pawn.Controller).swapState('Questlog');
+	getController().swapState('Questlog');
+}
+
+function DELPlayerController getController(){
+	return DELPlayerController(Pawn.Controller);
 }
 
 /*
@@ -390,12 +402,15 @@ exec function numberPress(name inKey){
 exec function mousePress(bool left=false){
 	HandleMouseInput(left ? LeftMouseButton : RightMouseButton, IE_Pressed);
 
+	if (!getController().canWalk) return;
 	if (stats.PendingRightPressed) StartAimMode();
 	DELPawn( Pawn ).startFire(int(!left));
 }
 
 exec function mouseRelease(bool left=false){
 	HandleMouseInput(left ? LeftMouseButton : RightMouseButton, IE_Released);
+	
+	if (!getController().canWalk) return;
 	if (stats.PendingRightReleased) EndAimMode();
 	DELPawn( Pawn ).stopFire(int(!left));
 }
