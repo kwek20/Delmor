@@ -1,11 +1,26 @@
+/**
+ * The text of the credits interface
+ */
 class DELInterfaceCreditsText extends DELInterfaceQuestText;
 
+/**
+ * The delay before we start scrolling
+ */
 var() int startDelay;
 
+/**
+ * The delay we use once we started scrolling
+ */
 var() int nextDelay;
 
+/**
+ * The delay we have before we exit the credits screen
+ */
 var() int endDelay;
 
+/**
+ * boolean to check if we have ended allready
+ */
 var bool ended;
 
 function load(DELPlayerHud hud){
@@ -13,6 +28,9 @@ function load(DELPlayerHud hud){
 	SetTimer(startDelay, false, 'ScrollTimer');
 }
 
+/**
+ * Automatically scrolling <3
+ */
 function ScrollTimer(){
 	if (percent >= 100 || downLock) {
 		SetTimer(endDelay, false, 'end');
@@ -36,6 +54,9 @@ function draw(DELPlayerHud hud){
 	super.draw(hud);
 }
 
+/**
+ * Block use from any input
+ */
 function bool requiresUse(DELInputMouseStats stats){
 	return false;
 }
