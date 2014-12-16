@@ -48,6 +48,7 @@ simulated state Charging{
 			ProjectileSizeTotal += projectileSizeIncrease;
 		}
 		chargingProjectile.SetDrawScale(ProjectileSizeTotal);
+		
 	}
 
 
@@ -65,6 +66,7 @@ simulated function CustomFire(){
 
 		
 		if( chargingProjectile != None && !chargingProjectile.bDeleteMe ){
+			chargingProjectile.damage = totalDamage;
 			chargingProjectile.Init(AimDir);
 		}
 	}
@@ -80,7 +82,7 @@ DefaultProperties
 	bCanCharge = true
 	ChargeCost = 5;
 	ChargeAdd = 20;
-	manaCost = 1;
 	damage = 20;
+	manaCost = 1;
 	IconTexture = Texture2D'DelmorHud.damage_spell'
 }
