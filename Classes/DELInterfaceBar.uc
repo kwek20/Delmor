@@ -28,7 +28,7 @@ function load(DELPlayerHud hud){
 		else{button = Spawn(class'DELInterfaceQuickAction');}
 
 		button.setIdentifier(i);
-		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
+		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween/2, squareSize, squareSize, hud);
 
 		button.setTexture(glass);
 		if (images.Length>=i){
@@ -82,7 +82,7 @@ DefaultProperties
 {
 	key = 0;
 	squareSize=40
-	inbetween=10;
+	inbetween=15;
 	amountBars=5;
 	textures=(Texture2D'DelmorHud.balk_inventory')
 	glass=Texture2D'DelmorHud.Glass'

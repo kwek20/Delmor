@@ -1,6 +1,10 @@
-class DELItemPotionMana extends DELItem placeable;
+class DELItemPotionMana extends DELItemInteractible placeable;
 
 var int manaAmount;
+
+function canUse(DELPlayerHud hud){
+	returnhud.getPlayer().getPawn().mana < hud.getPlayer().getPawn().manaMax;
+}
 
 function onUse(DELPlayerHud hud){
 	local DELPawn p;
@@ -12,6 +16,6 @@ DefaultProperties
 {
 	manaAmount=10
 	itemName="Mana potion"
-	itemDescription="Mana powers straight from an unicorn horn"
+	itemDescription="Mana powers straight from a unicorn horn"
 	texture=Texture2D'DelmorHud.mana_potion'
 }

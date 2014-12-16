@@ -12,6 +12,8 @@ var() Vector4 position;
  */
 var() array<Texture2D> textures;
 
+var() Font defaultFont;
+
 public function draw(DELPlayerHud hud){
 	drawAllTextures(hud.Canvas);
 }
@@ -101,4 +103,6 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 
 DefaultProperties
 {
+
+	defaultFont=Font'DelmorHud.augusta'
 }

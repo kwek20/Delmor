@@ -23,7 +23,15 @@ var() int identifierKey;
  */
 var() string text;
 
+/**
+ * The offset of a text displayment
+ */
 var() Vector2D textOffset;
+
+/**
+ * The background of a number
+ */
+var() Texture2D rondje_onder, rondje_onder_hover;
 
 public function draw(DELPlayerHud hud){
 	super.draw(hud);
@@ -49,6 +57,28 @@ public function drawText(Canvas c){
 	c.SetPos(  position.X + position.Z * textOffset.X - Xstring / 2, 
 							position.Y + position.W * textOffset.Y - Ystring / 2);
 	c.DrawText(getText());
+}
+
+public function drawNumber(Canvas c, float xOff, float yOff, string char, optional float scale=6){
+	local float xSize, ySize;
+
+	c.SetPos(position.X + xOff - position.Z/scale, position.Y + yOff - position.W/scale);
+	drawTile(c, rondje_onder, position.Z/(scale/2), position.W/(scale/2));
+
+	c.Font = defaultFont;
+	c.setDrawColor(0,0,0);
+	c.TextSize(char, xSize, ySize);
+	c.SetPos(position.X + xOff - xSize/2, position.Y + yOff - ySize/2);
+	c.DrawText(char);
+	if (isHover){
+		c.SetPos(position.X + xOff - position.Z/scale + (position.Z/(scale/2) - position.Z/(scale/12*7))/2, 
+				 position.Y + yOff - position.W/scale + (position.W/(scale/2) - position.W/(scale/12*7))/2);
+		drawTile(c, rondje_onder_hover, position.Z/(scale/12*7), position.W/(scale/12*7));
+	}
+}
+
+public function drawIdentifier(Canvas c){
+	drawNumber(c, position.Z, 0, String(identifierKey), 4);
 }
 
 
@@ -112,4 +142,7 @@ DefaultProperties
 
 	textOffset=(X=0.5,Y=0.5)
 	clickedColor=(R=255,G=215,B=0,A=255)
+
+	rondje_onder=Texture2D'DelmorHud.rondje_zonder_cijfer'
+	rondje_onder_hover=Texture2D'DelmorHud.groene_overlay_transperant'
 }
