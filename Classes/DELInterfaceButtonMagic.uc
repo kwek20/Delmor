@@ -1,4 +1,4 @@
-class DELInterfaceButtonMagic extends DELInterfaceButton;
+class DELInterfaceButtonMagic extends DELInterfaceHotbarButton;
 
 public function draw(DELPlayerHud hud){
 	super.draw(hud);

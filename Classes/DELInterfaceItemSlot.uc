@@ -11,6 +11,11 @@ function draw(DELPlayerHud hud){
 	}
 }
 
+function drawText(Canvas c){
+	if (text==""||text==" ") return;
+	drawNumber(c, position.Z * textOffset.X, position.W * textOffset.Y , getText());
+}
+
 function onHover(DELPlayerHud hud, bool enter){
 	drawName(hud);
 }

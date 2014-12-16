@@ -1,4 +1,4 @@
-class DELInterfaceQuickAction extends DELInterfaceButton;
+class DELInterfaceQuickAction extends DELInterfaceHotbarButton;
 
 var class<DELItem> focusItem;
 
