@@ -59,7 +59,7 @@ public function drawText(Canvas c){
 	c.DrawText(getText());
 }
 
-public function drawNumber(Canvas c, float xOff, float yOff, string char, optional float scale=6){
+public function drawNumber(Canvas c, float xOff, float yOff, string char, optional float scale=4){
 	local float xSize, ySize;
 
 	c.SetPos(position.X + xOff - position.Z/scale, position.Y + yOff - position.W/scale);

@@ -2,8 +2,8 @@ class DELItemPotionMana extends DELItemInteractible placeable;
 
 var int manaAmount;
 
-function canUse(DELPlayerHud hud){
-	returnhud.getPlayer().getPawn().mana < hud.getPlayer().getPawn().manaMax;
+function bool canUse(DELPlayerHud hud){
+	return hud.getPlayer().getPawn().mana < hud.getPlayer().getPawn().manaMax;
 }
 
 function onUse(DELPlayerHud hud){

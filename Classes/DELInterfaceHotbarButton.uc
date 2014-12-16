@@ -5,6 +5,11 @@ function draw(DELPlayerHud hud){
 	drawIdentifier(hud.Canvas);
 }
 
+function use(){
+	super.use();
+	hover();
+}
+
 DefaultProperties
 {
 }
