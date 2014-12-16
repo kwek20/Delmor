@@ -150,8 +150,8 @@ simulated function FireStop(){
  * @param spell the spel that is cast
  * @param chargeTime in case the spell is charged, the charge time will be added to the cost
  */
-simulated function consumeMana(){
-	spellCaster.ManaDrain(TotalManaCost);
+simulated function consumeMana(int localmanaCost){
+	spellCaster.ManaDrain(ManaCost);
 }
 
 /**

@@ -9,6 +9,7 @@ simulated state Charging{
 		chargingProjectile = Spawn(getSpell() ,self,, locationOfProjectile);
 		chargingProjectile.SetDrawScale(projectileSize);
 		ProjectileSizeTotal = projectileSize;
+		consumeMana(manaCost);
 	}
 	simulated event Tick(float DeltaTime){
 		super.Tick(DeltaTime);
@@ -19,7 +20,8 @@ simulated state Charging{
 
 	simulated function ChargeTick(){
 		super.chargeTick();
-		
+		consumeMana(ChargeAdd);
+		TotalManaCost = 0;
 		if(ProjectileSizeTotal <= maxProjectileSize){
 			ProjectileSizeTotal += projectileSizeIncrease;
 		}
@@ -33,7 +35,7 @@ simulated state Charging{
 
 simulated function shoot(){
 	super.shoot();
-	consumeMana();
+	//consumeMana(TotalManaCost);
 }
 
 
@@ -59,9 +61,9 @@ DefaultProperties
 
 	spell = class'DELMagicProjectileForce'
 	bCanCharge = true
-	ChargeCost = 1;
-	ChargeAdd = 2;
-	manaCost = 5;
-	damage = 10;
-	IconTexture = Texture2D'EditorResources.LookTarget'
+	ChargeCost = 5;
+	ChargeAdd = 20;
+	manaCost = 1;
+	damage = 20;
+	IconTexture = Texture2D'DelmorHud.damage_spell'
 }
