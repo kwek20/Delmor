@@ -85,7 +85,9 @@ simulated function int getMaxSpells(){
 
 
 /**
- * gets the spell
+ * returns the magic the player want to use
+ * @param Number number of the spell you want to use (1,2,3....)
+ * @return returns the spell. if a number is given it also switches magic
  */
 function DELMagic getMagic(optional int Number=0){
 	if(isCharging()){ 

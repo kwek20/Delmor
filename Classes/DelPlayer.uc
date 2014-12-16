@@ -1,9 +1,28 @@
+/**
+ * the lucian class
+ * has everything lucian needs in delmor
+ * @author programming team(everybody)
+ */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
 var array< class<Inventory> > DefaultInventory;
+/**
+ * the sword the player holds
+ */
 var DELWeapon sword;
+/**
+ * the magic the player is currently using
+ */
 var DELMagic magic;
+/**
+ * the factory of spells.
+ * ask this class anything about the spells player can do anything else himself
+ * is called grimoire for a reason . don't change it
+ */
 var DELMagicFactory Grimoire;
+/**
+ * classname of the sword the player will be using
+ */
 var class<DELMeleeWeapon> swordClass;
 var bool    bSprinting;
 var bool    bCanSprint;
@@ -18,14 +37,32 @@ var float   SprintRecoverTimer;
 var float   SprintTimerCount;
 var float   LastSprint;
 var float   ScaledTimer;
-
+/**
+ * array of swinganimation names
+ */
 var() const array<Name> SwingAnimationNames;
+/**
+ * the custom animatino that will be used to swing around a sword
+ */
 var AnimNodePlayCustomAnim SwingAnim;
 
+/**
+ * makes sure everybode knows this player is not first-person and never will be
+ */
 simulated function bool IsFirstPerson(){
 	return false;
 }
 
+/**
+ * added an extra to takedamage so that some spells will be interrupted when you get hit
+ * @param damage ammount of damage
+ * @param instigatedby the player that does damage
+ * @param hitlocation where you get hit
+ * @param momentum momentum in the object that does damage
+ * @param damagetype type of damage taken
+ * @param hitinfo info about info
+ * @param damagecauser no clue but probably the weapon that did the damage
+ */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
@@ -49,7 +86,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 }
 
 /**
- * adds the weapons(magic + masterSword to the player)
+ * adds the certain items to the default inventory
  */
 function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
@@ -59,7 +96,9 @@ function AddDefaultInventory(){
 	magic = grimoire.getMagic();
 }
 
-
+/**
+ * kinda the init of the playah
+ */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
@@ -67,7 +106,8 @@ simulated event PostBeginPlay(){
 }
 
 /**
- * switches magical ability
+ * switches magical ability to the one given (1,2,3,4)
+ * @param abilitynumber the number of the ability you want to switch to
  */
 simulated function magicSwitch(int AbilityNumber){
 	if(bNoWeaponFiring){
@@ -81,10 +121,8 @@ simulated function magicSwitch(int AbilityNumber){
 
 /**
  * Pawn starts firing!
- * Called from PlayerController::StartFiring
- * Network: Local Player
- *
- * @param	FireModeNum		fire mode number
+ * directly delegates the startfire on specific firemodes
+ * @param	FireModeNum the firemode instigated. if it is 0 melee will be used, if 1 magic
  */
 simulated function StartFire(byte FireModeNum){
 	if( bNoWeaponFiring){
@@ -100,11 +138,11 @@ simulated function StartFire(byte FireModeNum){
 
 
 /**
- * Pawn stops firing!
- * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
- * Network: Local Player
- *
- * @param	FireModeNum		fire mode number
+ * stops firing 
+ * (on release mouse)
+ * delegates the function to either magic or sword 
+ * same delegation as in startfire()
+ * @param	FireModeNum		firemode used. 
  */
 simulated function StopFire(byte FireModeNum){
 	if(FireModeNum == 1 && magic!= None){
