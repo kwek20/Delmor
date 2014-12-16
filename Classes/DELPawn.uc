@@ -297,14 +297,6 @@ function knockBack( float intensity , vector direction ){
 	playknockBackAnimation();
 }
 
-simulated exec function turnLeft(){
-	`log( self$" TurnLeft" );
-}
-
-simulated exec function turnRight(){
-	`log( self$" TurnRight" );
-}
-
 /**
  * Pawn starts firing!
  * Called from PlayerController::StartFiring
@@ -335,16 +327,11 @@ simulated function StopFire(byte FireModeNum){
  * Performs an attack.
  */
 function attack(){
-	/*
-	 * TODO:
-	 * Play anim
-	 * Check if hit someone.
-	 * Go to attacking state.
-	 */
 	if ( !controller.IsInState( 'Attacking' ) ){
 		playAttackAnimation();
 		controller.goToState( 'Attacking' );
 		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
+		setTimer( attackInterval * 0.5 , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
 		increaseAttackNumber();
 		say( "AttackSwing" );
 	}
@@ -448,6 +435,105 @@ state dead{
 	}
 }
 
+state Attacking{
+}
+
+/**
+ * Deal damage from the melee attack to any pawn in front of this pawn.
+ */
+function dealAttackDamage(){
+	local pawn hitPawn;
+	local int damage;
+	local vector momentum;
+
+	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
+	`log( "DealAttackDamage" );
+	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
+
+	hitPawn = checkPawnInFront();
+	damage = DELMeleeWeapon( sword ).CalculateDamage();
+	`log( "Damage: "$damage );
+
+	if ( hitPawn != none ){
+		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELMeleeDamage' , , self );
+	}
+}
+
+/**
+ * Return the player's position plus 8 in the player's direction.
+ */
+function Vector getInFrontLocation(){
+	local vector newLocation;
+
+	newLocation.X = location.X + lengthDirX( meleeRange , -Rotation.Yaw );
+	newLocation.Y = location.Y + lengthDirY( meleeRange , -Rotation.Yaw );
+	newLocation.Z = Location.Z;
+
+	return newLocation;
+}
+
+/**
+ * Returns a pawn when it is in front of this pawn.
+ */
+function Pawn checkPawnInFront(){
+	local controller c;
+	local vector inFrontLocation;
+	local float checkDistance;
+	local pawn hitPawn;
+
+	inFrontLocation = getInFrontLocation();
+	checkDistance = meleeRange + GetCollisionRadius();
+
+	foreach WorldInfo.AllControllers( class'controller' , c ){
+		if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
+			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , c.Pawn.Location , c.Pawn.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' ){
+				hitPawn = c.Pawn;
+			}
+		}
+	}
+	
+	return hitPawn;
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+}
+
+/**
+ * Checks whether two circles collide. Useful for collision-checking between Pawns.
+ * @return bool
+ */
+function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
+	local float distance , totalRadius;
+
+	distance = VSize( circleLocationA - circleLocationB );
+	totalRadius = circleRadiusA + circleRadiusB;
+
+	if ( distance <= totalRadius ){
+		return true;
+	} else {
+		return false;
+	}
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true
@@ -466,7 +552,6 @@ DefaultProperties
 	GroundSpeed = 100
 	detectionRange = 960.0
 	regenerationTimer = 1.0
-	weaponClass = class'DELMeleeWeaponRatClaws'
 	attackInterval = 1.0
 
 	bIsStunned = false
@@ -495,7 +580,7 @@ DefaultProperties
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
 
-	swordClass = class'DELMeleeWeaponDemonSlayer';
+	swordClass = class'DELMeleeWeaponFists'
 
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none

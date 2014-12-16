@@ -122,4 +122,6 @@ defaultproperties
 	walkingSpeed = 80.0
 	detectionRange = 512.0
 	bCanBlock = true
+	meleeRange = 75.0
+	attackInterval = 3.0
 }

@@ -100,7 +100,7 @@ defaultproperties
 	meleeRange = 75.0
 	bCanBlock = true
 
-	//swordClass = class'DELMeleeWeaponFists'
+	swordClass = class'DELMeleeWeaponFists'
 
 	animname[ 0 ] = ratman_attack1
 	animname[ 1 ] = ratman_attack2

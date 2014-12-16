@@ -30,9 +30,6 @@ var float tooCloseDistance;
 
 event Possess( Pawn inPawn , bool bVehicleTransition ){
 	super.Possess( inPawn , bVehicleTransition );
-
-	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
-	
 }
 
 
@@ -200,24 +197,6 @@ function bool isInCombatState(){
 }
 
 /**
- * Checks whether two circles collide. Useful for collision-checking between Pawns.
- * @return bool
- */
-function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
-	local float distance , totalRadius;
-
-	distance = VSize( circleLocationA - circleLocationB );
-	totalRadius = circleRadiusA + circleRadiusB;
-
-	if ( distance <= totalRadius ){
-		return true;
-	} else {
-		return false;
-	}
-
-}
-
-/**
  * Adjusts a given location so that it's z-variable will be set to a given value while ignoring
  * the other values.
  * Useful for locking z-values.
@@ -312,7 +291,7 @@ function DELPawn checkCollision(){
 
 	foreach WorldInfo.AllControllers( class'Controller' , c ){
 		if ( distanceToPoint( c.Pawn.Location ) < 64.0 + self.Pawn.GetCollisionRadius() && c != self ){
-			if ( CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
+			if ( DELPawn( pawn ).CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
 				return DELPawn( c.Pawn );
 			}
 		}

@@ -45,11 +45,13 @@ simulated function Vector GetSwordSocketLocation(Name SocketName){
 	return SocketLocation;
 }
 
-
-
-
 DefaultProperties
 {
+	criticalHitChance = 0
+	criticalDamageMultiplier = 1
+	damageMin = 1;
+	damageMax = 1;
+
 	animname1 = attack1
 	animname2 = attack2
 	animname3 = attack1

@@ -410,7 +410,7 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
 
 	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
 		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
-			if ( c.CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
+			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
 				toReturn = DELChickenPawn( c.Pawn );
 			}
 		}
@@ -443,28 +443,6 @@ function Vector getInFrontLocation(){
 	newLocation.Z = Location.Z;
 
 	return newLocation;
-}
-
-/**
- * This function calculates a new x based on the given direction.
- * @param   dir Float   The direction in UnrealDegrees.
- */
-function float lengthDirX( float len , float dir ){
-	local float Radians;
-	Radians = UnrRotToRad * dir;
-
-	return len * cos( Radians );
-}
-
-/**
- * This function calculates a new y based on the given direction.
- * @param   dir Float   The direction in UnrealDegrees.
- */
-function float lengthDirY( float len , float dir ){
-	local float Radians;
-	Radians = UnrRotToRad * dir;
-
-	return len * -sin( Radians );
 }
 
 /*
