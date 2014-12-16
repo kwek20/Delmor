@@ -1,3 +1,7 @@
+/**
+ * a new sword
+ * @author Harmen Wiersma
+ */
 class DELMeleeWeaponDemonSlayer extends DELMeleeWeapon;
 
 DefaultProperties

@@ -1,6 +1,17 @@
+/**
+ * the heal spell
+ * @author Harmen Wiersma
+ */
 class DELMagicHeal extends DELMagic;
 
+/**
+ * new Charging state
+ */
 simulated state Charging{
+	/**
+	 * chargetick for heal spell
+	 * checks if spell doesn't do more heal then health missing
+	 */
 	simulated function chargeTick(){
 		super.chargeTick();
 		if(spellCaster.health + totalDamage >= spellCaster.HealthMax){
@@ -9,26 +20,31 @@ simulated state Charging{
 		}
 		consumeMana(ChargeAdd);
 	}
+	/**
+	 * interrupts during spellcasting
+	 */
 	simulated function interrupt(){
 		super.interrupt();
-		//spellCaster.ManaDrain(TotalManaCost);
 		GoToState('Nothing');
 	}
 }
 
+/**
+ * a new firestart especially for heal
+ * 
+ */
 simulated function FireStart(){
 	super.FireStart();
 	if(spellCaster.health + Damage >= spellCaster.HealthMax){
-		`log("why doth thou wanteth to heal thyself??");
-		`log("thyne health is " $ spellCaster.Health);
-		`log("the maximum thyne health caneth be is " $ spellCaster.HealthMax);
-		`log("the strength of thyne spell is "$ damage);
 		gotoState('nothing');
 		return;
 	}
 	consumeMana(manaCost);
 }
 
+/**
+ * new customfire espacially for healing
+ */
 simulated function CustomFire(){
 	//consumeMana();
 	spellCaster.Heal(totalDamage);
