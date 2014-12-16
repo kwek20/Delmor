@@ -15,6 +15,7 @@ simulated state Charging{
 	simulated function chargeTick(){
 		super.chargeTick();
 		if(spellCaster.health + totalDamage >= spellCaster.HealthMax){
+			//when the health you get is higher than the health you need
 			ClearTimer(NameOf(chargeTick));
 			`log("stop timerrrrrr");
 		}

@@ -28,8 +28,10 @@ simulated function init(vector Direction){
  */
 simulated function SpawnFlightEffects(){
 	if(flying){
+		//normal flight effects when flying
 		Super.SpawnFlightEffects();
 	} else if (!Flying){
+		//special effects for charging
 		ProjEffects = WorldInfo.MyEmitterPool.SpawnEmitterCustomLifetime(ProjChargeTemplate);
 		ProjEffects.SetAbsolute(false, false, false);
 		ProjEffects.SetLODLevel(WorldInfo.bDropDetail ? 1 : 0);

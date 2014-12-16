@@ -13,7 +13,6 @@ simulated function CustomFire(){
 DefaultProperties
 {
 	magicName="paralyze"
-	//spell = class'UTProj_Rocket'
 	spell = class'DELMagicProjectileStun'
 	bCanCharge = false
 	manaCost = 10;

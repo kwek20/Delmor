@@ -214,11 +214,12 @@ simulated function CustomFire(){
 
 	if( Role == ROLE_Authority ){
 
+		//gets the location and gets the direction
 		Spawnlocation = GetSocketPosition(instigator);
 		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, Spawnlocation));
 
 		
-		// Spawn projectile
+		// Spawns a projectile and gives it a direction
 		SpawnedProjectile = Spawn(getSpell() ,self,, Spawnlocation);
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
 			SpawnedProjectile.Init(AimDir);

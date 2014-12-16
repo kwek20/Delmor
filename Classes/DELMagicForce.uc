@@ -45,6 +45,7 @@ simulated state Charging{
 		consumeMana(ChargeAdd);
 		TotalManaCost = 0;
 		if(ProjectileSizeTotal <= maxProjectileSize){
+			//for when the projectile gets too big. it doesn't need to get any bigger
 			ProjectileSizeTotal += projectileSizeIncrease;
 		}
 		chargingProjectile.SetDrawScale(ProjectileSizeTotal);
@@ -63,7 +64,6 @@ simulated function CustomFire(){
 
 		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, locationOfProjectile));
 
-		
 		if( chargingProjectile != None && !chargingProjectile.bDeleteMe ){
 			chargingProjectile.Init(AimDir);
 		}

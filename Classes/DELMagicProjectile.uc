@@ -10,6 +10,7 @@ var vector ExplosionColor;
 
 /**
  * sets values in the projectile
+ * i dont really know what else happens
  */
 event PreBeginPlay(){
 	if (Instigator != None){

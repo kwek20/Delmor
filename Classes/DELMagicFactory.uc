@@ -67,7 +67,8 @@ simulated function initialize(){
 	local DELMagic magic;
 
 	if (bInitialized) return;
-
+	
+	//for each magicclass place an initialised version in the array on the same place
 	foreach magicClasses(magicClass, index){
 		magic = spawn(magicClass);
 		magics.InsertItem(index,magic);
@@ -91,12 +92,14 @@ simulated function int getMaxSpells(){
  */
 function DELMagic getMagic(optional int Number=0){
 	if(isCharging()){ 
+		//if there is magic active, return the active magic
 		return magics[ActiveAbilityNumber];
 	}
 	if(Number != 0){
+		//if there is a number, change activenumber ability
 		ActiveAbilityNumber = Number-1;
 	}
-	`log(magics[ActiveAbilityNumber]);
+	//return the magic
 	return magics[ActiveAbilityNumber];
 }
 
@@ -117,6 +120,7 @@ simulated function array<Texture2D> getIcons(){
 	local DELMagic magic;
 	local array<Texture2D> Icons;
 	local int index;
+	//for each magic, get its icon and place it in a array on the same place as the magic
 	foreach magics(magic, index){
 		icons.InsertItem(index,magic.IconTexture);
 	}
@@ -128,6 +132,7 @@ simulated function array<Texture2D> getIcons(){
 
 DefaultProperties
 {
+	// the magic classes. i dont care at what place as long as the places follow up on each other and it starts with 0
 	magicClasses[0] = class'DELMagicForce'
 	magicClasses[2] = class'DELMagicHeal'
 	magicClasses[1] = class'DELMagicParalyze'

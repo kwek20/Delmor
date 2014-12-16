@@ -31,12 +31,11 @@ simulated function TraceSwing(){
 	local int DamageAmount;
 	super.TraceSwing();
 
+	//gets the socket locations of alternative 'weapon'
 	SwordTip2 = GetSwordSocketLocation(offHandTipSocketName);
 	SwordHilt2 = GetSwordSocketLocation(offHandHiltSocketName);
 
-	`log( "SwordTip2: "$SwordTip2 );
-	`log( "SwordHilt2: "$SwordHilt2 );
-
+	//trace the altweapon
 	foreach TraceActors(class'Actor', HitActor, HitLoc, HitNorm, SwordTip2, SwordHilt2){
 		if (HitActor != self && AddToSwingHitActors(HitActor)){
 			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);

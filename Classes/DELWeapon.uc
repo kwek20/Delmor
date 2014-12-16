@@ -25,6 +25,7 @@ var float criticalHitChance;
  */
 var float criticalDamageMultiplier;
 
+
 /**
  * default setting to all weapons
  */

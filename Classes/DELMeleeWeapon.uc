@@ -29,11 +29,17 @@ var array<int> swings;
  */
 var const int maxSwings;
 
+
 /**
  * is an abbreviation of the weaponFiring state
  */
 simulated state Swinging extends WeaponFiring {
+	simulated event beginState(name PreviousStateName){
+		super.BeginState(previousStateName);
+	}
+
 	simulated event Tick(float DeltaTime){
+		//trace in every tick while swinging
 		super.Tick(DeltaTime);
 		TraceSwing();
 	}
@@ -245,7 +251,7 @@ DefaultProperties
 	MaxSwings=3
 	Swings(0)=3
 
-	FireInterval(0)=1
+	FireInterval(0)= 1.0
 
 	damageMin = 10;
 	damageMax = 30;
