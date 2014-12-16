@@ -2,7 +2,7 @@ class DELItemPotionHealth extends DELItemInteractible placeable;
 
 var int healingAmount;
 
-function canUse(DELPlayerHud hud){
+function bool canUse(DELPlayerHud hud){
 	return hud.getPlayer().getPawn().health < hud.getPlayer().getPawn().healthMax;
 }
 

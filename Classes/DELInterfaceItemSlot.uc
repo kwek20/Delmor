@@ -4,7 +4,6 @@ var Texture2D default_bg;
 var Color bgColor;
 
 function draw(DELPlayerHud hud){
-	//drawStandardbackground(hud.Canvas);
 	if (textures.Length > 0){
 		super.draw(hud);
 		drawText(hud.Canvas);
@@ -12,9 +11,11 @@ function draw(DELPlayerHud hud){
 }
 
 function drawText(Canvas c){
-	if (text==""||text==" ") return;
-	drawNumber(c, position.Z * textOffset.X, position.W * textOffset.Y , getText());
+	if (isEmpty()) return;
+	drawNumber(c, position.Z * textOffset.X, position.W * textOffset.Y , getText(), 6);
 }
+
+function bool isEmpty(){return text==""||text==" ";}
 
 function onHover(DELPlayerHud hud, bool enter){
 	drawName(hud);
@@ -26,6 +27,7 @@ function removeTextures(){
 
 function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
+	if (isEmpty()) return;
 	item = getItem(hud);
 	if (item == None) return;
 	hud.getPlayer().showSubtitle(item.getDescription());
@@ -41,7 +43,7 @@ function drawStandardbackground(Canvas c){
 function drawName(DELPlayerHud hud){
 	local float Xstring, Ystring;
 	local DELItem item;
-
+	if (isEmpty()) return;
 	item = getItem(hud);
 	if (item == none) return;
 	hud.Canvas.Font = class'Engine'.static.GetMediumFont();    
