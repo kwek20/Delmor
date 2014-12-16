@@ -5,6 +5,11 @@ var class<DELItem> focusItem;
 var Texture2D empty;
 var private bool added;
 
+function use(){
+	if (!isActive()) return;
+	super.use();
+}
+
 function load(DELPlayerHud hud){
 	super.load(hud);
 }
