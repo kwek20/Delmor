@@ -13,7 +13,7 @@ function draw(DELPlayerHud hud){
 
 function drawText(Canvas c){
 	if (text==""||text==" ") return;
-	drawNumber(c, position.Z * textOffset.X, position.W * textOffset.Y , getText());
+	drawNumber(c, position.Z * textOffset.X, position.W * textOffset.Y , getText(), 6);
 }
 
 function onHover(DELPlayerHud hud, bool enter){

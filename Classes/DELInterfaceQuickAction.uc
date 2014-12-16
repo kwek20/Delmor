@@ -25,7 +25,7 @@ function draw(DELPlayerHud hud){
 		added = false;
 	}
 	super.draw(hud);
-
+	if (isActive())drawNumber(hud.Canvas, position.Z, position.W, string(hud.getPlayer().getPawn().UManager.getAmount(focusItem)));
 }
 
 function setFocus(DELPlayerHud hud, class<DELItem> focusItem){
