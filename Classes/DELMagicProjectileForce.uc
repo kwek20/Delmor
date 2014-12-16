@@ -54,8 +54,8 @@ DefaultProperties
 	Speed=500.0
 	MaxSpeed=3000.0
 	AccelRate=3000.0
-
-	Damage=20
+	
+	
 	DamageRadius=0
 	MomentumTransfer=0
 	CheckRadius=26.0
