@@ -6,8 +6,7 @@ var private string PendingSaveGameFileName; // Pending save game state file name
 var DELPlayer PendingPlayerPawn;                 // Pending player pawn for the player controller to spawn when loading a game state
 var DELSaveGameState StreamingSaveGameState;   // Save game state used for when streaming levels are waiting to be loaded
 
-function InitGame( string Options, out string ErrorMessage )
-{
+function InitGame( string Options, out string ErrorMessage ){
 	local DELMinimap ThisMinimap;
 	Super.InitGame(Options,ErrorMessage);
 	
@@ -51,41 +50,35 @@ function startMatch(){
 		}
 
 		// Attempt to deserialize the save game state object from disk
-		if (class'Engine'.static.BasicLoadObject(SaveGame, PendingSaveGameFileName, true, class'DELSaveGameState'.const.VERSION))
-		{
+		if (class'Engine'.static.BasicLoadObject(SaveGame, PendingSaveGameFileName, true, class'DELSaveGameState'.const.VERSION)){
 			// Synchrously load in any streaming levels
-			if (SaveGame.StreamingMapFileNames.Length > 0)
-			{
+			if (SaveGame.StreamingMapFileNames.Length > 0){
 				// Ask every player controller to load up the streaming map
-				foreach self.WorldInfo.AllControllers(class'DELPlayerController', SPlayerController)
-				{
+				foreach self.WorldInfo.AllControllers(class'DELPlayerController', SPlayerController){
 					// Stream map files now
-				foreach SaveGame.StreamingMapFileNames(CurrentStreamingMap)
-				{												
+				foreach SaveGame.StreamingMapFileNames(CurrentStreamingMap){
 					SPlayerController.ClientUpdateLevelStreamingStatus(CurrentStreamingMap, true, true, true);
 				}
 
 				// Block everything until pending loading is done
 				SPlayerController.ClientFlushLevelStreaming();
-				}
-
-				StreamingSaveGameState = SaveGame;                              // Store the save game state in StreamingSaveGameState
-				SetTimer(0.05f, true, NameOf(WaitingForStreamingLevelsTimer));  // Wait for all streaming levels to finish loading
-
-				return;
 			}
 
-			// Load the game state
-			SaveGame.LoadGameState();
+			StreamingSaveGameState = SaveGame;                              // Store the save game state in StreamingSaveGameState
+			SetTimer(0.05f, true, NameOf(WaitingForStreamingLevelsTimer));  // Wait for all streaming levels to finish loading
+			
+			return;
 		}
 
-		// Send a message to all player controllers that we've loaded the save game state
-		foreach self.WorldInfo.AllControllers(class'DELPlayerController', SPlayerController)
-		{
-			SPlayerController.ClientMessage("Loaded save game state from " $ PendingSaveGameFileName $ ".", 'System');
-		}
-    }
-	
+		// Load the game state
+		SaveGame.LoadGameState();
+	}
+
+	// Send a message to all player controllers that we've loaded the save game state
+	foreach self.WorldInfo.AllControllers(class'DELPlayerController', SPlayerController){
+		SPlayerController.ClientMessage("Loaded save game state from " $ PendingSaveGameFileName $ ".", 'System');
+	}
+	}
 	super.StartMatch();
 }
 
