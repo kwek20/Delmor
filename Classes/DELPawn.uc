@@ -90,6 +90,11 @@ var class<DELMeleeWeapon> weaponClass;
  */
 var float attackInterval;
 
+/**
+ * How long the gettingHit animation is in seconds.
+ */
+var float getHitTime;
+
 /*
  * ==========================================================
  * Weapons and shite
@@ -136,6 +141,8 @@ var AnimNodePlayCustomAnim DeathAnim;
 var array<name> animname;
 var name deathAnimName;
 var name knockBackAnimName;
+var name getHitAnimName;
+var name blockAnimName;
 /**
  * An int to point to the attack-animation array.
  */
@@ -216,6 +223,8 @@ function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
 		goToState( 'Blocking' );
 	}
+	interrupt();
+	playBlockingAnimation();
 }
 
 /**
@@ -283,18 +292,26 @@ function SpawnController(){
  * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
  */
 function knockBack( float intensity , vector direction ){
-	local DELKnockbackForce knockBack;
+	spawnKnockBackForce( intensity , direction );
+	controller.GotoState( 'KnockedBack' );
+	bBlockActors = false;
 
+	playknockBackAnimation();
+
+	interrupt();
+}
+
+/**
+ * Spawns the knockbackforce and assigns some variables to it.
+ */
+function spawnKnockBackForce( float intensity , vector direction ){
+	local DELKnockbackForce knockBack;
 	knockBack = spawn( class'DELKnockbackForce' );
 	knockBack.setPower( intensity );
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
 	knockBack.pawnsPreviousState = controller.GetStateName();
-	controller.GotoState( 'KnockedBack' );
-	bBlockActors = false;
-
-	playknockBackAnimation();
 }
 
 /**
@@ -338,6 +355,23 @@ function attack(){
 }
 
 /**
+ * Renders the pawn unable to attack for a very short time and plays the gettingHit animation.
+ */
+function getHit(){
+	playGetHitAnimation();
+	controller.goToState( 'GettingHit' );
+	controller.SetTimer( getHitTime , false , 'returnToPreviousState' ); //Reset the attack combo if not immidiatly attacking again.
+	interrupt();
+}
+
+/**
+ * Interrupts any attack that the pawn was performing.
+ */
+function interrupt(){
+	ClearTimer( 'dealAttackDamage' ); //Reset this function so that the pawn's attack will be interrupted.
+}
+
+/**
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
@@ -371,6 +405,20 @@ function playDeathAnimation(){
  */
 function playKnockBackAnimation(){
 	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays a get hit animation.
+ */
+function playGetHitAnimation(){
+	SwingAnim.PlayCustomAnim(getHitAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays a get hit animation.
+ */
+function playBlockingAnimation(){
+	SwingAnim.PlayCustomAnim(blockAnimName, 1.0 , 0.0 , 0.0 , false , true );
 }
 
 /**
@@ -433,9 +481,6 @@ state dead{
 	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 		//Do nothing
 	}
-}
-
-state Attacking{
 }
 
 /**
@@ -588,4 +633,5 @@ DefaultProperties
 	mySoundSet = none
 
 	attackNumber = 0
+	getHitTime = 1.0
 }

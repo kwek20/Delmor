@@ -389,10 +389,14 @@ function stopPawn(){
  */
 state NonMovingState{
 	local Rotator startingRotation;
+	local name previousState;
 
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
 		
+		//Save the previous state in a variable.
+		previousState = previousStateName;
+
 		startingRotation = pawn.Rotation;
 		pawn.SetDesiredRotation( startingRotation );
 		stopPawn();
@@ -417,9 +421,19 @@ state NonMovingState{
 	 */
 	function moveInDirection( vector to , float deltaTime ){
 	}
+
+	/**
+	 * Returns to the previous state.
+	 */
+	function returnToPreviousState(){
+		goToState( previousState );
+	}
 }
 
 state Blocking extends NonMovingState{
+}
+
+state GettingHit extends NonMovingState{
 }
 
 state knockedBack extends NonMovingState{
@@ -430,13 +444,8 @@ state knockedBack extends NonMovingState{
  * The pawn is not allowed to move and the controller should return to it's previous state once the swing is done.
  */
 state Attacking extends NonMovingState{
-	local name previousState;
-
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
-
-		//Save the previous state in a variable.
-		previousState = previousStateName;
 
 		//Set a timer to end the state.
 		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );

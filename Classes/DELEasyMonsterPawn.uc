@@ -40,6 +40,11 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 		startBlocking();
 		setTimer( 1.0 , false , 'stopBlocking' );
 	}
+	else{
+		if ( rand( 2 ) == 1 ){
+			getHit();
+		}
+	}
 }
 
 state Blocking{
@@ -96,7 +101,7 @@ defaultproperties
     Components.Add(ThirdPersonMesh)
 	ControllerClass=class'DELEasyMonsterController'
 	magicResistance = 0.8
-	groundSpeed = 380.0
+	groundSpeed = 376.0
 	meleeRange = 75.0
 	bCanBlock = true
 
@@ -107,4 +112,5 @@ defaultproperties
 	animname[ 2 ] = ratman_jumpattack
 	deathAnimName = ratman_death
 	knockBackAnimName = ratman_knockback
+	getHitAnimName = ratman_gettinghit
 }

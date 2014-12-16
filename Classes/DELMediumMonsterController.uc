@@ -404,8 +404,8 @@ state Charge{
 	event tick( float deltaTime ){
 		local DELPawn collidingPawn;
 
-		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 10.0 ){
-			moveInDirection( playerPosition - pawn.Location , deltaTime * 8 /*We run to the player, so we move faster*/ );
+		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
+			moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
 			//TODO: Check for collision
 			
 			collidingPawn = checkCollision();

@@ -19,9 +19,6 @@ DefaultProperties
 
 	FireInterval(0)=0.5
 
-	damageMin = 5;
-	damageMax = 15;
-
 	bMeleeWeapon=true;
 	bInstantHit=true;
 	bCanThrow=false;

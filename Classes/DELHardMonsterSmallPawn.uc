@@ -56,5 +56,5 @@ DefaultProperties
 	health = 100
 	healthMax = 100
 	healthRegeneration = 0
-	GroundSpeed = 90.0
+	GroundSpeed = 365.0
 }

@@ -607,6 +607,8 @@ DefaultProperties
 	StamLoss = 5.0
 	Groundspeed = 375.0
 
+	manaRegeneration = 2
+
 	//Camera
 	camOffsetDistance = 200.0
 	camTargetDistance = 200.0
