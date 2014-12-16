@@ -463,7 +463,7 @@ DefaultProperties
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=-50.0)
+		Translation=(Z=-48.0)
 	End Object
     Components.Add(ThirdPersonMesh)
 
