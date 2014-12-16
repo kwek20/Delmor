@@ -97,7 +97,7 @@ defaultproperties
 	ControllerClass=class'DELEasyMonsterController'
 	magicResistance = 0.8
 	groundSpeed = 380.0
-	meleeRange = 50.0
+	meleeRange = 75.0
 	bCanBlock = true
 
 	//swordClass = class'DELMeleeWeaponFists'
@@ -106,4 +106,5 @@ defaultproperties
 	animname[ 1 ] = ratman_attack2
 	animname[ 2 ] = ratman_jumpattack
 	deathAnimName = ratman_death
+	knockBackAnimName = ratman_knockback
 }

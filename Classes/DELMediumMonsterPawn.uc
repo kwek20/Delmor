@@ -5,10 +5,6 @@
 class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
-/**
- * This soundset contains the pawn's voice
- */
-var DELSoundSetMediumPawn mySoundSet;
 
 /**
  * Overridden so that a take damage call will be sent to the controller.

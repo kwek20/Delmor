@@ -90,45 +90,6 @@ var class<DELMeleeWeapon> weaponClass;
  */
 var float attackInterval;
 
-/* ==========================================
- * Camera stuff
- * ==========================================
- */
-
-/**
- * Distance of the camera to this pawn.
- */
-var float camOffsetDistance;
-/**
- * The distance of the camera that we want, if camera is not at this distance it will adjust
- * the actualdistance till it is.
- */
-var float camTargetDistance;
-/**
- * The pitch of the camera.
- */
-var float camPitch;
-/**
- * Offset from the camera to the pawn.
- */
-var Vector cameraOffset;
-
-/**
- * Determines whether the player is in look mode.
- * When in look mode, the pawn will not rotate with the camara.
- * Else the camera will rotate with the pawn.
- */
-var bool bLookMode;
-/**
- * If locked to camera, the pawn's direction will be determined by the camera-direction.
- */
-var bool bLockedToCamera;
-
-
-var float defaultCameraHeight;
-var float cameraZoomHeight;
-var float cameraTargetHeight;
-
 /*
  * ==========================================================
  * Weapons and shite
@@ -174,6 +135,7 @@ var AnimNodePlayCustomAnim DeathAnim;
 
 var array<name> animname;
 var name deathAnimName;
+var name knockBackAnimName;
 /**
  * An int to point to the attack-animation array.
  */
@@ -186,8 +148,6 @@ simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
 
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
-	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
@@ -295,81 +255,7 @@ function endStun(){
 	controller.goToState( 'Idle' );
 }
 
-/**
- * Set the camera offset.
- * @param x float   x-offset.
- * @param y float   y-offset.
- * @param z float   z-offset.
- */
-function setCameraOffset( float x , float y , float z ){
-	cameraOffset.X = x;
-	cameraOffset.Y = y;
-	cameraOffset.Z = z;
-}
-/**
- * Calculates a new camera position based on the postition of the pawn.
- */
-simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV){
-    local Vector HitLocation, HitNormal;
-	local Rotator targetRotation;
-	/**
-	 * New pawn rotation if using look mode.
-	 */
-	local Rotator newRotation;
 
-	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
-		//Get the controller's rotation as camera angle.
-		targetRotation = Controller.Rotation;
-
-		out_CamLoc = Location;
-		out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-		out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-		out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
-		out_CamLoc = out_CamLoc + cameraOffset;
-
-		out_CamRot.Yaw = targetRotation.Yaw;
-		out_CamRot.Pitch = camPitch;
-		out_CamRot.Roll = 0;
-
-		//If in look mode, change the pawn's rotation based on the camera
-		newRotation.Pitch = Rotation.Pitch;
-		newRotation.Roll = Rotation.Roll;
-		newRotation.Yaw = targetRotation.Yaw;
-
-		//If in look mode, rotate the pawn according to the camera's rotation
-		//if ( bLockedToCamera ){
-		//	self.SetRotation( newRotation );
-		//}
-		//else{
-			Controller.SetRotation( newRotation );
-		//}
-
-		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none){
-			out_CamLoc = HitLocation;
-		}
-	}
-
-    return true;
-}
-
-/**
- * In this event the pawn will slowly regain health and mana.
- */
-event Tick( float deltaTime ){
-	if ( bLockedToCamera ){
-		camTargetDistance = 150.0;
-		cameraTargetHeight = cameraZoomHeight;
-	} else {
-		camTargetDistance = 200.0;
-		cameraTargetHeight = defaultCameraHeight;
-	}
-
-	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
-		//Animate the camera
-		adjustCameraDistance( deltaTime );
-		adjustCameraOffset( deltaTime );
-	}
-}
 
 /**
  * Regenerates health and mana.
@@ -392,45 +278,6 @@ function SpawnController(){
 }
 
 /**
- * Animates the camera distance.
- * THIS FUNCTION MAY ONLY BE EXECUTED IN THE TICK EVENT.
- * @param deltaTime float   The deltaTime from the tick-event.
- */
-function adjustCameraDistance( float deltaTime ){
-	local float difference , distanceSpeed;
-	difference = max( camOffsetDistance , camTargetDistance ) - min( camOffsetDistance , camTargetDistance );
-	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
-
-	if ( camOffsetDistance < camTargetDistance ){
-		camOffsetDistance += distanceSpeed;
-	}
-	if ( camOffsetDistance > camTargetDistance ){
-		camOffsetDistance -= distanceSpeed;
-	}
-	//Lock
-	if ( camOffsetDistance + distanceSpeed > camTargetDistance && camOffsetDistance - distanceSpeed < camTargetDistance ){
-		camOffsetDistance = camTargetDistance;
-	}
-}
-
-function adjustCameraOffset( float deltaTime ){
-	local float difference , distanceSpeed;
-	difference = max( cameraOffset.Z , cameraTargetHeight ) - min( cameraOffset.Z , cameraTargetHeight );
-	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
-
-	if ( cameraOffset.Z < cameraTargetHeight ){
-		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z + distanceSpeed );
-	}
-	if ( cameraOffset.Z > cameraTargetHeight ){
-		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z - distanceSpeed );
-	}
-	//Lock
-	if ( cameraOffset.Z + distanceSpeed > cameraTargetHeight && cameraOffset.Z - distanceSpeed < cameraTargetHeight ){
-		setCameraOffset( 0.0 , 0.0 , cameraTargetHeight );
-	}
-}
-
-/**
  * Knocks the pawn back.
  * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
  * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
@@ -446,6 +293,8 @@ function knockBack( float intensity , vector direction ){
 	knockBack.pawnsPreviousState = controller.GetStateName();
 	controller.GotoState( 'KnockedBack' );
 	bBlockActors = false;
+
+	playknockBackAnimation();
 }
 
 simulated exec function turnLeft(){
@@ -509,6 +358,9 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 
 	//Play died sound
 	say( "Die" );
+	goToState( 'Dead' );
+	Controller.GotoState( 'Dead' );
+	setTimer( 5.0 , false , 'destroyMe' );
 	//Play death animation
 	playDeathAnimation();
 }
@@ -517,16 +369,30 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
  * Plays an attack animation.
  */
 function playAttackAnimation(){
-	self.SwingAnim.PlayCustomAnim(animname[ attackNumber ], 1.0 , 0.1 , 0.1f , false , true );
+	SwingAnim.PlayCustomAnim(animname[ attackNumber ], 1.0 , 0.0 , 0.1f , false , true );
 }
 
 /**
  * Plays a death-animation.
  */
 function playDeathAnimation(){
-	self.SwingAnim.PlayCustomAnim(deathAnimName, 1.0 , 0.1 , 0.1f , false , true );
+	SwingAnim.PlayCustomAnim(deathAnimName, 1.0 , 0.0 , 0.0 , false , true );
 }
 
+/**
+ * Plays a knockdown-animation.
+ */
+function playKnockBackAnimation(){
+	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Removes the pawn and its controller from the level and memory.
+ */
+function destroyMe(){
+	controller.Destroy();
+	destroy();
+}
 /**
  * Sets the attack number to 0
  */
@@ -556,6 +422,32 @@ function say( String dialogue ){
 	}
 }
 
+/*
+ * ========================================
+ * States
+ * ========================================
+ */
+
+/**
+ * Used to override the die and takeDamage functions.
+ */
+state dead{
+	/**
+	 * Do nothing.
+	 */
+	function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+		return false;
+	}
+
+	/**
+	 * Do nothing.
+	 */
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		//Do nothing
+	}
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true
@@ -578,15 +470,6 @@ DefaultProperties
 	attackInterval = 1.0
 
 	bIsStunned = false
-
-	camOffsetDistance = 200.0
-	camTargetDistance = 200.0
-	defaultCameraHeight = 48.0
-	cameraTargetHeight = 48.0
-	cameraZoomHeight = 64.0
-	camPitch = -5000.0
-	bLookMode = false
-	bLockedToCamera = false
 
 	ControllerClass = class'DELNpcController'
 

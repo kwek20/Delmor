@@ -136,7 +136,7 @@ function spawnPawn(bool random, vector spawnLocation)
 		} else if (randomNumber > 70 && randomNumber <= 90) {
 			mobThatSpawns = Spawn(class'DELMediumMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
 		} else if (randomNumber > 91 && randomNumber <= 100) {
-			mobThatSpawns = Spawn(class'DELHardMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
+			mobThatSpawns = Spawn(class'DELHardMonsterSmallPawn', self,,SpawnLocation, rotator(selfToPlayer));
 		}
 	} else {
 		mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, rotator(selfToPlayer));
