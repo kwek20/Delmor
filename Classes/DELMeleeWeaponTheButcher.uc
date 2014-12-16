@@ -1,3 +1,7 @@
+/**
+ * class for the weapon called Butcher
+ * @author harmen wiersma
+ */
 class DELMeleeWeaponTheButcher extends DELMeleeWeapon;
 
 DefaultProperties

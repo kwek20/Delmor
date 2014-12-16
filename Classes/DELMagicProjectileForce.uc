@@ -1,7 +1,20 @@
+/**
+ * the force projectile
+ * @author harmen wiersma
+ */
 class DELMagicProjectileForce extends DELMagicProjectile;
+/**
+ * sets the projectile flying
+ */
 var bool flying;
+/**
+ * a different particlesystem for the charging, if there is any
+ */
 var ParticleSystem ProjChargeTemplate;
 
+/**
+ * sets the direction and flighteffects when spell is released
+ */
 simulated function init(vector Direction){
 	super.Init(Direction);
 	DetachComponent(ProjEffects);
@@ -9,6 +22,10 @@ simulated function init(vector Direction){
 	SpawnFlightEffects();
 }
 
+/**
+ * spawns custom flighteffects
+ * sets an other effect if the projectile is not flying
+ */
 simulated function SpawnFlightEffects(){
 	if(flying){
 		Super.SpawnFlightEffects();

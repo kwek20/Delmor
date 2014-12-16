@@ -1,15 +1,29 @@
+/**
+ * fist weapons
+ */
 class DELMeleeWeaponFists extends DELMeleeWeapon;
-
+/**
+ * socketnames of the lefthanded 'weapon'
+ */
 var() const name offHandHiltSocketName, offHandTipSocketName;
 
+/**
+ * overrides the normal attachweapon to because there is no mesh
+ */
 simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName ){
     //simply overriding shit, nothing else
 }
 
+/**
+ * overrides the setposition of delmeleeweapon
+ */
 simulated event SetPosition(UDKPawn Holder){
 //woohoo another override
 }
 
+/**
+ * addition of traceswing so that also the other hand is traced
+ */
 simulated function TraceSwing(){
 	local Vector SwordTip2, SwordHilt2;
 	local Actor HitActor;
@@ -31,6 +45,11 @@ simulated function TraceSwing(){
 	}
 }
 
+/**
+ * gets the location of the socket
+ * @param socketname name of the socket
+ * @return location of socket
+ */
 simulated function Vector GetSwordSocketLocation(Name SocketName){
 	local Vector SocketLocation;
 	local Rotator SwordRotation;

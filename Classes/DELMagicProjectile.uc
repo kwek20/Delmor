@@ -1,10 +1,15 @@
+/**
+ * magical projectiles
+ * code is almost the same as the linkgun projectile save for a few changes
+ * @author Harmen Wiersma
+ */
 class DELMagicProjectile extends UTProjectile;
 
 var vector ColorLevel;
 var vector ExplosionColor;
 
 /**
- * 
+ * sets values in the projectile
  */
 event PreBeginPlay(){
 	if (Instigator != None){
@@ -62,7 +67,12 @@ simulated function PostBeginPlay(){
 	}
 }
 
-
+/**
+ * what happens if the spell touches something
+ * @param other the actor that the projectile touches
+ * @param Hitlocation location of the touch
+ * @param hitnormal i really don't know what this does. 
+ */
 simulated function ProcessTouch (Actor Other, vector HitLocation, vector HitNormal){
 	if ( Other != Instigator ){
 		if ( !Other.IsA('Projectile') || Other.bProjTarget ){
@@ -73,11 +83,20 @@ simulated function ProcessTouch (Actor Other, vector HitLocation, vector HitNorm
 	}
 }
 
+/**
+ * the event to be player when the projectile hit the wall
+ * @param hitnormal still no clue what this does, just don't fuck with it, it works currently
+ * @param wall the wall that is hit
+ * @param wallcomp the component of the wall? i really don't know. unreal tournament has a thing against javadoc
+ */
 simulated event HitWall(vector HitNormal, Actor Wall, PrimitiveComponent WallComp){
 	MomentumTransfer = 1.0;
 	Super.HitWall(HitNormal, Wall, WallComp);
 }
 
+/**
+ * spawns some fancy flight effects
+ */
 simulated function SpawnFlightEffects(){
 	Super.SpawnFlightEffects();
 	if (ProjEffects != None){
@@ -85,7 +104,10 @@ simulated function SpawnFlightEffects(){
 	}
 }
 
-
+/**
+ * sets the effectparameters of the explosion
+ * @param projexplosion the particlesystem of the explosion?
+ */
 simulated function SetExplosionEffectParameters(ParticleSystemComponent ProjExplosion){
 	Super.SetExplosionEffectParameters(ProjExplosion);
 	ProjExplosion.SetVectorParameter('LinkImpactColor', ExplosionColor);
