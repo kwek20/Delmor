@@ -1,5 +1,13 @@
+/**
+ * The abstract scroll interface.<br/>
+ * This is used in the credits and quest log.
+ * It features a scroll function
+ */
 class DELInterfaceScrollbar extends DELInterfaceObject abstract;
 
+/**
+ * The lock
+ */
 var DELInterfaceTexture lockedObject;
 
 var() array< string > text;

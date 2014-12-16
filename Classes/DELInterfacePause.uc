@@ -1,3 +1,6 @@
+/**
+ * The pause menu
+ */
 class DELInterfacePause extends DELInterfaceInteractible;
 
 var() int inbetween, buttonHeight, buttonAmount;
@@ -12,7 +15,7 @@ function load(DELPlayerHud hud){
 	startX = hud.sizeX/2 - hud.sizeX*backgroundDimensionWidth/2 + inbetween;
 	startY = hud.sizeY/2 - (buttonHeight*buttonAmount + inbetween*(buttonAmount+2))/2 + inbetween;
 
-	
+	//Resume button
 	button = Spawn(class'DELInterfaceButton');
 	button.setPosition(startX, startY, length, buttonHeight, hud);
 	button.setRun(resume);
@@ -20,6 +23,7 @@ function load(DELPlayerHud hud){
 	button.setColor(buttonColor);
 	addInteractible(button);
 
+	//save button
 	startY+=buttonHeight+inbetween;
 	button = Spawn(class'DELInterfaceButton');
 	button.setPosition(startX, startY, length, buttonHeight, hud);
@@ -28,6 +32,7 @@ function load(DELPlayerHud hud){
 	button.setColor(buttonColor);
 	addInteractible(button);
 
+	//load button
 	startY+=buttonHeight+inbetween;
 	button = Spawn(class'DELInterfaceButton');
 	button.setPosition(startX, startY, length, buttonHeight, hud);
@@ -36,6 +41,7 @@ function load(DELPlayerHud hud){
 	button.setColor(buttonColor);
 	addInteractible(button);
 
+	//credits button
 	startY+=buttonHeight+inbetween;
 	button = Spawn(class'DELInterfaceButton');
 	button.setPosition(startX, startY, length, buttonHeight, hud);
@@ -44,6 +50,7 @@ function load(DELPlayerHud hud){
 	button.setColor(buttonColor);
 	addInteractible(button);
 
+	//exit button
 	startY+=buttonHeight+inbetween;
 	button = Spawn(class'DELInterfaceButton');
 	button.setPosition(startX, startY, length, buttonHeight, hud);

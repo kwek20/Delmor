@@ -22,6 +22,9 @@ var bool isHover;
  */
 var() SoundCue clickSound;
 
+/**
+ * If this oject is completely see-through
+ */
 var() bool transparant;
 
 /**
@@ -38,10 +41,16 @@ function use(){
 	PlayClickSound();
 }
 
+/**
+ * Default use check. Left pressed
+ */
 function bool requiresUse(DELInputMouseStats stats){
 	return stats.PendingLeftPressed;
 }
 
+/**
+ * Method we run when you hover on this object
+ */
 delegate onHover(DELPlayerHud hud, bool enter);
 
 /**
@@ -53,8 +62,14 @@ function hover(){
 	SetTimer(0.1, false, 'noHover');
 }
 
+/**
+ * Stop hovering
+ */
 function noHover(){isHover=false;}
 
+/**
+ * Play the click sound
+ */
 function PlayClickSound(){
 	PlaySound( clickSound );
 }
@@ -74,7 +89,9 @@ public function draw(DELPlayerHud hud){
 }
 
 /**
- * javadoc voor brood
+ * draw this object. <br/>
+ * if you hover on this and a hover texture or color is set, this will display that.<br/>
+ * Otherwise all textures will be drawn normally
  */
 public function drawTexture(Canvas c){
 	if (textures.Length == 0 || transparant) return;
@@ -89,6 +106,11 @@ public function drawTexture(Canvas c){
 	}
 }
 
+/**
+ * Draw all normal textures with a hover color
+ * @param c
+ * @param hoverColor The color we emerge the image with
+ */
 public function drawAllTexturesColored(Canvas c, color hoverColor){
 	local Texture2D texture;
 	foreach textures(texture){
@@ -97,6 +119,9 @@ public function drawAllTexturesColored(Canvas c, color hoverColor){
 	}
 }
 
+/**
+ * draw the hover textures for this object
+ */
 public function drawAllHoverTextures(Canvas c){
 	local Texture2D hoverTexture;
 	foreach hoverTextures(hoverTexture){
@@ -104,10 +129,20 @@ public function drawAllHoverTextures(Canvas c){
 		drawTile(c, hoverTexture, position.Z, position.W);
 	}
 }
+
+/**
+ * Checks if there is a hover color set
+ * @return true if there is
+ */
 private function bool hoverColorSet(){
 	return hoverColor.R > 0 || hoverColor.G > 0 || hoverColor.B > 0 || hoverColor.A > 0;
 }
 
+/**
+ * Backup draw.<br/>
+ * If no texture is supplied we draw a rect<br/>
+ * Takes hover into account
+ */
 public function drawStandardbackground(Canvas c){
 	if (transparant) return;
 	c.SetPos(position.X, position.Y);
@@ -147,6 +182,9 @@ public function setColor(color c){
 	color = c;
 }
 
+/**
+ * Sets the color based on ints
+ */
 public function setColorVars(int r, int g, int b, int a){
 	local Color c;
 	c.r = r;
@@ -156,6 +194,9 @@ public function setColorVars(int r, int g, int b, int a){
 	setColor(c);
 }
 
+/**
+ * Toggles transparancy
+ */
 public function toggleTranparant(){
 	transparant = !transparant;
 }

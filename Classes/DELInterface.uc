@@ -6,10 +6,16 @@ class DELInterface extends Actor
 	config(Game)
 	abstract;
 
+/**
+ * Interface load priority
+ */
 enum EPriority {
 	LOWEST, LOW, NORMAL, HIGH, HIGHEST
 };
 
+/**
+ * The sound you hear when this interface is loaded
+ */
 var() SoundCue openSound;
 
 /**
@@ -62,6 +68,9 @@ function drawCTile(Canvas c, Texture2D texture, float XL, float YL, int r, int g
 	c.DrawTile(texture, XL, YL, U, V, texture.SizeX, texture.SizeY);
 }
 
+/**
+ * Draw a colored tile, forced size(partially)
+ */
 function drawCTileForced(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, optional float U = 0.f, optional float V = 0.f){
 	c.SetDrawColor(r,g,b,a);
 	c.DrawTile(texture, XL, YL, U, V, XL, YL);

@@ -1,3 +1,6 @@
+/**
+ * A compass interface to display the compass
+ */
 class DELInterfaceCompass extends DELInterface implements(DELICompass)
 	placeable;
 
