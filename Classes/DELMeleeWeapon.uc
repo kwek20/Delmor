@@ -253,12 +253,12 @@ DefaultProperties
 
 	FireInterval(0)= 1.0
 
-	damageMin = 10;
-	damageMax = 30;
+	damageMin = 1
+	damageMax = 1
 
-	bMeleeWeapon=true;
-	bInstantHit=true;
-	bCanThrow=false;
+	bMeleeWeapon=true
+	bInstantHit=true
+	bCanThrow=false
 
 	FiringStatesArray(0)="Swinging"
 

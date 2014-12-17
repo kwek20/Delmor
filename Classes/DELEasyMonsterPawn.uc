@@ -32,18 +32,21 @@ private function assignSoundSet(){
  */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-	super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
-
-	//Block randomly
-	if ( bCanBlock && rand( 3 ) == 1 ){
-		`log( "Start blocking" );
-		startBlocking();
-		setTimer( 1.0 , false , 'stopBlocking' );
-	}
-	else{
-		if ( rand( 2 ) == 1 ){
-			getHit();
+	
+	if ( !IsInState( 'Dead' ) ){
+		//Block randomly
+		if ( bCanBlock && rand( 3 ) == 1 ){
+			`log( "Start blocking" );
+			startBlocking();
+			setTimer( 1.0 , false , 'stopBlocking' );
 		}
+		else{
+			if ( rand( 2 ) == 1 ){
+				getHit();
+			}
+		}
+
+		super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	}
 }
 

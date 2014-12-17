@@ -67,8 +67,8 @@ DefaultProperties
 {
 	criticalHitChance = 0
 	criticalDamageMultiplier = 1
-	damageMin = 1;
-	damageMax = 1;
+	damageMin = 1
+	damageMax = 1
 
 	animname1 = attack1
 	animname2 = attack2
@@ -77,7 +77,7 @@ DefaultProperties
 	swordTipSocketName = R_nail
 	offHandHiltSocketName = L_wrist
 	offHandTipSocketName = L_nail
-	critChance = 0;
+	critChance = 0
 
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
 		SkeletalMesh=SkeletalMesh'delmor_character.Meshes.sk_lucian_sword2'

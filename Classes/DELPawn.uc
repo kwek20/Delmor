@@ -219,7 +219,7 @@ function magicSwitch(int AbilityNumber);
  */
 function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
-		goToState( 'Blocking' );
+		changeState( 'Blocking' );
 	}
 	interrupt();
 	playBlockingAnimation();
@@ -229,7 +229,7 @@ function startBlocking(){
  * Stop blocking by going into the LandMovementState
  */
 function stopBlocking(){
-	goToState( LandMovementState );
+	changeState( LandMovementState );
 }
 
 /**
@@ -290,7 +290,7 @@ function SpawnController(){
  */
 function knockBack( float intensity , vector direction ){
 	spawnKnockBackForce( intensity , direction );
-	controller.GotoState( 'KnockedBack' );
+	controller.goToState( 'KnockedBack' );
 	bBlockActors = false;
 
 	playknockBackAnimation();
@@ -340,6 +340,16 @@ simulated function StopFire(byte FireModeNum){
 }
 
 /**
+ * Changes the state if the pawn is not dead.
+ * @param newState  Name    The name of the new state.
+ */
+function changeState( Name newState ){
+	if ( !IsInState( 'Dead' ) ){
+		goToState( newState );
+	}
+}
+
+/**
  * Performs an attack by playing an animation and setting a timer, when the timer finishes, actual damage will be dealt.
  */
 function attack(){
@@ -383,8 +393,8 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 
 	//Play died sound
 	say( "Die" );
-	goToState( 'Dead' );
-	Controller.GotoState( 'Dead' );
+	changeState( 'Dead' );
+	Controller.goToState( 'Dead' );
 	setTimer( 5.0 , false , 'destroyMe' );
 	//Play death animation
 	playDeathAnimation();
@@ -568,6 +578,12 @@ state dead{
 	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 		//Do nothing
 	}
+
+	/**
+	 * Overriden so that the pawn can't come back to life after dying.
+	 */
+	//final function changeState( optional name newState , optional name Label , optional bool bForceEvents , optional bool bKeepStack ){
+	//}
 }
 
 /**
@@ -577,7 +593,6 @@ state dead{
 function float lengthDirX( float len , float dir ){
 	local float Radians;
 	Radians = UnrRotToRad * dir;
-
 	return len * cos( Radians );
 }
 

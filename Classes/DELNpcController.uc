@@ -157,6 +157,12 @@ state NonMovingState{
 	}
 }
 
+/**
+ * Empty state, will be filled in the NonMovingState-state
+ */
+function returnToPreviousState(){
+}
+
 state Blocking extends NonMovingState{
 }
 

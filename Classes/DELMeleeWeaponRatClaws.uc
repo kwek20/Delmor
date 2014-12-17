@@ -4,8 +4,8 @@ DefaultProperties
 {
 	criticalHitChance = 0
 	criticalDamageMultiplier = 1
-	damageMin = 1;
-	damageMax = 1;
+	damageMin = 1
+	damageMax = 1
 	
 	bHardAttach = true
 	swordHiltSocketName = SwordHiltSocket
