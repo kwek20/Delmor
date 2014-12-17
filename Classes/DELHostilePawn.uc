@@ -13,6 +13,7 @@ simulated event PostBeginPlay(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	local int newDamage;
+	`log(damage);
 	newDamage = damage;
 	if(DamageType == class'DELDmgTypeMelee'){
 		newDamage = damage - (damage * physicalResistance);

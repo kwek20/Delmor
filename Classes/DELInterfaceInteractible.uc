@@ -4,27 +4,39 @@
  */
 class DELInterfaceInteractible extends DELInterfaceTexture;
 
+/**
+ * All the objects this interface has
+ */
 var() PrivateWrite array< DELInterfaceObject > objects;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceObject obj;
 	super.load(hud);
+	//load every object
 	foreach objects(obj){obj.load(hud);}
 }
 
+/**
+ * Block usage on it by default
+ */
 function bool requiresUse(DELInputMouseStats stats){
 	return false;
 }
 
 /**
- * Adds a button to the list
- * @param btn The button to add
+ * Adds a DELInterfaceObject to the list
+ * @param obj The button to add
  */
 public function bool addInteractible(DELInterfaceObject obj){
 	objects.AddItem(obj); 
 	return true;
 }
 
+/**
+ * Removes a DELInterfaceObject from the list
+ * @param obj The button to remove
+ * @return true when successful
+ */
 public function bool removeInteractible(DELInterfaceObject obj){
 	local int i;
 
@@ -61,6 +73,7 @@ public function onMouseUse(DELPlayerHud hud, DELInputMouseStats stats){
  * Looks for a button linked to a key.<br/>
  * Returns None if it does not exist
  * @param key The key we want the button of
+ * @return the object or none
  */
 protected function DELInterfaceButton getButtonByKey(int key){
 	local DELInterfaceObject object;
@@ -76,6 +89,7 @@ protected function DELInterfaceButton getButtonByKey(int key){
  * Looks for a button by position.<br/>
  * Returns None if it does not exist
  * @param position the position wher we want to check for a button
+ * @return the object or None
  */
 protected function DELInterfaceObject getObjectByPosition(IntPoint position){
 	local DELInterfaceObject object;
@@ -92,6 +106,7 @@ protected function DELInterfaceObject getObjectByPosition(IntPoint position){
  * Fails silently when one of the parameters are None
  * @param p The player hud
  * @param b The button we want to perform the action for
+ * @param stats optional, the mouse statistics
  */
 public function performAction(DELPlayerHud p, DELInterfaceObject b, optional DELInputMouseStats stats){
 	if (b == None || p == None) return;
@@ -107,13 +122,14 @@ public function draw(DELPlayerHud hud){
 	local DELInterfaceObject object;
 	super.draw(hud);
 
+	//draw the object
 	foreach objects(object){
 		if (object != None)object.draw(hud);
 	}
 
+	//check for hover
 	foreach objects(object){
-		if (object == None) continue;
-		if (object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
+		if (object != None && object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
 			//mouse on button
 			object.hover();
 			object.onHover(hud, true);
@@ -121,6 +137,10 @@ public function draw(DELPlayerHud hud){
 	}
 }
 
+/**
+ * @return if you can interact
+ * @deprecated
+ */
 public function bool canInteract(){
 	return true;
 }

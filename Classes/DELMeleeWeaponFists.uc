@@ -1,15 +1,29 @@
+/**
+ * fist weapons
+ */
 class DELMeleeWeaponFists extends DELMeleeWeapon;
-
+/**
+ * socketnames of the lefthanded 'weapon'
+ */
 var() const name offHandHiltSocketName, offHandTipSocketName;
 
+/**
+ * overrides the normal attachweapon to because there is no mesh
+ */
 simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName ){
     //simply overriding shit, nothing else
 }
 
+/**
+ * overrides the setposition of delmeleeweapon
+ */
 simulated event SetPosition(UDKPawn Holder){
 //woohoo another override
 }
 
+/**
+ * addition of traceswing so that also the other hand is traced
+ */
 simulated function TraceSwing(){
 	local Vector SwordTip2, SwordHilt2;
 	local Actor HitActor;
@@ -17,12 +31,11 @@ simulated function TraceSwing(){
 	local int DamageAmount;
 	super.TraceSwing();
 
+	//gets the socket locations of alternative 'weapon'
 	SwordTip2 = GetSwordSocketLocation(offHandTipSocketName);
 	SwordHilt2 = GetSwordSocketLocation(offHandHiltSocketName);
 
-	`log( "SwordTip2: "$SwordTip2 );
-	`log( "SwordHilt2: "$SwordHilt2 );
-
+	//trace the altweapon
 	foreach TraceActors(class'Actor', HitActor, HitLoc, HitNorm, SwordTip2, SwordHilt2){
 		if (HitActor != self && AddToSwingHitActors(HitActor)){
 			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);
@@ -31,6 +44,11 @@ simulated function TraceSwing(){
 	}
 }
 
+/**
+ * gets the location of the socket
+ * @param socketname name of the socket
+ * @return location of socket
+ */
 simulated function Vector GetSwordSocketLocation(Name SocketName){
 	local Vector SocketLocation;
 	local Rotator SwordRotation;

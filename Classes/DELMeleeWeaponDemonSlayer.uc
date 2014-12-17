@@ -1,3 +1,8 @@
+/**
+ * the standard sword used by delmorians. 
+ * is named Demonslayer for the high count of demons and monsters that are slain by this very weapon
+ * @author Harmen Wiersma
+ */
 class DELMeleeWeaponDemonSlayer extends DELMeleeWeapon;
 
 DefaultProperties

@@ -3,8 +3,15 @@
  */
 class DELInterfaceButton extends DELInterfaceObject;
 
+/**
+ * if you can use this button
+ * @deprecated
+ */
 var() bool bCanActivate;
 
+/**
+ * The color from the box around a selected item
+ */
 var Color clickedColor;
 
 
@@ -49,6 +56,11 @@ public function bool identifiedBy(int key){
 	return (key == identifierKey);
 }
 
+/**
+ * Draw the text. <br/>
+ * Takes position and offset into account.<br/>
+ * Text taken from getText()
+ */
 public function drawText(Canvas c){
 	local float Xstring, Ystring;
 	c.Font = class'Engine'.static.GetLargeFont();    
@@ -59,6 +71,14 @@ public function drawText(Canvas c){
 	c.DrawText(getText());
 }
 
+/**
+ * 
+ * @param c the canvas we draw on
+ * @param xOff The x offset based on interface position.x
+ * @param yOff The y offset based on interface position.y
+ * @param char The mesage we display
+ * @param scale optional, default to 4. Meaning 1/4th of the total image
+ */
 public function drawNumber(Canvas c, float xOff, float yOff, string char, optional float scale=4){
 	local float xSize, ySize;
 
@@ -70,6 +90,7 @@ public function drawNumber(Canvas c, float xOff, float yOff, string char, option
 	c.TextSize(char, xSize, ySize);
 	c.SetPos(position.X + xOff - xSize/2, position.Y + yOff - ySize/2);
 	c.DrawText(char);
+	//draw color when we hover
 	if (isHover){
 		c.SetPos(position.X + xOff - position.Z/scale + (position.Z/(scale/2) - position.Z/(scale/12*7))/2, 
 				 position.Y + yOff - position.W/scale + (position.W/(scale/2) - position.W/(scale/12*7))/2);
@@ -77,6 +98,9 @@ public function drawNumber(Canvas c, float xOff, float yOff, string char, option
 	}
 }
 
+/**
+ * Make a drawNumber call with our default position and identifier
+ */
 public function drawIdentifier(Canvas c){
 	drawNumber(c, position.Z, 0, String(identifierKey), 4);
 }

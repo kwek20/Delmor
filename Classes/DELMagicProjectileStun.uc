@@ -1,3 +1,9 @@
+/**
+ * class for the stun spell
+ * no custom functions as there doesn't need to be any
+ * only sets some default properties
+ * @author the amazing harmen
+ */
 class DELMagicProjectileStun extends DELMagicProjectile;
 
 

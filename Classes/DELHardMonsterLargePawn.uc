@@ -13,16 +13,16 @@ defaultproperties
 	//Mesh
 	Components.Remove(ThirdPersonMesh)
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA'
-		AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-		PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
-		AnimtreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
-		Scale3D=(X=2, Y=2, Z=4)
+		SkeletalMesh=SkeletalMesh'Delmor_Character.sk_culpa_Big'
+		AnimSets(0)=AnimSet'Delmor_Character.Cupla_big_anim'
+		PhysicsAsset=PhysicsAsset'Delmor_Character.sk_culpa_Big_Physics'
+		AnimtreeTemplate=AnimTree'Delmor_Character.Culpa_big_AnimTree'
+		Scale3D=(X=1, Y=1, Z=1)
 		HiddenGame=False
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=12.0)
+		Translation=(Z=-136.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
@@ -34,4 +34,9 @@ defaultproperties
 
 	physicalResistance = 0.0
 	magicResistance = 0.0
+
+	Begin Object Name=CollisionCylinder
+		CollisionRadius = 36.0
+		CollisionHeight = +132.0
+	end object
 }

@@ -8,8 +8,14 @@ class DELInterfaceBar extends DELInterfaceInteractible;
  */
 var int squareSize, inbetween, amountBars, key;
 
+/**
+ * The texture of a display character on a action spot, with its shadow and a dirt speck
+ */
 var Texture2D glass, shadow, vlekje;
 
+/**
+ * The possible hotbar items
+ */
 var array< class<DELItem> > hotbarItems;
 
 function load(DELPlayerHud hud){
@@ -24,13 +30,18 @@ function load(DELPlayerHud hud){
 	setPos(startX, startY, length, squareSize+2*inbetween, hud);
 	images = getIcons(hud);
 	for (i=1; i<=amountBars; i++){
+		//load magic spells, then quick action items
 		if(i <= images.Length){button = Spawn(class'DELInterfaceButtonMagic');}
 		else{button = Spawn(class'DELInterfaceQuickAction');}
 
+		//set key and poistion
 		button.setIdentifier(i);
 		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween/2, squareSize, squareSize, hud);
 
+		//set glass texture
 		button.setTexture(glass);
+
+		//set textures and run functions
 		if (images.Length>=i){
 			button.setTexture(images[i-1]);
 			button.setRun(useMagic);
@@ -39,9 +50,11 @@ function load(DELPlayerHud hud){
 			button.setRun(usePotion);
 		}
 
+		//add a speck to the first button
 		if (i==0)button.setTexture(vlekje);
+
+		//add shadow texture as last, then add it
 		button.setTexture(shadow);
-		
 		addInteractible(button);
 	}
 	super.load(hud);
@@ -55,8 +68,7 @@ function load(DELPlayerHud hud){
  */
 function array<Texture2D> getIcons(DELPlayerHud hud){
 	local array<Texture2D> textures;
-	textures = DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons();
-	return textures;
+	return DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons();
 }
 
 /**
@@ -70,6 +82,12 @@ function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject
 	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
 }
 
+/**
+ * Use a potion
+ * @param hud the hud this thing belongs to
+ * @param stats stats of the mouse that activated the use of this function
+ * @param button button the mouse clicked
+ */
 function usePotion(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
 	if (!button.isA('DELInterfaceQuickAction') || !DELInterfaceQuickAction(button).isActive()) return;
