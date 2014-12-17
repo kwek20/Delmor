@@ -13,7 +13,7 @@ defaultproperties
 	//Mesh
 	Components.Remove(ThirdPersonMesh)
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'Delmor_Character.sk_culpa_Big'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_culpa_Big'
 		AnimSets(0)=AnimSet'Delmor_Character.Cupla_big_anim'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.sk_culpa_Big_Physics'
 		AnimtreeTemplate=AnimTree'Delmor_Character.Culpa_big_AnimTree'
@@ -31,6 +31,17 @@ defaultproperties
 	healthMax = 1000
 	healthRegeneration = 0
 	GroundSpeed = 95
+
+	attackInterval = 1.0
+	meleeRange = 200.0
+
+	//Anim
+	animname[ 0 ] = Culpa_Big_Attack
+	animname[ 1 ] = Culpa_Big_Attack
+	animname[ 2 ] = Culpa_Big_Attack
+	deathAnimName = Culpa_Big_Val
+	knockBackAnimName = ratman_knockback
+	getHitAnimName = ratman_gettinghit
 
 	physicalResistance = 0.0
 	magicResistance = 0.0

@@ -229,6 +229,7 @@ function startBlocking(){
  * Stop blocking by going into the LandMovementState
  */
 function stopBlocking(){
+	DELNpcController( controller ).returnToPreviousState();
 	changeState( LandMovementState );
 }
 
