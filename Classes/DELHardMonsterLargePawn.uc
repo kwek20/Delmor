@@ -31,4 +31,7 @@ defaultproperties
 	healthMax = 1000
 	healthRegeneration = 0
 	GroundSpeed = 95
+
+	physicalResistance = 0.0
+	magicResistance = 0.0
 }

@@ -383,10 +383,13 @@ state maintainDistanceFromPlayer{
 
 }
 /**
- * Charge towards the player in hopes to stun him.
+ * Charge towards the player in hopes to stun him and knock him back.
  */
 state Charge{
 	local vector playerPosition;
+	/**
+	 * At the start of the state the position somewhere behind the player will be calculated and the mediumPawn will run to that point.
+	 */
 	function beginState( name previousStateName ){
 		local rotator selfToPlayer;
 
@@ -424,20 +427,27 @@ state Charge{
 	 * If the pawn collides with an easyMinion it should push him away.
 	 * But if the pawn collides with the player, the pawn should exit the charge state
 	 * and the player should be stunned.
+	 * @param p DELPawn The pawn that has been hit by the mediumPawn's charge attack.
 	 */
 	event collisionWithPawn( DELPawn p ){
-		local vector selfToPawn;
+		local vector selfToPawn , momentum;
 
-		selfToPawn = adjustLocation( p.location , pawn.location.Z ) - adjustLocation( pawn.Location , pawn.location.Z );
+		if ( p != none ){
+			selfToPawn = adjustLocation( p.location , pawn.location.Z ) - adjustLocation( pawn.Location , pawn.location.Z );
 
-		if ( p.class != class'DELMediumMonsterPawn' ){
-			p.knockBack( 250.0 , selfToPawn );
-		}
-
-		if ( p.class == class'DELPlayer' ){
-			p.health -= 25;
-			stopPawn();
-			goToState( 'Attack' );
+			switch( p.Class ){
+			//Knock the player back and deal damage.
+			case class'DELPlayer': 
+				p.TakeDamage( 25 , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
+				stopPawn();
+				goToState( 'Attack' );
+				p.knockBack( 250.0 , selfToPawn );
+				break;
+			//Knock the monster back
+			default:
+				p.knockBack( 250.0 , selfToPawn );
+				break;
+			}
 		}
 	}
 

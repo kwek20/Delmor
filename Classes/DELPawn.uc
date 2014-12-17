@@ -8,12 +8,10 @@
  */
 class DELPawn extends UTPawn;
 
-
 /* ==========================================
  * Stats
  * ==========================================
  */
-
 
 /**
  * How much health the pawn will regain each second.
@@ -243,6 +241,7 @@ function resetCanBlock(){
 
 /**
  * Stuns the pawn for a given time.
+ * @param duration	float    How long the stun lasts in seconds.
  */
 function stun( float duration ){
 	velocity.x = 0.0;
@@ -263,8 +262,6 @@ function endStun(){
 	`log( "***************************" );
 	controller.goToState( 'Idle' );
 }
-
-
 
 /**
  * Regenerates health and mana.
@@ -303,6 +300,8 @@ function knockBack( float intensity , vector direction ){
 
 /**
  * Spawns the knockbackforce and assigns some variables to it.
+ * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
  */
 function spawnKnockBackForce( float intensity , vector direction ){
 	local DELKnockbackForce knockBack;
@@ -341,7 +340,7 @@ simulated function StopFire(byte FireModeNum){
 }
 
 /**
- * Performs an attack.
+ * Performs an attack by playing an animation and setting a timer, when the timer finishes, actual damage will be dealt.
  */
 function attack(){
 	if ( !controller.IsInState( 'Attacking' ) ){
@@ -368,6 +367,9 @@ function getHit(){
  * Interrupts any attack that the pawn was performing.
  */
 function interrupt(){
+	Velocity.X = 0.0;
+	Velocity.Y = 0.0;
+	Velocity.Z = 0.0;
 	ClearTimer( 'dealAttackDamage' ); //Reset this function so that the pawn's attack will be interrupted.
 }
 
@@ -377,6 +379,8 @@ function interrupt(){
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
 	super.Died( killer , damageType , hitlocation );
 
+	interrupt();
+
 	//Play died sound
 	say( "Die" );
 	goToState( 'Dead' );
@@ -384,6 +388,24 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 	setTimer( 5.0 , false , 'destroyMe' );
 	//Play death animation
 	playDeathAnimation();
+}
+
+/**
+ * Transforms the pawn into a given class.
+ * Hitpoint percentage, rotation and location will be preserved.
+ * @param toTransformInto   class<DELPawn> The class to transform into.
+ */
+function shapeShift( class<DELPawn> toTransformInto ){
+	local DELPawn p;
+
+	p = spawn( toTransformInto , , , , , , true );
+	p.health = ( p.healthMax / healthMax ) * health;
+	p.setRotation( rotation );
+	p.setLocation( location );
+
+	//Remove old pawn from memory.
+	controller.Destroy();
+	destroy();
 }
 
 /**
@@ -428,12 +450,6 @@ function destroyMe(){
 	controller.Destroy();
 	destroy();
 }
-/**
- * Sets the attack number to 0
- */
-function resetAttackCombo(){
-	attackNumber = 0;
-}
 
 /**
  * Increases the attackNumber after an attack so that we'll play a different animation.
@@ -459,29 +475,9 @@ function say( String dialogue ){
 
 /*
  * ========================================
- * States
+ * Attacking
  * ========================================
  */
-
-/**
- * Used to override the die and takeDamage functions.
- */
-state dead{
-	/**
-	 * Do nothing.
-	 */
-	function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-		return false;
-	}
-
-	/**
-	 * Do nothing.
-	 */
-	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
-	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-		//Do nothing
-	}
-}
 
 /**
  * Deal damage from the melee attack to any pawn in front of this pawn.
@@ -498,14 +494,15 @@ function dealAttackDamage(){
 	hitPawn = checkPawnInFront();
 	damage = DELMeleeWeapon( sword ).CalculateDamage();
 	`log( "Damage: "$damage );
+	`log( "=====================================================================================" );
 
 	if ( hitPawn != none ){
-		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELMeleeDamage' , , self );
+		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
 	}
 }
 
 /**
- * Return the player's position plus 8 in the player's direction.
+ * Return the player's position plus meleeRange in the player's direction.
  */
 function Vector getInFrontLocation(){
 	local vector newLocation;
@@ -538,6 +535,39 @@ function Pawn checkPawnInFront(){
 	}
 	
 	return hitPawn;
+}
+
+/**
+ * Sets the attack number to 0
+ */
+function resetAttackCombo(){
+	attackNumber = 0;
+}
+
+/*
+ * ========================================
+ * States
+ * ========================================
+ */
+
+/**
+ * Used to override the die and takeDamage functions.
+ */
+state dead{
+	/**
+	 * Do nothing.
+	 */
+	function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+		return false;
+	}
+
+	/**
+	 * Do nothing.
+	 */
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		//Do nothing
+	}
 }
 
 /**

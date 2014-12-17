@@ -20,16 +20,7 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
  * Replaces the the small version of the pawn with a large version.
  */
 exec function transform(){
-	local DELHardMonsterLargePawn p;
-
-	p = spawn( class'DELHardMonsterLargePawn' , , , , , , true );
-	p.health = ( p.healthMax / healthMax ) * health;
-	p.setRotation( rotation );
-	p.setLocation( location );
-
-	//Kill yourself
-	controller.Destroy();
-	destroy();	
+	shapeShift( class'DELHardMonsterLargePawn' );
 }
 
 DefaultProperties
