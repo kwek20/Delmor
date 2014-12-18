@@ -95,6 +95,19 @@ state Blocking{
 	}
 }
 
+
+/*
+ * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ */
+function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	if ( mySoundSet.bCanPlay ){
+		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+		mySoundSet.bCanPlay = false;
+		mySoundSet.setTimer( 2.0 , false , nameOf( mySoundSet.resetCanPlay ) );
+	}
+}
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELMediumMonsterController'
@@ -122,6 +135,7 @@ defaultproperties
 	walkingSpeed = 80.0
 	detectionRange = 512.0
 	bCanBlock = true
+	mySoundSet = none
 	meleeRange = 75.0
 	attackInterval = 3.0
 	groundSpeed = 200.0

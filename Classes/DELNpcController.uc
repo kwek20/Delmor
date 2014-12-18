@@ -59,7 +59,7 @@ state Attack{
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
 		} else {
-			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
+			smartMoveToPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
@@ -422,6 +422,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 	}
 }
 
+
 /**
  * Move the pawn in a certain direction.
  * This direction will be calculated from a vector.
@@ -431,16 +432,25 @@ function moveTowardsPoint( Vector l , float deltaTime ){
  */
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
+	local Vector tempDest;
 
 	if ( !DELPawn( pawn ).bIsStunned ){
 		//Adjust the rotation so that only the Yaw will be modified.
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
-
-		//Move Pawn
-		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
-		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
-		Pawn.setDesiredRotation( adjustedRotation  );
-		Pawn.move( Pawn.velocity * deltaTime );
+		if(FindNavMeshPathVect(to)){
+			NavigationHandle.SetFinalDestination(to);
+			FlushPersistentDebugLines();
+			//NavigationHandle.DrawPathCache(,TRUE);
+				if ( NavigationHandle.GetNextMoveLocation(to, Pawn.GetCollisionRadius())){
+					//DrawDebugLine( Pawn.Location, to , 0 , 255 , 0 , true );
+					//DrawDebugSphere( to , 16 , 20 , 0 , 255 , 0 , true );
+					//Move Pawn
+					Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
+					Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
+					Pawn.setDesiredRotation( adjustedRotation  );
+					Pawn.move( Pawn.velocity * deltaTime );
+				}
+		}
 	}
 }
 
@@ -453,6 +463,55 @@ function stopPawn(){
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
 }
+
+
+/**
+* This function should let the pawn calculate a path to a point, and then follow it.
+* Returns 0 if still walking, 1 if reached the point and 2 if the point is unreachable.
+* @param l Vector The target location
+* @param deltaTime float The deltaTime from the Tick-event
+*/
+function smartMoveToPoint(Vector l, float deltaTime){  
+	local Vector tempDest;
+	if (NavigationHandle.PointReachable(l)){
+		moveTowardsPoint(l, deltaTime);
+	} else if(FindNavMeshPathVect(l)){
+		//The player is not reachable so use the navmesh path to move towards him
+		NavigationHandle.SetFinalDestination(l);
+		FlushPersistentDebugLines();
+		//NavigationHandle.DrawPathCache(,TRUE);
+		if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+			//DrawDebugLine( Pawn.Location, tempDest , 0 , 255 , 0 , true );
+			//DrawDebugSphere( tempDest , 16 , 20 , 0 , 255 , 0 , true );
+			//MoveTo( TempDest , Player );
+			moveTowardsPoint(tempDest, DeltaTime);
+		}
+	}
+}
+
+
+/**
+ * A function for A* to get a next path to the goal
+ * @param goal the location where the goat should walk to.
+ */
+function bool FindNavMeshPathVect(Vector goal)
+{
+    NavigationHandle.PathConstraintList = none;
+    NavigationHandle.PathGoalList = none;
+    class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,goal);
+    class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, goal,32 );
+    return NavigationHandle.FindPath();
+}
+
+function bool FindNavMeshPathAct(Actor goal)
+{
+    NavigationHandle.PathConstraintList = none;
+    NavigationHandle.PathGoalList = none;
+    class'NavMeshPath_Toward'.static.TowardGoal(NavigationHandle,goal);
+    class'NavMeshGoal_At'.static.AtActor(NavigationHandle, goal,32 );
+    return NavigationHandle.FindPath();
+}
+
 
 DefaultProperties
 {

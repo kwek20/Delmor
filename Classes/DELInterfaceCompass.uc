@@ -25,6 +25,7 @@ function load(DELPlayerHud hud){
 
 /**
  * Draws compass to hud
+ * @PARAMS DELPlayerHud hud
  * */
 function draw(DELPlayerHud hud){
 	local float TrueNorth, PlayerHeading;
@@ -33,14 +34,19 @@ function draw(DELPlayerHud hud){
 	
 	local LinearColor MapOffset;
 
+	//set map positions to draw
 	MapPosition.X = hud.Canvas.OrgX;
 	MapPosition.Y = hud.Canvas.OrgY;
 
+	//set the size of the compass
 	MapDim = MapDim * ResolutionScale;
 
+	//returns the direction the in-game placed minimap is pointing
 	TrueNorth = GameMinimap.getRadianHeading();
+	//returns the player heading in-game
 	Playerheading = getPlayerHeading();
 	
+	//Check wether the compass should rotate along with the player rotation, it shouldnt.
 	if(GameMinimap.bForwardAlwaysUp){
 		MapRotation = PlayerHeading;
 		CompassRotation = PlayerHeading - TrueNorth;
@@ -53,21 +59,23 @@ function draw(DELPlayerHud hud){
 	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
 	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
 	GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
+	//Draw the Compass
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	hud.Canvas.DrawMaterialTile(GameMinimap.Minimap,
             MapDim,
             MapDim,
             0.0,0.0,1.0,1.0);
 
-
+	//Draw the needle
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
+	//Draw the overlay
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
 }
 
 /**
- * Returns the Yaw 
+ * Returns the Players' Yaw 
  */
 function int getYaw(){
 	//`log("getYaw: " $ self.Rotation.Yaw);
@@ -75,7 +83,7 @@ function int getYaw(){
 }
 
 /**
- * Returns rotator
+ * Returns Players' rotation
  */
 function Rotator getRotator(){
 	//`log("getRotator: " $ self.Rotation);
@@ -83,8 +91,8 @@ function Rotator getRotator(){
 }
 
 /**
- * Returns rotator as a vector
- */
+ * Returns Players' rotator as a vector
+ **/
 function vector getVectorizedRotator(){
 	//`log("getVectorizedRotator: " $ self.Rotation);
 	return Vector(self.Rotation);
@@ -92,7 +100,9 @@ function vector getVectorizedRotator(){
 
 /**
  * Gets the heading in radians
- */
+ * Used for pointing the compassNeedle in the proper direction on the UI
+ * 
+ **/
 function float getRadianHeading(){
 	local Vector v;
 	local rotator r;
@@ -103,16 +113,18 @@ function float getRadianHeading(){
 	f = GetHeadingAngle(v);
 	f = UnwindHeading(f);
 
+	//Algorithm used with vehicles to save radian conversion
+	//UTVehicle.uc line 1199
 	while(f < 0){
 		f += PI*2.0f;
 	}
-	//`log("getRadianHeading: " $ f);
 	return f;
 }
 
 /**
  * Gets the heading in degrees
- */
+ * Converts the getRadianHeading() result to degrees
+ **/
 function float getDegreeHeading(){
 	local float f;
 
@@ -123,7 +135,7 @@ function float getDegreeHeading(){
 }
 
 /**
- * Returns playerheading
+ * Returns playerheading in degrees
  */
 function float getPlayerHeading()
 {

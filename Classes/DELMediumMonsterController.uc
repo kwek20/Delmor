@@ -513,7 +513,7 @@ event pawnHit(){
  */
 event PawnStoppedBlocking(){
 	if ( shouldCharge() ){
-		startCharge();
+	//	startCharge();
 	} else {
 		changeState( 'Attack' );
 	}

@@ -6,6 +6,7 @@ class DELHardMonsterLargePawn extends DELHostilePawn
       placeable
 	  Config(Game);
 
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELHardMonsterLargeController'

@@ -24,11 +24,30 @@ var DELMediumMonsterPawn commander;
 
 var float maximumDistance;
 
+/**
+ * The current node the bot is moving to
+ */
+var DELFirstQuestPathnodes currentNode;
+
+/**
+ * The player pawn
+ */
+var DELPawn Player;
+
+
+
+
+
 /*
  * ===============================================
  * Utility functions
  * ===============================================
  */
+
+simulated function PostBeginPlay(){
+	super.PostBeginPlay();
+}
+
 
 /**
  * Gets a nearby MediumMonsterPawn, these will command the EasyMonsterPawns
@@ -81,10 +100,9 @@ function vector cohesion( pawn p ){
  * ===============================================
  */
 
-auto state Idle{
-
-	event Tick( float deltaTime ){
-
+state Idle{
+	event tick( float deltaTime ){
+		super.tick( deltaTime );
 		super.Tick( deltaTime );
 
 		commander = getNearbyCommander();
@@ -98,12 +116,19 @@ auto state Idle{
 		}
 	}
 
-	/**
-	 * Overriden so that the pawn will no longer attack the player one sight.
-	 */
-	event SeePlayer( Pawn p ){
+	event SeePlayer (Pawn Seen){
+		local Pawn Player;
+		Player = GetALocalPlayerController().Pawn;
+		super.SeePlayer(Seen);
+		//De speler is gezien
+		Player = Seen;
+/*
+		if( Player != none ){
+			engagePlayer( Player );
+		}*/
 	}
 }
+
 
 /**
  * Flocks with the commander
@@ -115,16 +140,16 @@ state Flock{
 
 		super.Tick( deltaTime );
 		
-		targetLocation = cohesion( commander );
+//		targetLocation = cohesion( commander );
 		if ( self.distanceToPoint( targetLocation ) < pawn.GroundSpeed * deltaTime + 1 ){
 			stopPawn();
 		} else {
 			moveTowardsPoint( targetLocation , deltaTime );
 		}
 
-		if ( commander == none ){
-			commanderDied();
-		}
+//		if ( commander == none ){
+//			commanderDied();
+//		}
 		
 	}
 
@@ -138,6 +163,7 @@ state Flock{
 		changeState( 'Flee' );
 	}
 }
+
 
 /*
  * ================================================
@@ -161,6 +187,9 @@ event commanderOrderedAttack(){
 
 DefaultProperties
 {
+	bIsPlayer=true
+	closeEnough = 200
+	bAdjustFromWalls=true
 	tooCloseDistance = 512.0
 	desiredDistanceToCommander = 384.0
 	maximumDistance = 1024.0

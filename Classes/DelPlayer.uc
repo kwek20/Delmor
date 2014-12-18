@@ -5,7 +5,17 @@
  */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
+
+
+var array< class<Inventory> > DefaultInventory;
+var DELWeapon sword;
 var DELMagic magic;
+
+
+
+var class<DELMeleeWeapon> swordClass;
+
+
 /**
  * the factory of spells.
  * ask this class anything about the spells player can do anything else himself
@@ -91,6 +101,7 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	}
 }
 
+
 /**
  * selects a point in the animtree so it is easier acessible
  * it is unknown to me what the super does
@@ -116,11 +127,8 @@ function AddDefaultInventory(){
 }
 
 /**
-<<<<<<< HEAD
  * Set camera amongst and give sword.
-=======
  * kinda the init of the playah
->>>>>>> 462777f187f88e4a03363bd507bc1cf14bc90989
  */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
@@ -603,7 +611,6 @@ event Tick( float deltaTime ){
 DefaultProperties
 {
 	swordClass = class'DELMeleeWeaponDemonSlayer';
-	//swordClass = class'DELMeleeWeaponTheButcher'
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 

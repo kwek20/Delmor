@@ -30,7 +30,7 @@ DefaultProperties
 	WeaponFireTypes(0)=EWFT_Custom
 
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
-        SkeletalMesh=SkeletalMesh'delmor_character.Meshes.sk_lucian_sword'
+        SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian_sword'
         FOV=60
 		HiddenGame=FALSE
         HiddenEditor=FALSE
@@ -62,6 +62,5 @@ DefaultProperties
 		bPerBoneMotionBlur=true
 	End Object
     Mesh=MeleeWeapon
-	
     Components.Add(MeleeWeapon)
 }
