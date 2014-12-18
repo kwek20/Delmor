@@ -32,8 +32,11 @@ defaultproperties
 	healthRegeneration = 0
 	GroundSpeed = 95
 
+	physicalResistance = 0.0
+	magicResistance = 0.0
+
 	Begin Object Name=CollisionCylinder
-		CollisionRadius = 36.0;
-		CollisionHeight = +132.0;
+		CollisionRadius = 36.0
+		CollisionHeight = +132.0
 	end object
 }

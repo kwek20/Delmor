@@ -30,9 +30,6 @@ var float tooCloseDistance;
 
 event Possess( Pawn inPawn , bool bVehicleTransition ){
 	super.Possess( inPawn , bVehicleTransition );
-
-	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
-	
 }
 
 
@@ -115,14 +112,78 @@ state flee{
 }
 
 /**
- * When stunned the pawn and controller will not be able to do anything.
+ * A state in which the pawn is not allowed to move on its own.
  */
-state Stunned{
+state NonMovingState{
+	local Rotator startingRotation;
+	local name previousState;
 
 	function beginState( name previousStateName ){
-		super.beginState( previousStateName );
+		super.BeginState( previousStateName );
+		
+		//Save the previous state in a variable.
+		previousState = previousStateName;
 
+		startingRotation = pawn.Rotation;
+		pawn.SetDesiredRotation( startingRotation );
 		stopPawn();
+	}
+
+	event Tick( float deltaTime ){
+		pawn.SetRotation( startingRotation );
+	}
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * NOTE: This function is to be used ONLY in the Tick-event!
+	 * @param l         Vector  The location to where the pawn should move.
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveTowardsPoint( Vector l , float deltaTime ){
+	}
+
+	/**
+	 * These functions are now made empty so that the pawn will not move while blocking.
+	 * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
+	 * @param deltaTime float   The deltaTime from the Tick-event
+	 */
+	function moveInDirection( vector to , float deltaTime ){
+	}
+
+	/**
+	 * Returns to the previous state.
+	 */
+	function returnToPreviousState(){
+		goToState( previousState );
+	}
+}
+
+state Blocking extends NonMovingState{
+}
+
+state GettingHit extends NonMovingState{
+}
+
+state knockedBack extends NonMovingState{
+}
+
+state Stunned extends NonMovingState{
+}
+
+/**
+ * In this state the pawn is performing an actual attack (i.e.: sword swing).
+ * The pawn is not allowed to move and the controller should return to it's previous state once the swing is done.
+ */
+state Attacking extends NonMovingState{
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+
+		//Set a timer to end the state.
+		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );
+	}
+
+	function SwingFinished(){
+		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
+		goToState( previousState );
 	}
 }
 
@@ -197,24 +258,6 @@ function bool isInCombatState(){
 	} else {
 		return false;
 	}
-}
-
-/**
- * Checks whether two circles collide. Useful for collision-checking between Pawns.
- * @return bool
- */
-function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
-	local float distance , totalRadius;
-
-	distance = VSize( circleLocationA - circleLocationB );
-	totalRadius = circleRadiusA + circleRadiusB;
-
-	if ( distance <= totalRadius ){
-		return true;
-	} else {
-		return false;
-	}
-
 }
 
 /**
@@ -312,7 +355,7 @@ function DELPawn checkCollision(){
 
 	foreach WorldInfo.AllControllers( class'Controller' , c ){
 		if ( distanceToPoint( c.Pawn.Location ) < 64.0 + self.Pawn.GetCollisionRadius() && c != self ){
-			if ( CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
+			if ( DELPawn( pawn ).CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
 				return DELPawn( c.Pawn );
 			}
 		}
@@ -403,70 +446,6 @@ function stopPawn(){
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
-}
-
-/**
- * A state in which the pawn is not allowed to move on its own.
- */
-state NonMovingState{
-	local Rotator startingRotation;
-
-	function beginState( name previousStateName ){
-		super.BeginState( previousStateName );
-		
-		startingRotation = pawn.Rotation;
-		pawn.SetDesiredRotation( startingRotation );
-		stopPawn();
-	}
-
-	event Tick( float deltaTime ){
-		pawn.SetRotation( startingRotation );
-	}
-	/**
-	 * These functions are now made empty so that the pawn will not move while blocking.
-	 * NOTE: This function is to be used ONLY in the Tick-event!
-	 * @param l         Vector  The location to where the pawn should move.
-	 * @param deltaTime float   The deltaTime from the Tick-event
-	 */
-	function moveTowardsPoint( Vector l , float deltaTime ){
-	}
-
-	/**
-	 * These functions are now made empty so that the pawn will not move while blocking.
-	 * @param to   Vector A vector between to points (i.e.: selfToPlayer ).
-	 * @param deltaTime float   The deltaTime from the Tick-event
-	 */
-	function moveInDirection( vector to , float deltaTime ){
-	}
-}
-
-state Blocking extends NonMovingState{
-}
-
-state knockedBack extends NonMovingState{
-}
-
-/**
- * In this state the pawn is performing an actual attack (i.e.: sword swing).
- * The pawn is not allowed to move and the controller should return to it's previous state once the swing is done.
- */
-state Attacking extends NonMovingState{
-	local name previousState;
-
-	function beginState( name previousStateName ){
-		super.BeginState( previousStateName );
-
-		//Save the previous state in a variable.
-		previousState = previousStateName;
-
-		//Set a timer to end the state.
-		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );
-	}
-
-	function SwingFinished(){
-		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
-		goToState( previousState );
-	}
 }
 
 DefaultProperties

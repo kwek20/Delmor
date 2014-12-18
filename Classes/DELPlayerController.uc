@@ -231,7 +231,7 @@ simulated function PostBeginPlay() {
  * @author Anders Egberts
  */
 function UpdateRotation(float DeltaTime){
-    local DELPawn dPawn;
+    local DELPlayer dPawn;
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
@@ -240,7 +240,7 @@ function UpdateRotation(float DeltaTime){
 
     //super.UpdateRotation(DeltaTime);
 
-    dPawn = DELPawn(self.Pawn);
+    dPawn = DELPlayer( pawn );
 
 	if (canWalk){
 		ViewRotation = Rotation;

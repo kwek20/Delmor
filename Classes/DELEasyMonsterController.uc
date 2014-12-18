@@ -55,25 +55,25 @@ private function bool monsterNearby(){
 private function DELMediumMonsterPawn getNearbyCommander(){
 	local float smallestDistance , distance;
 	local DELMediumMonsterController c;
-	local DELMediumMonsterPawn commander;
+	local DELMediumMonsterPawn cmmndr;
 
-	commander = none;
+	cmmndr = none;
 	smallestDistance = maximumDistance;
 
 	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
 		distance = VSize( c.Pawn.Location - pawn.Location );
 		if ( distance < smallestDistance ){
-			commander = DELMediumMonsterPawn( c.Pawn );
+			cmmndr = DELMediumMonsterPawn( c.Pawn );
 			smallestDistance = distance;
 		}
 	}
 
 	//If we've found a commander also set the angleToCommander.
-	if ( commander != none ){
-		angleToCommander = rotator( pawn.Location - commander.location ).Yaw;
+	if ( cmmndr != none ){
+		angleToCommander = rotator( pawn.Location - cmmndr.location ).Yaw;
 		ajustAngleToCommander();
 	}
-	return commander;
+	return cmmndr;
 }
 
 /**

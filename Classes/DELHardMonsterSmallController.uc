@@ -38,19 +38,19 @@ var float maximumDistance;
 private function DELMediumMonsterPawn getNearbyCommander(){
 	local float smallestDistance , distance;
 	local DELMediumMonsterController c;
-	local DELMediumMonsterPawn commander;
+	local DELMediumMonsterPawn cmmndr;
 
-	commander = none;
+	cmmndr = none;
 	smallestDistance = maximumDistance;
 
 	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
 		distance = VSize( c.Pawn.Location - pawn.Location );
 		if ( distance < smallestDistance ){
-			commander = DELMediumMonsterPawn( c.Pawn );
+			cmmndr = DELMediumMonsterPawn( c.Pawn );
 			smallestDistance = distance;
 		}
 	}
-	return commander;
+	return cmmndr;
 }
 
 /*

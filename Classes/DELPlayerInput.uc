@@ -23,7 +23,7 @@ simulated exec function moveForward( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 0.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -37,7 +37,7 @@ simulated exec function moveRight( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 90.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -51,7 +51,7 @@ simulated exec function moveLeft( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -90.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -65,7 +65,7 @@ simulated exec function moveBackward( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -180.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -230,7 +230,7 @@ private function float lengthDirY( float len , float dir ){
  */
 exec function startLookMode(){
 	if (!getController().canWalk) return;
-	DELPawn( Pawn ).bLookMode = true;
+	DELPlayer( Pawn ).bLookMode = true;
 }
 
 /**
@@ -238,7 +238,7 @@ exec function startLookMode(){
  */
 exec function endLookMode(){
 	if (!getController().canWalk) return;
-	DELPawn( Pawn ).bLookMode = false;
+	DELPlayer( Pawn ).bLookMode = false;
 	//goToState( 'idle' );
 }
 
@@ -247,7 +247,7 @@ exec function endLookMode(){
  */
 exec function startAimMode(){
 	if (!getController().canWalk) return;
-	DELPawn( Pawn ).bLockedToCamera = true;
+	DELPlayer( Pawn ).bLockedToCamera = true;
 }
 
 /**
@@ -255,7 +255,7 @@ exec function startAimMode(){
  */
 exec function endAimMode(){
 	if (!getController().canWalk) return;
-	DELPawn( Pawn ).bLockedToCamera = false;
+	DELPlayer( Pawn ).bLockedToCamera = false;
 }
 
 exec function openInventory() {
@@ -404,7 +404,7 @@ exec function mousePress(bool left=false){
 
 	if (!getController().canWalk) return;
 	if (stats.PendingRightPressed) StartAimMode();
-	DELPawn( Pawn ).startFire(int(!left));
+	DELPlayer( Pawn ).startFire(int(!left));
 }
 
 exec function mouseRelease(bool left=false){
@@ -412,7 +412,7 @@ exec function mouseRelease(bool left=false){
 	
 	if (!getController().canWalk) return;
 	if (stats.PendingRightReleased) EndAimMode();
-	DELPawn( Pawn ).stopFire(int(!left));
+	DELPlayer( Pawn ).stopFire(int(!left));
 }
 
 // Called when the middle mouse button is pressed
@@ -520,7 +520,7 @@ event PlayerInput(float DeltaTime){
 }
 
 event tick( float deltaTime ){
-	if ( DELPawn( pawn ).bLockedToCamera ){
+	if ( DELPlayer( Pawn ).bLockedToCamera ){
 		rotatePawnToDirection( pawn.Controller.Rotation.Yaw , defaultRotationSpeed , deltaTime );
 	}
 }

@@ -1,6 +1,5 @@
 class DELHostilePawn extends DELNPCPawn abstract;
 var bool bCanBeStunned;
-var DELWeapon sword;
 
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();

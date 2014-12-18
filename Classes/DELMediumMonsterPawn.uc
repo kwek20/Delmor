@@ -5,10 +5,6 @@
 class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
-/**
- * This soundset contains the pawn's voice
- */
-var DELSoundSetMediumPawn mySoundSet;
 
 /**
  * Overridden so that a take damage call will be sent to the controller.
@@ -126,4 +122,7 @@ defaultproperties
 	walkingSpeed = 80.0
 	detectionRange = 512.0
 	bCanBlock = true
+	meleeRange = 75.0
+	attackInterval = 3.0
+	groundSpeed = 200.0
 }
