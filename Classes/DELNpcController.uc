@@ -466,8 +466,8 @@ function byte smartMoveToPoint(Vector l, float deltaTime){
 		FlushPersistentDebugLines();
 		NavigationHandle.DrawPathCache(,TRUE);
 		if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
-			DrawDebugLine( Pawn.Location, TempDest , 0 , 255 , 0 , true );
-			DrawDebugSphere( TempDest , 16 , 20 , 0 , 255 , 0 , true );
+			DrawDebugLine( Pawn.Location, tempDest , 0 , 255 , 0 , true );
+			DrawDebugSphere( tempDest , 16 , 20 , 0 , 255 , 0 , true );
 			//MoveTo( TempDest , Player );
 			moveTowardsPoint(tempDest, DeltaTime);
 			return 0;
