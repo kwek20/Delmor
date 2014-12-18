@@ -34,8 +34,8 @@ DefaultProperties
 		HiddenGame=FALSE
         HiddenEditor=FALSE
         //Animations=MeshSequenceA
-        AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
-		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
+        AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Lucian_anim'
+		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree'
         bForceUpdateAttachmentsInTick=True
 		bCacheAnimSequenceNodes=false
 		AlwaysLoadOnClient=true

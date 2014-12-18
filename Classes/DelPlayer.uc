@@ -493,9 +493,9 @@ DefaultProperties
 
 		Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian'
-		AnimSets(0)=AnimSet'Delmor_Character.Lucian_anim'
-		PhysicsAsset=PhysicsAsset'Delmor_Character.Lucian_walking_Physics'
-		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
+		AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Lucian_anim'
+		PhysicsAsset=PhysicsAsset'Delmor_Character.PhysicsAsset.Lucian_walking_Physics'
+		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree'
 		Scale3D=(X=1, Y=1, Z=1)
 		HiddenGame=False
 		HiddenEditor=False
