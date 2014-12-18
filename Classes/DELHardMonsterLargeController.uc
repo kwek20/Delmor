@@ -20,7 +20,7 @@ var float distanceToPlayer;
 /**
  * Array keeping track of pathnodes
  */
-var array<Pathnode> PathnodeList;
+var array<DELFirstQuestPathnodes> PathnodeList;
 
 /**
  * Counter for said array
@@ -30,7 +30,7 @@ var int _Pathnode;
 /**
  * The current node the bot is moving to
  */
-var Pathnode currentNode;
+var DELFirstQuestPathnodes currentNode;
 
 /**
  * Temporary destination
@@ -50,7 +50,7 @@ var int minimumDistance;
 /**
  * Node the bot will end at
  */
-var Pathnode endNode;
+var DELFirstQuestPathnodes endNode;
 
 /**
  * Distance from bot to player
@@ -65,7 +65,7 @@ var int closeEnough;
 /**
  * Bool to check wether 1st quest is compelted or not
  */
-var bool firstQuestComplete;
+var() bool firstQuestComplete;
 
 /*
  * =================================
@@ -74,14 +74,20 @@ var bool firstQuestComplete;
  */
 
 simulated function PostBeginPlay(){
-	local Pathnode P;
-	endNode = PathnodeList[PathnodeList.Length];
+	local DELFirstQuestPathnodes P;
 	super.PostBeginPlay();
+		endNode = PathnodeList[PathnodeList.Length];
 	`log("POSTBEGINPLAY");
-		foreach WorldInfo.AllActors(class 'Pathnode', P){
+		foreach WorldInfo.AllActors(class 'DELFirstQuestPathnodes', P){
 			PathnodeList.AddItem(P);
 			`log("Node Added" $ P);
 		}
+	if(firstQuestComplete == false){
+		GotoState('FirstQuestPathfinding');
+	}
+	else{
+		GotoState('Idle');
+	}
 }
 
 /**
@@ -104,7 +110,7 @@ function Vector getNextNode(){
 /**
  * Converts pathnode to vector location
  */
-function Vector NodeToVect(Pathnode N){
+function Vector NodeToVect(DELFirstQuestPathnodes N){
 	local Vector V;
 	V.X = N.Location.X;
 	V.Y = N.Location.Y;
@@ -142,11 +148,19 @@ state Idle{
 
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
+	}
+
+	event SeePlayer (Pawn Seen){
+		local Pawn Player;
+		super.SeePlayer(Seen);
+		//De speler is gezien
+		Player = Seen;
 
 		if( Player != none ){
 			engagePlayer( Player );
 		}
 	}
+
 }
 
 
@@ -172,6 +186,7 @@ Begin:
 	if(FindNavMeshPathVect(tempDest)){
 		if(((selfToPlayer < minimumDistance) && (PathnodeList[_Pathnode] == endNode))){
 			self.Pawn.GroundSpeed = 85.0;
+			firstQuestComplete = true;
 			GotoState('Idle');
 		}
 		else{
@@ -200,5 +215,5 @@ DefaultProperties
 	isAtLast = false
 	bAdjustFromWalls=true
 	_Pathnode = 0
-
+	firstQuestComplete = false
 }

@@ -363,6 +363,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 	}
 }
 
+
 /**
  * Move the pawn in a certain direction.
  * This direction will be calculated from a vector.
@@ -382,6 +383,7 @@ function moveInDirection( vector to , float deltaTime ){
 		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).walkingSpeed;
 		Pawn.setRotation( adjustedRotation  );
 		Pawn.move( Pawn.velocity * deltaTime );
+
 	}
 }
 
@@ -394,6 +396,30 @@ function stopPawn(){
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
 }
+
+
+/**
+ * A function for A* to get a next path to the goal
+ * @param goal the location where the goat should walk to.
+ */
+function bool FindNavMeshPathVect(Vector goal)
+{
+    NavigationHandle.PathConstraintList = none;
+    NavigationHandle.PathGoalList = none;
+    class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,goal);
+    class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, goal,32 );
+    return NavigationHandle.FindPath();
+}
+
+function bool FindNavMeshPathAct(Actor goal)
+{
+    NavigationHandle.PathConstraintList = none;
+    NavigationHandle.PathGoalList = none;
+    class'NavMeshPath_Toward'.static.TowardGoal(NavigationHandle,goal);
+    class'NavMeshGoal_At'.static.AtActor(NavigationHandle, goal,32 );
+    return NavigationHandle.FindPath();
+}
+
 
 DefaultProperties
 {

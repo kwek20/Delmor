@@ -1,11 +1,13 @@
 class DELMinimap extends DELInterfaceCompass;
 
+//Materials which make up the compass
 var() MaterialInstanceConstant Minimap;
 var() MaterialInstanceConstant CompassOverlay;
 var() MaterialInstanceConstant CompassGloss;
 var() Const EditConst DrawSphereComponent MapExtentsComponent;
 var() Bool bForwardAlwaysUp;
 
+//Define sphere in which compass will work
 var Vector2D MapRangeMin;
 var Vector2D MapRangeMax;
 var Vector2D MapCenter;
