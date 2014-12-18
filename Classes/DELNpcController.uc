@@ -426,16 +426,25 @@ function moveTowardsPoint( Vector l , float deltaTime ){
  */
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
+	local Vector tempDest;
 
 	if ( !DELPawn( pawn ).bIsStunned ){
 		//Adjust the rotation so that only the Yaw will be modified.
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
-
-		//Move Pawn
-		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
-		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
-		Pawn.setDesiredRotation( adjustedRotation  );
-		Pawn.move( Pawn.velocity * deltaTime );
+		if(FindNavMeshPathVect(to)){
+			NavigationHandle.SetFinalDestination(to);
+			FlushPersistentDebugLines();
+			//NavigationHandle.DrawPathCache(,TRUE);
+				if ( NavigationHandle.GetNextMoveLocation(to, Pawn.GetCollisionRadius())){
+					//DrawDebugLine( Pawn.Location, to , 0 , 255 , 0 , true );
+					//DrawDebugSphere( to , 16 , 20 , 0 , 255 , 0 , true );
+					//Move Pawn
+					Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
+					Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
+					Pawn.setDesiredRotation( adjustedRotation  );
+					Pawn.move( Pawn.velocity * deltaTime );
+				}
+		}
 	}
 }
 
@@ -456,7 +465,7 @@ function stopPawn(){
 * @param l Vector The target location
 * @param deltaTime float The deltaTime from the Tick-event
 */
-function byte smartMoveToPoint(Vector l, float deltaTime){  
+function smartMoveToPoint(Vector l, float deltaTime){  
 	local Vector tempDest;
 	if (NavigationHandle.PointReachable(l)){
 		moveTowardsPoint(l, deltaTime);
@@ -464,19 +473,13 @@ function byte smartMoveToPoint(Vector l, float deltaTime){
 		//The player is not reachable so use the navmesh path to move towards him
 		NavigationHandle.SetFinalDestination(l);
 		FlushPersistentDebugLines();
-		NavigationHandle.DrawPathCache(,TRUE);
+		//NavigationHandle.DrawPathCache(,TRUE);
 		if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
-			DrawDebugLine( Pawn.Location, tempDest , 0 , 255 , 0 , true );
-			DrawDebugSphere( tempDest , 16 , 20 , 0 , 255 , 0 , true );
+			//DrawDebugLine( Pawn.Location, tempDest , 0 , 255 , 0 , true );
+			//DrawDebugSphere( tempDest , 16 , 20 , 0 , 255 , 0 , true );
 			//MoveTo( TempDest , Player );
 			moveTowardsPoint(tempDest, DeltaTime);
-			return 0;
-		} else {
-			return 0;
 		}
-	} else {
-	//No path can be found, go to idle state
-	return 2;
 	}
 }
 
