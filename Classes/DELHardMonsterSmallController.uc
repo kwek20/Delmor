@@ -118,13 +118,14 @@ state Idle{
 
 	event SeePlayer (Pawn Seen){
 		local Pawn Player;
+		Player = GetALocalPlayerController().Pawn;
 		super.SeePlayer(Seen);
 		//De speler is gezien
 		Player = Seen;
-
+/*
 		if( Player != none ){
 			engagePlayer( Player );
-		}
+		}*/
 	}
 }
 

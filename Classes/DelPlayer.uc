@@ -15,7 +15,7 @@ var DELMagic magic;
 
 var class<DELMeleeWeapon> swordClass;
 
-var DELMagic magic;
+
 /**
  * the factory of spells.
  * ask this class anything about the spells player can do anything else himself
@@ -101,11 +101,7 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	}
 }
 
-<<<<<<< HEAD
 
-
-=======
->>>>>>> eb82fbc649d608dbe1877240320e934433507af2
 /**
  * selects a point in the animtree so it is easier acessible
  * it is unknown to me what the super does
@@ -131,11 +127,8 @@ function AddDefaultInventory(){
 }
 
 /**
-<<<<<<< HEAD
  * Set camera amongst and give sword.
-=======
  * kinda the init of the playah
->>>>>>> 462777f187f88e4a03363bd507bc1cf14bc90989
  */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();

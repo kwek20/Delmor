@@ -60,15 +60,10 @@ var() float botSpeed;
 
 simulated function PostBeginPlay(){
 	local DELFirstQuestPathnodes P;
-	local int i;
-	i=0;
 	super.PostBeginPlay();
 		foreach WorldInfo.AllActors(class 'DELFirstQuestPathnodes', P){
 			PathnodeList.AddItem(P);
 			}
-			for(i =0; i<PathnodeList.Length;i++){
-			`log(PathnodeList[i]);
-		}
 		endNode = PathnodeList[PathnodeList.Length];
 		endVect = NodeToVect(endNode);
 }
@@ -96,12 +91,12 @@ function Vector NodeToVect(DELFirstQuestPathnodes N){
 	V.X = N.Location.X;
 	V.Y = N.Location.Y;
 	V.Z = N.Location.Z;
-
 	return V;
 }
 
 /**
  * Function to determine wether or not a destination is reachable
+ * @param vector tempDest The temporary destination
  */
 function bool FindNavMeshPathVect(Vector tempDest){
     NavigationHandle.PathConstraintList = none;
@@ -113,7 +108,7 @@ function bool FindNavMeshPathVect(Vector tempDest){
 
 /**
  * Checks the minimum distance between the player and pawn
- * @PARAMS int minDist
+ * @param int minDist The minimal distance 
  **/
 function bool withinMinDist(int minDist){
 	local float selfToPlayer;

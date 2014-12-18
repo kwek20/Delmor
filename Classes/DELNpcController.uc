@@ -59,7 +59,7 @@ state Attack{
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
 		} else {
-			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
+			smartMoveToPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
@@ -436,7 +436,6 @@ function moveInDirection( vector to , float deltaTime ){
 		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
 		Pawn.setDesiredRotation( adjustedRotation  );
 		Pawn.move( Pawn.velocity * deltaTime );
-
 	}
 }
 
@@ -448,6 +447,37 @@ function stopPawn(){
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
+}
+
+
+/**
+* This function should let the pawn calculate a path to a point, and then follow it.
+* Returns 0 if still walking, 1 if reached the point and 2 if the point is unreachable.
+* @param l Vector The target location
+* @param deltaTime float The deltaTime from the Tick-event
+*/
+function byte smartMoveToPoint(Vector l, float deltaTime){  
+	local Vector tempDest;
+	if (NavigationHandle.PointReachable(l)){
+		moveTowardsPoint(l, deltaTime);
+	} else if(FindNavMeshPathVect(l)){
+		//The player is not reachable so use the navmesh path to move towards him
+		NavigationHandle.SetFinalDestination(l);
+		FlushPersistentDebugLines();
+		NavigationHandle.DrawPathCache(,TRUE);
+		if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+			DrawDebugLine( Pawn.Location, TempDest , 0 , 255 , 0 , true );
+			DrawDebugSphere( TempDest , 16 , 20 , 0 , 255 , 0 , true );
+			//MoveTo( TempDest , Player );
+			moveTowardsPoint(tempDest, DeltaTime);
+			return 0;
+		} else {
+			return 0;
+		}
+	} else {
+	//No path can be found, go to idle state
+	return 2;
+	}
 }
 
 
