@@ -85,8 +85,8 @@ DefaultProperties
 		HiddenGame=FALSE
         HiddenEditor=FALSE
         //Animations=MeshSequenceA
-        AnimSets(0)=AnimSet'Delmor_Character.Ratman_anim'
-		AnimtreeTemplate=AnimTree'Delmor_Character.Ratman_AnimTree'
+        AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Ratman_anim'
+		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Ratman_AnimTree'
         bForceUpdateAttachmentsInTick=True
 		bCacheAnimSequenceNodes=false
 		AlwaysLoadOnClient=true
