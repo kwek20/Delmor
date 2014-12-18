@@ -32,8 +32,8 @@ defaultproperties
 	MapExtentsComponent=DrawSphere0
 	Components.Add(DrawSphere0)
    
-	bForwardAlwaysUp=True
-	Minimap=MaterialInstanceConstant'CompassContent.te_compass_base_Mat_INST'
-	CompassOverlay=MaterialInstanceConstant'CompassContent.te_compass_needle_Mat_INST'
-	CompassGloss=MaterialInstanceConstant'CompassContent.te_compass_specular_Mat_INST'
+   bForwardAlwaysUp=True
+   Minimap=MaterialInstanceConstant'CompassContent.te_compass_base_Mat_INST'
+   CompassOverlay=MaterialInstanceConstant'CompassContent.te_compass_needle_Mat_INST'
+   CompassGloss=MaterialInstanceConstant'CompassContent.te_compass_specular_Mat_INST'
 }

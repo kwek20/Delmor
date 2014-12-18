@@ -1,3 +1,7 @@
+/**
+ * class for the weapon called Butcher
+ * @author harmen wiersma
+ */
 class DELMeleeWeaponTheButcher extends DELMeleeWeapon;
 
 DefaultProperties
@@ -24,15 +28,14 @@ DefaultProperties
 	FiringStatesArray(0)="Swinging"
 	WeaponFireTypes(0)=EWFT_Custom
 
-
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'delmor_character.Meshes.sk_lucian_sword2'
         FOV=60
 		HiddenGame=FALSE
         HiddenEditor=FALSE
         //Animations=MeshSequenceA
-        AnimSets(0)=AnimSet'Delmor_Character.Lucian_walking'
-		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
+        AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Lucian_anim'
+		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree'
         bForceUpdateAttachmentsInTick=True
 		bCacheAnimSequenceNodes=false
 		AlwaysLoadOnClient=true

@@ -10,10 +10,20 @@ var() Vector4 position;
 /**
  * The current texture of this button
  */
-var() Texture2D texture;
+var() array<Texture2D> textures;
+
+var() Font defaultFont;
 
 public function draw(DELPlayerHud hud){
-	drawTile(hud.Canvas, texture, position.Z, position.W);
+	drawAllTextures(hud.Canvas);
+}
+
+public function drawAllTextures(Canvas c){
+	local Texture2D tex;
+	foreach textures(tex){
+		c.SetPos(position.X, position.Y);
+		drawTile(c, tex, position.Z, position.W);
+	}
 }
 
 public function drawTileScaled(DELPlayerHud hud, Texture2D texture, float width, float height, float scale){
@@ -55,13 +65,28 @@ public function bool containsPos(IntPoint p){
  * @param mat The material to set
  */
 public function setTexture(Texture2D mat){
-	texture = mat;
+	textures.AddItem(mat);
+}
+
+public function removeTextures(){
+	textures.Length=0;
 }
 
 /**
- * Set the button position
+ * Set the button position\
+ * @param x
+ * @param y
+ * @param length
+ * @param width
+ * @param hud The player hud. Needed for size check
+ */
+public function setPos(int x, int y, int length, int width, DELPlayerHud hud){
+	setPosition(x,y,length,width,hud);
+}
 
-* @param x
+/**
+ * Set the button position\
+ * @param x
  * @param y
  * @param length
  * @param width
@@ -78,4 +103,6 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 
 DefaultProperties
 {
+
+	defaultFont=Font'DelmorHud.augusta'
 }

@@ -136,7 +136,7 @@ function spawnPawn(bool random, vector spawnLocation)
 		} else if (randomNumber > 70 && randomNumber <= 90) {
 			mobThatSpawns = Spawn(class'DELMediumMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
 		} else if (randomNumber > 91 && randomNumber <= 100) {
-			mobThatSpawns = Spawn(class'DELHardMonsterPawn', self,,SpawnLocation, rotator(selfToPlayer));
+			mobThatSpawns = Spawn(class'DELHardMonsterSmallPawn', self,,SpawnLocation, rotator(selfToPlayer));
 		}
 	} else {
 		mobThatSpawns = Spawn(mobsToSpawn, self,,SpawnLocation, rotator(selfToPlayer));
@@ -149,13 +149,15 @@ function spawnPawn(bool random, vector spawnLocation)
  */
 function startSpawn(bool random) {
 	local DELSpawnPathNode C;
-	
-	foreach WorldInfo.AllActors(class'DELSpawnPathNode', C) {
+	local Vector newLocation;
+	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
 		selfToPathnode = C.Location - self.Location;
 		distanceToSpawner = Abs(VSize(selfToPlayer));
 		if(distanceToSpawner < spawnArea) {
 			if(checkSpawnedMobsStillAlive() < maxMobsAlive) {
-				spawnPawn(random, C.Location); 
+				newLocation = C.Location;
+				newLocation.Z = newLocation.Z + C.zOffset;
+				spawnPawn(random, newLocation); 
 			}
 		}
 	}

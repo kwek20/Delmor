@@ -1,10 +1,19 @@
+/**
+ * Text used in DELInterfaceQuest
+ */
 class DELInterfaceQuestText extends DELInterfaceScrollbar;
 
 function load(DELPlayerHud hud){
 	super.load(hud);
+	//load the text. Calculate based on backgorund image size
 	text = calculateActualStrings(hud.Canvas, text);
 }
 
+/**
+ * Draws a part of the text
+ * @param hud
+ * @param percent The percentage were currntly starting at
+ */
 function drawPartial(DELPlayerHud hud, float percent){
 	local float xString, yString, yLength, yStart, yEnd;
 	local int i, y;
@@ -38,20 +47,35 @@ function drawPartial(DELPlayerHud hud, float percent){
 	}
 }
 
+/**
+ * Calculate the strings based on image size
+ * @param c
+ * @param messages An array of messages/strings
+ */
 function array< String > calculateActualStrings(Canvas c, array< String > messages){
 	local array< string > newMessages;
 	local string s;
 	local float x, y, xString, yString;
 	local int xMax, xCharMax;
 
+	//set font
 	c.Font = class'Engine'.static.GetMediumFont();
+	//calculate size of 1 character
 	c.TextSize("1", x, y);
+	//set max size
 	xMax = position.Z - 2*offset;
+	//set max characters per line
 	xCharMax = xMax / x;
+
+	//for every message in the array
 	foreach messages(s){
+		//loop as long as the message is not empty
 		do {
+			//calculate message length
 			c.TextSize(s, xString, yString);
+			//add the left part of the message to the new array
 			newMessages.AddItem(Left(s, xCharMax));
+			//leave the rest in the old string
 			s = Mid(s, xCharMax); 
 		} until (xString <= xMax);
 	}

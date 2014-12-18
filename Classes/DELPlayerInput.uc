@@ -23,7 +23,7 @@ simulated exec function moveForward( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 0.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -37,7 +37,7 @@ simulated exec function moveRight( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( 90.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -51,7 +51,7 @@ simulated exec function moveLeft( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -90.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -65,7 +65,7 @@ simulated exec function moveBackward( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
 		camToPawn = cameraToPawn( -180.0 );
-		if ( !DELPawn( pawn ).bLookMode ){
+		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
 		}
@@ -83,6 +83,7 @@ simulated exec function moveBackward( float deltaTime ){
  * Goes to state movingForward
  */
 exec function startMovingForward(){
+	if (!getController().canWalk) return;
 	goToState( 'movingForward' );
 }
 
@@ -90,6 +91,7 @@ exec function startMovingForward(){
  * Goes to state movingLeft
  */
 exec function startMovingLeft(){
+	if (!getController().canWalk) return;
 	goToState( 'movingLeft' );
 }
 
@@ -97,12 +99,14 @@ exec function startMovingLeft(){
  * Goes to state movingLeft
  */
 exec function startMovingRight(){
+	if (!getController().canWalk) return;
 	goToState( 'movingRight' );
 }
 /**
  * Goes to state movingBackward
  */
 exec function startMovingBackward(){
+	if (!getController().canWalk) return;
 	goToState( 'movingBackward' );
 }
 
@@ -225,14 +229,16 @@ private function float lengthDirY( float len , float dir ){
  * Starts the look mode in the pawn. When in lookMode, the player can rotate the view and the pawn with the mouse.
  */
 exec function startLookMode(){
-	DELPawn( Pawn ).bLookMode = true;
+	if (!getController().canWalk) return;
+	DELPlayer( Pawn ).bLookMode = true;
 }
 
 /**
  * Ends the look mode.
  */
 exec function endLookMode(){
-	DELPawn( Pawn ).bLookMode = false;
+	if (!getController().canWalk) return;
+	DELPlayer( Pawn ).bLookMode = false;
 	//goToState( 'idle' );
 }
 
@@ -240,26 +246,36 @@ exec function endLookMode(){
  * Enter aim mode before performing a spell.
  */
 exec function startAimMode(){
-	DELPawn( Pawn ).bLockedToCamera = true;
+	if (!getController().canWalk) return;
+	DELPlayer( Pawn ).bLockedToCamera = true;
 }
 
 /**
  * Exit aim mode before performing a spell.
  */
 exec function endAimMode(){
-	DELPawn( Pawn ).bLockedToCamera = false;
+	if (!getController().canWalk) return;
+	DELPlayer( Pawn ).bLockedToCamera = false;
 }
 
 exec function openInventory() {
-	DELPlayerController(Pawn.Controller).openInventory();
+	getController().openInventory();
 }
 
 exec function closeHud() {
-	DELPlayerController(Pawn.Controller).closeHud();
+	if (Pawn.Controller.getStateName() == 'Playing' || Pawn.Controller.getStateName() == 'Pauses'){
+		getController().closeHud();
+	} else {
+		getController().goToPreviousState();
+	}
 }
 
 exec function openQuestlog(){
-	DELPlayerController(Pawn.Controller).swapState('Questlog');
+	getController().swapState('Questlog');
+}
+
+function DELPlayerController getController(){
+	return DELPlayerController(Pawn.Controller);
 }
 
 /*
@@ -386,14 +402,17 @@ exec function numberPress(name inKey){
 exec function mousePress(bool left=false){
 	HandleMouseInput(left ? LeftMouseButton : RightMouseButton, IE_Pressed);
 
+	if (!getController().canWalk) return;
 	if (stats.PendingRightPressed) StartAimMode();
-	DELPawn( Pawn ).startFire(int(!left));
+	DELPlayer( Pawn ).startFire(int(!left));
 }
 
 exec function mouseRelease(bool left=false){
 	HandleMouseInput(left ? LeftMouseButton : RightMouseButton, IE_Released);
+	
+	if (!getController().canWalk) return;
 	if (stats.PendingRightReleased) EndAimMode();
-	DELPawn( Pawn ).stopFire(int(!left));
+	DELPlayer( Pawn ).stopFire(int(!left));
 }
 
 // Called when the middle mouse button is pressed
@@ -502,7 +521,7 @@ event PlayerInput(float DeltaTime){
 }
 
 event tick( float deltaTime ){
-	if ( DELPawn( pawn ).bLockedToCamera ){
+	if ( DELPlayer( Pawn ).bLockedToCamera ){
 		rotatePawnToDirection( pawn.Controller.Rotation.Yaw , defaultRotationSpeed , deltaTime );
 	}
 }

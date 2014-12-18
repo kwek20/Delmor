@@ -5,10 +5,6 @@
 class DELMediumMonsterPawn extends DELHostilePawn
       placeable
 	  Config(Game);
-/**
- * This soundset contains the pawn's voice
- */
-var DELSoundSetMediumPawn mySoundSet;
 
 /**
  * Overridden so that a take damage call will be sent to the controller.
@@ -43,7 +39,6 @@ private function assignSoundSet(){
 }
 
 /**
-<<<<<<< HEAD
  * Blocking state.
  * While in the blocking state the pawn should get no damage from melee attacks.
  */
@@ -113,7 +108,6 @@ function say( String dialogue ){
 	}
 }
 
-
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELMediumMonsterController'
@@ -142,4 +136,7 @@ defaultproperties
 	detectionRange = 512.0
 	bCanBlock = true
 	mySoundSet = none
+	meleeRange = 75.0
+	attackInterval = 3.0
+	groundSpeed = 200.0
 }

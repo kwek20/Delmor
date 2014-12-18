@@ -11,6 +11,9 @@ function SoundCue getSound( string sName ){
 	case "TakeDamage":
 		return soundsToPlay[ 0 ];
 		break;
+	case "AttackSwing":
+		return soundsToPlay[ 1 ];
+		break;
 	}
 }
 

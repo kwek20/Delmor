@@ -4,18 +4,25 @@
  * 
  * @author Anders Egberts
  */
-class DELHardMonsterSmallController extends DELHostileController;
+class DELHardMonsterSmallController extends DELNPCController;
 
+/*
+ * ===============================================
+ * Vars
+ * ===============================================
+ */
 
 /**
- * Array keeping track of pathnodes
+ * When flocking with a commander, stay this close to the commander.
  */
-var array<DELFirstQuestPathnodes> PathnodeList;
+var float desiredDistanceToCommander;
 
 /**
- * Counter for said array
+ * The commander to flock with.
  */
-var int _Pathnode;
+var DELMediumMonsterPawn commander;
+
+var float maximumDistance;
 
 /**
  * The current node the bot is moving to
@@ -23,39 +30,12 @@ var int _Pathnode;
 var DELFirstQuestPathnodes currentNode;
 
 /**
- * Temporary destination
- */
-var Vector tempDest;
-
-/**
  * The player pawn
  */
 var DELPawn Player;
 
-/**
- * Minimum distance for triggering new state
- */
-var int minimumDistance;
 
-/**
- * Node the bot will end at
- */
-var DELFirstQuestPathnodes endNode;
 
-/**
- * Distance from bot to player
- */
-var float selfToPlayer;
-
-/**
- * Range to next pathnode
- */
-var int closeEnough;
-
-/**
- * Bool to check wether 1st quest is compelted or not
- */
-var() bool firstQuestComplete;
 
 
 /*
@@ -65,60 +45,31 @@ var() bool firstQuestComplete;
  */
 
 simulated function PostBeginPlay(){
-	local DELFirstQuestPathnodes P;
 	super.PostBeginPlay();
-			`log("POSTBEGINPLAY");
-		foreach WorldInfo.AllActors(class 'DELFirstQuestPathnodes', P){
-			PathnodeList.AddItem(P);
-			`log("Node Added" $ P);
-		}
-
-	if(firstQuestComplete == false){
-		GotoState('FirstQuestPathfinding');
-	}
-	else{
-		GotoState('Idle');
-	}
-
 }
 
+
 /**
- * Gets the next node determined by state
+ * Gets a nearby MediumMonsterPawn, these will command the EasyMonsterPawns
+ * and it's smart to flock around these.
+ * @return DELMediumMonsterPawn when one is nearby else it will return none.
  */
-function Vector getNextNode(){
-	local Vector nodeVect;
-	if(GetStateName() == 'FirstQuestPathfinding'){
-		if((PathnodeList[_Pathnode] != endNode) && (_Pathnode < PathnodeList.Length)){
-			`log("currentNode = " $ _Pathnode);
-			currentNode = PathnodeList[_Pathnode];
-			nodeVect = NodeToVect(currentNode);
-			_Pathnode++;
+private function DELMediumMonsterPawn getNearbyCommander(){
+	local float smallestDistance , distance;
+	local DELMediumMonsterController c;
+	local DELMediumMonsterPawn cmmndr;
+
+	cmmndr = none;
+	smallestDistance = maximumDistance;
+
+	foreach WorldInfo.AllControllers( class'DELMediumMonsterController' , c ){
+		distance = VSize( c.Pawn.Location - pawn.Location );
+		if ( distance < smallestDistance ){
+			cmmndr = DELMediumMonsterPawn( c.Pawn );
+			smallestDistance = distance;
 		}
 	}
-	`log("currentNode Vector = " $ nodeVect);
-	return nodeVect;
-}
-
-/**
- * Converts pathnode to vector location
- */
-function Vector NodeToVect(DELFirstQuestPathnodes N){
-	local Vector V;
-	V.X = N.Location.X;
-	V.Y = N.Location.Y;
-	V.Z = N.Location.Z;
-	return V;
-}
-
-/**
- * Function to determine wether or not a destination is reachable
- */
-function bool FindNavMeshPathVect(Vector tempDest){
-    NavigationHandle.PathConstraintList = none;
-    NavigationHandle.PathGoalList = none;
-    class'NavMeshPath_Toward'.static.TowardPoint(NavigationHandle,tempDest);
-    class'NavMeshGoal_At'.static.AtLocation(NavigationHandle, tempDest,32 );
-    return NavigationHandle.FindPath();
+	return cmmndr;
 }
 
 /*
@@ -127,6 +78,22 @@ function bool FindNavMeshPathVect(Vector tempDest){
  * ===============================================
  */
 
+/**
+ * Calculates a point near a given pawn to move towards to.
+ * @param   p   Pawn    The pawn to stay near.
+ */
+function vector cohesion( pawn p ){
+	local vector newLocation , selfToPawn;
+
+	selfToPawn = pawn.Location - p.Location;
+
+	newLocation.X = p.Location.X + lengthDirX( desiredDistanceToCommander , - rotator( selfToPawn ).Yaw );
+	newLocation.Y = p.Location.Y + lengthDirY( desiredDistanceToCommander , - rotator( selfToPawn ).Yaw );
+	newLocation.Z = p.Location.Z;
+
+	return newLocation;
+}
+
 /*
  * ===============================================
  * States functions
@@ -134,9 +101,19 @@ function bool FindNavMeshPathVect(Vector tempDest){
  */
 
 state Idle{
-
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
+		super.Tick( deltaTime );
+
+		commander = getNearbyCommander();
+
+		if ( commander != none ){
+			changeState( 'Flock' );
+		}
+		//Flee from the player
+		if ( player != none && tooCloseToPawn( player ) ){
+			goToState( 'Flee' );
+		}
 	}
 
 	event SeePlayer (Pawn Seen){
@@ -187,44 +164,6 @@ state Flock{
 }
 
 
-auto state FirstQuestPathfinding{
-
-	function beginState( name previousStateName ){
-	`log( "Finding  path" );
-
-
-	}
-
-	event Tick(float deltaTime){
-		local Pawn Player;
-		Player = GetALocalPlayerController().Pawn;
-		selfToPlayer = Abs(VSize(self.Pawn.Location - Player.Location));
-
-	}
-
-
-Begin:
-	
-	if(FindNavMeshPathVect(tempDest)){
-		if(((selfToPlayer < minimumDistance) && (PathnodeList[_Pathnode] == endNode))){
-			self.Pawn.GroundSpeed = 85.0;
-			firstQuestComplete = true;
-			GotoState('Idle');
-		} else {
-			self.Pawn.GroundSpeed = 400.0;
-			tempDest = getNextNode();
-		}
-		NavigationHandle.SetFinalDestination(tempDest);
-		FlushPersistentDebugLines();
-		NavigationHandle.DrawPathCache(,true);
-			if(NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
-				DrawDebugLine(Pawn.location,tempDest,0,255,0,true);
-				DrawDebugSphere(tempDest,16,20,0,255,0,true);
-				MoveTo(tempDest, Player);
-			}
-		Goto 'Begin';
-	}
-}
 /*
  * ================================================
  * Common events
@@ -247,11 +186,10 @@ event commanderOrderedAttack(){
 
 DefaultProperties
 {
-	minimumDistance = 800
 	bIsPlayer=true
 	closeEnough = 200
-	isAtLast = false
 	bAdjustFromWalls=true
-	_Pathnode = 0
-	firstQuestComplete = false
+	tooCloseDistance = 512.0
+	desiredDistanceToCommander = 384.0
+	maximumDistance = 1024.0
 }

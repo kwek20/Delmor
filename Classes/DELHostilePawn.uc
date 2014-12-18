@@ -1,6 +1,5 @@
 class DELHostilePawn extends DELNPCPawn abstract;
 var bool bCanBeStunned;
-var DELWeapon sword;
 
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
@@ -14,6 +13,7 @@ simulated event PostBeginPlay(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	local int newDamage;
+	`log(damage);
 	newDamage = damage;
 	if(DamageType == class'DELDmgTypeMelee'){
 		newDamage = damage - (damage * physicalResistance);
@@ -43,21 +43,21 @@ function AddDefaultInventory()
 }
 
 /**
- * Say a line from the sound set. Only one sound can be played per 2 seconds.
- */
-function say( String dialogue ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet != none && mySoundSet.bCanPlay ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
-	}
-}
-
-/**
  * Stub to play a blocking sound.
  */
 function playBlockingSound(){
+}
+
+/**
+ * Ends the stun.
+ */
+function endStun(){
+	`log( "***************************" );
+	`log( "###########################" );
+	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
+	`log( "###########################" );
+	`log( "***************************" );
+	controller.goToState( 'Attack' );
 }
 
 /**

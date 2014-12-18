@@ -1,5 +1,5 @@
 /**
- * @author Bram
+ * @author Anders Egberts
  * Controller class for the medium enemy.
  * 
  * The medium monster will command easymonsters. Also the medium monster can perform a series of magic spells.
@@ -128,7 +128,7 @@ function int getNumberOfMinions(){
  * Returns whether the pawn should charge. It should not charge when he is too far from the player.
  */
 function bool shouldCharge(){
-	if ( distanceToPoint( attackTarget.location ) < 256.0 ){
+	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge ){
 		return false;
 	} else {
 		return true;
@@ -152,6 +152,36 @@ function orderNearbyMinionsToAttackPlayer(){
 			c.engagePlayer( attackTarget );
 		}
 	}
+
+	DELMediumMonsterPawn( Pawn ).say( "OrderAttack" );
+}
+
+/**
+ * Sends the transformation order to the hardpawns.
+ */
+function orderHardMonsterToTransform(){
+	local DELHardMonsterSmallController c;
+
+	foreach WorldInfo.AllControllers( class'DELHardMonsterSmallController' , c ){
+		if ( c.commander == pawn ){
+			c.commanderOrderedAttack();
+		}
+	}
+}
+
+/**
+ * Start the charge attack.
+ */
+function startCharge(){
+	bCanCharge = false;
+	changeState( 'Charge' );
+}
+
+/**
+ * Sets bCanCharge to true
+ */
+function resetCanCharge(){
+	bCanCharge = true;
 }
 
 /**
@@ -249,7 +279,12 @@ state attack{
 
 		timer = 0.0;
 
-		DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
+		if ( getNumberOfMinions() > 0 ){
+			orderNearbyMinionsToAttackPlayer();
+		}
+		else{
+			DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
+		}
 	}
 
 	event tick( float deltaTime ){
@@ -290,7 +325,7 @@ state flee{
 		if ( VSize( selfToPlayer ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
 			if ( pawn.Health >= pawn.HealthMax / 2 && shouldCharge() ){
-				changeState( 'charge' );
+				startCharge();
 			}
 		}
 	}
@@ -336,8 +371,9 @@ state maintainDistanceFromPlayer{
 
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
-			if ( nPawnsNearPlayer() <= maximumPawnsNearPlayer && shouldCharge() ){
-				changeState( 'Charge' );
+			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ self.getNumberOfMinions() == 0 && shouldCharge() ){
+				orderHardMonsterToTransform();
+				startCharge();
 			}
 
 			//Reset timer
@@ -347,10 +383,13 @@ state maintainDistanceFromPlayer{
 
 }
 /**
- * Charge towards the player in hopes to stun him.
+ * Charge towards the player in hopes to stun him and knock him back.
  */
 state Charge{
 	local vector playerPosition;
+	/**
+	 * At the start of the state the position somewhere behind the player will be calculated and the mediumPawn will run to that point.
+	 */
 	function beginState( name previousStateName ){
 		local rotator selfToPlayer;
 
@@ -368,8 +407,8 @@ state Charge{
 	event tick( float deltaTime ){
 		local DELPawn collidingPawn;
 
-		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 8.0 + 10.0 ){
-			moveInDirection( playerPosition - pawn.Location , deltaTime * 8 /*We run to the player, so we move faster*/ );
+		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
+			moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
 			//TODO: Check for collision
 			
 			collidingPawn = checkCollision();
@@ -388,21 +427,36 @@ state Charge{
 	 * If the pawn collides with an easyMinion it should push him away.
 	 * But if the pawn collides with the player, the pawn should exit the charge state
 	 * and the player should be stunned.
+	 * @param p DELPawn The pawn that has been hit by the mediumPawn's charge attack.
 	 */
 	event collisionWithPawn( DELPawn p ){
-		local vector selfToPawn;
+		local vector selfToPawn , momentum;
 
-		selfToPawn = adjustLocation( p.location , pawn.location.Z ) - adjustLocation( pawn.Location , pawn.location.Z );
+		if ( p != none ){
+			selfToPawn = adjustLocation( p.location , pawn.location.Z ) - adjustLocation( pawn.Location , pawn.location.Z );
 
-		if ( p.class != class'DELMediumMonsterPawn' ){
-			p.knockBack( 250.0 , selfToPawn );
+			switch( p.Class ){
+			//Knock the player back and deal damage.
+			case class'DELPlayer': 
+				p.TakeDamage( 25 , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
+				stopPawn();
+				goToState( 'Attack' );
+				p.knockBack( 250.0 , selfToPawn );
+				break;
+			//Knock the monster back
+			default:
+				p.knockBack( 250.0 , selfToPawn );
+				break;
+			}
 		}
+	}
 
-		if ( p.class == class'DELPlayer' ){
-			p.health -= 25;
-			stopPawn();
-			goToState( 'Attack' );
-		}
+	/**
+	 * When we're done charging, set a timer that will eventually set bCanCharge to through.
+	 */
+	event EndState( name NextStateName ){
+		super.EndState( NextStateName );
+		setTimer( 5.0 , false , 'resetCanCharge' );
 	}
 }
 
@@ -473,6 +527,7 @@ event PawnBlockBroken(){
 
 DefaultProperties
 { 
+	bCanCharge = true;
 	decisionInterval = 0.5
 	commandRadius = 512.0
 	wanderRadius = 512.0

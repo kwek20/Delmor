@@ -1,4 +1,10 @@
+/**
+ * the lucian class
+ * has everything lucian needs in delmor
+ * @author programming team(everybody)
+ */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
+
 
 
 var array< class<Inventory> > DefaultInventory;
@@ -8,6 +14,15 @@ var DELMagic magic;
 
 
 var class<DELMeleeWeapon> swordClass;
+
+var DELMagic magic;
+/**
+ * the factory of spells.
+ * ask this class anything about the spells player can do anything else himself
+ * is called grimoire for a reason . don't change it
+ */
+var DELMagicFactory Grimoire;
+
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -22,24 +37,75 @@ var float   SprintTimerCount;
 var float   LastSprint;
 var float   ScaledTimer;
 
-var() const array<Name> SwingAnimationNames;
-var AnimNodePlayCustomAnim SwingAnim;
+/* ==========================================
+ * Camera stuff
+ * ==========================================
+ */
 
+/**
+ * Distance of the camera to this pawn.
+ */
+var float camOffsetDistance;
+/**
+ * The distance of the camera that we want, if camera is not at this distance it will adjust
+ * the actualdistance till it is.
+ */
+var float camTargetDistance;
+/**
+ * The pitch of the camera.
+ */
+var float camPitch;
+/**
+ * Offset from the camera to the pawn.
+ */
+var Vector cameraOffset;
+
+/**
+ * Determines whether the player is in look mode.
+ * When in look mode, the pawn will not rotate with the camara.
+ * Else the camera will rotate with the pawn.
+ */
+var bool bLookMode;
+/**
+ * If locked to camera, the pawn's direction will be determined by the camera-direction.
+ */
+var bool bLockedToCamera;
+
+var float defaultCameraHeight;
+var float cameraZoomHeight;
+var float cameraTargetHeight;
+
+/**
+ * makes sure everybode knows this player is not first-person and never will be
+ */
 simulated function bool IsFirstPerson(){
 	return false;
 }
 
+/**
+ * added an extra to takedamage so that some spells will be interrupted when you get hit
+ * @param damage ammount of damage
+ * @param instigatedby the player that does damage
+ * @param hitlocation where you get hit
+ * @param momentum momentum in the object that does damage
+ * @param damagetype type of damage taken
+ * @param hitinfo info about info
+ * @param damagecauser no clue but probably the weapon that did the damage
+ */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
-	Global.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+	super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	if(magic != none){
 		magic.Interrupt();
 	}
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> eb82fbc649d608dbe1877240320e934433507af2
 /**
  * selects a point in the animtree so it is easier acessible
  * it is unknown to me what the super does
@@ -54,45 +120,49 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 }
 
 /**
- * adds the weapons(magic + masterSword to the player)
+ * adds the certain items to the default inventory
  */
 function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	magic = Spawn(class'DELMagic',,,self.Location);
-	magic = Spawn(magic.getMagic(),,,self.Location);
-	magic.GiveTo(Controller.Pawn);
+	grimoire = Spawn(class'DELMagicFactory');
+	magic = grimoire.getMagic();
 }
 
-
+/**
+<<<<<<< HEAD
+ * Set camera amongst and give sword.
+=======
+ * kinda the init of the playah
+>>>>>>> 462777f187f88e4a03363bd507bc1cf14bc90989
+ */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
+	SetThirdPersonCamera( true );
 	//Location.Z = 10000;
 }
 
 /**
- * switches magical ability
+ * switches magical ability to the one given (1,2,3,4)
+ * @param abilitynumber the number of the ability you want to switch to
  */
 simulated function magicSwitch(int AbilityNumber){
 	if(bNoWeaponFiring){
 		return;
 	}	
-	if(magic != None && AbilityNumber <= magic.getMaxSpells()){
-		magic.switchMagic(AbilityNumber);
-		magic = Spawn(magic.getMagic(),,,self.Location);
-		magic.GiveTo(Controller.Pawn);
+	if(grimoire != None && AbilityNumber <= grimoire.getMaxSpells()){
+		magic = grimoire.getMagic(AbilityNumber);
 	}
 }
 
 
 /**
  * Pawn starts firing!
- * Called from PlayerController::StartFiring
- * Network: Local Player
- *
- * @param	FireModeNum		fire mode number
+ * directly delegates the startfire on specific firemodes
+ * @param	FireModeNum the firemode instigated. if it is 0 melee will be used, if 1 magic
  */
 simulated function StartFire(byte FireModeNum){
 	if( bNoWeaponFiring){
@@ -108,11 +178,11 @@ simulated function StartFire(byte FireModeNum){
 
 
 /**
- * Pawn stops firing!
- * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
- * Network: Local Player
- *
- * @param	FireModeNum		fire mode number
+ * stops firing 
+ * (on release mouse)
+ * delegates the function to either magic or sword 
+ * same delegation as in startfire()
+ * @param	FireModeNum		firemode used. 
  */
 simulated function StopFire(byte FireModeNum){
 	if(FireModeNum == 1 && magic!= None){
@@ -231,6 +301,12 @@ exec function stopSprint(){
 	}
 }
 
+/**
+ * Ends the stun.
+ */
+function endStun(){
+	controller.goToState( 'Playing' );
+}
 
 /**
  * Lowers the stamina at a -5 rate per second
@@ -361,19 +437,6 @@ function Deserialize(JSonObject Data)
  * ============================================
  */
 
-event Tick( float deltaTime ){
-	local DELChickenPawn chicken;
-
-	super.Tick( deltaTime );
-
-	chicken = chickenIsInFrontOfMe();
-
-	//Kick a chicken!!
-	if ( chicken != none ){
-		kickChicken( chicken );
-	}
-}
-
 /**
  * Checks whether a chicken is in front of the player pawn and returns that chicken
  */
@@ -388,7 +451,7 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
 
 	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
 		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
-			if ( c.CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
+			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
 				toReturn = DELChickenPawn( c.Pawn );
 			}
 		}
@@ -423,33 +486,138 @@ function Vector getInFrontLocation(){
 	return newLocation;
 }
 
-/**
- * This function calculates a new x based on the given direction.
- * @param   dir Float   The direction in UnrealDegrees.
+/*
+ * ===========================================================
+ * Camera
+ * ===========================================================
  */
-function float lengthDirX( float len , float dir ){
-	local float Radians;
-	Radians = UnrRotToRad * dir;
+/**
+ * Set the camera offset.
+ * @param x float   x-offset.
+ * @param y float   y-offset.
+ * @param z float   z-offset.
+ */
+function setCameraOffset( float x , float y , float z ){
+	cameraOffset.X = x;
+	cameraOffset.Y = y;
+	cameraOffset.Z = z;
+}
+/**
+ * Calculates a new camera position based on the postition of the pawn.
+ */
+simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV){
+    local Vector HitLocation, HitNormal;
+	local Rotator targetRotation;
+	/**
+	 * New pawn rotation if using look mode.
+	 */
+	local Rotator newRotation;
 
-	return len * cos( Radians );
+	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
+		//Get the controller's rotation as camera angle.
+		targetRotation = Controller.Rotation;
+
+		out_CamLoc = Location;
+		out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
+		out_CamLoc = out_CamLoc + cameraOffset;
+
+		out_CamRot.Yaw = targetRotation.Yaw;
+		out_CamRot.Pitch = camPitch;
+		out_CamRot.Roll = 0;
+
+		//If in look mode, change the pawn's rotation based on the camera
+		newRotation.Pitch = Rotation.Pitch;
+		newRotation.Roll = Rotation.Roll;
+		newRotation.Yaw = targetRotation.Yaw;
+
+		Controller.SetRotation( newRotation );
+
+		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none){
+			out_CamLoc = HitLocation;
+		}
+	}
+
+    return true;
 }
 
 /**
- * This function calculates a new y based on the given direction.
- * @param   dir Float   The direction in UnrealDegrees.
+ * Animates the camera distance.
+ * THIS FUNCTION MAY ONLY BE EXECUTED IN THE TICK EVENT.
+ * @param deltaTime float   The deltaTime from the tick-event.
  */
-function float lengthDirY( float len , float dir ){
-	local float Radians;
-	Radians = UnrRotToRad * dir;
+function adjustCameraDistance( float deltaTime ){
+	local float difference , distanceSpeed;
+	difference = max( camOffsetDistance , camTargetDistance ) - min( camOffsetDistance , camTargetDistance );
+	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
 
-	return len * -sin( Radians );
+	if ( camOffsetDistance < camTargetDistance ){
+		camOffsetDistance += distanceSpeed;
+	}
+	if ( camOffsetDistance > camTargetDistance ){
+		camOffsetDistance -= distanceSpeed;
+	}
+	//Lock
+	if ( camOffsetDistance + distanceSpeed > camTargetDistance && camOffsetDistance - distanceSpeed < camTargetDistance ){
+		camOffsetDistance = camTargetDistance;
+	}
+}
+
+function adjustCameraOffset( float deltaTime ){
+	local float difference , distanceSpeed;
+	difference = max( cameraOffset.Z , cameraTargetHeight ) - min( cameraOffset.Z , cameraTargetHeight );
+	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
+
+	if ( cameraOffset.Z < cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z + distanceSpeed );
+	}
+	if ( cameraOffset.Z > cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraOffset.Z - distanceSpeed );
+	}
+	//Lock
+	if ( cameraOffset.Z + distanceSpeed > cameraTargetHeight && cameraOffset.Z - distanceSpeed < cameraTargetHeight ){
+		setCameraOffset( 0.0 , 0.0 , cameraTargetHeight );
+	}
+}
+
+/*
+ * ==========================================
+ * Events
+ * ==========================================
+ */
+event Tick( float deltaTime ){
+	local DELChickenPawn chicken;
+
+	super.Tick( deltaTime );
+
+	chicken = chickenIsInFrontOfMe();
+
+	//Kick a chicken!!
+	if ( chicken != none ){
+		kickChicken( chicken );
+	}
+
+	//Change camera height when aiming
+	if ( bLockedToCamera ){
+		camTargetDistance = 150.0;
+		cameraTargetHeight = cameraZoomHeight;
+	} else {
+		camTargetDistance = 200.0;
+		cameraTargetHeight = defaultCameraHeight;
+	}
+
+	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
+		//Animate the camera
+		adjustCameraDistance( deltaTime );
+		adjustCameraOffset( deltaTime );
+	}
 }
 
 
 DefaultProperties
 {
 	swordClass = class'DELMeleeWeaponDemonSlayer';
-//	swordClass = class'DELMeleeWeaponTheButcher'
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 
@@ -457,15 +625,15 @@ DefaultProperties
 
 		Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian'
-		AnimSets(0)=AnimSet'Delmor_Character.Lucian_anim'
-		PhysicsAsset=PhysicsAsset'Delmor_Character.Lucian_walking_Physics'
-		AnimtreeTemplate=AnimTree'Delmor_Character.Lucian_AnimTree'
+		AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Lucian_anim'
+		PhysicsAsset=PhysicsAsset'Delmor_Character.PhysicsAsset.Lucian_walking_Physics'
+		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree'
 		Scale3D=(X=1, Y=1, Z=1)
 		HiddenGame=False
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=-50.0)
+		Translation=(Z=-48.0)
 	End Object
     Components.Add(ThirdPersonMesh)
 
@@ -478,4 +646,16 @@ DefaultProperties
 	SprintRecoverTimer = 5.0
 	StamLoss = 5.0
 	Groundspeed = 375.0
+
+	manaRegeneration = 2
+
+	//Camera
+	camOffsetDistance = 200.0
+	camTargetDistance = 200.0
+	defaultCameraHeight = 48.0
+	cameraTargetHeight = 48.0
+	cameraZoomHeight = 64.0
+	camPitch = -5000.0
+	bLookMode = false
+	bLockedToCamera = false
 }

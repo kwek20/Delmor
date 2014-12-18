@@ -8,12 +8,10 @@
  */
 class DELPawn extends UTPawn;
 
-
 /* ==========================================
  * Stats
  * ==========================================
  */
-
 
 /**
  * How much health the pawn will regain each second.
@@ -78,44 +76,37 @@ var bool bCanBlock;
 /**
  * The weapon that will be used by the pawn.
  */
-var DELWeapon myWeapon; 
-
-/* ==========================================
- * Camera stuff
- * ==========================================
- */
+var DELWeapon myWeapon;
 
 /**
- * Distance of the camera to this pawn.
+ * The class for the weapon that should be spawned.
  */
-var float camOffsetDistance;
-/**
- * The distance of the camera that we want, if camera is not at this distance it will adjust
- * the actualdistance till it is.
- */
-var float camTargetDistance;
-/**
- * The pitch of the camera.
- */
-var float camPitch;
-/**
- * Offset from the camera to the pawn.
- */
-var Vector cameraOffset;
+var class<DELMeleeWeapon> weaponClass;
 
 /**
- * Determines whether the player is in look mode.
- * When in look mode, the pawn will not rotate with the camara.
- * Else the camera will rotate with the pawn.
+ * The interval in which the pawn can attack in seconds.
  */
-var bool bLookMode;
+var float attackInterval;
+
 /**
- * If locked to camera, the pawn's direction will be determined by the camera-direction.
+ * How long the gettingHit animation is in seconds.
  */
-var bool bLockedToCamera;
+var float getHitTime;
+
+/*
+ * ==========================================================
+ * Weapons and shite
+ * ==========================================================
+ */
 /**
- * In this event, the pawn will get his movement physics, camera offset and controller.
+ * the meleeWeapon that the pawn holds
  */
+var DELWeapon sword;
+
+/**
+ * class of the sword
+ */
+var class<DELMeleeWeapon> swordClass;
 
 /*
  * ====================================
@@ -132,12 +123,36 @@ var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
 
+/*
+ * =========================================
+ * Animation
+ * =========================================
+ */
+
+/**
+ * Reference to the swing animation in the anim tree.
+ */
+var() const array<Name> SwingAnimationNames;
+var AnimNodePlayCustomAnim SwingAnim;
+var AnimNodePlayCustomAnim DeathAnim;
+
+var array<name> animname;
+var name deathAnimName;
+var name knockBackAnimName;
+var name getHitAnimName;
+var name blockAnimName;
+/**
+ * An int to point to the attack-animation array.
+ */
+var int attackNumber;
+
+/**
+ * In this event, the pawn will get his movement physics, camera offset and controller.
+ */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
 
 	spawnDefaultController();
-	setCameraOffset( 0.0 , 0.0 , 48.0 );
-	SetThirdPersonCamera( true );
 	SetMovementPhysics();
 	//Mesh.GetSocketByName("");
 	//Mesh.GetSocketByName(socketName);
@@ -150,6 +165,31 @@ simulated event PostBeginPlay(){
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
 
 	}
+	AddDefaultInventory();
+}
+
+
+/**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
+	super.PostInitAnimTree(SkelComp);
+
+	if (SkelComp == Mesh){
+		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
+		DeathAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('DeathCustomAnim'));
+	}
+}
+
+/**
+ * adds the weapons(magic + masterSword to the player)
+ */
+function AddDefaultInventory(){
+	sword = Spawn(swordClass,,,self.Location);
+	sword.GiveTo(Controller.Pawn);
+	Controller.ClientSwitchToBestWeapon();
 }
 
 /**
@@ -181,6 +221,8 @@ function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
 		goToState( 'Blocking' );
 	}
+	interrupt();
+	playBlockingAnimation();
 }
 
 /**
@@ -198,75 +240,27 @@ function resetCanBlock(){
 }
 
 /**
- * Set the camera offset.
- * @param x float   x-offset.
- * @param y float   y-offset.
- * @param z float   z-offset.
+ * Stuns the pawn for a given time.
+ * @param duration	float    How long the stun lasts in seconds.
  */
-function setCameraOffset( float x , float y , float z ){
-	cameraOffset.X = x;
-	cameraOffset.Y = y;
-	cameraOffset.Z = z;
-}
-/**
- * Calculates a new camera position based on the postition of the pawn.
- */
-simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV){
-    local Vector HitLocation, HitNormal;
-	local Rotator targetRotation;
-	/**
-	 * New pawn rotation if using look mode.
-	 */
-	local Rotator newRotation;
-
-	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
-		//Get the controller's rotation as camera angle.
-		targetRotation = Controller.Rotation;
-
-		out_CamLoc = Location;
-		out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-		out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
-		out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
-		out_CamLoc = out_CamLoc + cameraOffset;
-
-		out_CamRot.Yaw = targetRotation.Yaw;
-		out_CamRot.Pitch = camPitch;
-		out_CamRot.Roll = 0;
-
-		//If in look mode, change the pawn's rotation based on the camera
-		newRotation.Pitch = Rotation.Pitch;
-		newRotation.Roll = Rotation.Roll;
-		newRotation.Yaw = targetRotation.Yaw;
-
-		//If in look mode, rotate the pawn according to the camera's rotation
-		//if ( bLockedToCamera ){
-		//	self.SetRotation( newRotation );
-		//}
-		//else{
-			Controller.SetRotation( newRotation );
-		//}
-
-		if (Trace(HitLocation, HitNormal, out_CamLoc, Location, false, vect(12, 12, 12)) != none){
-			out_CamLoc = HitLocation;
-		}
-	}
-
-    return true;
+function stun( float duration ){
+	velocity.x = 0.0;
+	velocity.y = 0.0;
+	velocity.z = 0.0;
+	controller.goToState( 'Stunned' );
+	setTimer( duration , false , 'endStun' );
 }
 
 /**
- * In this event the pawn will slowly regain health and mana.
+ * Ends the stun.
  */
-event Tick( float deltaTime ){
-	if ( bLockedToCamera )
-		camTargetDistance = 150.0;
-	else
-		camTargetDistance = 200.0;
-
-	if ( controller.IsA( 'DELPlayerController' ) && DELPlayerController( controller ).canWalk ){
-		//Animate the camera
-		adjustCameraDistance( deltaTime );
-	}
+function endStun(){
+	`log( "***************************" );
+	`log( "###########################" );
+	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
+	`log( "###########################" );
+	`log( "***************************" );
+	controller.goToState( 'Idle' );
 }
 
 /**
@@ -290,57 +284,335 @@ function SpawnController(){
 }
 
 /**
- * Animates the camera distance.
- * THIS FUNCTION MAY ONLY BE EXECUTED IN THE TICK EVENT.
- * @param deltaTime float   The deltaTime from the tick-event.
- */
-function adjustCameraDistance( float deltaTime ){
-	local float difference , distanceSpeed;
-	difference = max( camOffsetDistance , camTargetDistance ) - min( camOffsetDistance , camTargetDistance );
-	distanceSpeed = max( difference * ( 10 * deltaTime ) , 2 );
-
-	if ( camOffsetDistance < camTargetDistance ){
-		camOffsetDistance += distanceSpeed;
-	}
-	if ( camOffsetDistance > camTargetDistance ){
-		camOffsetDistance -= distanceSpeed;
-	}
-	//Lock
-	if ( camOffsetDistance + distanceSpeed > camTargetDistance && camOffsetDistance - distanceSpeed < camTargetDistance ){
-		camOffsetDistance = camTargetDistance;
-	}
-}
-
-/**
  * Knocks the pawn back.
  * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
  * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
  */
 function knockBack( float intensity , vector direction ){
-	local DELKnockbackForce knockBack;
-	`log( ">>>>>>>>>>>>>>>>>>>>> KNOCK BACK" );
+	spawnKnockBackForce( intensity , direction );
+	controller.GotoState( 'KnockedBack' );
+	bBlockActors = false;
 
+	playknockBackAnimation();
+
+	interrupt();
+}
+
+/**
+ * Spawns the knockbackforce and assigns some variables to it.
+ * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
+ */
+function spawnKnockBackForce( float intensity , vector direction ){
+	local DELKnockbackForce knockBack;
 	knockBack = spawn( class'DELKnockbackForce' );
 	knockBack.setPower( intensity );
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
-	bBlockActors = false;
+	knockBack.pawnsPreviousState = controller.GetStateName();
 }
 
-simulated exec function turnLeft(){
-	`log( self$" TurnLeft" );
+/**
+ * Pawn starts firing!
+ * Called from PlayerController::StartFiring
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StartFire(byte FireModeNum){
+	if(/* sword != None */true){
+		weapon.StartFire(0);
+	}
 }
 
-simulated exec function turnRight(){
-	`log( self$" TurnRight" );
+/**
+ * Pawn stops firing!
+ * i.e. player releases fire button, this may not stop weapon firing right away. (for example press button once for a burst fire)
+ * Network: Local Player
+ *
+ * @param	FireModeNum		fire mode number
+ */
+simulated function StopFire(byte FireModeNum){
+	if(/*FireModeNum == 0 && sword != None*/true){
+		weapon.StopFire(0);
+	}
+}
+
+/**
+ * Performs an attack by playing an animation and setting a timer, when the timer finishes, actual damage will be dealt.
+ */
+function attack(){
+	if ( !controller.IsInState( 'Attacking' ) ){
+		playAttackAnimation();
+		controller.goToState( 'Attacking' );
+		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
+		setTimer( attackInterval * 0.5 , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
+		increaseAttackNumber();
+		say( "AttackSwing" );
+	}
+}
+
+/**
+ * Renders the pawn unable to attack for a very short time and plays the gettingHit animation.
+ */
+function getHit(){
+	playGetHitAnimation();
+	controller.goToState( 'GettingHit' );
+	controller.SetTimer( getHitTime , false , 'returnToPreviousState' ); //Reset the attack combo if not immidiatly attacking again.
+	interrupt();
+}
+
+/**
+ * Interrupts any attack that the pawn was performing.
+ */
+function interrupt(){
+	Velocity.X = 0.0;
+	Velocity.Y = 0.0;
+	Velocity.Z = 0.0;
+	ClearTimer( 'dealAttackDamage' ); //Reset this function so that the pawn's attack will be interrupted.
+}
+
+/**
+ * Play a die sound and dying animation upon death.
+ */
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+	super.Died( killer , damageType , hitlocation );
+
+	interrupt();
+
+	//Play died sound
+	say( "Die" );
+	goToState( 'Dead' );
+	Controller.GotoState( 'Dead' );
+	setTimer( 5.0 , false , 'destroyMe' );
+	//Play death animation
+	playDeathAnimation();
+}
+
+/**
+ * Transforms the pawn into a given class.
+ * Hitpoint percentage, rotation and location will be preserved.
+ * @param toTransformInto   class<DELPawn> The class to transform into.
+ */
+function shapeShift( class<DELPawn> toTransformInto ){
+	local DELPawn p;
+
+	p = spawn( toTransformInto , , , , , , true );
+	p.health = ( p.healthMax / healthMax ) * health;
+	p.setRotation( rotation );
+	p.setLocation( location );
+
+	//Remove old pawn from memory.
+	controller.Destroy();
+	destroy();
+}
+
+/**
+ * Plays an attack animation.
+ */
+function playAttackAnimation(){
+	SwingAnim.PlayCustomAnim(animname[ attackNumber ], 1.0 , 0.0 , 0.1f , false , true );
+}
+
+/**
+ * Plays a death-animation.
+ */
+function playDeathAnimation(){
+	SwingAnim.PlayCustomAnim(deathAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays a knockdown-animation.
+ */
+function playKnockBackAnimation(){
+	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays a get hit animation.
+ */
+function playGetHitAnimation(){
+	SwingAnim.PlayCustomAnim(getHitAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays a get hit animation.
+ */
+function playBlockingAnimation(){
+	SwingAnim.PlayCustomAnim(blockAnimName, 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Removes the pawn and its controller from the level and memory.
+ */
+function destroyMe(){
+	controller.Destroy();
+	destroy();
+}
+
+/**
+ * Increases the attackNumber after an attack so that we'll play a different animation.
+ */
+function increaseAttackNumber(){
+	attackNumber ++;
+	if ( attackNumber >= 3 ){
+		resetAttackCombo();
+	}
+}
+
+/**
+ * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ */
+function say( String dialogue ){
+	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	if ( mySoundSet != none && mySoundSet.bCanPlay ){
+		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+		mySoundSet.bCanPlay = false;
+		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
+	}
+}
+
+/*
+ * ========================================
+ * Attacking
+ * ========================================
+ */
+
+/**
+ * Deal damage from the melee attack to any pawn in front of this pawn.
+ */
+function dealAttackDamage(){
+	local pawn hitPawn;
+	local int damage;
+	local vector momentum;
+
+	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
+	`log( "DealAttackDamage" );
+	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
+
+	hitPawn = checkPawnInFront();
+	damage = DELMeleeWeapon( sword ).CalculateDamage();
+	`log( "Damage: "$damage );
+	`log( "=====================================================================================" );
+
+	if ( hitPawn != none ){
+		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
+	}
+}
+
+/**
+ * Return the player's position plus meleeRange in the player's direction.
+ */
+function Vector getInFrontLocation(){
+	local vector newLocation;
+
+	newLocation.X = location.X + lengthDirX( meleeRange , -Rotation.Yaw );
+	newLocation.Y = location.Y + lengthDirY( meleeRange , -Rotation.Yaw );
+	newLocation.Z = Location.Z;
+
+	return newLocation;
+}
+
+/**
+ * Returns a pawn when it is in front of this pawn.
+ */
+function Pawn checkPawnInFront(){
+	local controller c;
+	local vector inFrontLocation;
+	local float checkDistance;
+	local pawn hitPawn;
+
+	inFrontLocation = getInFrontLocation();
+	checkDistance = meleeRange + GetCollisionRadius();
+
+	foreach WorldInfo.AllControllers( class'controller' , c ){
+		if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
+			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , c.Pawn.Location , c.Pawn.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' ){
+				hitPawn = c.Pawn;
+			}
+		}
+	}
+	
+	return hitPawn;
+}
+
+/**
+ * Sets the attack number to 0
+ */
+function resetAttackCombo(){
+	attackNumber = 0;
+}
+
+/*
+ * ========================================
+ * States
+ * ========================================
+ */
+
+/**
+ * Used to override the die and takeDamage functions.
+ */
+state dead{
+	/**
+	 * Do nothing.
+	 */
+	function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+		return false;
+	}
+
+	/**
+	 * Do nothing.
+	 */
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		//Do nothing
+	}
+}
+
+/**
+ * This function calculates a new x based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirX( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * cos( Radians );
+}
+
+/**
+ * This function calculates a new y based on the given direction.
+ * @param   dir Float   The direction in UnrealDegrees.
+ */
+function float lengthDirY( float len , float dir ){
+	local float Radians;
+	Radians = UnrRotToRad * dir;
+
+	return len * -sin( Radians );
+}
+
+/**
+ * Checks whether two circles collide. Useful for collision-checking between Pawns.
+ * @return bool
+ */
+function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
+	local float distance , totalRadius;
+
+	distance = VSize( circleLocationA - circleLocationB );
+	totalRadius = circleRadiusA + circleRadiusB;
+
+	if ( distance <= totalRadius ){
+		return true;
+	} else {
+		return false;
+	}
 }
 
 DefaultProperties
 {
 	bCanPickUpInventory = true
 	UInventory = DELInventoryManager
-
 
 	MaxFootstepDistSq=9000000.0
 	health = 100
@@ -355,14 +627,9 @@ DefaultProperties
 	GroundSpeed = 100
 	detectionRange = 960.0
 	regenerationTimer = 1.0
+	attackInterval = 1.0
 
 	bIsStunned = false
-
-	camOffsetDistance = 200.0
-	camTargetDistance = 200.0
-	camPitch = -5000.0
-	bLookMode = false
-	bLockedToCamera = false
 
 	ControllerClass = class'DELNpcController'
 
@@ -388,8 +655,13 @@ DefaultProperties
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
 
+	swordClass = class'DELMeleeWeaponFists'
+
 	ArmsMesh[0] = none
 	ArmsMesh[1] = none
 
 	mySoundSet = none
+
+	attackNumber = 0
+	getHitTime = 1.0
 }

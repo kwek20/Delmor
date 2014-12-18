@@ -5,7 +5,7 @@ var const int MAX_INT;
 /**
  * The current texture of this button
  */
-var() Texture2D hoverTexture; 
+var() array<Texture2D> hoverTextures; 
 
 /**
  * The color of the button if no texture has been found
@@ -22,6 +22,9 @@ var bool isHover;
  */
 var() SoundCue clickSound;
 
+/**
+ * If this oject is completely see-through
+ */
 var() bool transparant;
 
 /**
@@ -38,10 +41,16 @@ function use(){
 	PlayClickSound();
 }
 
+/**
+ * Default use check. Left pressed
+ */
 function bool requiresUse(DELInputMouseStats stats){
 	return stats.PendingLeftPressed;
 }
 
+/**
+ * Method we run when you hover on this object
+ */
 delegate onHover(DELPlayerHud hud, bool enter);
 
 /**
@@ -53,8 +62,14 @@ function hover(){
 	SetTimer(0.1, false, 'noHover');
 }
 
+/**
+ * Stop hovering
+ */
 function noHover(){isHover=false;}
 
+/**
+ * Play the click sound
+ */
 function PlayClickSound(){
 	PlaySound( clickSound );
 }
@@ -65,7 +80,7 @@ function PlayClickSound(){
  */
 public function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(position.X, position.Y);
-	if (texture != None){
+	if (textures.Length > 0){
 		drawTexture(hud.Canvas);
 	} else {
 		//behind the text square
@@ -73,23 +88,61 @@ public function draw(DELPlayerHud hud){
 	}
 }
 
+/**
+ * draw this object. <br/>
+ * if you hover on this and a hover texture or color is set, this will display that.<br/>
+ * Otherwise all textures will be drawn normally
+ */
 public function drawTexture(Canvas c){
-	if (texture == None || transparant) return;
-	if (isHover && (hoverTexture != none || hoverColorSet())){
-		if (hoverTexture != none){
-			drawTile(c, hoverTexture, position.Z, position.W);
+	if (textures.Length == 0 || transparant) return;
+	if (isHover && (hoverTextures.Length > 0 || hoverColorSet())){
+		if (hoverTextures.Length > 0){
+			drawAllHoverTextures(c);
 		} else {
-			drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);
+			drawAllTexturesColored(c, hoverColor);
 		}
 	} else {
-		drawTile(c, texture, position.Z, position.W);
+		drawAllTextures(c);
 	}
 }
 
+/**
+ * Draw all normal textures with a hover color
+ * @param c
+ * @param hoverColor The color we emerge the image with
+ */
+public function drawAllTexturesColored(Canvas c, color hoverColor){
+	local Texture2D texture;
+	foreach textures(texture){
+		c.SetPos(position.X, position.Y);
+		drawCTile(c, texture, position.Z, position.W, hoverColor.R, hoverColor.G, hoverColor.B, hoverColor.A);
+	}
+}
+
+/**
+ * draw the hover textures for this object
+ */
+public function drawAllHoverTextures(Canvas c){
+	local Texture2D hoverTexture;
+	foreach hoverTextures(hoverTexture){
+		c.SetPos(position.X, position.Y);
+		drawTile(c, hoverTexture, position.Z, position.W);
+	}
+}
+
+/**
+ * Checks if there is a hover color set
+ * @return true if there is
+ */
 private function bool hoverColorSet(){
 	return hoverColor.R > 0 || hoverColor.G > 0 || hoverColor.B > 0 || hoverColor.A > 0;
 }
 
+/**
+ * Backup draw.<br/>
+ * If no texture is supplied we draw a rect<br/>
+ * Takes hover into account
+ */
 public function drawStandardbackground(Canvas c){
 	if (transparant) return;
 	c.SetPos(position.X, position.Y);
@@ -102,7 +155,7 @@ public function drawStandardbackground(Canvas c){
  * @param mat The material to set
  */
 public function setHoverTexture(Texture2D mat){
-	hoverTexture = mat;
+	hoverTextures.AddItem(mat);
 }
 
 /**
@@ -129,6 +182,9 @@ public function setColor(color c){
 	color = c;
 }
 
+/**
+ * Sets the color based on ints
+ */
 public function setColorVars(int r, int g, int b, int a){
 	local Color c;
 	c.r = r;
@@ -138,6 +194,9 @@ public function setColorVars(int r, int g, int b, int a){
 	setColor(c);
 }
 
+/**
+ * Toggles transparancy
+ */
 public function toggleTranparant(){
 	transparant = !transparant;
 }

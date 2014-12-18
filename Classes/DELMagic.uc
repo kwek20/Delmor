@@ -1,12 +1,8 @@
+/**
+ * superclass of each magic
+ * @author Harmen Wiersma
+ */
 class DELMagic extends DELWeapon;
-/**
- * list of magical abilities available to magician
- */
-var array< class<DElMagic> > magics;
-/**
- * location of active ability within spell list
- */
-var int ActiveAbilityNumber;
 
 /**
  * projectile shot when using magic
@@ -42,7 +38,7 @@ var bool bCanCharge;
 /**
  * the user of the spell
  */
-var DELPawn spellCaster;
+var DELPlayer spellCaster;
 
 /**
  * the cost that is added every iteration
@@ -54,16 +50,30 @@ var int ChargeCost;
  */
 var int ChargeAdd;
 
+/**
+ * the total size the projectile is
+ */
 var float ProjectileSizeTotal;
 
+/**
+ * the startsize of a projectile
+ */
 var float ProjectileSize;
 
+/**
+ * maximum size of a projectile
+ */
+var() const float maxProjectileSize;
+
+/**
+ * increase of projectilesize for each iteration
+ */
 var float ProjectileSizeIncrease;
 
 /**
- * 
+ * texture of the icon in the quick item bar
  */
-var class<Projectile> spellProjectile;
+var Texture2D IconTexture;
 
 /**
  * Time in secconds for every iteration
@@ -130,7 +140,8 @@ simulated function interrupt(){
  * in case of a chargeable spell, the charging will be initiated
  */
 simulated function FireStart(){
-	spellCaster = DELPawn(instigator);
+	spellCaster = DELPlayer(instigator);
+	spellcaster.Grimoire.startCharge();
 	if(ManaCost > spellCaster.mana){
 		`log("you have not enough mana bitch");
 		return;
@@ -149,16 +160,16 @@ simulated function FireStart(){
  * is called when the key is released
  */
 simulated function FireStop(){
+	spellcaster.Grimoire.stopCharge();
 	GoToState('Nothing');
 }
 
 /**
  * consuming the mana needed for casting the spell
- * @param spell the spel that is cast
- * @param chargeTime in case the spell is charged, the charge time will be added to the cost
+ * @param localmanacost amount of mana that needs to be costumed
  */
-simulated function consumeMana(){
-	spellCaster.ManaDrain(TotalManaCost);
+simulated function consumeMana(int localmanaCost){
+	spellCaster.ManaDrain(ManaCost);
 }
 
 /**
@@ -168,19 +179,6 @@ simulated function shoot(){
 	CustomFire();
 }
 
-/**
- * gets the amount of spells the player knows
- */
-simulated function int getMaxSpells(){
-	return magics.Length;
-}
-
-/**
- * changes the spell that will be used
- */
-simulated function switchMagic(int AbilityNumber){
-	ActiveAbilityNumber = AbilityNumber-1;
-}
 
 
 /**
@@ -204,13 +202,7 @@ simulated function Vector GetSocketPosition(Pawn Holder){
 	return FinalLocation;
 }
 
-/**
- * gets the spell
- */
-function class<DELMagic> getMagic(){
-	`log(magics[ActiveAbilityNumber]);
-	return magics[ActiveAbilityNumber];
-}
+
 
 /**
  * checks if you are able to use magic.
@@ -222,11 +214,12 @@ simulated function CustomFire(){
 
 	if( Role == ROLE_Authority ){
 
+		//gets the location and gets the direction
 		Spawnlocation = GetSocketPosition(instigator);
 		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, Spawnlocation));
 
 		
-		// Spawn projectile
+		// Spawns a projectile and gives it a direction
 		SpawnedProjectile = Spawn(getSpell() ,self,, Spawnlocation);
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
 			SpawnedProjectile.Init(AimDir);
@@ -234,21 +227,23 @@ simulated function CustomFire(){
 	}
 }
 
-
-
+/**
+ * gets the class of the projectile that will be shot
+ * @return the udkprojectile class of the spell
+ */
 simulated function class<UDKProjectile> getSpell(){
 	return spell;
 }
 
 
+
+
 DefaultProperties
 {
+	projectileSize = 0.1
 	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
-	magics[0] = class'DELMagicForce'
-	magics[2] = class'DELMagicHeal'
-	magics[1] = class'DELMagicParalyze'
-	ActiveAbilityNumber = 0;
+	iconTexture = Texture2D'UDKHUD.cursor_png'
 	ChargeTime = 0.1;
 }

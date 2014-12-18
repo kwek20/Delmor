@@ -1,19 +1,21 @@
 /**
  * Extended playercontroller that changes the camera.
- * 
+ *
  * KNOWN BUGS:
  * - Fix player movement.
- * 
+ *
  * @author Anders Egberts.
  */
 class DELPlayerController extends PlayerController dependson(DELInterface)
 	config(Game);
 
-var SoundCue soundSample; 
+var SoundCue soundSample;
 var() bool canWalk, drawDefaultHud, drawBars, drawSubtitles, hudLoaded;
 
 var() private string subtitle;
 var() int subtitleTime, currentTime;
+
+var name previousState;
 
 // Mouse event enum
 enum EMouseEvent {
@@ -51,8 +53,12 @@ state Playing extends PlayerWalking{
 Begin:
 }
 
-state MouseState {
-	function UpdateRotation(float DeltaTime);   
+state BaseState {
+
+}
+
+state MouseState extends BaseState{
+	function UpdateRotation(float DeltaTime);
 	exec function StartFire(optional byte FireModeNum);
 	exec function StopFire(optional byte FireModeNum);
 
@@ -89,10 +95,20 @@ state Questlog extends MouseState{
 Begin:
 }
 
-state End extends MouseState{
-	
+state Credits extends BaseState{
+	function BeginState(Name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		drawDefaultHud = false;
+		canWalk=false;
+		addInterface(class'DELInterfaceCredits');
+		checkHuds();
+	}
 }
-	
+
+state End extends MouseState{
+
+}
+
 
 state Inventory extends MouseState{
 
@@ -116,7 +132,13 @@ function swapState(name StateName){
 	}
 	`log("-- Switching state to "$StateName$"--");
 	getHud().clearInterfaces();
+
+	previousState = getStateName();
 	GotoState(StateName);
+}
+
+function goToPreviousState(){
+	swapState(previousState);
 }
 
 /*#####################
@@ -167,7 +189,7 @@ function checkHuds(){
 		addInterface(class'DELInterfaceCompass');
 	}
 	if (drawSubtitles){
-		addInterface(class'DELInterfaceSubtitle');
+		addInterfacePriority(class'DELInterfaceSubtitle', HIGH);
 	}
 	if (drawbars){
 		addInterface(class'DELInterfaceHealthBars');
@@ -184,7 +206,7 @@ function addInterfacePriority(class<DELInterface> interface, EPriority priority)
 
 	if (getHud() == None){`log("HUD IS NONE! check bUseClassicHud"); return;}
 	`log("Added interface"@interface);
-	
+
 	delinterface = Spawn(interface, self);
 	getHud().addInterface(delinterface, priority);
 }
@@ -199,7 +221,7 @@ public function showSubtitle(string text){
  ###############*/
 
 simulated function PostBeginPlay() {
-	
+
 	super.PostBeginPlay();
 }
 
@@ -208,9 +230,8 @@ simulated function PostBeginPlay() {
  * the camera. However when the player moves the mouse, the camera will rotate.
  * @author Anders Egberts
  */
-function UpdateRotation(float DeltaTime)
-{
-    local DELPawn dPawn;
+function UpdateRotation(float DeltaTime){
+    local DELPlayer dPawn;
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
@@ -219,7 +240,7 @@ function UpdateRotation(float DeltaTime)
 
     //super.UpdateRotation(DeltaTime);
 
-    dPawn = DELPawn(self.Pawn);
+    dPawn = DELPlayer( pawn );
 
 	if (canWalk){
 		ViewRotation = Rotation;
@@ -277,6 +298,37 @@ public function int getSeconds(){
 	local int sec, a;
 	GetSystemTime(a,a,a,a,a,a,sec,a);
 	return sec;
+}
+
+exec function AddItem(string item, int amount){
+	AddToInventory(item, amount);
+}
+
+function AddToInventory(string item, int amount) {
+    if (amount > 20) {
+		`log("Amount to big");
+    } else {
+		switch (item) {
+			case "herb":
+				addHerb(amount);
+			break;
+
+			case "ore":
+				addOre(amount);
+			break;
+
+			default:
+			break;
+			}
+	}
+}
+
+function addHerb(int amount) {
+	getPawn().UManager.AddInventory(class'DELItemHerb', amount);
+}
+
+function addOre(int amount) {
+	getPawn().UManager.AddInventory(class'DELItemOre', amount);
 }
 
 exec function SaveGame(string FileName)
