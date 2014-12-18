@@ -14,6 +14,11 @@ var() array<Texture2D> textures;
 
 var() Font defaultFont;
 
+public function load(DELPlayerHud hud){
+	if (textures.Length==0)return;
+	setPos(hud.CenterX-textures[0].SizeX/2, hud.CenterY-textures[0].SizeY/2, textures[0].SizeX, textures[0].SizeY, hud);
+}
+
 public function draw(DELPlayerHud hud){
 	drawAllTextures(hud.Canvas);
 }
@@ -103,6 +108,5 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 
 DefaultProperties
 {
-
 	defaultFont=Font'DelmorHud.augusta'
 }

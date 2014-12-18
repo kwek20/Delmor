@@ -95,6 +95,17 @@ state Questlog extends MouseState{
 Begin:
 }
 
+state Map extends MouseState{
+	function BeginState(Name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		drawDefaultHud = false;
+		addInterface(class'DELInterfaceMap');
+		checkHuds();
+	}
+
+Begin:
+}
+
 state Credits extends BaseState{
 	function BeginState(Name PreviousStateName){
 		super.BeginState(PreviousStateName);
@@ -106,9 +117,8 @@ state Credits extends BaseState{
 }
 
 state End extends MouseState{
-
+	
 }
-
 
 state Inventory extends MouseState{
 

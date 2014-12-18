@@ -57,6 +57,9 @@ function addInterface(DELInterface interface, EPriority priority){
  * Clears the interfaces array. Removing all content
  */
 function clearInterfaces(){
+	local InterFaceItem i;
+	foreach interfaces(i){i.interface.unload(self);}
+
 	interfaces.Length = 0;
 	loadedInterfaces = false;
 }
