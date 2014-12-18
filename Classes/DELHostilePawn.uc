@@ -33,15 +33,6 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	super.TakeDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 }
 
-
-function AddDefaultInventory()
-{
-	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
-	sword.GiveTo(Controller.Pawn);
-	sword.bCanThrow = false; // don't allow default weapon to be thrown out
-	Controller.ClientSwitchToBestWeapon();
-}
-
 /**
  * Stub to play a blocking sound.
  */

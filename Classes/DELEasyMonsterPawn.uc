@@ -81,6 +81,8 @@ state Blocking{
 
 defaultproperties
 {	
+	swordClass = class'DELMeleeWeaponFists'
+	
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
 		CollisionRadius = 32.0;
@@ -104,11 +106,9 @@ defaultproperties
     Components.Add(ThirdPersonMesh)
 	ControllerClass=class'DELEasyMonsterController'
 	magicResistance = 0.8
-	groundSpeed = 376.0
+	groundSpeed = 276.0
 	meleeRange = 75.0
 	bCanBlock = true
-
-	swordClass = class'DELMeleeWeaponFists'
 
 	animname[ 0 ] = ratman_attack1
 	animname[ 1 ] = ratman_attack2

@@ -498,14 +498,8 @@ function dealAttackDamage(){
 	local int damage;
 	local vector momentum;
 
-	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
-	`log( "DealAttackDamage" );
-	`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" );
-
 	hitPawn = checkPawnInFront();
 	damage = DELMeleeWeapon( sword ).CalculateDamage();
-	`log( "Damage: "$damage );
-	`log( "=====================================================================================" );
 
 	if ( hitPawn != none ){
 		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
