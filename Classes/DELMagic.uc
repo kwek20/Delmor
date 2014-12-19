@@ -90,6 +90,7 @@ simulated state charging{
 	 */
 	simulated event beginstate(Name NextStateName){
 		SetTimer(ChargeTime,bCanCharge, NameOf(chargeTick));
+		spellcaster.SwingAnim.PlayCustomAnim('lucian_MagicCharge', 1.0,,,true);
 	}
 
 	/**
@@ -115,7 +116,7 @@ simulated state charging{
 	 * ending of the state
 	 */
 	simulated event endstate(Name NextStateName){
-
+		spellcaster.SwingAnim.StopCustomAnim(0.5);
 	}
 }
 
@@ -142,6 +143,7 @@ simulated function interrupt(){
 simulated function FireStart(){
 	spellCaster = DELPlayer(instigator);
 	spellcaster.Grimoire.startCharge();
+	spellcaster.SwingAnim.PlayCustomAnim('lucian_MagicCast', 1.0);
 	if(ManaCost > spellCaster.mana){
 		`log("you have not enough mana bitch");
 		return;
@@ -176,6 +178,7 @@ simulated function consumeMana(int localmanaCost){
  * shoots the spell
  */
 simulated function shoot(){
+	spellcaster.SwingAnim.PlayCustomAnim('lucian_MagicCast', 1.0);
 	CustomFire();
 }
 
@@ -222,6 +225,7 @@ simulated function CustomFire(){
 		// Spawns a projectile and gives it a direction
 		SpawnedProjectile = Spawn(getSpell() ,self,, Spawnlocation);
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe ){
+			
 			SpawnedProjectile.Init(AimDir);
 		}
 	}
