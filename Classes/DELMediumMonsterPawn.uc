@@ -7,6 +7,19 @@ class DELMediumMonsterPawn extends DELHostilePawn
 	  Config(Game);
 
 /**
+ * selects a point in the animtree so it is easier acessible
+ * it is unknown to me what the super does
+ * @param SkelComp the skeletalmesh component linked to the animtree
+ */
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
+	super.PostInitAnimTree(SkelComp);
+
+	if (SkelComp == Mesh){
+		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomAnim'));
+	}
+}
+
+/**
  * Overridden so that a take damage call will be sent to the controller.
  */
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
@@ -62,7 +75,7 @@ state Blocking{
 			playBlockingSound();
 			//Block even longer
 			setTimer( 5.0 , false , 'stopBlocking' );
-			knockBack( 100.0 , location - DELHostileController( controller ).player.location );
+			knockBack( 100.0 , location - DELHostileController( controller ).player.location , true );
 			break;
 
 		case class'DELDmgTypeMagical':
@@ -115,19 +128,25 @@ defaultproperties
 	//Mesh
 	Components.Remove(ThirdPersonMesh)
 	Begin Object Name=ThirdPersonMesh
-		SkeletalMesh=SkeletalMesh'CH_IronGuard_Male.Mesh.SK_CH_IronGuard_MaleA'
-		AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-		PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
-		AnimtreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
+		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_Rhinoman'
+		AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Rhinoman_anim'
+		PhysicsAsset=PhysicsAsset'Delmor_Character.PhysicsAsset.sk_Rhinoman_Physics'
+		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Rhinoman_AnimTree'
 		Scale3D=(X=1, Y=1, Z=1)
 		HiddenGame=False
 		HiddenEditor=False
 		bHasPhysicsAssetInstance=True
 		bAcceptsLights=true
-		Translation=(Z=12.0)
+		Translation=(Z=-68.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
+
+	//Collision cylinder
+	Begin Object Name=CollisionCylinder
+		CollisionRadius = 48.0
+		CollisionHeight = 64.0
+	end object
 
 	health = 150
 	healthMax = 150
@@ -139,4 +158,12 @@ defaultproperties
 	meleeRange = 75.0
 	attackInterval = 3.0
 	groundSpeed = 200.0
+
+	//Anim
+	animname[ 0 ] = rhinoman_attack1
+	animname[ 1 ] = rhinoman_attack2
+	animname[ 2 ] = rhinoman_attack2
+	deathAnimName = rhinoman_death
+	knockBackAnimName = rhinoman_knockback
+	getHitAnimName = rhinoman_gettinghit
 }

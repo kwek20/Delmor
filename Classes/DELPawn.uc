@@ -286,15 +286,18 @@ function SpawnController(){
 
 /**
  * Knocks the pawn back.
- * @param intensity float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
- * @param direction Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
+ * @param intensity     float   The power of the knockback. The higher the intensity the more the pawn should be knocked back.
+ * @param direction     Vector  The vector that will be the direction (i.e.: selfToPlayer, selfToPawn ).
+ * @param bNoAnimation  bool    When true, the knockback animation will NOT be played.
  */
-function knockBack( float intensity , vector direction ){
+function knockBack( float intensity , vector direction , optional bool bNoAnimation ){
 	spawnKnockBackForce( intensity , direction );
 	controller.goToState( 'KnockedBack' );
 	bBlockActors = false;
 
-	playknockBackAnimation();
+	if ( !bNoAnimation ){
+		playknockBackAnimation();
+	}
 
 	interrupt();
 }
@@ -388,8 +391,16 @@ function interrupt(){
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-	super.Died( killer , damageType , hitlocation );
+	//super.Died( killer , damageType , hitlocation );
 
+	//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
+	bBlockActors = false;
+	bCollideWorld = true;
+
+	//Stop friggin rotatin'
+	SetRotation( rotation );
+	SetDesiredRotation( rotation , true , false , 0.0 , true );
+	ResetDesiredRotation();
 	interrupt();
 
 	//Play died sound
@@ -437,7 +448,7 @@ function playDeathAnimation(){
  * Plays a knockdown-animation.
  */
 function playKnockBackAnimation(){
-	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 0.0 , 0.0 , false , true );
+	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 1.0 , 0.0 , false , true );
 }
 
 /**
@@ -527,6 +538,7 @@ function Pawn checkPawnInFront(){
 	local vector inFrontLocation;
 	local float checkDistance;
 	local pawn hitPawn;
+	local float averageHeight;
 
 	inFrontLocation = getInFrontLocation();
 	checkDistance = meleeRange + GetCollisionRadius();
@@ -603,13 +615,36 @@ function float lengthDirY( float len , float dir ){
 }
 
 /**
+ * Checks whether two spheres (3D circles) collide. Useful for collision-checking between Pawns.
+ * @return bool
+ */
+function bool CheckSphereCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
+	local float distance , totalRadius;
+
+	distance = VSize( circleLocationA - circleLocationB );
+	totalRadius = circleRadiusA + circleRadiusB;
+
+	if ( distance <= totalRadius ){
+		return true;
+	} else {
+		return false;
+	}
+}
+/**
  * Checks whether two circles collide. Useful for collision-checking between Pawns.
  * @return bool
  */
 function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA , vector circleLocationB , float circleRadiusB ){
 	local float distance , totalRadius;
+	local vector lA , lB;
 
-	distance = VSize( circleLocationA - circleLocationB );
+	lA.X = circleLocationA.X;
+	lA.Y = circleLocationA.Y;
+
+	lB.X = circleLocationB.X;
+	lB.Y = circleLocationB.Y;
+
+	distance = VSize( lA - lB );
 	totalRadius = circleRadiusA + circleRadiusB;
 
 	if ( distance <= totalRadius ){

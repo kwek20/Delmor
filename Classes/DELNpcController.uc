@@ -400,29 +400,31 @@ function moveTowardsActor( Actor a , float deltaTime ){
 function moveTowardsPoint( Vector l , float deltaTime ){
 	local Vector selfToPoint;
 	local DELPawn dPawn;
+	local Vector tempDest;
 	/**
 	 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 	 */
 	local Vector adjustedLocation;
-
 	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
 	dPawn = DELPawn( Pawn );
-
 	if ( !dPawn.bIsStunned ){//You may only move if you are not stunned
 		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
-	
-		//Caluclate direction
-		selfToPoint = adjustedLocation - Pawn.Location;
-
-		//Move Pawn
-		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.GroundSpeed;
-		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.GroundSpeed;
-		Pawn.setDesiredRotation( rotator( selfToPoint ) );
-		Pawn.move( Pawn.velocity * deltaTime );
+		if(FindNavMeshPathVect(l)){
+		NavigationHandle.SetFinalDestination(l);
+			FlushPersistentDebugLines();
+			if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+				//Caluclate direction
+				selfToPoint = adjustedLocation - Pawn.Location;
+				//Move Pawn
+				Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.GroundSpeed;
+				Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.GroundSpeed;
+				Pawn.setDesiredRotation( rotator( selfToPoint ) );
+				Pawn.setRotation( rotator( selfToPoint ) );
+				Pawn.move( Pawn.velocity * deltaTime );
+			}
+		}
 	}
 }
-
-
 /**
  * Move the pawn in a certain direction.
  * This direction will be calculated from a vector.
@@ -432,25 +434,15 @@ function moveTowardsPoint( Vector l , float deltaTime ){
  */
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
-	local Vector tempDest;
-
+	
 	if ( !DELPawn( pawn ).bIsStunned ){
 		//Adjust the rotation so that only the Yaw will be modified.
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
-		if(FindNavMeshPathVect(to)){
-			NavigationHandle.SetFinalDestination(to);
-			FlushPersistentDebugLines();
-			//NavigationHandle.DrawPathCache(,TRUE);
-				if ( NavigationHandle.GetNextMoveLocation(to, Pawn.GetCollisionRadius())){
-					//DrawDebugLine( Pawn.Location, to , 0 , 255 , 0 , true );
-					//DrawDebugSphere( to , 16 , 20 , 0 , 255 , 0 , true );
-					//Move Pawn
-					Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
-					Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
-					Pawn.setDesiredRotation( adjustedRotation  );
-					Pawn.move( Pawn.velocity * deltaTime );
-				}
-		}
+		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
+		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
+		Pawn.setDesiredRotation( adjustedRotation  );
+		Pawn.move( Pawn.velocity * deltaTime );
+				
 	}
 }
 

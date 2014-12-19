@@ -4,7 +4,7 @@
  * 
  * @author Anders Egberts
  */
-class DELHardMonsterSmallController extends DELNPCController;
+class DELHardMonsterSmallController extends DELNpcController;
 
 /*
  * ===============================================
@@ -33,10 +33,6 @@ var DELFirstQuestPathnodes currentNode;
  * The player pawn
  */
 var DELPawn Player;
-
-
-
-
 
 /*
  * ===============================================
@@ -100,10 +96,9 @@ function vector cohesion( pawn p ){
  * ===============================================
  */
 
-state Idle{
+auto state Idle{
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
-		super.Tick( deltaTime );
 
 		commander = getNearbyCommander();
 
@@ -114,18 +109,6 @@ state Idle{
 		if ( player != none && tooCloseToPawn( player ) ){
 			goToState( 'Flee' );
 		}
-	}
-
-	event SeePlayer (Pawn Seen){
-		local Pawn Player;
-		Player = GetALocalPlayerController().Pawn;
-		super.SeePlayer(Seen);
-		//De speler is gezien
-		Player = Seen;
-/*
-		if( Player != none ){
-			engagePlayer( Player );
-		}*/
 	}
 }
 
@@ -140,16 +123,20 @@ state Flock{
 
 		super.Tick( deltaTime );
 		
-//		targetLocation = cohesion( commander );
-		if ( self.distanceToPoint( targetLocation ) < pawn.GroundSpeed * deltaTime + 1 ){
+		targetLocation = cohesion( commander );
+		if ( self.distanceToPoint( targetLocation ) < pawn.GroundSpeed * deltaTime + 10.0 ){
 			stopPawn();
 		} else {
 			moveTowardsPoint( targetLocation , deltaTime );
 		}
 
-//		if ( commander == none ){
-//			commanderDied();
-//		}
+		if ( commander == none ){
+			commanderDied();
+		}
+		//Flee from the player
+		if ( player != none && tooCloseToPawn( player ) ){
+			goToState( 'Flee' );
+		}
 		
 	}
 

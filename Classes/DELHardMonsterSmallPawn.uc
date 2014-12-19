@@ -11,7 +11,7 @@ class DELHardMonsterSmallPawn extends DELHostilePawn
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser );
 
-	if ( health <= healthMax / 2 ){ //Notify the controller that I'm damaged.
+	if ( health <= healthMax / 2 && health > 0 ){ //Notify the controller that I'm damaged.
 		DELHardMonsterSmallController( controller ).hitpointsBelowHalf();
 	}
 }
