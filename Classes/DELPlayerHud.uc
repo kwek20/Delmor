@@ -99,14 +99,31 @@ function PlayerOwnerDied(){
 
 function PostRender(){
 	local InterFaceItem interface;
+	if (!bShowHUD) return;
+
+	if ( sizeChanged() ){
+		reScaleStuff();
+	}
+
 	super.PostRender();
 	
 	if (!loadedInterfaces)loadInterfaces();
 
 	foreach interfaces(interface){
 		interface.interface.draw(self);
-
 	}
+}
+
+function bool sizeChanged(){
+	return SizeX != Canvas.SizeX || SizeY != Canvas.SizeY;
+}
+
+function reScaleStuff(){
+	local string sub;
+	sub = getPlayer().getSubtitle();
+	getPlayer().goToPreviousState();
+	getPlayer().goToPreviousState();
+	getPlayer().showSubtitle(sub);
 }
 
 function loadInterfaces(){
