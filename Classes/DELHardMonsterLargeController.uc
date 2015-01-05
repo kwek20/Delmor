@@ -23,10 +23,7 @@ auto state Idle{
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
 
-		`log( " >>>>>> player: "$player );
-
 		if ( player != none ){
-			`log( " >>>>>>> Engage madafaqa" );
 			engagePlayer( player );
 		}
 	}

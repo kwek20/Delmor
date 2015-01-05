@@ -57,16 +57,13 @@ state Attack{
 		
 		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
 		if ( checkTargetWhitinRange( attackTarget ) ){
-			`log( " >>>>> target inrange" );
 			targetInRange();
 		} else {
-			`log( " >>>>> movingz" );
 			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
 		if ( !targetIsAlive() || targetIsTooFarAway() ){
-			`log( " >>>>> target is three far away five me" );
 			goToState( 'Idle' );
 		}
 	}
