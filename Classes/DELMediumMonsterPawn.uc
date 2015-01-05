@@ -161,8 +161,11 @@ defaultproperties
 
 	//Anim
 	animname[ 0 ] = rhinoman_attack1
+	attackAnimationImpactTime[ 0 ] = 0.7112
 	animname[ 1 ] = rhinoman_attack2
+	attackAnimationImpactTime[ 1 ] = 0.6851
 	animname[ 2 ] = rhinoman_attack2
+	attackAnimationImpactTime[ 2 ] = 0.6851
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
 	getHitAnimName = rhinoman_gettinghit

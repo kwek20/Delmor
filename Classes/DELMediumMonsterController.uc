@@ -364,6 +364,7 @@ state maintainDistanceFromPlayer{
 		//Move away
 		if ( VSize( selfToPlayer ) < distanceToPlayer ){
 			moveInDirection( selfToPlayer , deltaTime );
+			clearDesiredDirection();
 			pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
 		} else {
 			stopPawn();

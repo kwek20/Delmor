@@ -172,6 +172,39 @@ simulated event PostBeginPlay(){
 	AddDefaultInventory();
 }
 
+event tick( float deltaTime ){
+	super.tick( deltaTime );
+
+	blockActorsAgain();
+}
+
+/**
+ * If the bBlockActors = false, check if there's no pawn and we're not being knockedBack
+ * if so, set bBlockActors to true.
+ */
+function blockActorsAgain(){
+	if ( !bBlockActors ){
+		if ( !controller.IsInState( 'knockedBack' )  && !IsInState( 'Dead' ) ){
+			if ( true ){
+				bBlockActors = true;
+			}
+		}
+	}
+}
+
+/**
+ * Returns true when there are no pawns (other than him self) in the pawn's collisionRadius.
+ */
+function bool noPawnsInCollisionRadius(){
+	local DELPawn p;
+
+	foreach worldInfo.AllPawns( class'DELPawn' , p , location , GetCollisionRadius() * 2 ){
+		if ( CheckSphereCollision( self.location , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) ){
+			return false;
+		}
+	}
+	return true;
+}
 
 /**
  * selects a point in the animtree so it is easier acessible
@@ -365,7 +398,7 @@ function attack(){
 		playAttackAnimation();
 		controller.goToState( 'Attacking' );
 		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
-		setTimer( attackInterval * 0.5 , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
+		setTimer( attackAnimationImpactTime[ attackNumber ] , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
 		increaseAttackNumber();
 		say( "AttackSwing" );
 	}
@@ -428,6 +461,9 @@ function shapeShift( class<DELPawn> toTransformInto ){
 	p.health = ( p.healthMax / healthMax ) * health;
 	p.setRotation( rotation );
 	p.setLocation( location );
+	//Stop blocking actors; if the monster transforms while the player
+	//is near, the player dies if the collides with the new pawn.
+	p.bBlockActors = false;
 
 	//Remove old pawn from memory.
 	controller.Destroy();
@@ -574,7 +610,7 @@ function resetAttackCombo(){
 /**
  * Used to override the die and takeDamage functions.
  */
-state dead{
+state Dead{
 	/**
 	 * Do nothing.
 	 */

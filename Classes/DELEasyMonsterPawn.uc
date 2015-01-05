@@ -111,8 +111,11 @@ defaultproperties
 	bCanBlock = true
 
 	animname[ 0 ] = ratman_attack1
+	attackAnimationImpactTime[ 0 ] = 0.3732
 	animname[ 1 ] = ratman_attack2
+	attackAnimationImpactTime[ 1 ] = 0.5215
 	animname[ 2 ] = ratman_jumpattack
+	attackAnimationImpactTime[ 2 ] = 0.7219
 	deathAnimName = ratman_death
 	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit
