@@ -9,7 +9,7 @@ class DELInterfaceHealthBars extends DELInterfaceTexture;
  */
 var() int barSize;
 
-var() Texture2D healthBar, manaBar;
+var() Texture2D healthBar, manaBar, edge;
 
 function load(DELPlayerHud hud){
 	local float yStart, xStart;
@@ -37,12 +37,16 @@ simulated function draw(DELPlayerHud hud){
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red
 	hud.Canvas.SetPos(startX, startY);   
 	drawTile(hud.Canvas, healthBar, length * (float(pawn.Health) / float(pawn.HealthMax)), barSize);
+	hud.Canvas.SetPos(startX-1, startY-1);   
+	drawTile(hud.Canvas, edge, length*1.15, barSize*1.6+2);
 
 	//mana bar
 	if (pawn.mana > 0){
 		hud.Canvas.SetDrawColor(0, 0, 255); // blue
 		hud.Canvas.SetPos(startX, startY+position.W/2);   
 		drawTile(hud.Canvas, manaBar, length * (float(pawn.mana) / float(pawn.manaMax)), barSize); 
+		hud.Canvas.SetPos(startX-1, startY+position.W/2-1);   
+		drawTile(hud.Canvas, edge, length*1.15, barSize*1.6+2); 
 	}
 }
 
@@ -50,5 +54,6 @@ DefaultProperties
 {
 	textures=(Texture2D'DelmorHud.balk_kompass');
 	healthBar=Texture2D'DelmorHud.health_balk'
-	manaBar=Texture2D'DelmorHud.mana_balk';
+	manaBar=Texture2D'DelmorHud.mana_balk'
+	edge=Texture2D'DelmorHud.bar_edge'
 }
