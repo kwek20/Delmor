@@ -33,6 +33,17 @@ defaultproperties
 	healthRegeneration = 0
 	GroundSpeed = 95
 
+	attackInterval = 1.0
+	meleeRange = 200.0
+
+	//Anim
+	animname[ 0 ] = Culpa_Big_Attack
+	animname[ 1 ] = Culpa_Big_Attack
+	animname[ 2 ] = Culpa_Big_Attack
+	deathAnimName = Culpa_Big_Val
+	knockBackAnimName = ratman_knockback
+	getHitAnimName = ratman_gettinghit
+
 	physicalResistance = 0.0
 	magicResistance = 0.0
 

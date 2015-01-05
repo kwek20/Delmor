@@ -13,7 +13,7 @@ simulated event PostBeginPlay(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	local int newDamage;
-	`log(damage);
+	`log("damage: "$damage);
 	newDamage = damage;
 	if(DamageType == class'DELDmgTypeMelee'){
 		newDamage = damage - (damage * physicalResistance);
@@ -31,15 +31,6 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 		}
 	}
 	super.TakeDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
-}
-
-
-function AddDefaultInventory()
-{
-	sword = Spawn(class'DELMeleeWeapon',,,self.Location);
-	sword.GiveTo(Controller.Pawn);
-	sword.bCanThrow = false; // don't allow default weapon to be thrown out
-	Controller.ClientSwitchToBestWeapon();
 }
 
 /**

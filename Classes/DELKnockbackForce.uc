@@ -82,6 +82,7 @@ function setPower( float inPower ){
 function endForce(){
 	myPawn.bBlockActors = true;
 	myPawn.controller.goToState( pawnsPreviousState );
+	DELNpcController( myPawn.controller ).returnToPreviousState();
 	destroy();
 }
 /**
