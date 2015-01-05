@@ -13,9 +13,9 @@ defaultproperties
 	ProjExplosionTemplate=ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketExplosion'
 	MaxEffectDistance=7000.0
 
-	Speed=200
-	MaxSpeed=1000
-	AccelRate=300.0
+	Speed=500
+	MaxSpeed=2000
+	AccelRate=1000.0
 
 	Damage=26
 	DamageRadius=0

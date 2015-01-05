@@ -226,7 +226,6 @@ simulated function FireAmmunition(){
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname1, 1.f,0.1f,0.1f,false,true);
 		} else if (MaxSwings - Swings[0] == 1){
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname2, 1.0);
-			`log("surprise motherf***er");
 		} else {
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname3, 1.0);
 		}
