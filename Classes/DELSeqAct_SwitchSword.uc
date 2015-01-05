@@ -1,16 +1,10 @@
-class DELSeqAct_SwitchSword extends DELSequenceAction
-native(Sequence);
-
-cpptext
-{
-	virtual void PostLoad();
-	virtual void Activated();
-};
+class DELSeqAct_SwitchSword extends SequenceAction;
 
 
 DefaultProperties
 {
 	ObjName="Toggle Sword"
+	ObjCategory="Delmor"
 	
 	InputLinks(0)=(LinkDesc="Enable")
 	InputLinks(1)=(LinkDesc="Disable")

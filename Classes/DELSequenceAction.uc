@@ -4,10 +4,4 @@
  * is an extension of the standard sequence action
  * @author harmen wiersma
  */
-class DELSequenceAction extends SequenceAction
-native(Sequence);
-
-DefaultProperties
-{
-	ObjCategory="Delmor"
-}
+class DELSequenceAction extends SequenceAction;

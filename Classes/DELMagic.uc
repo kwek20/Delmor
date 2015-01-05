@@ -9,6 +9,9 @@ class DELMagic extends DELWeapon;
  */
 var class<UDKProjectile> spell;
 
+var name ChargeAnim, CastAnim, InitAnim;
+
+
 /**
  * cost of the spell without the charging
  * may not ba changed
