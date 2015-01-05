@@ -12,8 +12,12 @@ var() int barSize;
 var() Texture2D healthBar, manaBar;
 
 function load(DELPlayerHud hud){
-	setPos(0,hud.SizeY/36,hud.SizeX/3, hud.SizeY/6, hud);
-	barSize = position.W / 3;
+	local float yStart, xStart;
+	yStart = hud.SizeY/36;
+	xStart = hud.SizeY/36;
+
+	setPos(xStart,yStart,hud.SizeX/3, hud.SizeY/7, hud);
+	barSize = position.W / 4;
 	super.load(hud);
 }
 
@@ -25,7 +29,7 @@ simulated function draw(DELPlayerHud hud){
 	if (pawn == None || pawn.Health <= 0)return;
 	super.draw(hud);
 
-	length = position.Z/2.1;
+	length = position.Z/2.3;
 	startX = position.X+position.Z/2;
 	startY = position.Y + position.W/4 - barSize/2;
 

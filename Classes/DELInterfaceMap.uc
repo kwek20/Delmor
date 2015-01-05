@@ -7,6 +7,9 @@ function draw(DELPlayerHud hud){
 	foreach textures(tex){
 		drawTileScaledOnCanvasCentered(hud, tex);
 	}
+
+	//hud.Canvas.setPos(0,0);
+	//hud.Canvas.DrawMaterialTile(hud.RenderTexture, hud.RenderTexture.GetSurfaceWidth(), hud.RenderTexture.GetSurfaceHeight());
 }
 
 DefaultProperties
