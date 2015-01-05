@@ -10,7 +10,7 @@ var(Movement) const rotator Rotation;
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
 var MaterialInstanceConstant GameMiniMapMIC;
-var Material GameMinimapp;
+
 var float TileSize;
 var int MapDim;
 var int BoxSize;
@@ -156,6 +156,20 @@ function float getPlayerHeading()
 
 DefaultProperties
 {
+	Begin Object Class=SpriteComponent Name=Sprite
+		Sprite=Texture2D'EditorResources.S_Actor'
+		HiddenGame = true
+		AlwaysLoadOnClient = false;
+		AlwaysLoadOnServer = false;
+	End Object
+	Components(0) = Sprite
+
+	Begin Object Class=ArrowComponent Name=Arrow
+		ArrowColor = (B=80,G=80,R=200,A=255)
+		Name = "North Heading"
+	End Object
+	Components(1) = Arrow
+
 	bMoveable=false
 
 	MapDim=150
