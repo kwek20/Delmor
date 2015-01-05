@@ -237,7 +237,7 @@ DefaultProperties
 {
 	animname1 = Lucian_slash1
 	animname2 = Lucian_slash2
-	animname3 = Lucian_slash1
+	animname3 = Lucian_slash3
 	bHardAttach = true
 	swordHiltSocketName = SwordHiltSocket
 	swordTipSocketName = SwordTipSocket
@@ -247,11 +247,10 @@ DefaultProperties
 
 	dmgType = class'DELDmgTypeMelee'
 
-
 	MaxSwings=3
 	Swings(0)=3
 
-	FireInterval(0)= 1.0
+	FireInterval(0)= 2.0
 
 	damageMin = 1
 	damageMax = 1

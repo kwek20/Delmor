@@ -179,6 +179,7 @@ simulated function StartFire(byte FireModeNum){
  */
 simulated function StopFire(byte FireModeNum){
 	if(FireModeNum == 1 && magic!= None){
+		playMagicCastAnimation();
 		magic.FireStop();
 	}
 	if(FireModeNum == 0 && sword != None){
@@ -464,6 +465,7 @@ private function kickChicken( DELChickenPawn c ){
 
 	c.knockBack( 250.0 , selfToChicken );
 	c.kick();
+	playKickAnimation();
 }
 
 /**
@@ -605,6 +607,32 @@ event Tick( float deltaTime ){
 		adjustCameraDistance( deltaTime );
 		adjustCameraOffset( deltaTime );
 	}
+}
+
+/*
+ * ===============
+ * Functions for animation
+ */
+
+/**
+ * Plays the kick animation.
+ */
+function playKickAnimation(){
+	SwingAnim.PlayCustomAnim( 'Lucian_kick_chicken' , 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays the magic-cast animation
+ */
+function playMagicCastAnimation(){
+	SwingAnim.PlayCustomAnim( 'Lucian_MagicCast' , 1.0 , 0.0 , 0.0 , false , true );
+}
+
+/**
+ * Plays the item pickup animation
+ */
+function playPickupAnimation(){
+	SwingAnim.PlayCustomAnim( 'Lucian_Pickup' , 1.0 , 0.0 , 0.0 , false , true );
 }
 
 

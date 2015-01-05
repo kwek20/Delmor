@@ -39,8 +39,11 @@ defaultproperties
 
 	//Anim
 	animname[ 0 ] = Culpa_Big_Attack
+	attackAnimationImpactTime[ 0 ] = 0.8533
 	animname[ 1 ] = Culpa_Big_Attack
+	attackAnimationImpactTime[ 1 ] = 0.8533
 	animname[ 2 ] = Culpa_Big_Attack
+	attackAnimationImpactTime[ 2 ] = 0.8533
 	deathAnimName = Culpa_Big_Val
 	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit

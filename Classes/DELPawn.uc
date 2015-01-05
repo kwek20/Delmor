@@ -142,6 +142,10 @@ var name knockBackAnimName;
 var name getHitAnimName;
 var name blockAnimName;
 /**
+ * The time in an attack animation when the swing should hit the player.
+ */
+var array<float> attackAnimationImpactTime;
+/**
  * An int to point to the attack-animation array.
  */
 var int attackNumber;
