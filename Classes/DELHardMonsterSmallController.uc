@@ -4,7 +4,7 @@
  * 
  * @author Anders Egberts
  */
-class DELHardMonsterSmallController extends DELNpcController;
+class DELHardMonsterSmallController extends DELNPCController;
 
 /*
  * ===============================================
@@ -24,26 +24,11 @@ var DELMediumMonsterPawn commander;
 
 var float maximumDistance;
 
-/**
- * The current node the bot is moving to
- */
-var DELFirstQuestPathnodes currentNode;
-
-/**
- * The player pawn
- */
-var DELPawn Player;
-
 /*
  * ===============================================
  * Utility functions
  * ===============================================
  */
-
-simulated function PostBeginPlay(){
-	super.PostBeginPlay();
-}
-
 
 /**
  * Gets a nearby MediumMonsterPawn, these will command the EasyMonsterPawns
@@ -97,8 +82,10 @@ function vector cohesion( pawn p ){
  */
 
 auto state Idle{
-	event tick( float deltaTime ){
-		super.tick( deltaTime );
+
+	event Tick( float deltaTime ){
+
+		super.Tick( deltaTime );
 
 		commander = getNearbyCommander();
 
@@ -110,8 +97,13 @@ auto state Idle{
 			goToState( 'Flee' );
 		}
 	}
-}
 
+	/**
+	 * Overriden so that the pawn will no longer attack the player one sight.
+	 */
+	event SeePlayer( Pawn p ){
+	}
+}
 
 /**
  * Flocks with the commander
@@ -124,7 +116,7 @@ state Flock{
 		super.Tick( deltaTime );
 		
 		targetLocation = cohesion( commander );
-		if ( self.distanceToPoint( targetLocation ) < pawn.GroundSpeed * deltaTime + 10.0 ){
+		if ( self.distanceToPoint( targetLocation ) < pawn.GroundSpeed * deltaTime + 1 ){
 			stopPawn();
 		} else {
 			moveTowardsPoint( targetLocation , deltaTime );
@@ -132,10 +124,6 @@ state Flock{
 
 		if ( commander == none ){
 			commanderDied();
-		}
-		//Flee from the player
-		if ( player != none && tooCloseToPawn( player ) ){
-			goToState( 'Flee' );
 		}
 		
 	}
@@ -150,7 +138,6 @@ state Flock{
 		changeState( 'Flee' );
 	}
 }
-
 
 /*
  * ================================================
@@ -174,9 +161,6 @@ event commanderOrderedAttack(){
 
 DefaultProperties
 {
-	bIsPlayer=true
-	closeEnough = 200
-	bAdjustFromWalls=true
 	tooCloseDistance = 512.0
 	desiredDistanceToCommander = 384.0
 	maximumDistance = 1024.0

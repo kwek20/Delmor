@@ -12,64 +12,27 @@ class DELHardMonsterLargeController extends DELHostileController;
  */
 var float decisionInterval;
 
-/**
- * The distance to keep from the player.
- */
-var float distanceToPlayer;
-
-/**
- * The player pawn
- */
-var DELPawn Player;
-
-/**
- * Minimum distance for triggering new state
- */
-var int minimumDistance;
-
-/*
- * =================================
- * Utility functions
- * =================================
- */
-
-simulated function PostBeginPlay(){
-	super.PostBeginPlay();
-}
-
-
-
-
-
 /*
  * =================================
  * States
  * =================================
  */
 
-state Idle{
+auto state Idle{
 
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
-	}
 
-	event SeePlayer (Pawn Seen){
-		local Pawn Player;
-		super.SeePlayer(Seen);
-		//De speler is gezien
-		Player = Seen;
+		`log( " >>>>>> player: "$player );
 
-		if( Player != none ){
-			engagePlayer( Player );
+		if ( player != none ){
+			`log( " >>>>>>> Engage madafaqa" );
+			engagePlayer( player );
 		}
 	}
-
 }
-
 
 DefaultProperties
 {
 	decisionInterval = 0.5
-	bIsPlayer=true
-	bAdjustFromWalls=true
 }

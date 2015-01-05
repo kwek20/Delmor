@@ -406,7 +406,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 	//Play died sound
 	say( "Die" );
 	changeState( 'Dead' );
-	Controller.goToState( 'Dead' );
+	Controller.destroy();
 	setTimer( 5.0 , false , 'destroyMe' );
 	//Play death animation
 	playDeathAnimation();
@@ -469,7 +469,7 @@ function playBlockingAnimation(){
  * Removes the pawn and its controller from the level and memory.
  */
 function destroyMe(){
-	controller.Destroy();
+	//controller.Destroy();
 	destroy();
 }
 

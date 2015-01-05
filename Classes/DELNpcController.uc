@@ -57,13 +57,16 @@ state Attack{
 		
 		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
 		if ( checkTargetWhitinRange( attackTarget ) ){
+			`log( " >>>>> target inrange" );
 			targetInRange();
 		} else {
-			smartMoveToPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
+			`log( " >>>>> movingz" );
+			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
 		if ( !targetIsAlive() || targetIsTooFarAway() ){
+			`log( " >>>>> target is three far away five me" );
 			goToState( 'Idle' );
 		}
 	}
@@ -214,7 +217,7 @@ function float distanceToPoint( vector l ){
  */
 function bool checkTargetWhitinRange( DELPawn p ){
 	local float distanceToPawn;
-	distanceToPawn = VSize( p.Location - Pawn.Location );
+	distanceToPawn = VSize( adjustLocation( p.Location , pawn.Location.Z ) - Pawn.Location );
 	
 	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
 		return false;
@@ -398,31 +401,31 @@ function moveTowardsActor( Actor a , float deltaTime ){
  * @param deltaTime float   The deltaTime from the Tick-event
  */
 function moveTowardsPoint( Vector l , float deltaTime ){
-	local Vector selfToPoint;
-	local DELPawn dPawn;
 	local Vector tempDest;
+	/**
+	 * The next location to move. This will be tempDest if the NavMesh works
+	 * succesful. It will be l if the NavMesh doesn't.
+	 */
+	local Vector nextMoveLocation;
 	/**
 	 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 	 */
 	local Vector adjustedLocation;
-	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
-	dPawn = DELPawn( Pawn );
-	if ( !dPawn.bIsStunned ){//You may only move if you are not stunned
+
+	//Set nextMoveLocation to l, we'll move directly towards the targetLocation in case the navMesh fails.
+	nextMoveLocation = l;
+
+	if ( !DELPawn( Pawn ).bIsStunned ){//You may only move if you are not stunned
 		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
 		if(FindNavMeshPathVect(l)){
-		NavigationHandle.SetFinalDestination(l);
+			//A mesh has been found
+			NavigationHandle.SetFinalDestination(l);
 			FlushPersistentDebugLines();
 			if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
-				//Caluclate direction
-				selfToPoint = adjustedLocation - Pawn.Location;
-				//Move Pawn
-				Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.GroundSpeed;
-				Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.GroundSpeed;
-				Pawn.setDesiredRotation( rotator( selfToPoint ) );
-				Pawn.setRotation( rotator( selfToPoint ) );
-				Pawn.move( Pawn.velocity * deltaTime );
+				nextMoveLocation = tempDest;
 			}
 		}
+		moveInDirection( nextMoveLocation - pawn.Location , deltaTime );
 	}
 }
 /**
@@ -440,12 +443,19 @@ function moveInDirection( vector to , float deltaTime ){
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
 		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
 		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
-		Pawn.setDesiredRotation( adjustedRotation  );
-		Pawn.move( Pawn.velocity * deltaTime );
-				
+		Pawn.setRotation( adjustedRotation );
+		clearDesiredDirection();
+		Pawn.move( Pawn.velocity * deltaTime );		
 	}
 }
 
+/**
+ * Does all kinds of desiredDirection things.
+ */
+function clearDesiredDirection(){
+	Pawn.setDesiredRotation( pawn.Rotation );
+	pawn.ResetDesiredRotation();
+}
 /**
  * Sets the controller's pawn still.
  */
