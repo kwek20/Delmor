@@ -274,6 +274,10 @@ exec function openQuestlog(){
 	getController().swapState('Questlog');
 }
 
+exec function openMap(){
+	getController().swapState('Map');
+}
+
 function DELPlayerController getController(){
 	return DELPlayerController(Pawn.Controller);
 }
@@ -468,6 +472,7 @@ function setBindings(optional name inKey, optional String inCommand, optional bo
 		setKeyBinding( 'I' , "openInventory" );
 		setKeyBinding( 'F10' , "openInventory" );
 		setKeyBinding( 'l' , "openQuestlog" );
+		setKeyBinding( 'm' , "openMap" );
 		ChangeInputBinding("ToggleInventory", 'I');
 
 		setKeyBinding('Escape', "closeHud");
