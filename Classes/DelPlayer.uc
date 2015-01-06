@@ -76,6 +76,18 @@ var float cameraZoomHeight;
 var float cameraTargetHeight;
 
 /**
+ * Determines whether the player is kicking a chicken.
+ * When kicking, the chicken kick function shouldn't be executed again.
+ * You'll have to wait for the kicking to finish.
+ */
+var bool bIsKickingAChicken;
+
+/**
+ * The chicken to kick.
+ */
+var DELChickenPawn chickenToKick;
+
+/**
  * makes sure everybode knows this player is not first-person and never will be
  */
 simulated function bool IsFirstPerson(){
@@ -445,7 +457,7 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
 
 	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
 		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
-			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
+			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , /*c.adjustLocation( c.Pawn.Location , location.z )*/c.Pawn.Location , c.Pawn.GetCollisionRadius() + 1.0 ) ){
 				toReturn = DELChickenPawn( c.Pawn );
 			}
 		}
@@ -458,16 +470,33 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
  * Kicks a chicken, sending it flying through the air.
  * @param c DELChicken  The chicken to kick.
  */
-private function kickChicken( DELChickenPawn c ){
-	local Vector selfToChicken;
-
-	selfToChicken = c.location - Location;
-
-	c.knockBack( 250.0 , selfToChicken );
-	c.kick();
+private function startKickingAChicken( DELChickenPawn c ){
+	bIsKickingAChicken = true;
 	playKickAnimation();
+	chickenToKick = c;
+	SetTimer( 0.5080 , false , 'actuallyKickChicken' );
+	SetTimer( 0.8333 , false , 'finishKick' );
 }
 
+/**
+ * Actually kick the chicken causing it to move.
+ */
+private function actuallyKickChicken(){
+	local Vector selfToChicken;
+
+	chickenToKick.SetLocation( getASocketsLocation( 'ChickenKickSocket' ) );
+	selfToChicken = chickenToKick.location - Location;
+
+	chickenToKick.knockBack( 500.0 , selfToChicken );
+	chickenToKick.kick();
+}
+
+/**
+ * This function will be called at the end of the Kick animation. It will set bIsKickingAChicken to false.
+ */
+function finishKick(){
+	bIsKickingAChicken = false;
+}
 /**
  * Return the player's position plus 8 in the player's direction.
  */
@@ -586,11 +615,13 @@ event Tick( float deltaTime ){
 
 	super.Tick( deltaTime );
 
-	chicken = chickenIsInFrontOfMe();
+	if ( !bIsKickingAChicken ){
+		chicken = chickenIsInFrontOfMe();
 
-	//Kick a chicken!!
-	if ( chicken != none ){
-		kickChicken( chicken );
+		//Kick a chicken!!
+		if ( chicken != none ){
+			startKickingAChicken( chicken );
+		}
 	}
 
 	//Change camera height when aiming
@@ -610,8 +641,9 @@ event Tick( float deltaTime ){
 }
 
 /*
- * ===============
+ * ==================================
  * Functions for animation
+ * ==================================
  */
 
 /**
@@ -679,4 +711,6 @@ DefaultProperties
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
+
+	bIsKickingAChicken = false
 }

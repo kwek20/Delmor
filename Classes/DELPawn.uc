@@ -694,6 +694,20 @@ function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA
 	}
 }
 
+/**
+ * Returns to location of a socket in the pawn's mesh.
+ * @param socketName    name    The name of the socket.
+ */
+function vector getASocketsLocation( name socketName ){
+	local vector SocketLocation;
+	//if ( Mesh.class != SkeletalMeshComponent ){
+	//	SkeletalMeshComponent( Mesh ).GetSocketWorldLocationAndRotation( socketName , SocketLocation );
+	//} else {
+		Mesh.GetSocketWorldLocationAndRotation( socketName , SocketLocation );
+	//}
+	return SocketLocation;
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true

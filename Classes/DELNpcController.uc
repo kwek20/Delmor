@@ -414,7 +414,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 
 	if ( !DELPawn( Pawn ).bIsStunned ){//You may only move if you are not stunned
 		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
-		if(FindNavMeshPathVect(l)){
+		if(FindNavMeshPathVect(adjustedLocation)){
 			//A mesh has been found
 			NavigationHandle.SetFinalDestination(l);
 			FlushPersistentDebugLines();
