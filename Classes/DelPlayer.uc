@@ -24,6 +24,8 @@ var DELMagicFactory Grimoire;
  * classname of the sword the player will be using
  */
 var class<DELMeleeWeapon> swordClass;
+
+var DELQuestManager questManager;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -102,6 +104,7 @@ function AddDefaultInventory(){
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+	questManager = Spawn(class'DELQuestManager',,,);
 	//Location.Z = 10000;
 }
 
