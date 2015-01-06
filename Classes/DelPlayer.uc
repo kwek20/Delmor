@@ -142,10 +142,14 @@ simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
 	`log("something to do here");
 	// find the first supplied actor
 	//Action.GetObjectVars(objVars);
-	
 }
 
 
+function OnCreateQuest(DELSeqAct_CreateQuest Action){
+	local array<String> questStuff;
+	questStuff = action.getQuestInfo();
+	questManager.createQuest(questStuff[0],questStuff[1]);
+}
 
 /**
  * switches magical ability to the one given (1,2,3,4)
