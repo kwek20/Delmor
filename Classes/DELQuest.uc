@@ -9,10 +9,13 @@ class DELQuest extends Object;
  */
 var array<DELQuestObjective> objectives;
 
-var String Title;
+var String title;
 
-var String Description;
+var String description;
+
+var Bool completed;
 
 DefaultProperties
 {
+	completed = false;
 }

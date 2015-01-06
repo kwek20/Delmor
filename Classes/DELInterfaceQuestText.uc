@@ -5,8 +5,18 @@ class DELInterfaceQuestText extends DELInterfaceScrollbar;
 
 function load(DELPlayerHud hud){
 	super.load(hud);
+	loadQuests(hud.getPlayer().getPawn().QManager.quests);
 	//load the text. Calculate based on backgorund image size
 	text = calculateActualStrings(hud.Canvas, text);
+	
+}
+
+function loadQuests(array<DELQuest> quests)
+{
+	local int i;
+	for (i=0; i<quests.Length; i++){
+		setText(quests[i].title, quests[i].description);
+	}
 }
 
 /**
@@ -82,9 +92,15 @@ function array< String > calculateActualStrings(Canvas c, array< String > messag
 	return newMessages;
 }
 
+function setText(String title, String description){
+	text.AddItem(title);
+	text.AddItem("");
+	text.AddItem(description);
+}
+
 DefaultProperties
 {
-	text=("Quest1", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "line 4", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93")
+	//text=("")
 	offset = 100;
 	color=(R=50,G=100,B=100,A=255)
 }

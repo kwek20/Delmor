@@ -166,6 +166,10 @@ var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
 
+var class<DELQuestManager> QuestManager;
+
+var repnotify DELQuestManager QManager;
+
 /*
  * =========================================
  * Animation
@@ -199,6 +203,7 @@ simulated event PostBeginPlay(){
 
 	}
 	AddDefaultInventory();
+	QManager.createQuest("The Interview", "Je moet de grote leider van Noord Korea vermoorden");
 }
 
 

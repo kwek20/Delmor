@@ -8,10 +8,22 @@ class DELQuestManager extends actor;
  */
 var array<DELQuest> quests;
 
-function createQuest(){
+function createQuest(String title, String description){
+	local DELQuest AddQuest;
+	AddQuest.Title = title;
+	AddQuest.Description = description;
+
+	quests.AddItem(AddQuest);
+	`log("Added Title: " $ AddQuest.title $ " Description: " $ AddQuest.description);
 }
 
-function addObjective(){
+function addObjective(DELQuest quest, DELQuestObjective AddObjective){
+	quest.objectives.AddItem(AddObjective);
+}
+
+function getQuests()
+{
+	
 }
 
 DefaultProperties
