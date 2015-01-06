@@ -18,6 +18,8 @@ var float ResolutionScale;
 var float MPosXMap;
 var float MPosYMap;
 
+var Vector2D MapPosition;
+
 function load(DELPlayerHud hud){
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
@@ -29,16 +31,10 @@ function load(DELPlayerHud hud){
  * */
 function draw(DELPlayerHud hud){
 	local float TrueNorth, PlayerHeading;
-	local Vector2D MapPosition;
 	local float CompassRotation, MapRotation;
 	
 	local LinearColor MapOffset;
 
-	//set map positions to draw
-	MapPosition.X = hud.Canvas.OrgX;
-	MapPosition.Y = hud.Canvas.OrgY;
-
-	//set the size of the compass
 	MapDim = MapDim * ResolutionScale;
 
 	//returns the direction the in-game placed minimap is pointing
@@ -59,14 +55,10 @@ function draw(DELPlayerHud hud){
 	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
 	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
 	GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
-	//Draw the Compass
-	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
-	hud.Canvas.DrawMaterialTile(GameMinimap.Minimap,
-            MapDim,
-            MapDim,
-            0.0,0.0,1.0,1.0);
 
-	//Draw the needle
+	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
+	hud.Canvas.DrawMaterialTile(GameMinimap.Minimap, MapDim, MapDim, 0.0,0.0,1.0,1.0);
+
 	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
 	//Draw the overlay
@@ -158,9 +150,9 @@ DefaultProperties
 {
 	bMoveable=false
 
-	MapDim=150
+	MapDim=125
 	TileSize=0.4
 	BoxSize=12
-	MapPosition=(X=0.000000,Y=0.000000)
+	MapPosition=(X=30.000000,Y=10.000000)
 	ResolutionScale=1.0
 }

@@ -59,7 +59,7 @@ state Attack{
 		if ( checkTargetWhitinRange( attackTarget ) ){
 			targetInRange();
 		} else {
-			smartMoveToPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
+			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
 		}
 
 		//The attacktarget is gone, return to idle state.
@@ -214,7 +214,7 @@ function float distanceToPoint( vector l ){
  */
 function bool checkTargetWhitinRange( DELPawn p ){
 	local float distanceToPawn;
-	distanceToPawn = VSize( p.Location - Pawn.Location );
+	distanceToPawn = VSize( adjustLocation( p.Location , pawn.Location.Z ) - Pawn.Location );
 	
 	if ( distanceToPawn > DELPawn( pawn ).meleeRange ){
 		return false;
@@ -398,31 +398,33 @@ function moveTowardsActor( Actor a , float deltaTime ){
  * @param deltaTime float   The deltaTime from the Tick-event
  */
 function moveTowardsPoint( Vector l , float deltaTime ){
-	local Vector selfToPoint;
-	local DELPawn dPawn;
+	local Vector tempDest;
+	/**
+	 * The next location to move. This will be tempDest if the NavMesh works
+	 * succesful. It will be l if the NavMesh doesn't.
+	 */
+	local Vector nextMoveLocation;
 	/**
 	 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 	 */
 	local Vector adjustedLocation;
 
-	//We'll have to cast it so we can use the walkingSpeed variable of DELPawn.
-	dPawn = DELPawn( Pawn );
+	//Set nextMoveLocation to l, we'll move directly towards the targetLocation in case the navMesh fails.
+	nextMoveLocation = l;
 
-	if ( !dPawn.bIsStunned ){//You may only move if you are not stunned
+	if ( !DELPawn( Pawn ).bIsStunned ){//You may only move if you are not stunned
 		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
-	
-		//Caluclate direction
-		selfToPoint = adjustedLocation - Pawn.Location;
-
-		//Move Pawn
-		Pawn.velocity.X = Normal( selfToPoint ).X * dPawn.GroundSpeed;
-		Pawn.velocity.Y = Normal( selfToPoint ).Y * dPawn.GroundSpeed;
-		Pawn.setDesiredRotation( rotator( selfToPoint ) );
-		Pawn.move( Pawn.velocity * deltaTime );
+		if(FindNavMeshPathVect(l)){
+			//A mesh has been found
+			NavigationHandle.SetFinalDestination(l);
+			FlushPersistentDebugLines();
+			if ( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius())){
+				nextMoveLocation = tempDest;
+			}
+		}
+		moveInDirection( nextMoveLocation - pawn.Location , deltaTime );
 	}
 }
-
-
 /**
  * Move the pawn in a certain direction.
  * This direction will be calculated from a vector.
@@ -432,28 +434,25 @@ function moveTowardsPoint( Vector l , float deltaTime ){
  */
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
-	local Vector tempDest;
-
+	
 	if ( !DELPawn( pawn ).bIsStunned ){
 		//Adjust the rotation so that only the Yaw will be modified.
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
-		if(FindNavMeshPathVect(to)){
-			NavigationHandle.SetFinalDestination(to);
-			FlushPersistentDebugLines();
-			//NavigationHandle.DrawPathCache(,TRUE);
-				if ( NavigationHandle.GetNextMoveLocation(to, Pawn.GetCollisionRadius())){
-					//DrawDebugLine( Pawn.Location, to , 0 , 255 , 0 , true );
-					//DrawDebugSphere( to , 16 , 20 , 0 , 255 , 0 , true );
-					//Move Pawn
-					Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
-					Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
-					Pawn.setDesiredRotation( adjustedRotation  );
-					Pawn.move( Pawn.velocity * deltaTime );
-				}
-		}
+		Pawn.velocity.X = Normal( to ).X * DELPawn( pawn ).GroundSpeed;
+		Pawn.velocity.Y = Normal( to ).Y * DELPawn( pawn ).GroundSpeed;
+		Pawn.setRotation( adjustedRotation );
+		clearDesiredDirection();
+		Pawn.move( Pawn.velocity * deltaTime );		
 	}
 }
 
+/**
+ * Does all kinds of desiredDirection things.
+ */
+function clearDesiredDirection(){
+	Pawn.setDesiredRotation( pawn.Rotation );
+	pawn.ResetDesiredRotation();
+}
 /**
  * Sets the controller's pawn still.
  */

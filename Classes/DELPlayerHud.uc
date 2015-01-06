@@ -28,10 +28,30 @@ var float ResolutionScale;
 var float MPosXMap;
 var float MPosYMap;
 
+//dynamic map render
+var SceneCapture2DComponent SceneCapture2D;
+var TextureRenderTarget2D RenderTarget;
+var Material RenderTextureTemplate;
+var MaterialInstanceConstant RenderTexture;
+
+var Rotator rotation;
+var vector startPos;
+
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
 
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
+
+	RenderTarget = new(self) class'TextureRenderTarget2D';
+	RenderTarget = class'TextureRenderTarget2D'.static.Create( 512, 512 );
+	
+	SceneCapture2D.SetCaptureParameters( RenderTarget,,,0 );
+	SetLocation( startPos + normal(Vector(rotation)) * 100.0f );
+	SceneCapture2D.ViewMode = SceneCapView_Unlit;
+	
+	RenderTexture = new(self) class'MaterialInstanceConstant';
+	RenderTexture.SetParent( RenderTextureTemplate );
+	RenderTexture.SetTextureParameterValue( 'CapturedTexture', RenderTarget );
 }
 
 /**
@@ -57,6 +77,9 @@ function addInterface(DELInterface interface, EPriority priority){
  * Clears the interfaces array. Removing all content
  */
 function clearInterfaces(){
+	local InterFaceItem i;
+	foreach interfaces(i){i.interface.unload(self);}
+
 	interfaces.Length = 0;
 	loadedInterfaces = false;
 }
@@ -96,14 +119,31 @@ function PlayerOwnerDied(){
 
 function PostRender(){
 	local InterFaceItem interface;
+	if (!bShowHUD) return;
+
+	if ( sizeChanged() ){
+		reScaleStuff();
+	}
+
 	super.PostRender();
 	
 	if (!loadedInterfaces)loadInterfaces();
 
 	foreach interfaces(interface){
 		interface.interface.draw(self);
-
 	}
+}
+
+function bool sizeChanged(){
+	return SizeX != Canvas.SizeX || SizeY != Canvas.SizeY;
+}
+
+function reScaleStuff(){
+	local string sub;
+	sub = getPlayer().getSubtitle();
+	getPlayer().goToPreviousState();
+	getPlayer().goToPreviousState();
+	getPlayer().showSubtitle(sub);
 }
 
 function loadInterfaces(){
@@ -132,4 +172,14 @@ defaultproperties
 	 MapPosition=(X=0.000000,Y=0.000000)
 	clockIcon=(Texture=Texture2D'UDKHUD.Time') 
 	ResolutionScale=1.0
+
+	rotation=(Pitch=-6000,Yaw=0,Roll=0)
+	startPos=(X=0,Y=200,Z=0)
+
+	begin Object class=SceneCapture2DComponent name=SceneCapture2DComponent0
+		TextureTarget=RenderTarget;
+		FarPlane=0;
+		bEnabled=true;
+	End Object
+	SceneCapture2D=SceneCapture2DComponent0
 }

@@ -37,7 +37,7 @@ function alertNearbyHostiles( DELPawn p ){
 	foreach WorldInfo.AllControllers( class'DELHostileController' , c ){
 		//If the pawn is whitin the alert-radius
 		if ( VSize( c.Pawn.Location - Pawn.Location ) < alertDistance
-		&& !c.isInCombatState() ){
+		&& !c.isInCombatState() && !c.IsInState( 'Dead' ) ){
 			c.attackTarget = p;
 			c.changeState( 'Attack' );
 		}

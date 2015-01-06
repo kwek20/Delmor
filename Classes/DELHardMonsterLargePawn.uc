@@ -10,7 +10,7 @@ class DELHardMonsterLargePawn extends DELHostilePawn
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELHardMonsterLargeController'
-
+	swordClass = class'DELMeleeWeaponCulpaFists'
 	//Mesh
 	Components.Remove(ThirdPersonMesh)
 	Begin Object Name=ThirdPersonMesh
@@ -31,15 +31,19 @@ defaultproperties
 	health = 1000
 	healthMax = 1000
 	healthRegeneration = 0
-	GroundSpeed = 95
+	GroundSpeed = 95.0
 
 	attackInterval = 1.0
-	meleeRange = 200.0
+	meleeRange = 96.0
+	detectionRange = 102400000.0
 
 	//Anim
 	animname[ 0 ] = Culpa_Big_Attack
+	attackAnimationImpactTime[ 0 ] = 0.8533
 	animname[ 1 ] = Culpa_Big_Attack
+	attackAnimationImpactTime[ 1 ] = 0.8533
 	animname[ 2 ] = Culpa_Big_Attack
+	attackAnimationImpactTime[ 2 ] = 0.8533
 	deathAnimName = Culpa_Big_Val
 	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit
@@ -48,7 +52,7 @@ defaultproperties
 	magicResistance = 0.0
 
 	Begin Object Name=CollisionCylinder
-		CollisionRadius = 36.0
+		CollisionRadius = 64.0
 		CollisionHeight = +132.0
 	end object
 }

@@ -30,7 +30,7 @@ function load(DELPlayerHud hud){
  * Gets called when the interface gets removed
  */
 function unload(DELPlayerHud hud){
-
+	ClearAllTimers();
 }
 
 /**
@@ -64,16 +64,18 @@ function drawTileForced(Canvas c, Texture2D texture, float XL, float YL, optiona
  * Draw a colored tile
  */
 function drawCTile(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, optional float U = 0.f, optional float V = 0.f){
-	c.SetDrawColor(r,g,b,a);
-	c.DrawTile(texture, XL, YL, U, V, texture.SizeX, texture.SizeY);
+	if (texture == None) return;
+	drawCTileForced(c, texture, XL, YL, r, g, b, a, texture.SizeX, texture.SizeY);
 }
 
 /**
  * Draw a colored tile, forced size(partially)
  */
-function drawCTileForced(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, optional float U = 0.f, optional float V = 0.f){
+function drawCTileForced(Canvas c, Texture2D texture, float XL, float YL, int r, int g, int b, int a, float xPart, float yPart,  optional float U = 0.f, optional float V = 0.f){
+	if (c == none || texture == None) return;
+	r = Clamp(r, 0, 255);g = Clamp(g, 0, 255);b = Clamp(b, 0, 255);a = Clamp(a, 0, 255);
 	c.SetDrawColor(r,g,b,a);
-	c.DrawTile(texture, XL, YL, U, V, XL, YL);
+	c.DrawTile(texture, XL, YL, U, V, xPart, yPart);
 }
 
 
