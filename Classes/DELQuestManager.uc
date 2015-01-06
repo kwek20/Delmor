@@ -10,11 +10,13 @@ var array<DELQuest> quests;
 
 function createQuest(String title, String description){
 	local DELQuest AddQuest;
-	AddQuest.Title = title;
-	AddQuest.Description = description;
+	AddQuest = Spawn(class'DELQuest');
+
+	AddQuest.title = title;
+	AddQuest.description = description;
 
 	quests.AddItem(AddQuest);
-	`log("Added Title: " $ AddQuest.title $ " Description: " $ AddQuest.description);
+	`log("Added Title: " $ AddQuest.title $ " Description: " $ description);
 }
 
 function addObjective(DELQuest quest, DELQuestObjective AddObjective){

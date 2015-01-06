@@ -2,7 +2,7 @@
  * class of the quest
  * @author harmen wiersma & dave van hooren
  */
-class DELQuest extends Object;
+class DELQuest extends Actor;
 
 /**
  *  list of objectives this quest holds
@@ -17,5 +17,7 @@ var Bool completed;
 
 DefaultProperties
 {
-	completed = false;
+	completed = false
+	title = "Default"
+	description = "DefaultDescription"
 }

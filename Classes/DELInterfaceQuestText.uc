@@ -96,6 +96,8 @@ function setText(String title, String description){
 	text.AddItem(title);
 	text.AddItem("");
 	text.AddItem(description);
+	text.AddItem("");
+	text.AddItem("");
 }
 
 DefaultProperties
