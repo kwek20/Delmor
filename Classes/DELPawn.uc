@@ -187,13 +187,6 @@ var int attackNumber;
 simulated event PostBeginPlay(){
 	super.PostBeginPlay(); 
 
-	QManager = Spawn(class'DELQuestManager',,,);
-	QManager.createQuest("The Interview", "Je moet de grote leider van Noord-Korea vermoorden.");
-	QManager.createQuest("Dropbox", "Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen.");
-	QManager.createQuest("The Crash", "Schiet een drone uit de lucht boven China.");
-	QManager.createQuest("Apple Destroyer", "Installeer Windows 10 op alle Apple computers.");
-	
-
 	spawnDefaultController();
 	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
 	SetThirdPersonCamera( true );

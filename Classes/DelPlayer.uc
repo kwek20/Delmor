@@ -25,7 +25,6 @@ var DELMagicFactory Grimoire;
  */
 var class<DELMeleeWeapon> swordClass;
 
-var DELQuestManager questManager;
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -104,7 +103,11 @@ function AddDefaultInventory(){
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
-	questManager = Spawn(class'DELQuestManager',,,);
+	QManager = Spawn(class'DELQuestManager',,,);
+	QManager.createQuest("The Interview", "Je moet de grote leider van Noord-Korea vermoorden.");
+	QManager.createQuest("Dropbox", "Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen.");
+	QManager.createQuest("The Crash", "Schiet een drone uit de lucht boven China.");
+	QManager.createQuest("Apple Destroyer", "Installeer Windows 10 op alle Apple computers.");
 	//Location.Z = 10000;
 }
 
@@ -149,7 +152,7 @@ simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
 function OnCreateQuest(DELSeqAct_CreateQuest Action){
 	local array<String> questStuff;
 	questStuff = action.getQuestInfo();
-	questManager.createQuest(questStuff[0],questStuff[1]);
+	QManager.createQuest(questStuff[0],questStuff[1]);
 }
 
 /**
