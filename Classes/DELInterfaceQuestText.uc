@@ -6,6 +6,7 @@ class DELInterfaceQuestText extends DELInterfaceScrollbar;
 function load(DELPlayerHud hud){
 	super.load(hud);
 	loadQuests(hud.getPlayer().getPawn().QManager.quests);
+	`log("Load Quests");
 	//load the text. Calculate based on backgorund image size
 	text = calculateActualStrings(hud.Canvas, text);
 	
