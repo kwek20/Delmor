@@ -32,6 +32,28 @@ event Possess( Pawn inPawn , bool bVehicleTransition ){
 	super.Possess( inPawn , bVehicleTransition );
 }
 
+/**
+ * Called when the pawn took damage.
+ */
+event pawnTookDamage( optional Actor DamageCauser ){
+	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
+	`log( "Being hit" ); 
+	if ( DamageCauser != none ){
+		if ( DamageCauser.IsA( 'DELPlayer' ) ){
+			`log( "DELPlayer" );
+			`log( "Retaliate" );
+			attackTarget = DELPawn( DamageCauser );
+			changeState( 'Attack' );
+		}
+		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
+			`log( "DELMagicProjectile" );
+			`log( "Retaliate" );
+			//Attack target will be set to the player since he's to only one who can cast magic in-game.
+			attackTarget = findPlayer();
+			changeState( 'Attack' );
+		}
+	}
+}
 
 auto state Idle{
 	event Tick( float deltaTime ){
@@ -45,6 +67,7 @@ auto state Idle{
 		}
 	}
 }
+
 /**
  * In this state the NPC will chase it's target and attack if it's close enough.
  */
@@ -155,6 +178,14 @@ state NonMovingState{
 	function returnToPreviousState(){
 		goToState( previousState );
 	}
+
+	/**
+	 * Returns idle, but will return the previous state when in a nonmoving state.
+	 */
+	function name getPreviousState(){
+		return previousState;
+	}
+
 }
 
 /**
@@ -198,6 +229,13 @@ state Attacking extends NonMovingState{
  * Utility functions
  * ==============================================
  */
+
+/**
+ * Returns idle, but will return the previous state when in a nonmoving state.
+ */
+function name getPreviousState(){
+	return 'Idle';
+}
 
 /**
  * Returns the distance between two points.

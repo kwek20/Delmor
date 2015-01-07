@@ -221,6 +221,16 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 }
 
 /**
+ * When taking damage, notify the controller.
+ */
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser ){
+	super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
+
+	DELNPCController( controller ).pawnTookDamage( DamageCauser );
+}
+
+/**
  * adds the weapons(magic + masterSword to the player)
  */
 function AddDefaultInventory(){
@@ -351,7 +361,12 @@ function spawnKnockBackForce( float intensity , vector direction ){
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
-	knockBack.pawnsPreviousState = controller.GetStateName();
+	if ( controller.IsChildState( controller.GetStateName() , 'NonMovingState' ) ){
+		knockBack.pawnsPreviousState = DELNPCcontroller( controller ).getPreviousState();
+	}
+	else{
+		knockBack.pawnsPreviousState = controller.GetStateName();
+	}
 }
 
 /**
@@ -708,6 +723,34 @@ function vector getASocketsLocation( name socketName ){
 	return SocketLocation;
 }
 
+/**
+ * Adjusts a given location so that it's z-variable will be set to a given value while ignoring
+ * the other values.
+ * Useful for locking z-values.
+ */
+function vector adjustLocation( vector inLocation , float targetZ ){
+	local vector newLocation;
+
+	newLocation.X = inLocation.X;
+	newLocation.Y = inLocation.Y;
+	newLocation.Z = targetZ;
+
+	return newLocation;
+}
+
+/**
+ * Adjust a rotation so that it's yaw-value will be locked to a given value.
+ */
+function rotator adjustRotation( rotator inRotation , float targetYaw ){
+	local rotator adjustedRotation;
+
+	adjustedRotation.Pitch = inRotation.Pitch;
+	adjustedRotation.Roll = inRotation.Roll;
+	adjustedRotation.Yaw = targetYaw;
+
+	return adjustedRotation;
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true
@@ -751,6 +794,7 @@ DefaultProperties
 		bAcceptsLights=true
 		Translation=(Z=-42.0)
 	End Object
+
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
 

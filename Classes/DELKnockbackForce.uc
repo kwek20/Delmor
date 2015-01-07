@@ -59,7 +59,7 @@ event Tick( float deltaTime ){
 	myPawn.move( myPawn.velocity );
 
 	//We've hit the ground
-	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0 ){
+	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0.0 ){
 		`log( "HIT GROUND" );
 		endForce();
 	}
@@ -80,7 +80,6 @@ function setPower( float inPower ){
  * Destroys the force effects.
  */
 function endForce(){
-	myPawn.bBlockActors = true;
 	myPawn.controller.goToState( pawnsPreviousState );
 	DELNpcController( myPawn.controller ).returnToPreviousState();
 	destroy();

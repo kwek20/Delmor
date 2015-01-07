@@ -12,6 +12,8 @@ var DELMath math;
 
 var DELInputMouseStats stats;
 
+var int targetYaw;
+
 simulated event postBeginPlay(){
 	setBindings();
 }
@@ -25,7 +27,7 @@ simulated exec function moveForward( float deltaTime ){
 		camToPawn = cameraToPawn( 0.0 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+			targetYaw = Rotator( camToPawn ).Yaw ;
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -39,7 +41,8 @@ simulated exec function moveRight( float deltaTime ){
 		camToPawn = cameraToPawn( 90.0 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+			targetYaw = Rotator( camToPawn ).Yaw ;
+			`log( "targetYaw: "$targetYaw);
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -53,7 +56,7 @@ simulated exec function moveLeft( float deltaTime ){
 		camToPawn = cameraToPawn( -90.0 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+			targetYaw = Rotator( camToPawn ).Yaw ;
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -67,7 +70,7 @@ simulated exec function moveBackward( float deltaTime ){
 		camToPawn = cameraToPawn( -180.0 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
-			rotatePawnToDirection( Rotator( camToPawn ).Yaw , defaultRotationSpeed , deltaTime );
+			targetYaw = Rotator( camToPawn ).Yaw ;
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -291,51 +294,45 @@ function DELPlayerController getController(){
 state idle{
 }
 
-state movingForward{
+state moving{
 	event tick( float deltaTime ){
-		moveForward( deltaTime );
+		super.tick( deltaTime );
 	}
-	/**
-	 * Exits the movingForward state.
-	 */
-	exec function stopMovingForward(){
-		goToState( 'idle' );
+}
+
+exec function stopMoving(){
+	goToState( 'idle' );
+}
+
+state movingForward extends moving{
+	event tick( float deltaTime ){
+		super.tick( deltaTime );
+
+		moveForward( deltaTime );
 	}
 }
 state movingBackward{
 	event tick( float deltaTime ){
+		super.tick( deltaTime );
+
 		moveBackward( deltaTime );
-	}
-	/**
-	 * Exits the movingBackward state.
-	 */
-	exec function stopMovingBackward(){
-		goToState( 'idle' );
 	}
 }
 
 state movingLeft{
 	event tick( float deltaTime ){
+		super.tick( deltaTime );
+
 		moveLeft( deltaTime );
 		//rotateCameraToPlayer( pawn.Rotation.Yaw + 90 * DegToUnrRot , defaultRotationSpeed , deltaTime );
-	}
-	/**
-	 * Exits the movingLeft state.
-	 */
-	exec function stopMovingLeft(){
-		goToState( 'idle' );
 	}
 }
 
 state movingRight{
 	event tick( float deltaTime ){
+		super.tick( deltaTime );
+
 		moveRight( deltaTime );
-	}
-	/**
-	 * Exits the movingRight state.
-	 */
-	exec function stopMovingRight(){
-		goToState( 'idle' );
 	}
 }
 
@@ -456,10 +453,10 @@ exec function load(){
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	if(!change) {
 		stats = Spawn(class'DELInputMouseStats');
-		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMovingForward" );
-		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
-		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
-		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
+		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
+		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
+		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
+		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
 		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 
 		setKeyBinding('MouseScrollUp', "GBA_PrevWeapon | MiddleMouseScrollUp");
@@ -527,8 +524,9 @@ event PlayerInput(float DeltaTime){
 
 event tick( float deltaTime ){
 	if ( DELPlayer( Pawn ).bLockedToCamera ){
-		rotatePawnToDirection( pawn.Controller.Rotation.Yaw , defaultRotationSpeed , deltaTime );
+		targetYaw = pawn.Controller.Rotation.Yaw;
 	}
+	rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
 }
 /**
  * Set a specific keybinding.

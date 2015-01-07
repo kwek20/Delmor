@@ -364,11 +364,12 @@ state maintainDistanceFromPlayer{
 		//Move away
 		if ( VSize( selfToPlayer ) < distanceToPlayer ){
 			moveInDirection( selfToPlayer , deltaTime );
-			clearDesiredDirection();
-			pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
 		} else {
 			stopPawn();
 		}
+
+		clearDesiredDirection();
+		pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
 
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
