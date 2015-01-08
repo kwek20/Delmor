@@ -113,7 +113,9 @@ function vector getFleeTargetLocation(){
 
 function FleeFrom( DELPawn from ){
 	fleeTarget = from;
-	goToState( 'Flee' );
+	if ( !isInState( 'KnockedBack' ) ){
+		goToState( 'Flee' );
+	}
 }
 
 /**

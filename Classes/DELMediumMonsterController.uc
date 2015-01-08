@@ -178,6 +178,9 @@ function orderHardMonsterToTransform(){
 function startCharge(){
 	bCanCharge = false;
 	changeState( 'Charge' );
+
+	//Change the animtree so that we can show a charge animation.
+	DELPawn( pawn ).Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Rhinoman_Charge_AnimTree' );
 }
 
 /**
@@ -414,7 +417,7 @@ state Charge{
 
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
 			//moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
-			moveTowardsPoint( playerPosition , deltaTime * 6 );
+			moveTowardsPoint( playerPosition , deltaTime * 6.0 );
 			//self.moveInDirection( playerPosition - pawn.Location , deltaTime * 6 );
 			//TODO: Check for collision
 			
@@ -463,6 +466,7 @@ state Charge{
 	 */
 	event EndState( name NextStateName ){
 		super.EndState( NextStateName );
+		DELPawn( pawn ).Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Rhinoman_AnimTree' );
 		setTimer( 5.0 , false , 'resetCanCharge' );
 	}
 }

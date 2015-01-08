@@ -155,5 +155,7 @@ defaultproperties
 	attackAnimationImpactTime[ 2 ] = 0.6851
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
-	getHitAnimName = rhinoman_gettinghit
+	getHitAnimName = Rhinoman_Gettinghit1
+
+	swordClass = class'DELMeleeWeaponRhinomanFists'
 }

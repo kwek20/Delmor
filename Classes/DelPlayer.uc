@@ -350,6 +350,7 @@ exec function startSprint(){
 	//If stamia bigger then Stamina loss and exhausted == false
 	if(Stam >= StamLoss && bExhausted != true){
 		bSprinting= true;
+		Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Lucian_Sprint_AnimTree' );
 		GroundSpeed = 600.000;
 
 		//Recently sprinted?
@@ -396,6 +397,7 @@ exec function startSprint(){
  * if so, stop sprinting
  */
 exec function stopSprint(){
+	Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree' );
 	Groundspeed = 375.0;
 	bSprinting = false;
 	ClearTimer('LowerStam');
