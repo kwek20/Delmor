@@ -23,6 +23,11 @@ function addObjective(DELQuest quest, DELQuestObjective AddObjective){
 	quest.objectives.AddItem(AddObjective);
 }
 
+function completeObjective()
+{
+
+}
+
 function getQuests()
 {
 	

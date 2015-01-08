@@ -7,7 +7,7 @@ var() int totalAmount;
 function getValues(out String questTitle, out String objectiveText, out int totalAmountToComplete){
 	questTitle = quest;
 	objectiveText = objective;
-	totalAmountToComlpete = totalAmount;
+	totalAmountToComplete = totalAmount;
 }
 
 DefaultProperties
