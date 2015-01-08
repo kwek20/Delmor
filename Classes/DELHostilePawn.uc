@@ -33,6 +33,14 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	super.TakeDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 }
 
+simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraPosition, vector CameraDir){
+	local Vector ScreenPos;
+	if (PC == None) return;
+	super.PostRenderFor(PC, Canvas,CameraPosition,CameraDir);
+	ScreenPos = Canvas.Project(Location);
+	drawBar(Canvas, ScreenPos.X - Health/2, ScreenPos.Y-50, 50, 10, self, healthBar, edge);
+}
+
 /**
  * Stub to play a blocking sound.
  */
