@@ -148,10 +148,8 @@ simulated function FireStart(){
 	spellcaster.Grimoire.startCharge();
 	spellcaster.SwingAnim.PlayCustomAnim('lucian_MagicCast', 1.0);
 	if(ManaCost > spellCaster.mana){
-		`log("you have not enough mana bitch");
 		return;
 	}
-
 	if(bCanCharge){
 		GoToState('Charging');
 	} else {

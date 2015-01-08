@@ -296,7 +296,6 @@ function DELHostilePawn nearestEnemy(){
  */
 simulated function StopFire(byte FireModeNum){
 	if(FireModeNum == 1 && magic!= None){
-		playMagicCastAnimation();
 		magic.FireStop();
 	}
 	if(FireModeNum == 0 && sword != None){
@@ -766,12 +765,6 @@ function playKickAnimation(){
 	SwingAnim.PlayCustomAnim( 'Lucian_kick_chicken' , 1.0 , 0.0 , 0.0 , false , true );
 }
 
-/**
- * Plays the magic-cast animation
- */
-function playMagicCastAnimation(){
-	SwingAnim.PlayCustomAnim( 'Lucian_MagicCast' , 1.0 , 0.0 , 0.0 , false , true );
-}
 
 /**
  * Plays the item pickup animation
