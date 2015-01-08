@@ -152,7 +152,7 @@ function startSpawn(bool random) {
 	local Vector newLocation;
 	foreach WorldInfo.AllNavigationPoints(class'DELSpawnPathNode', C) {
 		selfToPathnode = C.Location - self.Location;
-		distanceToSpawner = Abs(VSize(selfToPlayer));
+		distanceToSpawner = Abs(VSize(selfToPathnode));
 		if(distanceToSpawner < spawnArea) {
 			if(checkSpawnedMobsStillAlive() < maxMobsAlive) {
 				newLocation = C.Location;
