@@ -181,16 +181,15 @@ simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraP
 	super.PostRenderFor(PC,Canvas,CameraPosition,CameraDir);
 
 	ScreenPos = Canvas.Project(Location);
-	drawBar(Canvas, x, y, l, w, self, healthBar, edge);
-	Canvas.SetPos(ScreenPos.X - Health/2, ScreenPos.Y-50);
+	drawBar(Canvas, ScreenPos.X - Health/2, ScreenPos.Y-50, 50, 10, self, healthBar, edge);
 }
 
-function drawBar(Canvas c, float x, float y, float length, float width, DELPawn pawn, Texture2D bar, optional Texture2D edge){
+function drawBar(Canvas c, float x, float y, float length, float width, DELPawn pawn, Texture2D bar, optional Texture2D edge, optional float U = 0.f, optional float V = 0.f){
 	c.SetPos(x, y);   
-	c.DrawTile(bar, length * (float(pawn.Health) / float(pawn.HealthMax)), barSize, bar.SizeX, bar.SizeY);
+	c.DrawTile(bar, length * (float(pawn.Health) / float(pawn.HealthMax)), U, V, width, bar.SizeX, bar.SizeY);
 
-	c.SetPos(startX-1, startY-1);   
-	c.DrawTile(edge, length*1.15, barSize*1.6+2, bar.SizeX, bar.SizeY);
+	c.SetPos(x-1, y-1);   
+	c.DrawTile(edge, length*1.15, width*1.6+2, U, V, bar.SizeX, bar.SizeY);
 }
 
 /**
