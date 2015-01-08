@@ -139,6 +139,12 @@ state Flock{
 	}
 }
 
+state Attack{
+	function beginState( name previousStateName ){
+		goToState( 'Flee' );
+	}
+}
+
 /*
  * ================================================
  * Common events

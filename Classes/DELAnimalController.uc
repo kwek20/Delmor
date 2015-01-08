@@ -81,6 +81,13 @@ state walk {
 			}
 		}
 	}
+
+	event Tick( float deltaTime ){
+
+		if ( aMonsterIsNearby() ){
+			goToState( 'Flee' );
+		}
+	}
 	
 Begin:
 	sleep(0.05);
@@ -137,6 +144,14 @@ state eat {
 		GotoState('walk');
 	}
 }
+
+/**
+ * Return true when a DELHostilePawn is close to the controller's pawn.
+ */
+function bool aMonsterIsNearby(){
+	return false;
+}
+
 /**
  * A function for A* to get a next path to the goal
  * @param goal the location where the goat should walk to.
