@@ -150,6 +150,10 @@ var array<float> attackAnimationImpactTime;
  */
 var int attackNumber;
 
+var() Texture2D healthBar, manaBar, edge;
+
+var DELInterfaceHealthBarActor HBActor; 
+
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
@@ -167,14 +171,29 @@ simulated event PostBeginPlay(){
 		UManager = Spawn(UInventory, Self);
 		if ( UManager == None )
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
-
 	}
+
 	AddDefaultInventory();
 }
 
+simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraPosition, vector CameraDir){
+	local Vector ScreenPos;
+	super.PostRenderFor(PC,Canvas,CameraPosition,CameraDir);
+
+	ScreenPos = Canvas.Project(Location);
+	drawBar(Canvas, x, y, l, w, self, healthBar, edge);
+	Canvas.SetPos(ScreenPos.X - Health/2, ScreenPos.Y-50);
+}
+
+function drawBar(Canvas c, float x, float y, float length, float width, DELPawn pawn, Texture2D bar, optional Texture2D edge){
+	c.SetPos(x, y);   
+	c.DrawTile(bar, length * (float(pawn.Health) / float(pawn.HealthMax)), barSize, bar.SizeX, bar.SizeY);
+
+	c.SetPos(startX-1, startY-1);   
+	c.DrawTile(edge, length*1.15, barSize*1.6+2, bar.SizeX, bar.SizeY);
+}
 
 /**
- * selects a point in the animtree so it is easier acessible
  * it is unknown to me what the super does
  * @param SkelComp the skeletalmesh component linked to the animtree
  */
@@ -713,4 +732,8 @@ DefaultProperties
 
 	attackNumber = 0
 	getHitTime = 1.0
+
+	healthBar=Texture2D'DelmorHud.health_balk'
+	manaBar=Texture2D'DelmorHud.mana_balk'
+	edge=Texture2D'DelmorHud.bar_edge'
 }

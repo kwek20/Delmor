@@ -41,7 +41,7 @@ simulated function draw(DELPlayerHud hud){
 	drawTile(hud.Canvas, edge, length*1.15, barSize*1.6+2);
 
 	//mana bar
-	if (pawn.mana > 0){
+	if (pawn.mana >= 0){
 		hud.Canvas.SetDrawColor(0, 0, 255); // blue
 		hud.Canvas.SetPos(startX, startY+position.W/2);   
 		drawTile(hud.Canvas, manaBar, length * (float(pawn.mana) / float(pawn.manaMax)), barSize); 
