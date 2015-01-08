@@ -180,7 +180,7 @@ simulated function StartFire(byte FireModeNum){
 	}
 	if(FireModeNum == 0 && sword != None){
 		//Stop moving (So that the auto-aim will work.
-		DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).stopMoving();
+		//DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).stopMoving();
 		//Turn the player towards a nearby enemy when there's no enemy in front of him.
 		if ( !anEnemyIsInFrontOfPlayer() && anEnemyIsNearPlayer() ){
 			nearest = nearestEnemy();
@@ -194,13 +194,13 @@ simulated function StartFire(byte FireModeNum){
 }
 
 /**
- * Checks whether there's an enemy in front of the player.
+ * Checks whether the player is aimed at an enemy.
  */
 function bool anEnemyIsInFrontOfPlayer(){
 	local vector inFrontLocation;
 	local DELHostilePawn p;
 
-	inFrontLocation = getInFrontLocation();
+	inFrontLocation = getInFrontLocation( controller.Rotation.Yaw );
 	
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) 
@@ -519,7 +519,7 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
 
 	toReturn = none;
 
-	inFrontLocation = getInFrontLocation();
+	inFrontLocation = getInFrontLocation( self.rotation.yaw );
 
 	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
 		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
@@ -564,13 +564,21 @@ function finishKick(){
 	bIsKickingAChicken = false;
 }
 /**
- * Return the player's position plus 8 in the player's direction.
+ * Return the player's position plus 32 in the player's direction.
+ * @param yaw   int When given, the player will use this yaw to determine the infront location.
  */
-function Vector getInFrontLocation(){
+function Vector getInFrontLocation( optional int yaw ){
 	local vector newLocation;
+	local int useYaw;
 
-	newLocation.X = location.X + lengthDirX( 16.0 , -Rotation.Yaw );
-	newLocation.Y = location.Y + lengthDirY( 16.0 , -Rotation.Yaw );
+	if ( yaw != 0 ){
+		useYaw = yaw;
+	} else {
+		useYaw = rotation.yaw;
+	}
+
+	newLocation.X = location.X + lengthDirX( 32.0 , -useYaw );
+	newLocation.Y = location.Y + lengthDirY( 32.0 , -useYaw );
 	newLocation.Z = Location.Z;
 
 	return newLocation;
@@ -765,6 +773,7 @@ DefaultProperties
 	SprintRecoverTimer = 5.0
 	StamLoss = 5.0
 	Groundspeed = 375.0
+	//groundSpeed = 250.0
 
 	manaRegeneration = 2
 

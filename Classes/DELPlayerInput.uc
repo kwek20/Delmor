@@ -6,6 +6,10 @@ class DELPlayerInput extends PlayerInput;
 var float defaultRotationSpeed;
 var float pawnRotationSpeed;
 /**
+ * Counts the number of keys pressed. These will be movement keys only, and will be used for movement.
+ */
+var int nKeysPressed;
+/**
  * An instance of DELmath. This instance will later be used to execute various mathematical functions.
  */
 var DELMath math;
@@ -88,6 +92,7 @@ simulated exec function moveBackward( float deltaTime ){
 exec function startMovingForward(){
 	if (!getController().canWalk) return;
 	goToState( 'movingForward' );
+	nKeysPressed ++;
 }
 
 /**
@@ -96,6 +101,7 @@ exec function startMovingForward(){
 exec function startMovingLeft(){
 	if (!getController().canWalk) return;
 	goToState( 'movingLeft' );
+	nKeysPressed ++;
 }
 
 /**
@@ -104,6 +110,7 @@ exec function startMovingLeft(){
 exec function startMovingRight(){
 	if (!getController().canWalk) return;
 	goToState( 'movingRight' );
+	nKeysPressed ++;
 }
 /**
  * Goes to state movingBackward
@@ -111,6 +118,7 @@ exec function startMovingRight(){
 exec function startMovingBackward(){
 	if (!getController().canWalk) return;
 	goToState( 'movingBackward' );
+	nKeysPressed ++;
 }
 
 exec function startSprint() {
@@ -301,7 +309,15 @@ state moving{
 }
 
 exec function stopMoving(){
-	goToState( 'idle' );
+	nKeysPressed --;
+
+	if ( nKeysPressed < 0 ){
+		nKeysPressed = 0;
+	}
+
+	if ( nKeysPressed == 0 ){
+		goToState( 'idle' );
+	}
 }
 
 state movingForward extends moving{
@@ -523,7 +539,16 @@ event PlayerInput(float DeltaTime){
 }
 
 event tick( float deltaTime ){
-	if ( DELPlayer( Pawn ).bLockedToCamera ){
+	local vector v;
+
+	//`log( "nKeysPressed: "$nKeysPressed );
+	////Move player pawn
+	//if ( nKeysPressed > 0 ){
+	//	v = vector( pawn.Rotation ) * pawn.GroundSpeed * deltaTime;
+	//	pawn.Move( -v );
+	//}
+
+	if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
 		targetYaw = pawn.Controller.Rotation.Yaw;
 	}
 	rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
@@ -538,4 +563,5 @@ function setKeyBinding( name inKey , String inCommand ){
 DefaultProperties
 {
 	defaultRotationSpeed = 1600.0
+	nKeysPressed = 0
 }

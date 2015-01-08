@@ -373,7 +373,7 @@ state maintainDistanceFromPlayer{
 
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
-			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ self.getNumberOfMinions() == 0 && shouldCharge() ){
+			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ getNumberOfMinions() == 0 && shouldCharge() ){
 				orderHardMonsterToTransform();
 				startCharge();
 			}
@@ -487,10 +487,10 @@ state Blocking{
  * It should play a sound belitteling the minions for their incompetence.
  */
 event minionDied(){
-	if ( getNumberOfMinions() > 0 ){
+	if ( getNumberOfMinions() > 1 ){
 		DELMediumMonsterPawn( Pawn ).say( "MinionDied" );
 	} else {
-		DELMediumMonsterPawn( Pawn ).say( "NoMoreMinions" );
+		DELMediumMonsterPawn( Pawn ).say( "NoMoreMinions" , true );
 	}
 }
 

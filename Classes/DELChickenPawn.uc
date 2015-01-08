@@ -6,14 +6,26 @@ class DELChickenPawn extends DELAnimalPawn
 	  Config(Game);
 var SoundCue kickSound;
 var bool canPlaySound;
+
 simulated function PostBeginPlay() {
 	super.PostBeginPlay();
+	assignSoundSet();
 	`log(self);
+}
+
+/**
+ * Assigns a soundSet to the pawn.
+ */
+private function assignSoundSet(){
+	if ( mySoundSet != none ){
+		mySoundSet.Destroy();
+	}
+	mySoundSet = spawn( class'DELSoundSetChicken' );
 }
 
 function kick() {
 	if(canPlaySound) {
-		playSound(kickSound);
+		say( "TakeDamage" );
 		canPlaySound = false;
 		SetTimer(0.5, false, 'resetPlaySound');
 	}

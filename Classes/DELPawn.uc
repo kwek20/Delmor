@@ -456,9 +456,9 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 	interrupt();
 
 	//Play died sound
-	say( "Die" );
+	say( "Die" , true );
 	changeState( 'Dead' );
-	Controller.destroy();
+	Controller.pawnDied( self );
 	setTimer( 5.0 , false , 'destroyMe' );
 	//Play death animation
 	playDeathAnimation();
@@ -540,10 +540,12 @@ function increaseAttackNumber(){
 
 /**
  * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ * @param dialoge   String  A text representation of what to say. An adapter in the soundset will look for the appropriate soundcue.
+ * @param bForce    bool    Play the sound even if bCanPlay = false.
  */
-function say( String dialogue ){
+function say( String dialogue , optional bool bForce ){
 	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet != none && mySoundSet.bCanPlay ){
+	if ( mySoundSet != none && ( mySoundSet.bCanPlay || bForce ) ){
 		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
 		mySoundSet.bCanPlay = false;
 		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
@@ -573,13 +575,21 @@ function dealAttackDamage(){
 }
 
 /**
- * Return the player's position plus meleeRange in the player's direction.
+ * Return the player's position plus 16 in the player's direction.
+ * @param yaw   int When given, the player will use this yaw to determine the infront location.
  */
-function Vector getInFrontLocation(){
+function Vector getInFrontLocation( optional int yaw ){
 	local vector newLocation;
+	local int useYaw;
 
-	newLocation.X = location.X + lengthDirX( meleeRange , -Rotation.Yaw );
-	newLocation.Y = location.Y + lengthDirY( meleeRange , -Rotation.Yaw );
+	if ( yaw != 0 ){
+		useYaw = yaw;
+	} else {
+		useYaw = rotation.yaw;
+	}
+
+	newLocation.X = location.X + lengthDirX( meleeRange , -useYaw );
+	newLocation.Y = location.Y + lengthDirY( meleeRange , -useYaw );
 	newLocation.Z = Location.Z;
 
 	return newLocation;

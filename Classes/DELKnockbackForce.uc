@@ -34,24 +34,20 @@ var name pawnsPreviousState;
 
 event Tick( float deltaTime ){
 	local vector newLocation , HitLocation, HitNormal;
+
 	if ( myPawn == none ){
 		destroy();
 	}
-
-	`log( "POWER: "$power );
-	`log( "zPower: "$zPower );
 	
 	//Move the pawn
 	newLocation.X = myPawn.location.X + ( power * normal( direction ).X * deltaTime );
 	newLocation.Y = myPawn.location.Y + ( power * normal( direction ).Y * deltaTime );
 	newLocation.Z = myPawn.location.Z + ( zPower * deltaTime );
-	`log( "newLocation.Z: "$newLocation.Z );
 	
 	//Collide with brushes
 	if (Trace(HitLocation, HitNormal, newLocation, myPawn.location , false, vect(0.0, 0.0, 0.0)) != none ){
 		//The pawn collided, the force will be stopped now.
-		`log( ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> COLLLISION!!!!!!!!!!!!!!" );
-		myPawn.setLocation( adjustLocation( HitNormal , newLocation.Z ) );
+		myPawn.setLocation( HitNormal/*adjustLocation( HitNormal , newLocation.Z )*/ );
 		endForce();
 	}
 
@@ -60,7 +56,6 @@ event Tick( float deltaTime ){
 
 	//We've hit the ground
 	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0.0 ){
-		`log( "HIT GROUND" );
 		endForce();
 	}
 
