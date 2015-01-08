@@ -29,6 +29,8 @@ function kick() {
 		canPlaySound = false;
 		SetTimer(0.5, false, 'resetPlaySound');
 	}
+	//Run away from the player after being kicked.
+	DELChickenController( controller ).FleeFrom( DELPlayer( GetALocalPlayerController().Pawn ) );
 }
 
 function resetPlaySound() {

@@ -150,6 +150,45 @@ simulated event PostBeginPlay(){
 	//Location.Z = 10000;
 }
 
+exec function suicideFail(){
+	health = healthmax -(healthmax * 0.8);
+}
+
+/*
+/**
+ * Gets the number of pawns
+ */
+exec function numberOfPawnsNearPlayer(){
+	local DELHostileController c;
+	local int nPawns;
+	/**
+	 * The distance at wich a pawn is considered near the player.
+	 */
+	local float nearDistance;
+
+	nPawns = 0;
+	nearDistance = 256.0;
+
+	foreach WorldInfo.AllControllers( class'DELHostileController' , c ){
+		if ( VSize( c.Pawn.Location - self.Location ) <= nearDistance ){
+			nPawns ++;
+		}
+	}
+
+	`log(nPawns);
+}*/
+
+
+simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
+	local array<Object> objVars;
+	`log("something to do here");
+	// find the first supplied actor
+	//Action.GetObjectVars(objVars);
+	
+}
+
+
+
 /**
  * switches magical ability to the one given (1,2,3,4)
  * @param abilitynumber the number of the ability you want to switch to
@@ -257,7 +296,6 @@ function DELHostilePawn nearestEnemy(){
  */
 simulated function StopFire(byte FireModeNum){
 	if(FireModeNum == 1 && magic!= None){
-		playMagicCastAnimation();
 		magic.FireStop();
 	}
 	if(FireModeNum == 0 && sword != None){
@@ -727,12 +765,6 @@ function playKickAnimation(){
 	SwingAnim.PlayCustomAnim( 'Lucian_kick_chicken' , 1.0 , 0.0 , 0.0 , false , true );
 }
 
-/**
- * Plays the magic-cast animation
- */
-function playMagicCastAnimation(){
-	SwingAnim.PlayCustomAnim( 'Lucian_MagicCast' , 1.0 , 0.0 , 0.0 , false , true );
-}
 
 /**
  * Plays the item pickup animation

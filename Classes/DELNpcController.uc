@@ -78,16 +78,16 @@ state Attack{
 
 	event tick( float deltaTime ){
 		
-		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
-		if ( checkTargetWhitinRange( attackTarget ) ){
-			targetInRange();
-		} else {
-			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
-		}
-
 		//The attacktarget is gone, return to idle state.
 		if ( !targetIsAlive() || targetIsTooFarAway() ){
 			goToState( 'Idle' );
+		} else {
+			//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
+			if ( checkTargetWhitinRange( attackTarget ) ){
+				targetInRange();
+			} else {
+				moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
+			}
 		}
 	}
 
@@ -265,7 +265,7 @@ function bool checkTargetWhitinRange( DELPawn p ){
  * Returns true if the pawn exists and has more than one health.
  */
 function bool targetIsAlive(){
-	if ( attackTarget.health > 0 && attackTarget != none ){
+	if ( attackTarget.health > 0 && attackTarget != none && !attackTarget.isInState( 'Dead' ) ){
 		return true;
 	} else {
 		return false;

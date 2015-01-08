@@ -35,6 +35,11 @@ var float moveRange;
 var int maxIdleTime;
 var int minIdleTime;
 
+/**
+ * The pawn to flee from.
+ */
+var DELPawn fleeTarget;
+
 
 /** 
  *  Event that is called when the goad is spawned
@@ -68,67 +73,57 @@ state walk {
 		playerIsSeen = false;
 	}	
 
-	event SeePlayer(Pawn p) {
-		if(p.IsA('DELPlayer')) {
-			selfToPlayer = p.Location - self.Pawn.Location;
-			distanceToPlayer = Abs(VSize(selfToPlayer));
-			if(distanceToPlayer < fleeRangeToPlayer) {
-				player = DELPlayer(p);
-				targetLocation.X =  self.player.Location.X + lengthDirX(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
-				targetLocation.Y =  self.player.Location.Y + lengthDirY(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
-				targetLocation.Z = self.Pawn.Location.Z;
-				playerIsSeen = true;
-			}
-		}
-	}
-
 	event Tick( float deltaTime ){
-
-		if ( aMonsterIsNearby() ){
-			goToState( 'Flee' );
-		}
-	}
-	
-Begin:
-	sleep(0.05);
-		if(vSize(targetLocation - self.Pawn.Location) < 100) {
-			playerIsSeen = false;
-		} else if(vSize(nextLocation - self.Pawn.Location) < 100) {
-				GotoState('eat');
+		if(vSize(nextLocation - self.Pawn.Location) < 100) {
+			GotoState('eat');
 		} else {
-			if(distanceToPlayer < fleeRangeToPlayer && playerIsSeen) {
-				moveTo(targetLocation);
-			} else if(NavigationHandle.PointReachable(nextLocation))
-			{
-				moveTo(nextLocation);
-			} else if( FindNavMeshPath(nextLocation) ){
-				NavigationHandle.SetFinalDestination(nextLocation);
-				FlushPersistentDebugLines();
-				if( NavigationHandle.GetNextMoveLocation(tempDest, Pawn.GetCollisionRadius()))
-				{
-					MoveTo(tempDest);
-				}
-			} else {
-				nextLocation = getRandomLocation();
-				GotoState('walk');
-			}
+			moveTowardsPoint( nextLocation , deltaTime );
 		}
-	//}
 		
-	sleep(0.1);
-	goto 'Begin';
+		fleeFromMonsters();
+	}
 }
 
 state flee {
-	
-	local rotator direction;
-	local Controller C;
 	local Vector targetLocation;
-	function beginState( Name previousStateName ){
-		super.beginState( previousStateName );
-		targetLocation.X =  self.player.Location.X + lengthDirX(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
-		targetLocation.Y =  self.player.Location.Y + lengthDirY(fleeRangeToPlayer, (Rotator(selfToPlayer).Yaw + 90.0) * DegToUnrRot );
-		targetLocation.Z = self.Pawn.Location.Z;
+
+	event tick( float deltaTime ){
+		targetLocation = getFleeTargetLocation();
+		moveTowardsPoint( targetLocation , deltaTime * 6 );
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime * 6 + 50.0 ){
+			goToState( 'Eat' );
+		}
+	}
+}
+
+/**
+ * Returns a vector based on distance and angle to flee target.
+ */
+function vector getFleeTargetLocation(){
+	local rotator selfToTarget;
+	local vector targetLocation;
+
+	selfToTarget = rotator( fleeTarget.location - pawn.Location );
+	targetLocation.X = fleeTarget.Location.X + lengthDirX( 512.0 , selfToTarget.Yaw );
+	targetLocation.Y = fleeTarget.Location.Y + lengthDirY( 512.0 , selfToTarget.Yaw );
+	targetLocation.Z = pawn.Location.Z;
+
+	return targetLocation;
+}
+
+function FleeFrom( DELPawn from ){
+	fleeTarget = from;
+	goToState( 'Flee' );
+}
+
+/**
+ * Automaticle flee from DELHostilePawns.
+ */
+function fleeFromMonsters(){
+	local DELHostilePawn nearbyMonster;
+	nearbyMonster = getNearbyMonster();
+	if ( nearbyMonster != none ){
+		fleeFrom( nearbyMonster );
 	}
 }
 /**
@@ -139,6 +134,10 @@ state eat {
 		super.beginState( previousStateName );
 		SetTimer(Rand(maxIdleTime)+minIdleTime, false, 'backToWalk');
 	}
+	event tick( float deltaTime ){
+		fleeFromMonsters();
+	}
+
 	function backToWalk() {
 		nextLocation = getRandomLocation();
 		GotoState('walk');
@@ -146,10 +145,21 @@ state eat {
 }
 
 /**
- * Return true when a DELHostilePawn is close to the controller's pawn.
+ * Returns the ID of a monster that is closer to the chicken than 256.
  */
-function bool aMonsterIsNearby(){
-	return false;
+function DELHostilePawn getNearbyMonster(){
+	local DELHostilePawn monster , p;
+	local float smallestDistance;
+
+	smallestDistance = 257.0;
+
+	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , pawn.Location , 256.0 ){
+		if ( VSize( p.location - pawn.Location ) <= smallestDistance ){
+			monster = p;
+		}
+	}
+
+	return monster;
 }
 
 /**
@@ -169,15 +179,7 @@ function bool FindNavMeshPath(Vector goal)
  * @return a Vector location
  */
 function Vector getRandomlocation() {
-	local int nTries;
-	local Vector temp;
-	nTries = 0;
-	temp = GetALocation();
-	while(VSize(temp - startPosition) > wanderRange && nTries < 255 ) {
-		temp = GetALocation();
-		nTries ++;
-	}
-	return temp;
+	return GetLocationInMoveRange();
 }
 
 function Vector GetALocation() {
@@ -188,11 +190,22 @@ function Vector GetALocation() {
 	return temp;
 }
 
+/**
+ * Gets a random location in the moverange.
+ */
+function Vector GetLocationInMoveRange(){
+	local Vector temp;
+	temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
+	temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
+	temp.Z = startPosition.Z;// + Rand(5000);
+	return temp;
+}
+
 DefaultProperties
 {
 	wanderRange = 2048
 	moveRange = 1024
 	fleeRangeToPlayer = 128
-	maxIdleTime = 55
+	maxIdleTime = 20
 	minIdleTime = 5
 }
