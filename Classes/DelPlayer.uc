@@ -140,12 +140,8 @@ exec function numberOfPawnsNearPlayer(){
 }*/
 
 
+function OnAddObjective(DELSeqAct_AddObjective Action){
 
-simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
-	local array<Object> objVars;
-	`log("something to do here");
-	// find the first supplied actor
-	//Action.GetObjectVars(objVars);
 }
 
 
