@@ -8,7 +8,7 @@ class DELQuestManager extends actor;
  */
 var array<DELQuest> quests;
 
-function DELQuest createQuest(String title, String description){
+function createQuest(String title, String description){
 	local DELQuest AddQuest;
 	AddQuest = Spawn(class'DELQuest');
 
@@ -17,7 +17,6 @@ function DELQuest createQuest(String title, String description){
 
 	quests.AddItem(AddQuest);
 	`log("Added Title: " $ AddQuest.title $ " Description: " $ description);
-	return AddQuest;
 }
 
 function addObjective(DELQuest quest, DELQuestObjective AddObjective){

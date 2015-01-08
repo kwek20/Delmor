@@ -151,10 +151,8 @@ simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
 
 function OnCreateQuest(DELSeqAct_CreateQuest Action){
 	local array<String> questStuff;
-	local DELQuest recentQuest;
 	questStuff = action.getQuestInfo();
-	recentQuest = QManager.createQuest(questStuff[0],questStuff[1]);
-	action.returnAssign(recentQuest);
+	QManager.createQuest(questStuff[0],questStuff[1]);
 }
 
 /**
