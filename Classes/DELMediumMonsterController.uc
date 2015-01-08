@@ -128,7 +128,10 @@ function int getNumberOfMinions(){
  * Returns whether the pawn should charge. It should not charge when he is too far from the player.
  */
 function bool shouldCharge(){
-	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge ){
+	//local vector hitLocation , hitNormal , empty;
+	//Trace( hitLocation , hitNormal , attackTarget.location , pawn.Location , false );
+
+	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge/* || hitLocation == empty || hitNormal == empty */){
 		return false;
 	} else {
 		return true;
@@ -412,6 +415,7 @@ state Charge{
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
 			//moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
 			moveTowardsPoint( playerPosition , deltaTime * 6 );
+			//self.moveInDirection( playerPosition - pawn.Location , deltaTime * 6 );
 			//TODO: Check for collision
 			
 			collidingPawn = checkCollision();
