@@ -128,7 +128,10 @@ function int getNumberOfMinions(){
  * Returns whether the pawn should charge. It should not charge when he is too far from the player.
  */
 function bool shouldCharge(){
-	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge ){
+	//local vector hitLocation , hitNormal , empty;
+	//Trace( hitLocation , hitNormal , attackTarget.location , pawn.Location , false );
+
+	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge/* || hitLocation == empty || hitNormal == empty */){
 		return false;
 	} else {
 		return true;
@@ -364,14 +367,16 @@ state maintainDistanceFromPlayer{
 		//Move away
 		if ( VSize( selfToPlayer ) < distanceToPlayer ){
 			moveInDirection( selfToPlayer , deltaTime );
-			pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
 		} else {
 			stopPawn();
 		}
 
+		clearDesiredDirection();
+		pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
+
 		//Return to the fight when the easy pawns have died.
 		if ( timer <= 0.0 ){
-			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ self.getNumberOfMinions() == 0 && shouldCharge() ){
+			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ getNumberOfMinions() == 0 && shouldCharge() ){
 				orderHardMonsterToTransform();
 				startCharge();
 			}
@@ -410,6 +415,7 @@ state Charge{
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
 			//moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
 			moveTowardsPoint( playerPosition , deltaTime * 6 );
+			//self.moveInDirection( playerPosition - pawn.Location , deltaTime * 6 );
 			//TODO: Check for collision
 			
 			collidingPawn = checkCollision();
@@ -485,10 +491,10 @@ state Blocking{
  * It should play a sound belitteling the minions for their incompetence.
  */
 event minionDied(){
-	if ( getNumberOfMinions() > 0 ){
+	if ( getNumberOfMinions() > 1 ){
 		DELMediumMonsterPawn( Pawn ).say( "MinionDied" );
 	} else {
-		DELMediumMonsterPawn( Pawn ).say( "NoMoreMinions" );
+		DELMediumMonsterPawn( Pawn ).say( "NoMoreMinions" , true );
 	}
 }
 

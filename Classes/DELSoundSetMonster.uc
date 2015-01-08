@@ -14,10 +14,15 @@ function SoundCue getSound( string sName ){
 	case "AttackSwing":
 		return soundsToPlay[ 1 ];
 		break;
+	case "Die":
+		return soundsToPlay[ 2 ];
+		break;
 	}
 }
 
 DefaultProperties
 {
 	soundsToPlay[0] = none;
+	soundsToPlay[1] = none;
+	soundsToPlay[2] = none;
 }

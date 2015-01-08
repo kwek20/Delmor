@@ -76,6 +76,18 @@ var float cameraZoomHeight;
 var float cameraTargetHeight;
 
 /**
+ * Determines whether the player is kicking a chicken.
+ * When kicking, the chicken kick function shouldn't be executed again.
+ * You'll have to wait for the kicking to finish.
+ */
+var bool bIsKickingAChicken;
+
+/**
+ * The chicken to kick.
+ */
+var DELChickenPawn chickenToKick;
+
+/**
  * makes sure everybode knows this player is not first-person and never will be
  */
 simulated function bool IsFirstPerson(){
@@ -197,6 +209,8 @@ simulated function magicSwitch(int AbilityNumber){
  * @param	FireModeNum the firemode instigated. if it is 0 melee will be used, if 1 magic
  */
 simulated function StartFire(byte FireModeNum){
+	local DELHostilePawn nearest;
+
 	if( bNoWeaponFiring){
 		return;
 	}
@@ -204,10 +218,74 @@ simulated function StartFire(byte FireModeNum){
 		magic.FireStart();
 	}
 	if(FireModeNum == 0 && sword != None){
+		//Stop moving (So that the auto-aim will work.
+		//DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).stopMoving();
+		//Turn the player towards a nearby enemy when there's no enemy in front of him.
+		if ( !anEnemyIsInFrontOfPlayer() && anEnemyIsNearPlayer() ){
+			nearest = nearestEnemy();
+			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = rotator( adjustLocation( nearest.Location , location.z ) - location ).Yaw;
+		}
+		else{
+			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
+		}
 		weapon.StartFire(FireModeNum);
 	}
 }
 
+/**
+ * Checks whether the player is aimed at an enemy.
+ */
+function bool anEnemyIsInFrontOfPlayer(){
+	local vector inFrontLocation;
+	local DELHostilePawn p;
+
+	inFrontLocation = getInFrontLocation( controller.Rotation.Yaw );
+	
+	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
+		if ( !p.isInState( 'Dead' ) 
+			&& self.CheckCircleCollision( inFrontLocation , GetCollisionRadius() * 0.5 , p.location , p.GetCollisionRadius() ) ){
+				`log( "%%%%%%%%%%%%% An enemy is in front of the player." );
+				return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Checks whether there's an enemy near the player.
+ */
+function bool anEnemyIsNearPlayer(){
+	local DELHostilePawn p;
+
+	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
+		if ( !p.isInState( 'Dead' ) ){
+			`log( "%%%%%%%%%%%%% An enemy is near the player." );
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Gets the nearest enemy.
+ */
+function DELHostilePawn nearestEnemy(){
+	local DELHostilePawn p , nearest;
+	local float smallestDistance , distance;
+	
+	smallestDistance = 256.0;
+	nearest = none;
+
+	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
+		distance = VSize( location - p.location );
+		if ( !p.isInState( 'Dead' ) && distance < smallestDistance ){
+			smallestDistance = distance;
+			nearest = p;
+		}
+	}
+
+	return nearest;
+}
 
 /**
  * stops firing 
@@ -480,11 +558,11 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
 
 	toReturn = none;
 
-	inFrontLocation = getInFrontLocation();
+	inFrontLocation = getInFrontLocation( self.rotation.yaw );
 
 	foreach WorldInfo.AllControllers( class'DELChickenController' , c ){
 		if ( VSize( Location - c.Pawn.Location ) < 96.0 ){
-			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , c.adjustLocation( c.Pawn.Location , location.z ) , c.Pawn.GetCollisionRadius() + 1.0 ) ){
+			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() + 1.0 , /*c.adjustLocation( c.Pawn.Location , location.z )*/c.Pawn.Location , c.Pawn.GetCollisionRadius() + 1.0 ) ){
 				toReturn = DELChickenPawn( c.Pawn );
 			}
 		}
@@ -497,24 +575,49 @@ private function DELChickenPawn chickenIsInFrontOfMe(){
  * Kicks a chicken, sending it flying through the air.
  * @param c DELChicken  The chicken to kick.
  */
-private function kickChicken( DELChickenPawn c ){
-	local Vector selfToChicken;
-
-	selfToChicken = c.location - Location;
-
-	c.knockBack( 250.0 , selfToChicken );
-	c.kick();
+private function startKickingAChicken( DELChickenPawn c ){
+	bIsKickingAChicken = true;
 	playKickAnimation();
+	chickenToKick = c;
+	SetTimer( 0.5080 , false , 'actuallyKickChicken' );
+	SetTimer( 0.8333 , false , 'finishKick' );
 }
 
 /**
- * Return the player's position plus 8 in the player's direction.
+ * Actually kick the chicken causing it to move.
  */
-function Vector getInFrontLocation(){
-	local vector newLocation;
+private function actuallyKickChicken(){
+	local Vector selfToChicken;
 
-	newLocation.X = location.X + lengthDirX( 16.0 , -Rotation.Yaw );
-	newLocation.Y = location.Y + lengthDirY( 16.0 , -Rotation.Yaw );
+	chickenToKick.SetLocation( getASocketsLocation( 'ChickenKickSocket' ) );
+	selfToChicken = chickenToKick.location - Location;
+
+	chickenToKick.knockBack( 500.0 , selfToChicken );
+	chickenToKick.kick();
+}
+
+/**
+ * This function will be called at the end of the Kick animation. It will set bIsKickingAChicken to false.
+ */
+function finishKick(){
+	bIsKickingAChicken = false;
+}
+/**
+ * Return the player's position plus 32 in the player's direction.
+ * @param yaw   int When given, the player will use this yaw to determine the infront location.
+ */
+function Vector getInFrontLocation( optional int yaw ){
+	local vector newLocation;
+	local int useYaw;
+
+	if ( yaw != 0 ){
+		useYaw = yaw;
+	} else {
+		useYaw = rotation.yaw;
+	}
+
+	newLocation.X = location.X + lengthDirX( 32.0 , -useYaw );
+	newLocation.Y = location.Y + lengthDirY( 32.0 , -useYaw );
 	newLocation.Z = Location.Z;
 
 	return newLocation;
@@ -625,11 +728,13 @@ event Tick( float deltaTime ){
 
 	super.Tick( deltaTime );
 
-	chicken = chickenIsInFrontOfMe();
+	if ( !bIsKickingAChicken ){
+		chicken = chickenIsInFrontOfMe();
 
-	//Kick a chicken!!
-	if ( chicken != none ){
-		kickChicken( chicken );
+		//Kick a chicken!!
+		if ( chicken != none ){
+			startKickingAChicken( chicken );
+		}
 	}
 
 	//Change camera height when aiming
@@ -649,8 +754,9 @@ event Tick( float deltaTime ){
 }
 
 /*
- * ===============
+ * ==================================
  * Functions for animation
+ * ==================================
  */
 
 /**
@@ -683,7 +789,7 @@ DefaultProperties
 
 	Components.Remove(ThirdPersonMesh);
 
-		Begin Object Name=ThirdPersonMesh
+	Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_lucian'
 		AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Lucian_anim'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.PhysicsAsset.Lucian_walking_Physics'
@@ -706,6 +812,7 @@ DefaultProperties
 	SprintRecoverTimer = 5.0
 	StamLoss = 5.0
 	Groundspeed = 375.0
+	//groundSpeed = 250.0
 
 	manaRegeneration = 2
 
@@ -718,4 +825,6 @@ DefaultProperties
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
+
+	bIsKickingAChicken = false
 }

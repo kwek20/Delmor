@@ -206,7 +206,7 @@ DefaultProperties
 	onHover = hover
 	onUse = use;
 
-	clickSound = SoundCue'a_interface.menu.UT3MenuAcceptCue'
+	clickSound = SoundCue'Delmor_sound.ButtonKlik_Cue'
 
 	color=(R=255,G=255,B=255,A=255)
 	hoverColor=(R=175,G=175,B=175,A=255)

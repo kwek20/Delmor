@@ -32,7 +32,7 @@ DefaultProperties
 	Begin Object Name=ThirdPersonMesh
 		SkeletalMesh=SkeletalMesh'Delmor_Character.Meshes.sk_culpa_small'
 		AnimSets(0)=AnimSet'Delmor_Character.AnimSets.Culpa_small_anim'
-		AnimtreeTemplate=AnimTree'Delmor_Character.AnimTrees.Culpa_small_AnimTree'
+		AnimtreeTemplate=AnimTree'Delmor_Character.animtrees.Culpa_small_AnimTree'
 		PhysicsAsset=PhysicsAsset'Delmor_Character.PhysicsAsset.sk_culpa_small_Physics'
 		Scale3D=(X=1, Y=1, Z=1)
 		HiddenGame=False
