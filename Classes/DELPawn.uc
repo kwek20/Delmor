@@ -152,8 +152,20 @@ var int attackNumber;
 
 var() Texture2D healthBar, manaBar, edge;
 
-var DELInterfaceHealthBarActor HBActor; 
+/**
+ * If this Pawn has been hit recently
+ */
+var bool hit;
 
+/**
+ * The time in seconds a pawn stays hit
+ */
+var int hitTime;
+
+/**
+ * The length and width of a health bar
+ */
+var float barLength, barWidth;
 
 
 /**
@@ -217,7 +229,8 @@ function drawBar(Canvas c, float x, float y, float length, float width, DELPawn 
 
 	if (edge != None){
 		c.SetPos(x-1, y-1);   
-		c.DrawTile(edge, length*1.15, width*1.6+2, U, V, bar.SizeX, bar.SizeY);
+		c.SetDrawColor(255,255,255,255);
+		c.DrawTile(edge, length*1.15, width*1.6+2, U, V, edge.SizeX, edge.SizeY);
 	}
 }
 
@@ -240,9 +253,13 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser ){
 	super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
-
 	DELNPCController( controller ).pawnTookDamage( DamageCauser );
+
+	hit=true;
+	SetTimer(hitTime, false, 'hitOff');
 }
+
+function hitOff(){hit=false;}
 
 /**
  * adds the weapons(magic + masterSword to the player)
@@ -835,4 +852,8 @@ DefaultProperties
 	healthBar=Texture2D'DelmorHud.health_balk'
 	manaBar=Texture2D'DelmorHud.mana_balk'
 	edge=Texture2D'DelmorHud.bar_edge'
+
+	hitTime=5
+	barLength=50
+	barWidth=10
 }
