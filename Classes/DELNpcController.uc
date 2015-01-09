@@ -21,6 +21,15 @@ var float fleeDistance;
  * When a pawn is closer the controller's pawn than this number, it will be "too close".
  */
 var float tooCloseDistance;
+/**
+ * The pawn to flee from.
+ */
+var DELPawn fleeTarget;
+
+/**
+ * The previous State.
+ */
+var name prevState;
 
 /*
  * ==============================================
@@ -39,10 +48,10 @@ event pawnTookDamage( optional Actor DamageCauser ){
 	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
 	`log( "Being hit" ); 
 	if ( DamageCauser != none ){
-		if ( DamageCauser.IsA( 'DELPlayer' ) ){
+		if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
 			`log( "DELPlayer" );
 			`log( "Retaliate" );
-			attackTarget = DELPawn( DamageCauser );
+			attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
 			changeState( 'Attack' );
 		}
 		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
@@ -116,7 +125,7 @@ state Attack{
 /**
  * Flee from the player
  */
-state flee{
+/*state flee{
 
 	event tick( float deltaTime ){
 		local vector selfToPlayer;
@@ -132,6 +141,57 @@ state flee{
 			stopPawn();
 		}
 	}
+}*/
+state flee {
+	local name previousState;
+	local Vector targetLocation;
+
+	/**
+	 * When entering the state, we'll save the previousStateName.
+	 */
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+		previousState = previousStateName;
+
+	}
+
+	event tick( float deltaTime ){
+		targetLocation = getFleeTargetLocation();
+		moveTowardsPoint( targetLocation , deltaTime);
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed + 100.0 ){
+			stopPawn();
+			endFlee();
+		}
+	}
+
+	/**
+	 * Stop fleeing
+	 */
+	function endFlee(){
+		goToState( previousState );
+	}
+
+}
+/**
+ * Returns a vector based on distance and angle to flee target.
+ */
+function vector getFleeTargetLocation(){
+	local rotator selfToTarget;
+	local vector targetLocation;
+
+	selfToTarget = rotator( fleeTarget.location - pawn.Location );
+	targetLocation.X = fleeTarget.Location.X + lengthDirX( 512.0 , selfToTarget.Yaw );
+	targetLocation.Y = fleeTarget.Location.Y + lengthDirY( 512.0 , selfToTarget.Yaw );
+	targetLocation.Z = pawn.Location.Z;
+
+	return targetLocation;
+}
+
+function FleeFrom( DELPawn from ){
+	fleeTarget = from;
+	if ( !isInState( 'KnockedBack' ) ){
+		goToState( 'Flee' );
+	}
 }
 
 /**
@@ -145,7 +205,9 @@ state NonMovingState{
 		super.BeginState( previousStateName );
 		
 		//Save the previous state in a variable.
-		previousState = previousStateName;
+		if ( previousStateName != 'KnockedBack' ){
+			prevState = previousStateName;
+		}
 
 		startingRotation = pawn.Rotation;
 		pawn.SetDesiredRotation( startingRotation );
@@ -176,22 +238,18 @@ state NonMovingState{
 	 * Returns to the previous state.
 	 */
 	function returnToPreviousState(){
-		goToState( previousState );
+		`log( "============================================" );
+		`log( self$" returnToPreviousState: "$prevState );
+		goToState( prevState );
 	}
 
 	/**
 	 * Returns idle, but will return the previous state when in a nonmoving state.
 	 */
 	function name getPreviousState(){
-		return previousState;
+		return prevState;
 	}
 
-}
-
-/**
- * Empty state, will be filled in the NonMovingState-state
- */
-function returnToPreviousState(){
 }
 
 state Blocking extends NonMovingState{
@@ -224,6 +282,13 @@ state Attacking extends NonMovingState{
 	}
 }
 
+/**
+ * Empty state, will be filled in the NonMovingState-state
+ */
+function returnToPreviousState(){
+	goToState( 'Attack' );
+}
+
 /*
  * ==============================================
  * Utility functions
@@ -234,7 +299,7 @@ state Attacking extends NonMovingState{
  * Returns idle, but will return the previous state when in a nonmoving state.
  */
 function name getPreviousState(){
-	return 'Idle';
+	return 'Attack';
 }
 
 /**

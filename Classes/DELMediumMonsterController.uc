@@ -300,7 +300,7 @@ state attack{
 			//Flee from the player if the health is low and the player is too close.
 			if ( checkIsInDanger() ){
 				`log( self$" I'm in danger" );
-				changeState( 'Flee' );
+				fleeFrom( attackTarget );
 
 				//Call for backup
 				orderNearbyMinionsToAttackPlayer();
@@ -321,21 +321,35 @@ state attack{
  * When the distance to the player is greater than this number, stop fleeing and heal yourself.
  */
 state flee{
-	event tick( float deltaTime ){
-		local vector selfToPlayer;
-		
-		super.Tick( deltaTime );
-
-		selfToPlayer = pawn.Location - attackTarget.location;
-
-		if ( VSize( selfToPlayer ) >= fleeDistance ){
+	/**
+	 * Only stop fleeing when we have enough hp.
+	 */
+	function endFlee(){
+		if ( VSize( pawn.Location - attackTarget.location ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
-			if ( pawn.Health >= pawn.HealthMax / 2 && shouldCharge() ){
-				startCharge();
+			if ( pawn.Health >= pawn.HealthMax * 0.6 ){
+				nextMove();
 			}
 		}
 	}
+
+	/**
+	 * Decide the next move, Charge or attack.
+	 */
+	function nextMove(){
+		`log( "#####################" );
+`log( "#####################" );
+`log( "#####################" );
+		`log( "#####################" );
+		`log( "NEXTMOVE" );
+		if ( shouldCharge() ){
+			startCharge();
+		} else {
+			goToState( 'Attack' );
+		}
+	}
 }
+
 
 /**
  * In this state the mediumMonster will stay a few meters away from the player as long as there's easypawns nearby the player.
@@ -477,11 +491,30 @@ state Charge{
  */
 state Blocking{
 
+	function beginState( name previousStateName ){
+		super.beginState( previousStateName );
+
+		//Stop after five seconds
+		setTimer( 5.0 , false , 'stopBlocking' );
+	}
+
 	event tick( float deltaTime ){
 		super.Tick( deltaTime );
 
 		pawn.SetDesiredRotation( rotator( player.location - pawn.Location ) );
 	}
+}
+
+/**
+ * Called when hit a by player's force attack.
+ * When the block is broken the pawn will not be able to block for five seconds.\
+ * Also notify the controller that our block was broken.
+ */
+function breakBlock(){
+	DELHostilePawn( Pawn ).stopBlocking();
+	PawnBlockBroken();
+	DELHostilePawn( Pawn ).bCanBlock = false;
+	Pawn.SetTimer( 5.0 , false , 'resetCanBlock' );
 }
 
 /*

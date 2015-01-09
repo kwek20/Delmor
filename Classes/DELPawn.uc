@@ -119,6 +119,11 @@ var class<DELMeleeWeapon> swordClass;
  */
 var DELSoundSet mySoundSet;
 
+/**
+ * The sound to play when taking damage.
+ */
+var SoundCue hitSound;
+
 var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
@@ -193,15 +198,42 @@ event tick( float deltaTime ){
 	super.tick( deltaTime );
 
 	blockActorsAgain();
+
+	//Sometimes the controller gets destroyed for no reason, spawn it again.
+	/*if ( controller == none && !isInState( 'Dead' ) ){
+		`log( "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" );
+		`log( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );
+		`log( "#####################################################" );
+		`log( "SPAWNED A NEW CONTROLLER" );
+		`log( "#####################################################" );
+		`log( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );
+		`log( "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" );
+		SpawnDefaultController();
+	}*/
 }
 
+/**
+ * Process the damage and kill the pawn if the health is smaller than 0.
+ */
+function ProcessDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	health -= Damage;
+	
+	DELNPCController( controller ).pawnTookDamage( DamageCauser );
+	hit = true;
+	SetTimer( hitTime, false, 'hitOff' );
+
+	if ( health < 0 ){
+		self.Died( none , DamageType , HitLocation );
+	}
+}
 /**
  * If the bBlockActors = false, check if there's no pawn and we're not being knockedBack
  * if so, set bBlockActors to true.
  */
 function blockActorsAgain(){
 	if ( !bBlockActors ){
-		if ( !controller.IsInState( 'knockedBack' )  && !IsInState( 'Dead' ) ){
+		if ( !IsInState( 'knockedBack' )  && !IsInState( 'Dead' ) ){
 			if ( true ){
 				bBlockActors = true;
 			}
@@ -254,12 +286,35 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser ){
 	super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
 	DELNPCController( controller ).pawnTookDamage( DamageCauser );
-
 	hit=true;
 	SetTimer(hitTime, false, 'hitOff');
 }
 
 function hitOff(){hit=false;}
+
+/**
+ * Spawn a blood effect to indicate that the pawn has been hit..
+ */
+function spawnBlood( vector hitlocation ){
+	local ParticleSystem p;
+	local rotator spawnRot;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_blood_squib';
+
+	spawnRot = rotator( hitlocation - location );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
+}
+
+/**
+ * Spawn the smoke that should appear after being knocked back.
+ */
+function spawnLandSmoke(){
+	local ParticleSystem p;
+	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , location );
+}
+
 
 /**
  * adds the weapons(magic + masterSword to the player)
@@ -297,7 +352,7 @@ function magicSwitch(int AbilityNumber);
  */
 function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
-		changeState( 'Blocking' );
+		DELNPCController( Controller ).changeState( 'Blocking' );
 	}
 	interrupt();
 	playBlockingAnimation();
@@ -308,7 +363,7 @@ function startBlocking(){
  */
 function stopBlocking(){
 	DELNpcController( controller ).returnToPreviousState();
-	changeState( LandMovementState );
+	returnToPreviousState();
 }
 
 /**
@@ -334,11 +389,6 @@ function stun( float duration ){
  * Ends the stun.
  */
 function endStun(){
-	`log( "***************************" );
-	`log( "###########################" );
-	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
-	`log( "###########################" );
-	`log( "***************************" );
 	controller.goToState( 'Idle' );
 }
 
@@ -371,6 +421,7 @@ function SpawnController(){
 function knockBack( float intensity , vector direction , optional bool bNoAnimation ){
 	spawnKnockBackForce( intensity , direction );
 	controller.goToState( 'KnockedBack' );
+	//goToState( 'KnockedBack' );
 	bBlockActors = false;
 
 	if ( !bNoAnimation ){
@@ -556,7 +607,24 @@ function playBlockingAnimation(){
  */
 function destroyMe(){
 	//controller.Destroy();
+	spawnDespawnEffect();
 	destroy();
+}
+
+/**
+ * Creates a particle effect that will be shown when the pawn's corps is deleted.
+ */
+function spawnDespawnEffect(){
+	local ParticleSystem p;
+	//local rotator spawnRot;
+	//local UTParticleSystemComponent psc;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_corpse_dissapear';
+	//psc.SetTemplate( p );
+
+	//psc.ActivateSystem();
+	//spawnRot = rotator( location - hitlocation );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , location );
 }
 
 /**
@@ -575,7 +643,7 @@ function increaseAttackNumber(){
  * @param bForce    bool    Play the sound even if bCanPlay = false.
  */
 function say( String dialogue , optional bool bForce ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	//`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
 	if ( mySoundSet != none && ( mySoundSet.bCanPlay || bForce ) ){
 		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
 		mySoundSet.bCanPlay = false;
@@ -663,10 +731,27 @@ function resetAttackCombo(){
  * ========================================
  */
 
+state NonMovingState{
+	local name previousState;
+
+	function beginState( name PreviousStateName ){
+		super.beginState( PreviousStateName );
+
+		previousState = PreviousStateName;
+	}
+
+	function returnToPreviousState(){
+		goToState( previousState );
+	}
+}
+
+function returnToPreviousState(){
+	goToState( LandMovementState );
+}
 /**
  * Used to override the die and takeDamage functions.
  */
-state Dead{
+state Dead extends NonMovingState{
 	/**
 	 * Do nothing.
 	 */
@@ -687,6 +772,9 @@ state Dead{
 	 */
 	//final function changeState( optional name newState , optional name Label , optional bool bForceEvents , optional bool bKeepStack ){
 	//}
+}
+
+state Blocking extends NonMovingState{
 }
 
 /**
@@ -856,4 +944,6 @@ DefaultProperties
 	hitTime=5
 	barLength=50
 	barWidth=10
+
+	hitSound = SoundCue'Delmor_sound.Weapon.sndc_sword_monster_impact'
 }

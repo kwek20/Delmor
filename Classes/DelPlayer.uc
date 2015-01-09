@@ -229,6 +229,7 @@ simulated function StartFire(byte FireModeNum){
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
 		weapon.StartFire(FireModeNum);
+		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
 	}
 }
 
@@ -244,7 +245,6 @@ function bool anEnemyIsInFrontOfPlayer(){
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) 
 			&& self.CheckCircleCollision( inFrontLocation , GetCollisionRadius() * 0.5 , p.location , p.GetCollisionRadius() ) ){
-				`log( "%%%%%%%%%%%%% An enemy is in front of the player." );
 				return true;
 		}
 	}
@@ -259,7 +259,6 @@ function bool anEnemyIsNearPlayer(){
 
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) ){
-			`log( "%%%%%%%%%%%%% An enemy is near the player." );
 			return true;
 		}
 	}
@@ -454,6 +453,7 @@ simulated function Exhausted(){
 	ClearTimer('LowerStam');
 	SetTimer(SprintRecoverTimer, false, 'SprintRecovery'); //How long till next sprint
 	SetTimer(StamRegenRate, true, 'RegenStam'); //start regeneration
+	PlaySound( SoundCue'Delmor_sound.Lucian.sndc_lucian_pant' );
 }
 
 /**
@@ -775,9 +775,21 @@ function playPickupAnimation(){
 	SwingAnim.PlayCustomAnim( 'Lucian_Pickup' , 1.0 , 0.0 , 0.0 , false , true );
 }
 
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+	playDeathAnimation();
+	super.died( killer , damageType , HitLocation );
+	playDeathAnimation();
+	GroundSpeed = 0.0;
+}
+
+function returnToPreviousState(){
+	goToState( /*'Playing'*/ 'Playing' );
+}
 
 DefaultProperties
 {
+	deathAnimName = Lucian_Death
+
 	swordClass = class'DELMeleeWeaponDemonSlayer';
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
@@ -822,4 +834,6 @@ DefaultProperties
 	bLockedToCamera = false
 
 	bIsKickingAChicken = false
+
+	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
 }

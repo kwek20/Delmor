@@ -56,6 +56,9 @@ event Tick( float deltaTime ){
 
 	//We've hit the ground
 	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0.0 ){
+		if ( zPower < 100.0 ){
+			myPawn.spawnLandSmoke();
+		}
 		endForce();
 	}
 
@@ -75,8 +78,14 @@ function setPower( float inPower ){
  * Destroys the force effects.
  */
 function endForce(){
+	`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" );
+	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
+	`log( "pawnsPreviousState: "$pawnsPreviousState );
+	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
+	`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" );
 	myPawn.controller.goToState( pawnsPreviousState );
-	DELNpcController( myPawn.controller ).returnToPreviousState();
+	//DELNpcController( myPawn.controller ).returnToPreviousState();
+	//myPawn.returnToPreviousState();
 	destroy();
 }
 /**
