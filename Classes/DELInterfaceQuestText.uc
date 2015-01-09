@@ -4,9 +4,8 @@
 class DELInterfaceQuestText extends DELInterfaceScrollbar;
 
 function load(DELPlayerHud hud){
-	super.load(hud);
-	//load the text. Calculate based on backgorund image size
 	text = calculateActualStrings(hud.Canvas, text);
+	super.load(hud);
 }
 
 /**
@@ -15,31 +14,25 @@ function load(DELPlayerHud hud){
  * @param percent The percentage were currntly starting at
  */
 function drawPartial(DELPlayerHud hud, float percent){
-	local float xString, yString, yLength, yStart, yEnd;
+	local float yString, yLength, yStart, yEnd;
 	local int i, y;
 
-	hud.Canvas.Font = class'Engine'.static.GetMediumFont();
-	hud.Canvas.SetDrawColorStruct(color);
-	hud.Canvas.TextSize("1", xString, yString);
-
+	yString = getLetterHeight(hud.Canvas);
 	//max length of the text field, amount of y in a char * size of the text array
 	yLength = yString * text.Length;
-	//Start of the y position, the percentage start of the total
-	yStart = class'DELMath'.static.floor(yLength / 100 * percent);
-	if (yStart > yLength - (position.W - offset*2)) {
-		yStart = yLength - (position.W - offset*2);
-		lockdown();
+	if (yLength <= textFieldSize()){
+		//fits the default screen
+		yStart = 0;
+		yEnd = text.Length;
+	} else {
+		yLength -= textFieldSize();
+		//Start of the y position, the percentage start of the total
+		yStart = class'DELMath'.static.floor(yLength / 100 * percent / yString);
+		yEnd = yStart + textFieldSize()/yString;
 	}
-	
-	//The start plus the size of the textfield (-2x offset for the start and end)
-	yEnd = yStart + position.W - offset*2;
-	
 
-	//The actual start in the array, startpos devided by the size of 1 string
-	yStart = class'DELMath'.static.floor(yStart/yString);
-	//The actual end in the array, endpos devided by the size of a string, clamped to min and max
-	yEnd = Clamp(class'DELMath'.static.round(yEnd/yString),yStart,text.Length);
-
+	yEnd-=1;
+	hud.Canvas.SetDrawColorStruct(color);
 	for (i=yStart; i<yEnd; i++){
 		hud.Canvas.SetPos(position.X+offset, position.Y + offset + y*yString);
 		hud.Canvas.DrawText(text[i]);
@@ -54,19 +47,12 @@ function drawPartial(DELPlayerHud hud, float percent){
  */
 function array< String > calculateActualStrings(Canvas c, array< String > messages){
 	local array< string > newMessages;
-	local string s;
-	local float x, y, xString, yString;
-	local int xMax, xCharMax;
-
-	//set font
-	c.Font = class'Engine'.static.GetMediumFont();
-	//calculate size of 1 character
-	c.TextSize("1", x, y);
+	local string s, temp;
+	local float xString, yString;
+	local int xMax;
+	
 	//set max size
 	xMax = position.Z - 2*offset;
-	//set max characters per line
-	xCharMax = xMax / x;
-
 	//for every message in the array
 	foreach messages(s){
 		//loop as long as the message is not empty
@@ -74,17 +60,54 @@ function array< String > calculateActualStrings(Canvas c, array< String > messag
 			//calculate message length
 			c.TextSize(s, xString, yString);
 			//add the left part of the message to the new array
-			newMessages.AddItem(Left(s, xCharMax));
-			//leave the rest in the old string
-			s = Mid(s, xCharMax); 
-		} until (xString <= xMax);
+			temp = splitLoc(c, s, xMax);
+			newMessages.AddItem(temp);
+			if (s=="") break;
+		} until (temp=="");
 	}
 	return newMessages;
 }
 
+function string splitLoc(Canvas c, out string toSplit, float splitOn, optional bool splitWords=false){
+	local string str;
+	local int i;
+	local float xLength, xTotal;
+	local array<String> letterArray;
+
+	letterArray = splitWords ? StringToArray(toSplit) : SplitString(toSplit, " ");
+	for (i=0; i<letterArray.Length; i++){
+		getLetterHeight(c, xLength, (splitWords?"":" ")$letterArray[i]);
+		getLetterHeight(c, xTotal, str);
+
+		if (xLength >= splitOn){
+			str$=splitLoc(c, letterArray[i], splitOn-(i==0?0.0:xTotal), true);
+			break;
+		} else if (xTotal==splitOn || xTotal+xLength > splitOn) {break;
+		} else {str$=((splitWords||i==0)?"":" ")$letterArray[i];}
+	}
+
+	
+	toSplit = "";
+	while(i<letterArray.Length){
+		toSplit$=letterArray[i];
+		if (!splitWords)toSplit$=" ";
+		i++;
+	}
+	return str;
+}
+
+function array<string> StringToArray(string inputString){
+	local array<string> letterArray;
+	local int i;
+	for (i = 0; i < Len(inputString); i++){
+		letterArray[i]=Mid(inputString,i,1);
+	}
+	return letterArray;
+}
+
 DefaultProperties
 {
-	text=("Quest1", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "line 4", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93", "12234567", "dfhgbho sdfgoj sdfog sdfjgsdfjg sodg sdofjg sdsdpfjg sdfgpjsdfg sdfgpij sdfg sdfgj dfg sdpofg sdfg psdfg sdfjgg j3b9b93  sidfjg 93")
-	offset = 100;
+	text=("In luctus urna tellus, sed maximus justo varius non. Vivamus eget enim odio. Nunc semper vitae purus quis suscipit. Duis vel felis placerat, finibus eros a, gravida tellus. In massa libero, scelerisque a diam eget, vulputate condimentum leo. Morbi sit amet blandit massa, sit amet commodo tellus. Duis molestie elit sit amet nulla imperdiet, eu consequat dolor sagittis. Cras rutrum venenatis augue sit amet malesuada. Vivamus efficitur ipsum sit amet nisi auctor ornare. Aenean sagittis, eros vel dignissim lacinia, ipsum nisi gravida elit, eget rutrum leo diam id dolor. Phasellus porta rhoncus turpis eu tristique. Donec nibh turpis, dictum quis massa eu, feugiat egestas arcu. Suspendisse interdum auctor erat ut blandit. Praesent porta dui eget erat posuere rutrum. Nullam fermentum turpis at nulla tempus, vel commodo nunc sollicitudin. In vel ligula aliquam tortor tempor laoreet.", "test", "", "test", "In luctus urna tellus, sed maximus justo varius non. Vivamus eget enim odio. Nunc semper vitae purus quis suscipit. Duis vel felis placerat, finibus eros a, gravida tellus. In massa libero, scelerisque a diam eget, vulputate condimentum leo. Morbi sit amet blandit massa, sit amet commodo tellus. Duis molestie elit sit amet nulla imperdiet, eu consequat dolor sagittis. Cras rutrum venenatis augue sit amet malesuada. Vivamus efficitur ipsum sit amet nisi auctor ornare. Aenean sagittis, eros vel dignissim lacinia, ipsum nisi gravida elit, eget rutrum leo diam id dolor. Phasellus porta rhoncus turpis eu tristique. Donec nibh turpis, dictum quis massa eu, feugiat egestas arcu. Suspendisse interdum auctor erat ut blandit. Praesent porta dui eget erat posuere rutrum. Nullam fermentum turpis at nulla tempus, vel commodo nunc sollicitudin. In vel ligula aliquam tortor tempor laoreet.", "test")
+	offset = 90;
 	color=(R=50,G=100,B=100,A=255)
 }

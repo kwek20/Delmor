@@ -33,5 +33,5 @@ function draw(DELPlayerHud hud){
 
 DefaultProperties
 {
-	textures=(Texture2D'DelmorHud.questlog')
+	textures=(Texture2D'DelmorHud.Scroll_QuestLog')
 }
