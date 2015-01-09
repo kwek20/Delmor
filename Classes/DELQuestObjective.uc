@@ -1,4 +1,4 @@
-class DELQuestObjective extends Object;
+class DELQuestObjective extends Actor;
 
 var String objective;
 

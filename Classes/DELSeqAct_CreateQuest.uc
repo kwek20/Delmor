@@ -6,12 +6,6 @@ var() String description;
 var DELQuest Quest;
 var bool returned;
 
-event Activated(){
-	while(!returned){
-		`log("wait for responce");
-	}
-}
-
 function array<String> getQuestInfo(){
 	local array<String> strings;
 	strings.InsertItem(0,title);

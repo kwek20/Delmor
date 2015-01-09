@@ -501,7 +501,7 @@ function attack(){
 		increaseAttackNumber();
 		say( "AttackSwing" );
 	}
-
+	        
 	//weapon.StartFire(0);
 }
 

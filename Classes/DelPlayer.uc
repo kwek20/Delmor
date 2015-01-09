@@ -108,6 +108,8 @@ simulated event PostBeginPlay(){
 	QManager.createQuest("Dropbox", "Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen.");
 	QManager.createQuest("The Crash", "Schiet een drone uit de lucht boven China.");
 	QManager.createQuest("Apple Destroyer", "Installeer Windows 10 op alle Apple computers.");
+	QManager.addObjective(QManager.getQuest("The Interview"), "Krijg een geweer");
+	QManager.completeObjective(QManager.getQuest("The Interview"), "Krijg een geweer");
 	//Location.Z = 10000;
 }
 
@@ -139,6 +141,9 @@ exec function numberOfPawnsNearPlayer(){
 	`log(nPawns);
 }*/
 
+function OnCompleteObjective(){
+
+}
 
 function OnAddObjective(DELSeqAct_AddObjective Action){
 
@@ -196,6 +201,17 @@ simulated function StopFire(byte FireModeNum){
 	}
 	if(FireModeNum == 0 && sword != None){
 		sword.StopFire(FireModeNum);
+	}
+}
+
+function PickUp() {   
+	local DELItemInteractible p;
+	local float pickupRange;
+	pickupRange = 128.0;
+	foreach WorldInfo.allActors(class'DELItemInteractible', p) {
+		if (VSize(location-p.location) < pickupRange) {
+			p.pickup();
+		}
 	}
 }
 
@@ -449,6 +465,9 @@ event Tick( float deltaTime ){
 	super.Tick( deltaTime );
 
 	chicken = chickenIsInFrontOfMe();
+
+	//Pick nearby items.
+	PickUp();
 
 	//Kick a chicken!!
 	if ( chicken != none ){
