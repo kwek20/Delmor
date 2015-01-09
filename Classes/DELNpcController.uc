@@ -32,6 +32,28 @@ event Possess( Pawn inPawn , bool bVehicleTransition ){
 	super.Possess( inPawn , bVehicleTransition );
 }
 
+/**
+ * Called when the pawn took damage.
+ */
+event pawnTookDamage( optional Actor DamageCauser ){
+	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
+	`log( "Being hit" ); 
+	if ( DamageCauser != none ){
+		if ( DamageCauser.IsA( 'DELPlayer' ) ){
+			`log( "DELPlayer" );
+			`log( "Retaliate" );
+			attackTarget = DELPawn( DamageCauser );
+			changeState( 'Attack' );
+		}
+		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
+			`log( "DELMagicProjectile" );
+			`log( "Retaliate" );
+			//Attack target will be set to the player since he's to only one who can cast magic in-game.
+			attackTarget = findPlayer();
+			changeState( 'Attack' );
+		}
+	}
+}
 
 auto state Idle{
 	event Tick( float deltaTime ){
@@ -45,6 +67,7 @@ auto state Idle{
 		}
 	}
 }
+
 /**
  * In this state the NPC will chase it's target and attack if it's close enough.
  */
@@ -55,16 +78,16 @@ state Attack{
 
 	event tick( float deltaTime ){
 		
-		//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
-		if ( checkTargetWhitinRange( attackTarget ) ){
-			targetInRange();
-		} else {
-			moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
-		}
-
 		//The attacktarget is gone, return to idle state.
 		if ( !targetIsAlive() || targetIsTooFarAway() ){
 			goToState( 'Idle' );
+		} else {
+			//If the target is whitin range call targetInRange(), which in turn starts the melee attack pipe-line.
+			if ( checkTargetWhitinRange( attackTarget ) ){
+				targetInRange();
+			} else {
+				moveTowardsPoint( attackTarget.location , deltaTime ); //Move to our target (Should stop when target is whitin range.
+			}
 		}
 	}
 
@@ -155,6 +178,14 @@ state NonMovingState{
 	function returnToPreviousState(){
 		goToState( previousState );
 	}
+
+	/**
+	 * Returns idle, but will return the previous state when in a nonmoving state.
+	 */
+	function name getPreviousState(){
+		return previousState;
+	}
+
 }
 
 /**
@@ -200,6 +231,13 @@ state Attacking extends NonMovingState{
  */
 
 /**
+ * Returns idle, but will return the previous state when in a nonmoving state.
+ */
+function name getPreviousState(){
+	return 'Idle';
+}
+
+/**
  * Returns the distance between two points.
  */
 function float distanceToPoint( vector l ){
@@ -227,7 +265,7 @@ function bool checkTargetWhitinRange( DELPawn p ){
  * Returns true if the pawn exists and has more than one health.
  */
 function bool targetIsAlive(){
-	if ( attackTarget.health > 0 && attackTarget != none ){
+	if ( attackTarget.health > 0 && attackTarget != none && !attackTarget.isInState( 'Dead' ) ){
 		return true;
 	} else {
 		return false;
@@ -414,7 +452,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 
 	if ( !DELPawn( Pawn ).bIsStunned ){//You may only move if you are not stunned
 		adjustedLocation = adjustLocation( l , Pawn.Location.Z );
-		if(FindNavMeshPathVect(l)){
+		if(FindNavMeshPathVect(adjustedLocation)){
 			//A mesh has been found
 			NavigationHandle.SetFinalDestination(l);
 			FlushPersistentDebugLines();

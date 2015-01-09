@@ -150,6 +150,24 @@ var array<float> attackAnimationImpactTime;
  */
 var int attackNumber;
 
+var() Texture2D healthBar, manaBar, edge;
+
+/**
+ * If this Pawn has been hit recently
+ */
+var bool hit;
+
+/**
+ * The time in seconds a pawn stays hit
+ */
+var int hitTime;
+
+/**
+ * The length and width of a health bar
+ */
+var float barLength, barWidth;
+
+
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
@@ -158,8 +176,7 @@ simulated event PostBeginPlay(){
 
 	spawnDefaultController();
 	SetMovementPhysics();
-	//Mesh.GetSocketByName("");
-	//Mesh.GetSocketByName(socketName);
+
 	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
 
 	 //Set up custom inventory manager
@@ -167,14 +184,57 @@ simulated event PostBeginPlay(){
 		UManager = Spawn(UInventory, Self);
 		if ( UManager == None )
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
-
 	}
+
 	AddDefaultInventory();
 }
 
+event tick( float deltaTime ){
+	super.tick( deltaTime );
+
+	blockActorsAgain();
+}
 
 /**
- * selects a point in the animtree so it is easier acessible
+ * If the bBlockActors = false, check if there's no pawn and we're not being knockedBack
+ * if so, set bBlockActors to true.
+ */
+function blockActorsAgain(){
+	if ( !bBlockActors ){
+		if ( !controller.IsInState( 'knockedBack' )  && !IsInState( 'Dead' ) ){
+			if ( true ){
+				bBlockActors = true;
+			}
+		}
+	}
+}
+
+/**
+ * Returns true when there are no pawns (other than him self) in the pawn's collisionRadius.
+ */
+function bool noPawnsInCollisionRadius(){
+	local DELPawn p;
+
+	foreach worldInfo.AllPawns( class'DELPawn' , p , location , GetCollisionRadius() * 2 ){
+		if ( CheckSphereCollision( self.location , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) ){
+			return false;
+		}
+	}
+	return true;
+}
+
+function drawBar(Canvas c, float x, float y, float length, float width, DELPawn pawn, Texture2D bar, optional Texture2D edge, optional float U = 0.f, optional float V = 0.f){
+	c.SetPos(x, y);  
+	c.DrawTile(bar, length * (float(pawn.Health) / float(pawn.HealthMax)),width, U, V, bar.SizeX, bar.SizeY);
+
+	if (edge != None){
+		c.SetPos(x-1, y-1);   
+		c.SetDrawColor(255,255,255,255);
+		c.DrawTile(edge, length*1.15, width*1.6+2, U, V, edge.SizeX, edge.SizeY);
+	}
+}
+
+/**
  * it is unknown to me what the super does
  * @param SkelComp the skeletalmesh component linked to the animtree
  */
@@ -186,6 +246,20 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 		DeathAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('DeathCustomAnim'));
 	}
 }
+
+/**
+ * When taking damage, notify the controller.
+ */
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser ){
+	super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
+	DELNPCController( controller ).pawnTookDamage( DamageCauser );
+
+	hit=true;
+	SetTimer(hitTime, false, 'hitOff');
+}
+
+function hitOff(){hit=false;}
 
 /**
  * adds the weapons(magic + masterSword to the player)
@@ -318,7 +392,12 @@ function spawnKnockBackForce( float intensity , vector direction ){
 	knockBack.myPawn = self;
 	knockBack.direction = direction;
 	knockBack.beginZ = location.Z;
-	knockBack.pawnsPreviousState = controller.GetStateName();
+	if ( controller.IsChildState( controller.GetStateName() , 'NonMovingState' ) ){
+		knockBack.pawnsPreviousState = DELNPCcontroller( controller ).getPreviousState();
+	}
+	else{
+		knockBack.pawnsPreviousState = controller.GetStateName();
+	}
 }
 
 /**
@@ -365,7 +444,7 @@ function attack(){
 		playAttackAnimation();
 		controller.goToState( 'Attacking' );
 		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
-		setTimer( attackInterval * 0.5 , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
+		setTimer( attackAnimationImpactTime[ attackNumber ] , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
 		increaseAttackNumber();
 		say( "AttackSwing" );
 	}
@@ -408,9 +487,9 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 	interrupt();
 
 	//Play died sound
-	say( "Die" );
+	say( "Die" , true );
 	changeState( 'Dead' );
-	Controller.destroy();
+	Controller.pawnDied( self );
 	setTimer( 5.0 , false , 'destroyMe' );
 	//Play death animation
 	playDeathAnimation();
@@ -428,6 +507,9 @@ function shapeShift( class<DELPawn> toTransformInto ){
 	p.health = ( p.healthMax / healthMax ) * health;
 	p.setRotation( rotation );
 	p.setLocation( location );
+	//Stop blocking actors; if the monster transforms while the player
+	//is near, the player dies if the collides with the new pawn.
+	p.bBlockActors = false;
 
 	//Remove old pawn from memory.
 	controller.Destroy();
@@ -489,10 +571,12 @@ function increaseAttackNumber(){
 
 /**
  * Say a line from the sound set. Only one sound can be played per 2 seconds.
+ * @param dialoge   String  A text representation of what to say. An adapter in the soundset will look for the appropriate soundcue.
+ * @param bForce    bool    Play the sound even if bCanPlay = false.
  */
-function say( String dialogue ){
+function say( String dialogue , optional bool bForce ){
 	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet != none && mySoundSet.bCanPlay ){
+	if ( mySoundSet != none && ( mySoundSet.bCanPlay || bForce ) ){
 		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
 		mySoundSet.bCanPlay = false;
 		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
@@ -522,13 +606,21 @@ function dealAttackDamage(){
 }
 
 /**
- * Return the player's position plus meleeRange in the player's direction.
+ * Return the player's position plus 16 in the player's direction.
+ * @param yaw   int When given, the player will use this yaw to determine the infront location.
  */
-function Vector getInFrontLocation(){
+function Vector getInFrontLocation( optional int yaw ){
 	local vector newLocation;
+	local int useYaw;
 
-	newLocation.X = location.X + lengthDirX( meleeRange , -Rotation.Yaw );
-	newLocation.Y = location.Y + lengthDirY( meleeRange , -Rotation.Yaw );
+	if ( yaw != 0 ){
+		useYaw = yaw;
+	} else {
+		useYaw = rotation.yaw;
+	}
+
+	newLocation.X = location.X + lengthDirX( meleeRange , -useYaw );
+	newLocation.Y = location.Y + lengthDirY( meleeRange , -useYaw );
 	newLocation.Z = Location.Z;
 
 	return newLocation;
@@ -574,7 +666,7 @@ function resetAttackCombo(){
 /**
  * Used to override the die and takeDamage functions.
  */
-state dead{
+state Dead{
 	/**
 	 * Do nothing.
 	 */
@@ -658,6 +750,48 @@ function bool CheckCircleCollision( vector circleLocationA , float circleRadiusA
 	}
 }
 
+/**
+ * Returns to location of a socket in the pawn's mesh.
+ * @param socketName    name    The name of the socket.
+ */
+function vector getASocketsLocation( name socketName ){
+	local vector SocketLocation;
+	//if ( Mesh.class != SkeletalMeshComponent ){
+	//	SkeletalMeshComponent( Mesh ).GetSocketWorldLocationAndRotation( socketName , SocketLocation );
+	//} else {
+		Mesh.GetSocketWorldLocationAndRotation( socketName , SocketLocation );
+	//}
+	return SocketLocation;
+}
+
+/**
+ * Adjusts a given location so that it's z-variable will be set to a given value while ignoring
+ * the other values.
+ * Useful for locking z-values.
+ */
+function vector adjustLocation( vector inLocation , float targetZ ){
+	local vector newLocation;
+
+	newLocation.X = inLocation.X;
+	newLocation.Y = inLocation.Y;
+	newLocation.Z = targetZ;
+
+	return newLocation;
+}
+
+/**
+ * Adjust a rotation so that it's yaw-value will be locked to a given value.
+ */
+function rotator adjustRotation( rotator inRotation , float targetYaw ){
+	local rotator adjustedRotation;
+
+	adjustedRotation.Pitch = inRotation.Pitch;
+	adjustedRotation.Roll = inRotation.Roll;
+	adjustedRotation.Yaw = targetYaw;
+
+	return adjustedRotation;
+}
+
 DefaultProperties
 {
 	bCanPickUpInventory = true
@@ -701,6 +835,7 @@ DefaultProperties
 		bAcceptsLights=true
 		Translation=(Z=-42.0)
 	End Object
+
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
 
@@ -713,4 +848,12 @@ DefaultProperties
 
 	attackNumber = 0
 	getHitTime = 1.0
+
+	healthBar=Texture2D'DelmorHud.health_balk'
+	manaBar=Texture2D'DelmorHud.mana_balk'
+	edge=Texture2D'DelmorHud.bar_edge'
+
+	hitTime=5
+	barLength=50
+	barWidth=10
 }

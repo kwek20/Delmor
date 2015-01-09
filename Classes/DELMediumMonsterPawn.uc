@@ -108,19 +108,6 @@ state Blocking{
 	}
 }
 
-
-/*
- * Say a line from the sound set. Only one sound can be played per 2 seconds.
- */
-function say( String dialogue ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
-	if ( mySoundSet.bCanPlay ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 2.0 , false , nameOf( mySoundSet.resetCanPlay ) );
-	}
-}
-
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELMediumMonsterController'
@@ -161,8 +148,11 @@ defaultproperties
 
 	//Anim
 	animname[ 0 ] = rhinoman_attack1
+	attackAnimationImpactTime[ 0 ] = 0.7112
 	animname[ 1 ] = rhinoman_attack2
+	attackAnimationImpactTime[ 1 ] = 0.6851
 	animname[ 2 ] = rhinoman_attack2
+	attackAnimationImpactTime[ 2 ] = 0.6851
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
 	getHitAnimName = rhinoman_gettinghit

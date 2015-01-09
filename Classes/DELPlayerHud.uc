@@ -119,6 +119,8 @@ function PlayerOwnerDied(){
 
 function PostRender(){
 	local InterFaceItem interface;
+	local DELHostilePawn dPawn;
+
 	if (!bShowHUD) return;
 
 	if ( sizeChanged() ){
@@ -131,6 +133,10 @@ function PostRender(){
 
 	foreach interfaces(interface){
 		interface.interface.draw(self);
+	}
+
+	ForEach DynamicActors(class'DELHostilePawn', dPawn){
+		dPawn.PostRenderFor(getPlayer(), Canvas, getPlayer().Location, Vector(getPlayer().Rotation));
 	}
 }
 

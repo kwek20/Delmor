@@ -26,6 +26,7 @@ simulated state Charging{
 		chargingProjectile.SetDrawScale(projectileSize);
 		ProjectileSizeTotal = projectileSize;
 		consumeMana(manaCost);
+		
 	}
 	/**
 	 * extended tick that changes the position of the projectile and adds to the lifespan of it
@@ -51,8 +52,6 @@ simulated state Charging{
 		chargingProjectile.SetDrawScale(ProjectileSizeTotal);
 		
 	}
-
-
 }
 
 /**
@@ -81,7 +80,7 @@ DefaultProperties
 	spell = class'DELMagicProjectileForce'
 	bCanCharge = true
 	ChargeCost = 5;
-	ChargeAdd = 20;
+	ChargeAdd = 8;
 	damage = 20;
 	manaCost = 1;
 	IconTexture = Texture2D'DelmorHud.damage_spell'

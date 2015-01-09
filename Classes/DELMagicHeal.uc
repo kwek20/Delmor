@@ -28,6 +28,7 @@ simulated state Charging{
 		super.interrupt();
 		GoToState('Nothing');
 	}
+
 }
 
 /**
@@ -42,12 +43,12 @@ simulated function FireStart(){
 	}
 	consumeMana(manaCost);
 }
-
 /**
- * new customfire espacially for healing
+ * makes the magic shine
  */
-simulated function CustomFire(){
-	//consumeMana();
+simulated function shoot(){
+	spellcaster.SwingAnim.PlayCustomAnim('lucian_healCast', 1.0);
+	//CustomFire();
 	spellCaster.Heal(totalDamage);
 }
 

@@ -1,0 +1,1 @@
+class DELSequenceEvent extends SequenceEvent;
