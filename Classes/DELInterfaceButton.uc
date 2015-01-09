@@ -112,8 +112,8 @@ public function drawIdentifier(Canvas c){
  * !warning has magic numbers for the extra space around buttons
  * @author harmen wiersma
  */
-public function drawTexture(Canvas c){
-	super.drawTexture(c);
+public function drawTexture(Canvas c, optional bool scale=true){
+	super.drawTexture(c, scale);
 	if(bLastClicked && textures.Length>0){
 		c.SetDrawColor(clickedColor.R,clickedColor.G,clickedColor.B,clickedColor.A);
 		c.SetPos(position.X-5,position.Y-5,position.Z);

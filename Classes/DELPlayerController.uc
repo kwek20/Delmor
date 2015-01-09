@@ -37,7 +37,7 @@ function BeginState(Name PreviousStateName){
 
 auto state PlayerWalking {
 Begin:
-	Sleep(0.1); swapState('Playing');
+	Sleep(0.1); swapState('MainMenu');
 }
 
 state Playing extends PlayerWalking{
@@ -74,11 +74,26 @@ state MouseState extends BaseState{
 Begin:
 }
 
+state MainMenu extends MouseState {
+	function BeginState(Name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		drawDefaultHud = false;
+		drawSubtitles = false;
+		addInterface(class'DELInterfaceMainMenu');
+		checkHuds();
+
+		SetPause(true);
+	}
+
+	function goToPreviousState(){}
+}
+
 state Pauses extends MouseState{
 
 	function BeginState(Name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		addInterface(class'DELInterfacePause');
+		checkHuds();
 	}
 
 Begin:
@@ -160,6 +175,7 @@ exec function openInventory(){
 }
 
 exec function closeHud(){
+	if (previousState == 'PlayerWalking') return;
 	swapState('Playing');
 }
 
@@ -203,6 +219,7 @@ function checkHuds(){
 	}
 	if (drawbars){
 		addInterface(class'DELInterfaceHealthBars');
+		addInterfacePriority(class'DELInterfaceHealthBarFloating', LOW);
 	}
 	hudLoaded = true;
 }

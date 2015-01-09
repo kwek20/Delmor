@@ -101,7 +101,6 @@ function string splitLoc(Canvas c, out string toSplit, float splitOn, optional b
 		} else {str$=((splitWords||i==0)?"":" ")$letterArray[i];}
 	}
 
-	
 	toSplit = "";
 	while(i<letterArray.Length){
 		toSplit$=letterArray[i];

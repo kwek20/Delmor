@@ -274,7 +274,7 @@ exec function openInventory() {
 }
 
 exec function closeHud() {
-	if (Pawn.Controller.getStateName() == 'Playing' || Pawn.Controller.getStateName() == 'Pauses'){
+	if (getController().getStateName() == 'Playing' || getController().getStateName() == 'Pauses'){
 		getController().closeHud();
 	} else {
 		getController().goToPreviousState();
