@@ -123,6 +123,10 @@ var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
 
+var class<DELQuestManager> QuestManager;
+
+var repnotify DELQuestManager QManager;
+
 /*
  * =========================================
  * Animation
@@ -186,7 +190,6 @@ simulated event PostBeginPlay(){
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
 		}
 	}
-
 	AddDefaultInventory();
 }
 
