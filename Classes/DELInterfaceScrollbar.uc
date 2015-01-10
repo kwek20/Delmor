@@ -10,11 +10,10 @@ class DELInterfaceScrollbar extends DELInterfaceObject abstract;
  */
 var DELInterfaceTexture lockedObject;
 
-var() array< string > text;
+var() array< DELInterfaceStringText > text;
 var() float offset;
 var() float percent;
 var() float perScroll, perScrollPercent;
-
 
 var bool downLock;
 

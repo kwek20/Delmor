@@ -23,11 +23,13 @@ public function draw(DELPlayerHud hud){
 	drawAllTextures(hud.Canvas);
 }
 
-public function drawAllTextures(Canvas c){
+public function drawAllTextures(Canvas c, optional bool scale=true){
 	local Texture2D tex;
 	foreach textures(tex){
 		c.SetPos(position.X, position.Y);
-		drawTile(c, tex, position.Z, position.W);
+		drawTile(c, tex, 
+			scale ? position.Z : float(tex.SizeX), 
+			scale ? position.W : float(tex.SizeY));
 	}
 }
 

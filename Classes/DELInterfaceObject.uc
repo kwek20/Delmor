@@ -93,7 +93,7 @@ public function draw(DELPlayerHud hud){
  * if you hover on this and a hover texture or color is set, this will display that.<br/>
  * Otherwise all textures will be drawn normally
  */
-public function drawTexture(Canvas c){
+public function drawTexture(Canvas c, optional bool scale=true){
 	if (textures.Length == 0 || transparant) return;
 	if (isHover && (hoverTextures.Length > 0 || hoverColorSet())){
 		if (hoverTextures.Length > 0){
@@ -102,7 +102,7 @@ public function drawTexture(Canvas c){
 			drawAllTexturesColored(c, hoverColor);
 		}
 	} else {
-		drawAllTextures(c);
+		drawAllTextures(c, scale);
 	}
 }
 

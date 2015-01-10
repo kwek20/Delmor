@@ -4,8 +4,20 @@
 class DELInterfaceQuestText extends DELInterfaceScrollbar;
 
 function load(DELPlayerHud hud){
-	text = calculateActualStrings(hud.Canvas, text);
 	super.load(hud);
+	loadQuests(hud.getPlayer().getPawn().QManager.quests);
+	`log("Load Quests");
+	//load the text. Calculate based on backgorund image size
+	text = calculateActualStrings(hud.Canvas, text);
+	
+}
+
+function loadQuests(array<DELQuest> quests)
+{
+	local int i;
+	for (i=0; i<quests.Length; i++){
+		setText(quests[i].title, quests[i].description);
+	}
 }
 
 /**
@@ -33,9 +45,8 @@ function drawPartial(DELPlayerHud hud, float percent){
 
 	yEnd-=1;
 	hud.Canvas.SetDrawColorStruct(color);
-	for (i=yStart; i<yEnd; i++){
-		hud.Canvas.SetPos(position.X+offset, position.Y + offset + y*yString);
-		hud.Canvas.DrawText(text[i]);
+	for (i=yStart; i<=yEnd; i++){
+		text[i].draw(hud, position.X+offset, position.Y + offset + y*yString, color);
 		y++;
 	}
 }
@@ -45,25 +56,30 @@ function drawPartial(DELPlayerHud hud, float percent){
  * @param c
  * @param messages An array of messages/strings
  */
-function array< String > calculateActualStrings(Canvas c, array< String > messages){
-	local array< string > newMessages;
-	local string s, temp;
+function array< DELInterfaceStringText > calculateActualStrings(Canvas c, array< DELInterfaceStringText > messages){
+	local array< DELInterfaceStringText > newMessages;
 	local float xString, yString;
 	local int xMax;
+
+	local DELInterfaceStringText s, temp;
 	
 	//set max size
 	xMax = position.Z - 2*offset;
+
 	//for every message in the array
 	foreach messages(s){
 		//loop as long as the message is not empty
 		do {
 			//calculate message length
-			c.TextSize(s, xString, yString);
+			c.TextSize(s.text, xString, yString);
 			//add the left part of the message to the new array
-			temp = splitLoc(c, s, xMax);
+			temp = new class'DELInterfaceStringText';
+			temp.text = splitLoc(c, s.text, xMax);
+			temp.completed = s.completed;
+
 			newMessages.AddItem(temp);
-			if (s=="") break;
-		} until (temp=="");
+			if (s.text=="") break;
+		} until (temp.text=="");
 	}
 	return newMessages;
 }
@@ -86,7 +102,6 @@ function string splitLoc(Canvas c, out string toSplit, float splitOn, optional b
 		} else {str$=((splitWords||i==0)?"":" ")$letterArray[i];}
 	}
 
-	
 	toSplit = "";
 	while(i<letterArray.Length){
 		toSplit$=letterArray[i];
@@ -105,9 +120,23 @@ function array<string> StringToArray(string inputString){
 	return letterArray;
 }
 
+function setText(String title, String description){
+	local DELInterfaceStringText t,d,s1,s2,s3;
+	t=new class'DELInterfaceStringText'; d=new class'DELInterfaceStringText'; s1=new class'DELInterfaceStringText'; s2=new class'DELInterfaceStringText'; s3=new class'DELInterfaceStringText';
+	
+	t.text=title;
+	d.text=description;
+	s1.text="";s2.text="";s3.text="";
+
+	text.AddItem(t);
+	text.AddItem(s1);
+	text.AddItem(d);
+	text.AddItem(s2);
+	text.AddItem(s3);
+}
+
 DefaultProperties
 {
-	text=("In luctus urna tellus, sed maximus justo varius non. Vivamus eget enim odio. Nunc semper vitae purus quis suscipit. Duis vel felis placerat, finibus eros a, gravida tellus. In massa libero, scelerisque a diam eget, vulputate condimentum leo. Morbi sit amet blandit massa, sit amet commodo tellus. Duis molestie elit sit amet nulla imperdiet, eu consequat dolor sagittis. Cras rutrum venenatis augue sit amet malesuada. Vivamus efficitur ipsum sit amet nisi auctor ornare. Aenean sagittis, eros vel dignissim lacinia, ipsum nisi gravida elit, eget rutrum leo diam id dolor. Phasellus porta rhoncus turpis eu tristique. Donec nibh turpis, dictum quis massa eu, feugiat egestas arcu. Suspendisse interdum auctor erat ut blandit. Praesent porta dui eget erat posuere rutrum. Nullam fermentum turpis at nulla tempus, vel commodo nunc sollicitudin. In vel ligula aliquam tortor tempor laoreet.", "test", "", "test", "In luctus urna tellus, sed maximus justo varius non. Vivamus eget enim odio. Nunc semper vitae purus quis suscipit. Duis vel felis placerat, finibus eros a, gravida tellus. In massa libero, scelerisque a diam eget, vulputate condimentum leo. Morbi sit amet blandit massa, sit amet commodo tellus. Duis molestie elit sit amet nulla imperdiet, eu consequat dolor sagittis. Cras rutrum venenatis augue sit amet malesuada. Vivamus efficitur ipsum sit amet nisi auctor ornare. Aenean sagittis, eros vel dignissim lacinia, ipsum nisi gravida elit, eget rutrum leo diam id dolor. Phasellus porta rhoncus turpis eu tristique. Donec nibh turpis, dictum quis massa eu, feugiat egestas arcu. Suspendisse interdum auctor erat ut blandit. Praesent porta dui eget erat posuere rutrum. Nullam fermentum turpis at nulla tempus, vel commodo nunc sollicitudin. In vel ligula aliquam tortor tempor laoreet.", "test")
-	offset = 90;
+	offset = 90
 	color=(R=50,G=100,B=100,A=255)
 }

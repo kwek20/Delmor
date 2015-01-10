@@ -23,6 +23,13 @@ var class<DELMeleeWeapon> swordClass;
  */
 var DELMagicFactory Grimoire;
 
+
+/**
+ * classname of the sword the player will be using
+ */
+var class<DELMeleeWeapon> swordClass;
+
+
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -145,49 +152,37 @@ function AddDefaultInventory(){
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	AddDefaultInventory();
+
 	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
 	SetThirdPersonCamera( true );
-	//Location.Z = 10000;
+
+	QManager = Spawn(class'DELQuestManager',,,);
+	QManager.createQuest("The Interview", "Je moet de grote leider van Noord-Korea vermoorden.");
+	QManager.createQuest("Dropbox", "Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen.");
+	QManager.createQuest("The Crash", "Schiet een drone uit de lucht boven China.");
+	QManager.createQuest("Apple Destroyer", "Installeer Windows 10 op alle Apple computers.");
+	QManager.addObjective(QManager.getQuest("The Interview"), "Krijg een geweer");
+	QManager.completeObjective(QManager.getQuest("The Interview"), "Krijg een geweer");
 }
 
 exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
 }
 
-/*
-/**
- * Gets the number of pawns
- */
-exec function numberOfPawnsNearPlayer(){
-	local DELHostileController c;
-	local int nPawns;
-	/**
-	 * The distance at wich a pawn is considered near the player.
-	 */
-	local float nearDistance;
+function OnCompleteObjective(){
 
-	nPawns = 0;
-	nearDistance = 256.0;
+}
 
-	foreach WorldInfo.AllControllers( class'DELHostileController' , c ){
-		if ( VSize( c.Pawn.Location - self.Location ) <= nearDistance ){
-			nPawns ++;
-		}
-	}
+function OnAddObjective(DELSeqAct_AddObjective Action){
 
-	`log(nPawns);
-}*/
-
-
-simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
-	local array<Object> objVars;
-	`log("something to do here");
-	// find the first supplied actor
-	//Action.GetObjectVars(objVars);
-	
 }
 
 
+function OnCreateQuest(DELSeqAct_CreateQuest Action){
+	local array<String> questStuff;
+	questStuff = action.getQuestInfo();
+	QManager.createQuest(questStuff[0],questStuff[1]);
+}
 
 /**
  * switches magical ability to the one given (1,2,3,4)
@@ -299,6 +294,17 @@ simulated function StopFire(byte FireModeNum){
 	}
 	if(FireModeNum == 0 && sword != None){
 		sword.StopFire(FireModeNum);
+	}
+}
+
+function PickUp() {   
+	local DELItemInteractible p;
+	local float pickupRange;
+	pickupRange = 128.0;
+	foreach WorldInfo.allActors(class'DELItemInteractible', p) {
+		if (VSize(location-p.location) < pickupRange) {
+			p.pickup();
+		}
 	}
 }
 
@@ -743,6 +749,9 @@ event Tick( float deltaTime ){
 	local DELChickenPawn chicken;
 
 	super.Tick( deltaTime );
+
+	//Pick nearby items.
+	PickUp();
 
 	if ( !bIsKickingAChicken ){
 		chicken = chickenIsInFrontOfMe();

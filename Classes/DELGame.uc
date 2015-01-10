@@ -87,8 +87,7 @@ function WaitingForStreamingLevelsTimer()
     local LevelStreaming Level;
     local DELPlayerController SPlayerController;
 
-    foreach self.WorldInfo.StreamingLevels(Level)
-    {
+    foreach self.WorldInfo.StreamingLevels(Level){
 		// If any levels still have the load request pending, then return
 		if (Level.bHasLoadRequestPending)
 		{
