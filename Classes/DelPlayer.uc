@@ -5,16 +5,11 @@
  */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
-
-
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
 
-
-
 var class<DELMeleeWeapon> swordClass;
-
 
 /**
  * the factory of spells.

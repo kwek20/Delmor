@@ -153,18 +153,14 @@ state flee {
 
 	event tick( float deltaTime ){
 
-		`log( "Flee" );
 		if ( tooCloseToPawn( fleeTarget ) ){
-			`log( "tooCloseToPawn( fleeTarget )" );
 			targetLocation = getFleeTargetLocation();
 		}
 		
 		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0 ){
-			`log( "VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0" );
 			stopPawn();
 			endFlee();
 		} else {
-			`log( "moveTowardsPoint( targetLocation , deltaTime );" );
 			moveTowardsPoint( targetLocation , deltaTime );
 		}
 	}

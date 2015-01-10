@@ -302,13 +302,38 @@ function spawnBlood( vector hitlocation ){
 }
 
 /**
+ * Spawns a bloodsplatter decal on the floor. Useful when dying.
+ */
+function spawnBloodDecal(){
+	local MaterialInterface mat;
+	local vector offSet;
+	local rotator rot;
+
+	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_splatter_a';
+
+	offSet.Z = -1.0;
+	rot = rotator( getFloorLocation() - location );
+	rot.Yaw = rotation.yaw;
+
+	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation() , rot , 96.0 , 96.0 , 2 , false , rotation.yaw , , true , false , , , , 10.0 );
+}
+
+/**
  * Spawn the smoke that should appear after being knocked back.
  */
 function spawnLandSmoke(){
 	local ParticleSystem p;
-	local vector groundLocation , hitNormal , traceEnd;
 
 	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation() );
+}
+
+/**
+ * Returns the location of the ground beneath the pawn.
+ */
+function vector getFloorLocation(){
+	local vector groundLocation , hitNormal , traceEnd;
 
 	traceEnd.X = location.x;
 	traceEnd.Y = location.y;
@@ -317,9 +342,8 @@ function spawnLandSmoke(){
 	//Trace and get a ground location, that way the smoke will be placed on the ground and not the air.
 	Trace( groundLocation , hitNormal , traceEnd , location , false );
 
-	worldInfo.MyEmitterPool.SpawnEmitter( p , groundLocation );
+	return groundLocation;
 }
-
 
 /**
  * adds the weapons(magic + masterSword to the player)
@@ -553,6 +577,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		//Play death animation
 		playDeathAnimation();
 		goToState( 'Dead' );
+		spawnBloodDecal();
 	}
 	return true;
 }
