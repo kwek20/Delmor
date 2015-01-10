@@ -24,12 +24,6 @@ var class<DELMeleeWeapon> swordClass;
 var DELMagicFactory Grimoire;
 
 
-/**
- * classname of the sword the player will be using
- */
-var class<DELMeleeWeapon> swordClass;
-
-
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;

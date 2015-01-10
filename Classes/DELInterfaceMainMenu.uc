@@ -84,7 +84,8 @@ function options(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject 
 }
 
 function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	hud.getPlayer().swapState('Credits');
+	//hud.getPlayer().swapState('Credits');
+	hud.ConsoleCommand("movietest credits");
 }
 
 function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
