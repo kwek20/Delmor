@@ -202,18 +202,6 @@ event tick( float deltaTime ){
 	super.tick( deltaTime );
 
 	blockActorsAgain();
-
-	//Sometimes the controller gets destroyed for no reason, spawn it again.
-	/*if ( controller == none && !isInState( 'Dead' ) ){
-		`log( "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" );
-		`log( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );
-		`log( "#####################################################" );
-		`log( "SPAWNED A NEW CONTROLLER" );
-		`log( "#####################################################" );
-		`log( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );
-		`log( "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" );
-		SpawnDefaultController();
-	}*/
 }
 
 /**
@@ -229,7 +217,7 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 		SetTimer( hitTime, false, 'hitOff' );
 
 		if ( health < 0 ){
-			self.Died( none , DamageType , HitLocation );
+			self.died( none , DamageType , HitLocation );
 		}
 	}
 }
@@ -290,10 +278,12 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser ){
-	super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
-	DELNPCController( controller ).pawnTookDamage( DamageCauser );
-	hit=true;
-	SetTimer(hitTime, false, 'hitOff');
+	if ( !isInState( 'Dead' ) ){
+		super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
+		DELNPCController( controller ).pawnTookDamage( DamageCauser );
+		hit=true;
+		SetTimer(hitTime, false, 'hitOff');
+	}
 }
 
 function hitOff(){hit=false;}
@@ -378,7 +368,6 @@ function startBlocking(){
  */
 function stopBlocking(){
 	DELNpcController( controller ).returnToPreviousState();
-	returnToPreviousState();
 }
 
 /**
@@ -558,12 +547,14 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 
 		//Play died sound
 		say( "Die" , true );
-		Controller.pawnDied( self );
+		//Controller.pawnDied( self );
+		controller.Destroy();
 		setTimer( 5.0 , false , 'destroyMe' );
 		//Play death animation
 		playDeathAnimation();
 		goToState( 'Dead' );
 	}
+	return true;
 }
 
 /**
@@ -718,7 +709,7 @@ function Vector getInFrontLocation( optional int yaw ){
  * Returns a pawn when it is in front of this pawn.
  */
 function Pawn checkPawnInFront(){
-	local controller c;
+	local DELPawn p;
 	local vector inFrontLocation;
 	local float checkDistance;
 	local pawn hitPawn;
@@ -726,12 +717,12 @@ function Pawn checkPawnInFront(){
 	inFrontLocation = getInFrontLocation();
 	checkDistance = meleeRange + GetCollisionRadius();
 
-	foreach WorldInfo.AllControllers( class'controller' , c ){
-		if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
-			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , c.Pawn.Location , c.Pawn.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' ){
-				hitPawn = c.Pawn;
-			}
+	foreach WorldInfo.AllPawns( class'DELPawn' , p , location , 2 * meleeRange ){
+		//if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
+		if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' && !p.isInState( 'Dead' ) ){
+			hitPawn = p;
 		}
+		//}
 	}
 	
 	return hitPawn;
@@ -763,10 +754,10 @@ state NonMovingState{
 		goToState( previousState );
 	}
 }
-
+/*
 function returnToPreviousState(){
 	goToState( LandMovementState );
-}
+}*/
 /**
  * Used to override the die and takeDamage functions.
  */

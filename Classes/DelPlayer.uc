@@ -793,10 +793,32 @@ function playPickupAnimation(){
 }
 
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-	playDeathAnimation();
-	super.died( killer , damageType , HitLocation );
-	playDeathAnimation();
-	GroundSpeed = 0.0;
+
+	if ( !isInState( 'Dead' ) ){
+		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
+		bBlockActors = false;
+		bCollideWorld = true;
+
+		//Stop friggin rotatin'
+		SetRotation( rotation );
+		SetDesiredRotation( rotation , true , false , 0.0 , true );
+		ResetDesiredRotation();
+		interrupt();
+
+		GroundSpeed = 0.0;
+
+		//Play died sound
+		say( "Die" , true );
+		//Controller.pawnDied( self );
+		//controller.Destroy();
+		setTimer( 5.0 , false , 'destroyMe' );
+		//Play death animation
+		playDeathAnimation();
+		goToState( 'Dead' );
+	}
+
+	//return super.died( killer , damageType , HitLocation );
+	return true;
 }
 
 function returnToPreviousState(){
