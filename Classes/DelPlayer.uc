@@ -588,13 +588,15 @@ private function startKickingAChicken( DELChickenPawn c ){
  * Actually kick the chicken causing it to move.
  */
 private function actuallyKickChicken(){
-	local Vector selfToChicken;
+	local Vector selfToChicken , footLocation;
 
-	chickenToKick.SetLocation( getASocketsLocation( 'ChickenKickSocket' ) );
+	footLocation = getASocketsLocation( 'ChickenKickSocket' );
+	chickenToKick.SetLocation( footLocation );
 	selfToChicken = chickenToKick.location - Location;
 
 	chickenToKick.knockBack( 500.0 , selfToChicken );
 	chickenToKick.kick();
+	spawnChickenKickEffects( footLocation );
 }
 
 /**
@@ -603,6 +605,19 @@ private function actuallyKickChicken(){
 function finishKick(){
 	bIsKickingAChicken = false;
 }
+
+/**
+ * Spawns a cool particle-effect for extra chicken-kick-y-ness.
+ * @param l Vector  The location where the effect should be spawned.
+ */
+function spawnChickenKickEffects( vector l ){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_feathers';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , l );
+}
+
 /**
  * Return the player's position plus 32 in the player's direction.
  * @param yaw   int When given, the player will use this yaw to determine the infront location.

@@ -56,9 +56,6 @@ event Tick( float deltaTime ){
 
 	//We've hit the ground
 	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0.0 ){
-		if ( zPower < 100.0 ){
-			myPawn.spawnLandSmoke();
-		}
 		endForce();
 	}
 
@@ -83,6 +80,11 @@ function endForce(){
 	`log( "pawnsPreviousState: "$pawnsPreviousState );
 	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
 	`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" );
+
+	if ( zPower < 100.0 ){
+		myPawn.spawnLandSmoke();
+	}
+ 
 	myPawn.controller.goToState( pawnsPreviousState );
 	//DELNpcController( myPawn.controller ).returnToPreviousState();
 	//myPawn.returnToPreviousState();

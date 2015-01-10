@@ -89,11 +89,13 @@ function fleeFromMonsters(){
 	}
 }
 
-/**
- * Stop fleeing
- */
-function endFlee(){
-	goToState( 'Eat' );
+state Flee{
+	/**
+	 * Stop fleeing
+	 */
+	function endFlee(){
+		goToState( 'Eat' );
+	}
 }
 
 /**

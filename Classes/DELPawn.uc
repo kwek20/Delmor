@@ -217,14 +217,16 @@ event tick( float deltaTime ){
  */
 function ProcessDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-	health -= Damage;
+	if ( !isInState( 'Dead' ) ){
+		health -= Damage;
 	
-	DELNPCController( controller ).pawnTookDamage( DamageCauser );
-	hit = true;
-	SetTimer( hitTime, false, 'hitOff' );
+		DELNPCController( controller ).pawnTookDamage( DamageCauser );
+		hit = true;
+		SetTimer( hitTime, false, 'hitOff' );
 
-	if ( health < 0 ){
-		self.Died( none , DamageType , HitLocation );
+		if ( health < 0 ){
+			self.Died( none , DamageType , HitLocation );
+		}
 	}
 }
 /**
@@ -396,8 +398,10 @@ function endStun(){
  * Regenerates health and mana.
  */
 private function regenerate(){
-	health = Clamp( health + healthRegeneration , 0 , healthMax );
-	mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+	if ( !isInState( 'Dead' ) ){
+		health = Clamp( health + healthRegeneration , 0 , healthMax );
+		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+	}
 }
 
 /**
@@ -519,6 +523,7 @@ function interrupt(){
 	Velocity.Y = 0.0;
 	Velocity.Z = 0.0;
 	ClearTimer( 'dealAttackDamage' ); //Reset this function so that the pawn's attack will be interrupted.
+	DELNPCController( controller ).returnToPreviousState();
 }
 
 /**
@@ -527,23 +532,25 @@ function interrupt(){
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
 	//super.Died( killer , damageType , hitlocation );
 
-	//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
-	bBlockActors = false;
-	bCollideWorld = true;
+	if ( !isInState( 'Dead' ) ){
+		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
+		bBlockActors = false;
+		bCollideWorld = true;
 
-	//Stop friggin rotatin'
-	SetRotation( rotation );
-	SetDesiredRotation( rotation , true , false , 0.0 , true );
-	ResetDesiredRotation();
-	interrupt();
+		//Stop friggin rotatin'
+		SetRotation( rotation );
+		SetDesiredRotation( rotation , true , false , 0.0 , true );
+		ResetDesiredRotation();
+		interrupt();
 
-	//Play died sound
-	say( "Die" , true );
-	changeState( 'Dead' );
-	Controller.pawnDied( self );
-	setTimer( 5.0 , false , 'destroyMe' );
-	//Play death animation
-	playDeathAnimation();
+		//Play died sound
+		say( "Die" , true );
+		Controller.pawnDied( self );
+		setTimer( 5.0 , false , 'destroyMe' );
+		//Play death animation
+		playDeathAnimation();
+		goToState( 'Dead' );
+	}
 }
 
 /**
@@ -619,12 +626,12 @@ function spawnDespawnEffect(){
 	//local rotator spawnRot;
 	//local UTParticleSystemComponent psc;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_corpse_dissapear';
+	p = ParticleSystem'Delmor_Character.Particles.p_flash';
 	//psc.SetTemplate( p );
 
 	//psc.ActivateSystem();
 	//spawnRot = rotator( location - hitlocation );
-	worldInfo.MyEmitterPool.SpawnEmitter( p , location );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , getASocketsLocation( 'FlashSocket' ) );
 }
 
 /**
@@ -669,7 +676,7 @@ function dealAttackDamage(){
 	damage = DELMeleeWeapon( sword ).CalculateDamage();
 
 	if ( hitPawn != none ){
-		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
+		hitPawn.TakeDamage( damage , Instigator.Controller , ( location + hitPawn.Location ) / 2 , momentum , class'DELDmgTypeMelee' , , self );
 	}
 }
 

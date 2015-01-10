@@ -143,21 +143,13 @@ state Attack{
 	}
 }*/
 state flee {
-	local name previousState;
-	local Vector targetLocation;
-
-	/**
-	 * When entering the state, we'll save the previousStateName.
-	 */
-	function beginState( name previousStateName ){
-		super.BeginState( previousStateName );
-		previousState = previousStateName;
-
-	}
 
 	event tick( float deltaTime ){
+		local Vector targetLocation;
+
 		targetLocation = getFleeTargetLocation();
-		moveTowardsPoint( targetLocation , deltaTime);
+		moveTowardsPoint( targetLocation , deltaTime );
+
 		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed + 100.0 ){
 			stopPawn();
 			endFlee();
@@ -168,7 +160,7 @@ state flee {
 	 * Stop fleeing
 	 */
 	function endFlee(){
-		goToState( previousState );
+		goToState( 'Idle' );
 	}
 
 }
@@ -179,9 +171,12 @@ function vector getFleeTargetLocation(){
 	local rotator selfToTarget;
 	local vector targetLocation;
 
-	selfToTarget = rotator( fleeTarget.location - pawn.Location );
-	targetLocation.X = fleeTarget.Location.X + lengthDirX( 512.0 , selfToTarget.Yaw );
-	targetLocation.Y = fleeTarget.Location.Y + lengthDirY( 512.0 , selfToTarget.Yaw );
+	selfToTarget = rotator( pawn.Location - fleeTarget.location );
+	`log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+	`log( "selfToTarget.Yaw: "$selfToTarget.Yaw );
+	`log( "FleeTarget.rotation.yaw: "$fleeTarget.rotation.yaw );
+	targetLocation.X = pawn.Location.X + lengthDirX( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+	targetLocation.Y = pawn.Location.Y + lengthDirY( 384.0 , - ( selfToTarget.Yaw%65536 ) );
 	targetLocation.Z = pawn.Location.Z;
 
 	return targetLocation;
@@ -205,8 +200,11 @@ state NonMovingState{
 		super.BeginState( previousStateName );
 		
 		//Save the previous state in a variable.
-		if ( previousStateName != 'KnockedBack' ){
+		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
 			prevState = previousStateName;
+		}
+		else{
+			prevState = 'Attack';
 		}
 
 		startingRotation = pawn.Rotation;
@@ -278,7 +276,7 @@ state Attacking extends NonMovingState{
 
 	function SwingFinished(){
 		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
-		goToState( previousState );
+		returnToPreviousState();
 	}
 }
 
@@ -460,12 +458,12 @@ function float lengthDirY( float len , float dir ){
  * @return DELPawn
  */
 function DELPawn checkCollision(){
-	local Controller c;
+	local DELPawn p;
 
-	foreach WorldInfo.AllControllers( class'Controller' , c ){
-		if ( distanceToPoint( c.Pawn.Location ) < 64.0 + self.Pawn.GetCollisionRadius() && c != self ){
-			if ( DELPawn( pawn ).CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
-				return DELPawn( c.Pawn );
+	foreach WorldInfo.AllPawns( class'DELPawn' , p , pawn.Location , 512.0 ){
+		if ( p != self.Pawn ){
+			if ( p.CheckCircleCollision( p.Location , p.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ && !p.isInState( 'Dead' ) ){
+				return p;
 			}
 		}
 	}
