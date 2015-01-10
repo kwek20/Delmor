@@ -719,7 +719,7 @@ function Pawn checkPawnInFront(){
 
 	foreach WorldInfo.AllPawns( class'DELPawn' , p , location , 2 * meleeRange ){
 		//if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
-		if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' && !p.isInState( 'Dead' ) ){
+		if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' && !p.isInState( 'Dead' ) && p != self ){
 			hitPawn = p;
 		}
 		//}

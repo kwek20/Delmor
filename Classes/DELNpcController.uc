@@ -153,14 +153,18 @@ state flee {
 
 	event tick( float deltaTime ){
 
+		`log( "Flee" );
 		if ( tooCloseToPawn( fleeTarget ) ){
+			`log( "tooCloseToPawn( fleeTarget )" );
 			targetLocation = getFleeTargetLocation();
 		}
 		
-		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed + 100.0 ){
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0 ){
+			`log( "VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0" );
 			stopPawn();
 			endFlee();
 		} else {
+			`log( "moveTowardsPoint( targetLocation , deltaTime );" );
 			moveTowardsPoint( targetLocation , deltaTime );
 		}
 	}
@@ -181,9 +185,6 @@ function vector getFleeTargetLocation(){
 	local vector targetLocation;
 
 	selfToTarget = rotator( pawn.Location - fleeTarget.location );
-	`log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-	`log( "selfToTarget.Yaw: "$selfToTarget.Yaw );
-	`log( "FleeTarget.rotation.yaw: "$fleeTarget.rotation.yaw );
 	targetLocation.X = pawn.Location.X + lengthDirX( 384.0 , - ( selfToTarget.Yaw%65536 ) );
 	targetLocation.Y = pawn.Location.Y + lengthDirY( 384.0 , - ( selfToTarget.Yaw%65536 ) );
 	targetLocation.Z = pawn.Location.Z;
