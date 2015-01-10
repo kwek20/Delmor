@@ -143,16 +143,25 @@ state Attack{
 	}
 }*/
 state flee {
+	local Vector targetLocation;
 
-	event tick( float deltaTime ){
-		local Vector targetLocation;
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
 
 		targetLocation = getFleeTargetLocation();
-		moveTowardsPoint( targetLocation , deltaTime );
+	}
 
+	event tick( float deltaTime ){
+
+		if ( tooCloseToPawn( fleeTarget ) ){
+			targetLocation = getFleeTargetLocation();
+		}
+		
 		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed + 100.0 ){
 			stopPawn();
 			endFlee();
+		} else {
+			moveTowardsPoint( targetLocation , deltaTime );
 		}
 	}
 

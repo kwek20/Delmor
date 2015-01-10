@@ -316,9 +316,18 @@ function spawnBlood( vector hitlocation ){
  */
 function spawnLandSmoke(){
 	local ParticleSystem p;
+	local vector groundLocation , hitNormal , traceEnd;
+
 	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
 
-	worldInfo.MyEmitterPool.SpawnEmitter( p , location );
+	traceEnd.X = location.x;
+	traceEnd.Y = location.y;
+	traceEnd.Z = location.z - 512.0;
+
+	//Trace and get a ground location, that way the smoke will be placed on the ground and not the air.
+	Trace( groundLocation , hitNormal , traceEnd , location , false );
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , groundLocation );
 }
 
 
@@ -650,7 +659,7 @@ function increaseAttackNumber(){
 
 /**
  * Say a line from the sound set. Only one sound can be played per 2 seconds.
- * @param dialoge   String  A text representation of what to say. An adapter in the soundset will look for the appropriate soundcue.
+ * @param dialogue   String  A text representation of what to say. An adapter in the soundset will look for the appropriate soundcue.
  * @param bForce    bool    Play the sound even if bCanPlay = false.
  */
 function say( String dialogue , optional bool bForce ){
@@ -713,7 +722,6 @@ function Pawn checkPawnInFront(){
 	local vector inFrontLocation;
 	local float checkDistance;
 	local pawn hitPawn;
-	local float averageHeight;
 
 	inFrontLocation = getInFrontLocation();
 	checkDistance = meleeRange + GetCollisionRadius();

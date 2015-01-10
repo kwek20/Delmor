@@ -374,18 +374,18 @@ state maintainDistanceFromPlayer{
 	}
 	
 	event tick( float deltaTime ){
+		local vector targetLocation;
 		local vector selfToPlayer;
 
 		timer -= deltaTime;
 
-		//Calculate direction
-		selfToPlayer = pawn.Location - attackTarget.location;
+		targetLocation = calculateTargetLocation();
 
 		//Move away
-		if ( VSize( selfToPlayer ) < distanceToPlayer ){
-			moveInDirection( selfToPlayer , deltaTime );
-		} else {
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 1 ){
 			stopPawn();
+		} else {
+			moveTowardsPoint( targetLocation , deltaTime );
 		}
 
 		clearDesiredDirection();
@@ -401,6 +401,18 @@ state maintainDistanceFromPlayer{
 			//Reset timer
 			timer = decisionInterval;
 		}
+	}
+
+	function vector calculateTargetLocation(){
+		local rotator selfToTarget;
+		local vector targetLocation;
+
+		selfToTarget = rotator( pawn.Location - attackTarget.location );
+		targetLocation.X = attackTarget.Location.X + lengthDirX( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+		targetLocation.Y = attackTarget.Location.Y + lengthDirY( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+		targetLocation.Z = attackTarget.Location.Z;
+
+		return targetLocation;
 	}
 
 }
@@ -431,7 +443,10 @@ state Charge{
 
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
 			//moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
-			moveTowardsPoint( playerPosition , deltaTime * 6.0 );
+			if ( nothingInTheWay( playerPosition ) ){
+			} else {
+				moveTowardsPoint( playerPosition , deltaTime * 6.0 );
+			}
 			//self.moveInDirection( playerPosition - pawn.Location , deltaTime * 6 );
 			//TODO: Check for collision
 			
@@ -442,6 +457,19 @@ state Charge{
 		} else {
 			stopPawn();
 			changeState( 'attack' );
+		}
+	}
+
+	/**
+	 * Returns true when there is no geometry in the way.
+	 */
+	function bool nothingInTheWay( vector traceEnd ){
+		local vector hitLocation , hitNormal , emptyVector;
+
+		if ( trace( hitLocation , hitNormal , traceEnd, pawn.Location , false ) == none ){
+			return false;
+		} else {
+			return true;
 		}
 	}
 
