@@ -128,4 +128,7 @@ defaultproperties
 	deathAnimName = ratman_death
 	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit
+
+	deathAnimationTime = 0.6387
+	bloodDecalSize = 96.0
 }

@@ -154,6 +154,15 @@ var name blockAnimName;
  * The time in an attack animation when the swing should hit the player.
  */
 var array<float> attackAnimationImpactTime;
+
+/**
+ * The time at which the body hits the floor in the death animation.
+ */
+var float deathAnimationTime;
+/**
+ * The size of the blood decal.
+ */
+var float bloodDecalSize;
 /**
  * An int to point to the attack-animation array.
  */
@@ -312,10 +321,27 @@ function spawnBloodDecal(){
 	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_splatter_a';
 
 	offSet.Z = -1.0;
-	rot = rotator( getFloorLocation() - location );
+	rot = rotator( getFloorLocation( location ) - location );
 	rot.Yaw = rotation.yaw;
 
-	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation() , rot , 96.0 , 96.0 , 2 , false , rotation.yaw , , true , false , , , , 10.0 );
+	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( location ) , rot , 96.0 , 96.0 , 2 , false , 0 , , true , false , , , , 10.0 );
+}
+
+/**
+ * Spawns a bloodsplatter decal on the floor. Useful when dying.
+ */
+function spawnBloodPoolDecal(){
+	local MaterialInterface mat;
+	local vector offSet;
+	local rotator rot;
+
+	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_pool';
+
+	offSet.Z = -1.0;
+	rot = rotator( getFloorLocation( location ) - location );
+	rot.Yaw = rotation.yaw;
+
+	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( getASocketsLocation( 'FlashSocket' ) ) , rot , bloodDecalSize , bloodDecalSize , 2 , false , 0 , , true , false , , , , 10.0 );
 }
 
 /**
@@ -326,13 +352,13 @@ function spawnLandSmoke(){
 
 	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
 
-	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation() );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation( location ) );
 }
 
 /**
- * Returns the location of the ground beneath the pawn.
+ * Returns the location of the ground beneath the given location.
  */
-function vector getFloorLocation(){
+function vector getFloorLocation( vector l ){
 	local vector groundLocation , hitNormal , traceEnd;
 
 	traceEnd.X = location.x;
@@ -340,7 +366,7 @@ function vector getFloorLocation(){
 	traceEnd.Z = location.z - 512.0;
 
 	//Trace and get a ground location, that way the smoke will be placed on the ground and not the air.
-	Trace( groundLocation , hitNormal , traceEnd , location , false );
+	Trace( groundLocation , hitNormal , traceEnd , l , false );
 
 	return groundLocation;
 }
@@ -571,13 +597,15 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 
 		//Play died sound
 		say( "Die" , true );
-		//Controller.pawnDied( self );
+		Controller.pawnDied( self );
 		controller.Destroy();
 		setTimer( 5.0 , false , 'destroyMe' );
 		//Play death animation
 		playDeathAnimation();
 		goToState( 'Dead' );
 		spawnBloodDecal();
+
+		setTimer( deathAnimationTime , false , 'spawnBloodPoolDecal' );
 	}
 	return true;
 }
@@ -802,6 +830,17 @@ state Dead extends NonMovingState{
 		//Do nothing
 	}
 
+	event tick( float deltaTime ){
+		local rotator socketRot;
+		local Vector socketLoc;
+
+		if ( IsTimerActive( 'spawnBloodPoolDecal' ) ){
+			Mesh.GetSocketWorldLocationAndRotation( 'HeadSocket' , socketLoc , socketRot );
+
+			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Character.Particles.p_blood_drops' , socketLoc , socketRot );
+		}
+	}
+
 	/**
 	 * Overriden so that the pawn can't come back to life after dying.
 	 */
@@ -882,9 +921,11 @@ function vector getASocketsLocation( name socketName ){
 	//if ( Mesh.class != SkeletalMeshComponent ){
 	//	SkeletalMeshComponent( Mesh ).GetSocketWorldLocationAndRotation( socketName , SocketLocation );
 	//} else {
-		Mesh.GetSocketWorldLocationAndRotation( socketName , SocketLocation );
-	//}
-	return SocketLocation;
+	if ( Mesh.GetSocketWorldLocationAndRotation( socketName , SocketLocation ) ){
+		return SocketLocation;
+	} else {
+		return location;
+	}
 }
 
 /**
@@ -981,4 +1022,6 @@ DefaultProperties
 	barWidth=10
 
 	hitSound = SoundCue'Delmor_sound.Weapon.sndc_sword_monster_impact'
+
+	bloodDecalSize = 128.0
 }

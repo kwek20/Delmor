@@ -128,8 +128,8 @@ defaultproperties
 		CollisionHeight = 64.0
 	end object
 
-	health = 150
-	healthMax = 150
+	health = 200
+	healthMax = 200
 	healthRegeneration = 8
 	walkingSpeed = 80.0
 	detectionRange = 512.0
@@ -137,7 +137,7 @@ defaultproperties
 	mySoundSet = none
 	meleeRange = 75.0
 	attackInterval = 1.5
-	groundSpeed = 200.0
+	groundSpeed = 150.0
 
 	//Anim
 	animname[ 0 ] = rhinoman_attack1
@@ -149,6 +149,8 @@ defaultproperties
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
 	getHitAnimName = Rhinoman_Gettinghit1
+
+	deathAnimationTime = 0.5833
 
 	swordClass = class'DELMeleeWeaponRhinomanFists'
 }

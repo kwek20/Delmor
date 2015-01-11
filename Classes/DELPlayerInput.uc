@@ -551,11 +551,12 @@ event tick( float deltaTime ){
 	//	v = vector( pawn.Rotation ) * pawn.GroundSpeed * deltaTime;
 	//	pawn.Move( -v );
 	//}
-
-	if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
-		targetYaw = pawn.Controller.Rotation.Yaw;
+	if ( !pawn.IsInState( 'Dead' ) ){
+		if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
+			targetYaw = pawn.Controller.Rotation.Yaw;
+		}
+		rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
 	}
-	rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
 }
 /**
  * Set a specific keybinding.
