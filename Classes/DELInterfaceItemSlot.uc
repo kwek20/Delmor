@@ -57,7 +57,13 @@ function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject bu
 	if (isEmpty()) return;
 	item = getItem(hud);
 	if (item == None) return;
-	hud.getPlayer().showSubtitle(item.getDescription());
+
+	`log(stats.PendingRightPressed@stats.PendingRightReleased@stats.PendingLeftPressed@stats.PendingLeftReleased);
+	if (stats.PendingLeftPressed || DELItemInteractible(item) == none){
+		hud.getPlayer().showSubtitle(item.getDescription());
+	} else if (stats.PendingRightPressed){
+		DELItemInteractible(item).onUse(hud);
+	}
 }
 
 /**
