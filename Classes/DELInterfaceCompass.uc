@@ -83,7 +83,6 @@ function draw(DELPlayerHud hud){
  * Returns the Players' Yaw 
  */
 function int getYaw(){
-	//`log("getYaw: " $ self.Rotation.Yaw);
 	return self.Rotation.Yaw;
 }
 
@@ -91,7 +90,6 @@ function int getYaw(){
  * Returns Players' rotation
  */
 function Rotator getRotator(){
-	//`log("getRotator: " $ self.Rotation);
 	return self.Rotation;
 }
 
@@ -99,7 +97,6 @@ function Rotator getRotator(){
  * Returns Players' rotator as a vector
  **/
 function vector getVectorizedRotator(){
-	//`log("getVectorizedRotator: " $ self.Rotation);
 	return Vector(self.Rotation);
 }
 
