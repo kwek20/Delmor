@@ -23,13 +23,6 @@ var class<DELMeleeWeapon> swordClass;
  */
 var DELMagicFactory Grimoire;
 
-
-/**
- * classname of the sword the player will be using
- */
-var class<DELMeleeWeapon> swordClass;
-
-
 var bool    bSprinting;
 var bool    bCanSprint;
 var bool    bExhausted;
@@ -298,13 +291,26 @@ simulated function StopFire(byte FireModeNum){
 	}
 }
 
-function PickUp() {   
-	local DELItemInteractible p;
+function PickUpHealth() {   
+	local DELItemPotionHealth p;
 	local float pickupRange;
-	pickupRange = 128.0;
-	foreach WorldInfo.allActors(class'DELItemInteractible', p) {
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemPotionHealth', p) {
 		if (VSize(location-p.location) < pickupRange) {
 			p.pickup();
+			UManager.AddInventory(class'DELItemPotionHealth', 1);
+		}
+	}
+}
+
+function PickUpMana() {   
+	local DELItemPotionMana p;
+	local float pickupRange;
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemPotionMana', p) {
+		if (VSize(location-p.location) < pickupRange) {
+			p.pickup();
+			UManager.AddInventory(class'DELItemPotionMana', 1);
 		}
 	}
 }
@@ -734,7 +740,8 @@ event Tick( float deltaTime ){
 	super.Tick( deltaTime );
 
 	//Pick nearby items.
-	PickUp();
+	PickUpHealth();
+	PickUpMana();
 
 	if ( !bIsKickingAChicken ){
 		chicken = chickenIsInFrontOfMe();
