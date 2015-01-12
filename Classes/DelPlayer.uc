@@ -131,11 +131,16 @@ function AddDefaultInventory(){
 	Controller.ClientSwitchToBestWeapon();
 }
 
+exec function becomeMagician(){
+	if(!isMagician){
+		grimoire = Spawn(class'DELMagicFactory');
+		magic = grimoire.getMagic();
+		isMagician=true;
+	}
+}
 
 function OnBecomeMagician(DELSeqAct_BecomeMagician action){
-	grimoire = Spawn(class'DELMagicFactory');
-	magic = grimoire.getMagic();
-	isMagician=true;
+	becomeMagician();
 }
 
 /**
