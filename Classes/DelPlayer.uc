@@ -186,9 +186,9 @@ exec function numberOfPawnsNearPlayer(){
 
 	nPawns = 0;
 	nearDistance = 256.0;
+}
 
 function OnCompleteObjective(){
-
 
 }
 
@@ -528,8 +528,7 @@ simulated function RegenStam(){
 	}
 }
 
-function String Serialize()
-{
+function String Serialize(){
     local JSonObject PJSonObject;
 
     // Instance the JSonObject, abort if one could not be created
@@ -870,7 +869,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 }
 
 function returnToPreviousState(){
-	goToState( /*'Playing'*/ 'Playing' );
+	goToState('Playing' );
 }
 
 DefaultProperties
