@@ -25,10 +25,11 @@ function load(DELPlayerHud hud){
 
 	length = 5*squareSize + 6*inbetween;
 	startX = hud.sizeX/2 - length/2;
-	startY = hud.sizeY - squareSize*1.5;
+	startY = hud.sizeY - squareSize*1.5 - inbetween;
 
 	setPos(startX, startY, length, squareSize+2*inbetween, hud);
 	images = getIcons(hud);
+
 	for (i=1; i<=amountBars; i++){
 		//load magic spells, then quick action items
 		if(i <= images.Length){button = Spawn(class'DELInterfaceButtonMagic');}
