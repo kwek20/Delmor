@@ -154,6 +154,7 @@ exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
 }
 
+
 /*
 /**
  * Gets the number of pawns
@@ -750,6 +751,8 @@ event Tick( float deltaTime ){
 		adjustCameraDistance( deltaTime );
 		adjustCameraOffset( deltaTime );
 	}
+
+
 }
 
 /*

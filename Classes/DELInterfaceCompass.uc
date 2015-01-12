@@ -1,7 +1,7 @@
 /**
  * A compass interface to display the compass
  */
-class DELInterfaceCompass extends DELInterface implements(DELICompass)
+class DELInterfaceCompass extends DELInterfaceTexture implements(DELICompass)
 	placeable;
 
 var(Movement) const vector Location;
@@ -17,10 +17,14 @@ var int BoxSize;
 var float ResolutionScale;
 var float MPosXMap;
 var float MPosYMap;
-
+var float xStart, yStart;
 var Vector2D MapPosition;
 
 function load(DELPlayerHud hud){
+
+	yStart = hud.SizeY/36;
+	xStart = hud.SizeY/36;
+	setPos(xStart,yStart,MapDim,MapDim, hud);
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
 }
 
@@ -30,10 +34,20 @@ function load(DELPlayerHud hud){
  * @PARAMS DELPlayerHud hud
  * */
 function draw(DELPlayerHud hud){
+	local int startX, startY;
+	local DELPawn pawn;
 	local float TrueNorth, PlayerHeading;
 	local float CompassRotation, MapRotation;
-	
 	local LinearColor MapOffset;
+
+	pawn = hud.getPlayer().getPawn();
+	if (pawn == None || pawn.Health <= 0)return;
+
+	super.draw(hud);
+
+	startX = position.X+position.Z/8;
+	startY = position.Y+position.W/5-startX;
+
 	MapDim = MapDim * ResolutionScale;
 
 	//returns the direction the in-game placed minimap is pointing
@@ -55,13 +69,13 @@ function draw(DELPlayerHud hud){
 	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
 	GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
 
-	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
+	hud.Canvas.SetPos(startX, startY);   
 	hud.Canvas.DrawMaterialTile(GameMinimap.Minimap, MapDim, MapDim, 0.0,0.0,1.0,1.0);
 
-	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
+	hud.Canvas.SetPos(startX, startY);   
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
 	//Draw the overlay
-	hud.Canvas.SetPos(MapPosition.X,MapPosition.Y);
+	hud.Canvas.SetPos(startX, startY);   
 	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
 }
 

@@ -13,6 +13,9 @@ var int firstNode;
 var DELGuardPawn guardPawn;
 var DELGuardPawn thisPawn;
 var DELGuardController C;
+var Vector tempDest;
+var PathNode tempNode;
+var bool bAtLast;
 
 simulated function PostBeginPlay(){
 	super.PostBeginPlay();
@@ -73,9 +76,6 @@ auto state Idle{
 }
 
 state PatrolLine{
-	local Vector tempDest;
-	local PathNode tempNode;
-	local bool bAtLast;
 
 	simulated function beginState(name PreviousStateName){
 		//increase guard yaw rotation speed, makes turning look more natural
