@@ -42,7 +42,7 @@ simulated exec function moveForward( float deltaTime ){
 simulated exec function moveRight( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
-		camToPawn = cameraToPawn( 90.0 );
+		camToPawn = cameraToPawn( 22.5 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			targetYaw = Rotator( camToPawn ).Yaw ;
@@ -57,7 +57,7 @@ simulated exec function moveRight( float deltaTime ){
 simulated exec function moveLeft( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
-		camToPawn = cameraToPawn( -90.0 );
+		camToPawn = cameraToPawn( -22.5 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			targetYaw = Rotator( camToPawn ).Yaw ;

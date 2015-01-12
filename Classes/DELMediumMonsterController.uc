@@ -131,7 +131,7 @@ function bool shouldCharge(){
 	//local vector hitLocation , hitNormal , empty;
 	//Trace( hitLocation , hitNormal , attackTarget.location , pawn.Location , false );
 
-	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge/* || hitLocation == empty || hitNormal == empty */){
+	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge || getNumberOfMinions() > 0 /*|| hitLocation == empty || hitNormal == empty */){
 		return false;
 	} else {
 		return true;
@@ -285,6 +285,10 @@ state attack{
 
 		timer = 0.0;
 
+		if ( shouldCharge() ){
+			startCharge();
+		}
+
 		if ( getNumberOfMinions() > 0 ){
 			orderNearbyMinionsToAttackPlayer();
 		}
@@ -337,11 +341,6 @@ state flee{
 	 * Decide the next move, Charge or attack.
 	 */
 	function nextMove(){
-		`log( "#####################" );
-`log( "#####################" );
-`log( "#####################" );
-		`log( "#####################" );
-		`log( "NEXTMOVE" );
 		if ( shouldCharge() ){
 			startCharge();
 		} else {
@@ -494,6 +493,7 @@ state Charge{
 				stopPawn();
 				goToState( 'Attack' );
 				p.knockBack( 250.0 , selfToPawn );
+				DELMediumMonsterPawn( pawn ).spawnChargeHit( ( pawn.Location + p.location ) / 2 , rotator( p.location - pawn.Location ) );
 				break;
 			//Knock the monster back
 			default:
@@ -531,6 +531,24 @@ state Blocking{
 
 		pawn.SetDesiredRotation( rotator( player.location - pawn.Location ) );
 	}
+}
+
+state NonMovingState{
+
+	function getPreviousState( name previousStateName ){
+		//Save the previous state in a variable.
+		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
+			prevState = previousStateName;
+		}
+		else{
+			if ( pawn.Health <= pawn.HealthMax / 2 ){
+				prevState = 'Flee';
+			} else {
+				prevState = 'Attack';
+			}
+		}
+	}
+
 }
 
 /**

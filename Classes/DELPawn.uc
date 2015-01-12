@@ -304,7 +304,7 @@ function spawnBlood( vector hitlocation ){
 	local ParticleSystem p;
 	local rotator spawnRot;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_blood_squib';
+	p = ParticleSystem'Delmor_Effects.Particles.p_blood_squib';
 
 	spawnRot = rotator( hitlocation - location );
 	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
@@ -318,7 +318,7 @@ function spawnBloodDecal(){
 	local vector offSet;
 	local rotator rot;
 
-	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_splatter_a';
+	mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_splatter_a';
 
 	offSet.Z = -1.0;
 	rot = rotator( getFloorLocation( location ) - location );
@@ -335,7 +335,7 @@ function spawnBloodPoolDecal(){
 	local vector offSet;
 	local rotator rot;
 
-	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_pool';
+	mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_pool';
 
 	offSet.Z = -1.0;
 	rot = rotator( getFloorLocation( location ) - location );
@@ -350,7 +350,7 @@ function spawnBloodPoolDecal(){
 function spawnLandSmoke(){
 	local ParticleSystem p;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
+	p = ParticleSystem'Delmor_Effects.Particles.p_land_smoke';
 
 	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation( location ) );
 }
@@ -683,7 +683,7 @@ function spawnDespawnEffect(){
 	//local rotator spawnRot;
 	//local UTParticleSystemComponent psc;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_flash';
+	p = ParticleSystem'Delmor_Effects.Particles.p_flash';
 	//psc.SetTemplate( p );
 
 	//psc.ActivateSystem();
@@ -837,7 +837,7 @@ state Dead extends NonMovingState{
 		if ( IsTimerActive( 'spawnBloodPoolDecal' ) ){
 			Mesh.GetSocketWorldLocationAndRotation( 'HeadSocket' , socketLoc , socketRot );
 
-			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Character.Particles.p_blood_drops' , socketLoc , socketRot );
+			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Effects.Particles.p_blood_drops' , socketLoc , socketRot );
 		}
 	}
 

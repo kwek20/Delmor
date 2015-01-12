@@ -180,4 +180,5 @@ DefaultProperties
 	fleeRangeToPlayer = 128
 	maxIdleTime = 20
 	minIdleTime = 5
+	fleeSpeedupFactor = 4.0
 }
