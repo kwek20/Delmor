@@ -63,6 +63,7 @@ public function bool identifiedBy(int key){
  */
 public function drawText(Canvas c){
 	local float Xstring, Ystring;
+	if (getText() == "") return;
 	c.Font = class'Engine'.static.GetLargeFont();    
 	c.TextSize(getText() $ "", Xstring, Ystring);
 	c.SetDrawColor(0,0,0);
@@ -169,4 +170,6 @@ DefaultProperties
 
 	rondje_onder=Texture2D'DelmorHud.rondje_zonder_cijfer'
 	rondje_onder_hover=Texture2D'DelmorHud.groene_overlay_transperant'
+
+	clickSound = SoundCue'Delmor_sound.ButtonClick_Cue'
 }

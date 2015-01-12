@@ -34,5 +34,5 @@ function draw(DELPlayerHud hud){
 DefaultProperties
 {
 	textures=(Texture2D'DelmorHud.Scroll_QuestLog')
-	openSound=SoundCue'Delmor_sound.MapOpenenEtc_Open_Cue'
+	openSound=SoundCue'Delmor_sound.OpenMap_Cue'
 }

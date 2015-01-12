@@ -17,6 +17,13 @@ function draw(DELPlayerHud hud){
 }
 
 /**
+ * Default use check. Left pressed
+ */
+function bool requiresUse(DELInputMouseStats stats){
+	return stats.PendingLeftReleased || stats.PendingRightReleased;
+}
+
+/**
  * Override default text draw.<br/>
  * draws the number instead<br/>
  * Does not hing when isEmpty() returns true
@@ -58,11 +65,10 @@ function click(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject bu
 	item = getItem(hud);
 	if (item == None) return;
 
-	`log(stats.PendingRightPressed@stats.PendingRightReleased@stats.PendingLeftPressed@stats.PendingLeftReleased);
-	if (stats.PendingLeftPressed || DELItemInteractible(item) == none){
+	if (stats.PendingLeftReleased || DELItemInteractible(item) == none){
 		hud.getPlayer().showSubtitle(item.getDescription());
-	} else if (stats.PendingRightPressed){
-		DELItemInteractible(item).onUse(hud);
+	} else if (stats.PendingRightReleased){
+		DELItemInteractible(item).use(hud);
 	}
 }
 

@@ -24,14 +24,17 @@ function draw(DELPlayerHud hud){
 		//item is none?
 		if (item == None) {
 			//clear it when its empty
-			if (DELInterfaceItemSlot(obj).isEmpty()){
+			if (!DELInterfaceItemSlot(obj).isEmpty()){
 				//remove it
 				removeActiveItem(DELInterfaceItemSlot(obj));
 			}
 			continue;
 		}
+
 		//update item amount
-		DELInterfaceItemSlot(obj).setText(string(item.getAmount()));
+		if (int(DELInterfaceItemSlot(obj).getText()) != item.getAmount()){
+			DELInterfaceItemSlot(obj).setText(string(item.getAmount()));
+		}
 	}
 	super.draw(hud);
 }
@@ -43,7 +46,7 @@ function draw(DELPlayerHud hud){
  */
 function removeActiveItem(DELInterfaceItemSlot item){
 	item.removeTextures();
-	item.setText(" ");
+	item.setText("");
 	item.setRun(None);
 }
 

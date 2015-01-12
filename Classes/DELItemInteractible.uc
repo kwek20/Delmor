@@ -12,6 +12,7 @@ function use(DELPlayerHud hud){
 	if (getAmount() == 0){
 		hud.getPlayer().getPawn().UManager.remove(self);
 	}
+	if (useSound != none)PlaySound( useSound );
 	onUse(hud);
 }
 
