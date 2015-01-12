@@ -103,7 +103,7 @@ DefaultProperties
 	backgroundDimensionWidth=0.4
 
 	buttonAmount=5
-	textures=(Texture2D'DelmorHud.startscherm_v3')
+	textures=(Texture2D'DelmorHud.MainMenuBackground')
 	openSound=none
 	logo=Texture2D'DelmorHud.logo_menu'
 	buttonTextures=(Texture2D'DelmorHud.play', Texture2D'DelmorHud.load', Texture2D'DelmorHud.options', Texture2D'DelmorHud.credits', Texture2D'DelmorHud.exit')

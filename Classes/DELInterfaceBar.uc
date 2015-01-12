@@ -25,10 +25,11 @@ function load(DELPlayerHud hud){
 
 	length = 5*squareSize + 6*inbetween;
 	startX = hud.sizeX/2 - length/2;
-	startY = hud.sizeY - squareSize*1.5;
+	startY = hud.sizeY - (squareSize+2*inbetween) - inbetween/2;
 
 	setPos(startX, startY, length, squareSize+2*inbetween, hud);
 	images = getIcons(hud);
+
 	for (i=1; i<=amountBars; i++){
 		//load magic spells, then quick action items
 		if(i <= images.Length){button = Spawn(class'DELInterfaceButtonMagic');}
@@ -36,7 +37,7 @@ function load(DELPlayerHud hud){
 
 		//set key and poistion
 		button.setIdentifier(i);
-		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween/2, squareSize, squareSize, hud);
+		button.setPosition(startX + i*inbetween + (i-1)*squareSize, startY + inbetween, squareSize, squareSize, hud);
 
 		//set glass texture
 		button.setTexture(glass);
@@ -68,7 +69,7 @@ function load(DELPlayerHud hud){
  */
 function array<Texture2D> getIcons(DELPlayerHud hud){
 	local array<Texture2D> textures;
-	return DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons();
+	return DELPlayer(hud.getPlayer().getPawn()).grimoire != none ? DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons() : textures;
 }
 
 /**

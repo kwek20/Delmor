@@ -12,6 +12,7 @@ function use(DELPlayerHud hud){
 	if (getAmount() == 0){
 		hud.getPlayer().getPawn().UManager.remove(self);
 	}
+	if (useSound != none)PlaySound( useSound );
 	onUse(hud);
 }
 
@@ -19,15 +20,8 @@ function bool usable(DELPlayerHud hud){
 	return (!restrictUse || restrictUse && canUse(hud));
 }
 
-function pickup()
-{
-	`log("Test Pickup!!!");
-	//Components.remove(Mesh);    REMOVE MESH COMMAND HERE //
-}
-
-
 DefaultProperties
 {
-
+	
 	restrictUse=true
 }

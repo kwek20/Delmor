@@ -5,7 +5,7 @@ var() const int maxSize;
 var() private string itemName;
 var() private string itemDescription;
 var() Texture2D texture, hoverTexture;
-var() SoundCue pickupSound;
+var() SoundCue pickupSound, useSound;
 var() private int amount;
 var() bool playerBound;
 
@@ -35,7 +35,7 @@ defaultproperties
 	itemName="None"
 	itemDescription="No description"
 	texture=Texture2D'DelmorHud.freeze_spell'
-	pickupSound=noSound
+	pickupSound=SoundCue'Delmor_sound.Pickup_Pop_Cue'
 	amount=0
 	playerBound=false
 	maxSize=20;

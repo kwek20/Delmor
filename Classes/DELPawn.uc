@@ -185,6 +185,7 @@ var int hitTime;
  */
 var float barLength, barWidth;
 
+var array < class<DELItem> > dropableItems;
 
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
@@ -578,11 +579,19 @@ function interrupt(){
 	DELNPCController( controller ).returnToPreviousState();
 }
 
+function dropItem(){
+		local class<DELItem> item;
+		item = calculateDrop();
+		Spawn(item, , , location , , , false);
+		`log("HitLocation: " $ location);
+}
+
 /**
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
 	//super.Died( killer , damageType , hitlocation );
+	dropItem();
 
 	if ( !isInState( 'Dead' ) ){
 		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
@@ -788,6 +797,14 @@ function resetAttackCombo(){
 	attackNumber = 0;
 }
 
+function class<DELItem> calculateDrop(){
+	if (dropableItems.Length > 0){
+		return dropableItems[Rand(dropableItems.Length)];
+	} else {
+		return none;
+	}
+}
+
 /*
  * ========================================
  * States
@@ -960,6 +977,7 @@ DefaultProperties
 {
 	bCanPickUpInventory = true
 	UInventory = DELInventoryManager
+	dropableItems = (class'DELItemPotionHealth', class 'DELItemPotionMana')
 
 	MaxFootstepDistSq=9000000.0
 	health = 100

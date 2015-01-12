@@ -508,21 +508,21 @@ function moveTowardsActor( Actor a , float deltaTime ){
 }
 
 /**
- * This functions should move the controller's pawn towards a given point.
- * NOTE: This function is to be used ONLY in the Tick-event!
- * @param l         Vector  The location to where the pawn should move.
- * @param deltaTime float   The deltaTime from the Tick-event
- */
+* This functions should move the controller's pawn towards a given point.
+* NOTE: This function is to be used ONLY in the Tick-event!
+* @param l Vector The location to where the pawn should move.
+* @param deltaTime float The deltaTime from the Tick-event
+*/
 function moveTowardsPoint( Vector l , float deltaTime ){
 	local Vector tempDest;
-	/**
-	 * The next location to move. This will be tempDest if the NavMesh works
-	 * succesful. It will be l if the NavMesh doesn't.
-	 */
+/**
+* The next location to move. This will be tempDest if the NavMesh works
+* succesful. It will be l if the NavMesh doesn't.
+*/
 	local Vector nextMoveLocation;
-	/**
-	 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
-	 */
+/**
+* We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
+*/
 	local Vector adjustedLocation;
 
 	//Set nextMoveLocation to l, we'll move directly towards the targetLocation in case the navMesh fails.
@@ -541,6 +541,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 		moveInDirection( nextMoveLocation - pawn.Location , deltaTime );
 	}
 }
+
 /**
  * Move the pawn in a certain direction.
  * This direction will be calculated from a vector.
@@ -550,7 +551,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
  */
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
-	
+
 	if ( !DELPawn( pawn ).bIsStunned ){
 		//Adjust the rotation so that only the Yaw will be modified.
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );

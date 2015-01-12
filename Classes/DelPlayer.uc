@@ -8,7 +8,7 @@ class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
-
+var bool isMagician;
 var class<DELMeleeWeapon> swordClass;
 
 /**
@@ -134,8 +134,18 @@ function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	grimoire = Spawn(class'DELMagicFactory');
-	magic = grimoire.getMagic();
+}
+
+exec function becomeMagician(){
+	if(!isMagician){
+		grimoire = Spawn(class'DELMagicFactory');
+		magic = grimoire.getMagic();
+		isMagician=true;
+	}
+}
+
+function OnBecomeMagician(DELSeqAct_BecomeMagician action){
+	becomeMagician();
 }
 
 /**
@@ -162,6 +172,22 @@ exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
 }
 
+
+/**
+ * Gets the number of pawns
+ */
+exec function numberOfPawnsNearPlayer(){
+	local DELHostileController c;
+	local int nPawns;
+	/**
+	 * The distance at wich a pawn is considered near the player.
+	 */
+	local float nearDistance;
+
+	nPawns = 0;
+	nearDistance = 256.0;
+}
+
 function OnCompleteObjective(){
 
 }
@@ -182,7 +208,7 @@ function OnCreateQuest(DELSeqAct_CreateQuest Action){
  * @param abilitynumber the number of the ability you want to switch to
  */
 simulated function magicSwitch(int AbilityNumber){
-	if(bNoWeaponFiring){
+	if(bNoWeaponFiring || !isMagician){
 		return;
 	}	
 	if(grimoire != None && AbilityNumber <= grimoire.getMaxSpells()){
@@ -200,6 +226,9 @@ simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
 
 	if( bNoWeaponFiring){
+		return;
+	}
+	if(FireModeNum == 1 && !isMagician){
 		return;
 	}
 	if(FireModeNum == 1 && magic!= None){
@@ -282,6 +311,9 @@ function DELHostilePawn nearestEnemy(){
  * @param	FireModeNum		firemode used. 
  */
 simulated function StopFire(byte FireModeNum){
+	if(FireModeNum == 1 && !isMagician){
+		return;
+	}
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStop();
 	}
@@ -290,13 +322,26 @@ simulated function StopFire(byte FireModeNum){
 	}
 }
 
-function PickUp() {   
-	local DELItemInteractible p;
+function PickUpHealth() {   
+	local DELItemPotionHealth p;
 	local float pickupRange;
-	pickupRange = 128.0;
-	foreach WorldInfo.allActors(class'DELItemInteractible', p) {
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemPotionHealth', p) {
 		if (VSize(location-p.location) < pickupRange) {
 			p.pickup();
+			UManager.AddInventory(class'DELItemPotionHealth', 1);
+		}
+	}
+}
+
+function PickUpMana() {   
+	local DELItemPotionMana p;
+	local float pickupRange;
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemPotionMana', p) {
+		if (VSize(location-p.location) < pickupRange) {
+			p.pickup();
+			UManager.AddInventory(class'DELItemPotionMana', 1);
 		}
 	}
 }
@@ -483,8 +528,7 @@ simulated function RegenStam(){
 	}
 }
 
-function String Serialize()
-{
+function String Serialize(){
     local JSonObject PJSonObject;
 
     // Instance the JSonObject, abort if one could not be created
@@ -744,7 +788,8 @@ event Tick( float deltaTime ){
 	super.Tick( deltaTime );
 
 	//Pick nearby items.
-	PickUp();
+	PickUpHealth();
+	PickUpMana();
 
 	if ( !bIsKickingAChicken ){
 		chicken = chickenIsInFrontOfMe();
@@ -769,6 +814,8 @@ event Tick( float deltaTime ){
 		adjustCameraDistance( deltaTime );
 		adjustCameraOffset( deltaTime );
 	}
+
+
 }
 
 /*
@@ -822,7 +869,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 }
 
 function returnToPreviousState(){
-	goToState( /*'Playing'*/ 'Playing' );
+	goToState('Playing' );
 }
 
 DefaultProperties
@@ -875,4 +922,5 @@ DefaultProperties
 	bIsKickingAChicken = false
 
 	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
+	isMagician = false
 }

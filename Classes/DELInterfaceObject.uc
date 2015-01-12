@@ -81,7 +81,11 @@ function PlayClickSound(){
 public function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (textures.Length > 0){
-		drawTexture(hud.Canvas);
+		super.draw(hud);
+		if (isHover){
+			drawTexture(hud.Canvas);
+			onHover(hud, true);
+		}
 	} else {
 		//behind the text square
 		drawStandardbackground(hud.Canvas);
@@ -205,8 +209,6 @@ DefaultProperties
 {
 	onHover = hover
 	onUse = use;
-
-	clickSound = SoundCue'Delmor_sound.ButtonKlik_Cue'
 
 	color=(R=255,G=255,B=255,A=255)
 	hoverColor=(R=175,G=175,B=175,A=255)
