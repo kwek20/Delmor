@@ -21,6 +21,15 @@ var float fleeDistance;
  * When a pawn is closer the controller's pawn than this number, it will be "too close".
  */
 var float tooCloseDistance;
+/**
+ * The pawn to flee from.
+ */
+var DELPawn fleeTarget;
+
+/**
+ * The previous State.
+ */
+var name prevState;
 
 /*
  * ==============================================
@@ -39,10 +48,10 @@ event pawnTookDamage( optional Actor DamageCauser ){
 	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
 	`log( "Being hit" ); 
 	if ( DamageCauser != none ){
-		if ( DamageCauser.IsA( 'DELPlayer' ) ){
+		if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
 			`log( "DELPlayer" );
 			`log( "Retaliate" );
-			attackTarget = DELPawn( DamageCauser );
+			attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
 			changeState( 'Attack' );
 		}
 		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
@@ -116,7 +125,7 @@ state Attack{
 /**
  * Flee from the player
  */
-state flee{
+/*state flee{
 
 	event tick( float deltaTime ){
 		local vector selfToPlayer;
@@ -132,6 +141,58 @@ state flee{
 			stopPawn();
 		}
 	}
+}*/
+state flee {
+	local Vector targetLocation;
+
+	function beginState( name previousStateName ){
+		super.BeginState( previousStateName );
+
+		targetLocation = getFleeTargetLocation();
+	}
+
+	event tick( float deltaTime ){
+
+		if ( tooCloseToPawn( fleeTarget ) ){
+			targetLocation = getFleeTargetLocation();
+		}
+		
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0 ){
+			stopPawn();
+			endFlee();
+		} else {
+			moveTowardsPoint( targetLocation , deltaTime );
+		}
+	}
+
+	/**
+	 * Stop fleeing
+	 */
+	function endFlee(){
+		goToState( 'Idle' );
+	}
+
+}
+/**
+ * Returns a vector based on distance and angle to flee target.
+ */
+function vector getFleeTargetLocation(){
+	local rotator selfToTarget;
+	local vector targetLocation;
+
+	selfToTarget = rotator( pawn.Location - fleeTarget.location );
+	targetLocation.X = pawn.Location.X + lengthDirX( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+	targetLocation.Y = pawn.Location.Y + lengthDirY( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+	targetLocation.Z = pawn.Location.Z;
+
+	return targetLocation;
+}
+
+function FleeFrom( DELPawn from ){
+	fleeTarget = from;
+	if ( !isInState( 'KnockedBack' ) ){
+		goToState( 'Flee' );
+	}
 }
 
 /**
@@ -145,7 +206,12 @@ state NonMovingState{
 		super.BeginState( previousStateName );
 		
 		//Save the previous state in a variable.
-		previousState = previousStateName;
+		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
+			prevState = previousStateName;
+		}
+		else{
+			prevState = 'Attack';
+		}
 
 		startingRotation = pawn.Rotation;
 		pawn.SetDesiredRotation( startingRotation );
@@ -176,22 +242,18 @@ state NonMovingState{
 	 * Returns to the previous state.
 	 */
 	function returnToPreviousState(){
-		goToState( previousState );
+		`log( "============================================" );
+		`log( self$" returnToPreviousState: "$prevState );
+		goToState( prevState );
 	}
 
 	/**
 	 * Returns idle, but will return the previous state when in a nonmoving state.
 	 */
 	function name getPreviousState(){
-		return previousState;
+		return prevState;
 	}
 
-}
-
-/**
- * Empty state, will be filled in the NonMovingState-state
- */
-function returnToPreviousState(){
 }
 
 state Blocking extends NonMovingState{
@@ -220,8 +282,15 @@ state Attacking extends NonMovingState{
 
 	function SwingFinished(){
 		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
-		goToState( previousState );
+		returnToPreviousState();
 	}
+}
+
+/**
+ * Empty state, will be filled in the NonMovingState-state
+ */
+function returnToPreviousState(){
+	goToState( 'Attack' );
 }
 
 /*
@@ -234,7 +303,7 @@ state Attacking extends NonMovingState{
  * Returns idle, but will return the previous state when in a nonmoving state.
  */
 function name getPreviousState(){
-	return 'Idle';
+	return 'Attack';
 }
 
 /**
@@ -395,12 +464,12 @@ function float lengthDirY( float len , float dir ){
  * @return DELPawn
  */
 function DELPawn checkCollision(){
-	local Controller c;
+	local DELPawn p;
 
-	foreach WorldInfo.AllControllers( class'Controller' , c ){
-		if ( distanceToPoint( c.Pawn.Location ) < 64.0 + self.Pawn.GetCollisionRadius() && c != self ){
-			if ( DELPawn( pawn ).CheckCircleCollision( c.Pawn.Location , c.Pawn.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ ){
-				return DELPawn( c.Pawn );
+	foreach WorldInfo.AllPawns( class'DELPawn' , p , pawn.Location , 512.0 ){
+		if ( p != self.Pawn ){
+			if ( p.CheckCircleCollision( p.Location , p.GetCollisionRadius() + 4.0 , Pawn.Location , Pawn.GetCollisionRadius() + 4.0 )/* && c.Pawn.isA( class'DELPawn' )*/ && !p.isInState( 'Dead' ) ){
+				return p;
 			}
 		}
 	}

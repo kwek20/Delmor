@@ -107,7 +107,7 @@ simulated function TraceSwing(){
 
 
 	foreach TraceActors(class'Actor', HitActor, HitLoc, HitNorm, SwordTip, SwordHilt){
-		if (HitActor != self && AddToSwingHitActors(HitActor)){
+		if (HitActor != self && AddToSwingHitActors(HitActor) && !hitActor.IsInState( 'Dead' ) ){
 			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);
 			//PlaySound(SwordClank);
 		}

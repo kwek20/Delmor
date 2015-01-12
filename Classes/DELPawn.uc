@@ -119,9 +119,18 @@ var class<DELMeleeWeapon> swordClass;
  */
 var DELSoundSet mySoundSet;
 
+/**
+ * The sound to play when taking damage.
+ */
+var SoundCue hitSound;
+
 var class<DELInventoryManager> UInventory;
 
 var repnotify DELInventoryManager UManager;
+
+var class<DELQuestManager> QuestManager;
+
+var repnotify DELQuestManager QManager;
 
 /*
  * =========================================
@@ -145,6 +154,15 @@ var name blockAnimName;
  * The time in an attack animation when the swing should hit the player.
  */
 var array<float> attackAnimationImpactTime;
+
+/**
+ * The time at which the body hits the floor in the death animation.
+ */
+var float deathAnimationTime;
+/**
+ * The size of the blood decal.
+ */
+var float bloodDecalSize;
 /**
  * An int to point to the attack-animation array.
  */
@@ -182,10 +200,10 @@ simulated event PostBeginPlay(){
 	 //Set up custom inventory manager
      if (UInventory != None){
 		UManager = Spawn(UInventory, Self);
-		if ( UManager == None )
+		if ( UManager == None ){
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+		}
 	}
-
 	AddDefaultInventory();
 }
 
@@ -196,12 +214,29 @@ event tick( float deltaTime ){
 }
 
 /**
+ * Process the damage and kill the pawn if the health is smaller than 0.
+ */
+function ProcessDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	if ( !isInState( 'Dead' ) ){
+		health -= Damage;
+	
+		DELNPCController( controller ).pawnTookDamage( DamageCauser );
+		hit = true;
+		SetTimer( hitTime, false, 'hitOff' );
+
+		if ( health < 0 ){
+			self.died( none , DamageType , HitLocation );
+		}
+	}
+}
+/**
  * If the bBlockActors = false, check if there's no pawn and we're not being knockedBack
  * if so, set bBlockActors to true.
  */
 function blockActorsAgain(){
 	if ( !bBlockActors ){
-		if ( !controller.IsInState( 'knockedBack' )  && !IsInState( 'Dead' ) ){
+		if ( !IsInState( 'knockedBack' )  && !IsInState( 'Dead' ) ){
 			if ( true ){
 				bBlockActors = true;
 			}
@@ -252,14 +287,89 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser ){
-	super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
-	DELNPCController( controller ).pawnTookDamage( DamageCauser );
-
-	hit=true;
-	SetTimer(hitTime, false, 'hitOff');
+	if ( !isInState( 'Dead' ) ){
+		super.TakeDamage( damage , InstigatedBy , HitLocation , Momentum , DamageType , HitInfo , DamageCauser );
+		DELNPCController( controller ).pawnTookDamage( DamageCauser );
+		hit=true;
+		SetTimer(hitTime, false, 'hitOff');
+	}
 }
 
 function hitOff(){hit=false;}
+
+/**
+ * Spawn a blood effect to indicate that the pawn has been hit..
+ */
+function spawnBlood( vector hitlocation ){
+	local ParticleSystem p;
+	local rotator spawnRot;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_blood_squib';
+
+	spawnRot = rotator( hitlocation - location );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
+}
+
+/**
+ * Spawns a bloodsplatter decal on the floor. Useful when dying.
+ */
+function spawnBloodDecal(){
+	local MaterialInterface mat;
+	local vector offSet;
+	local rotator rot;
+
+	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_splatter_a';
+
+	offSet.Z = -1.0;
+	rot = rotator( getFloorLocation( location ) - location );
+	rot.Yaw = rotation.yaw;
+
+	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( location ) , rot , 96.0 , 96.0 , 2 , false , 0 , , true , false , , , , 10.0 );
+}
+
+/**
+ * Spawns a bloodsplatter decal on the floor. Useful when dying.
+ */
+function spawnBloodPoolDecal(){
+	local MaterialInterface mat;
+	local vector offSet;
+	local rotator rot;
+
+	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_pool';
+
+	offSet.Z = -1.0;
+	rot = rotator( getFloorLocation( location ) - location );
+	rot.Yaw = rotation.yaw;
+
+	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( getASocketsLocation( 'FlashSocket' ) ) , rot , bloodDecalSize , bloodDecalSize , 2 , false , 0 , , true , false , , , , 10.0 );
+}
+
+/**
+ * Spawn the smoke that should appear after being knocked back.
+ */
+function spawnLandSmoke(){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation( location ) );
+}
+
+/**
+ * Returns the location of the ground beneath the given location.
+ */
+function vector getFloorLocation( vector l ){
+	local vector groundLocation , hitNormal , traceEnd;
+
+	traceEnd.X = location.x;
+	traceEnd.Y = location.y;
+	traceEnd.Z = location.z - 512.0;
+
+	//Trace and get a ground location, that way the smoke will be placed on the ground and not the air.
+	Trace( groundLocation , hitNormal , traceEnd , l , false );
+
+	return groundLocation;
+}
 
 /**
  * adds the weapons(magic + masterSword to the player)
@@ -297,7 +407,7 @@ function magicSwitch(int AbilityNumber);
  */
 function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
-		changeState( 'Blocking' );
+		DELNPCController( Controller ).changeState( 'Blocking' );
 	}
 	interrupt();
 	playBlockingAnimation();
@@ -308,7 +418,6 @@ function startBlocking(){
  */
 function stopBlocking(){
 	DELNpcController( controller ).returnToPreviousState();
-	changeState( LandMovementState );
 }
 
 /**
@@ -334,11 +443,6 @@ function stun( float duration ){
  * Ends the stun.
  */
 function endStun(){
-	`log( "***************************" );
-	`log( "###########################" );
-	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
-	`log( "###########################" );
-	`log( "***************************" );
 	controller.goToState( 'Idle' );
 }
 
@@ -346,8 +450,10 @@ function endStun(){
  * Regenerates health and mana.
  */
 private function regenerate(){
-	health = Clamp( health + healthRegeneration , 0 , healthMax );
-	mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+	if ( !isInState( 'Dead' ) ){
+		health = Clamp( health + healthRegeneration , 0 , healthMax );
+		mana = Clamp( mana + manaRegeneration , 0 , manaMax );
+	}
 }
 
 /**
@@ -371,6 +477,7 @@ function SpawnController(){
 function knockBack( float intensity , vector direction , optional bool bNoAnimation ){
 	spawnKnockBackForce( intensity , direction );
 	controller.goToState( 'KnockedBack' );
+	//goToState( 'KnockedBack' );
 	bBlockActors = false;
 
 	if ( !bNoAnimation ){
@@ -468,6 +575,7 @@ function interrupt(){
 	Velocity.Y = 0.0;
 	Velocity.Z = 0.0;
 	ClearTimer( 'dealAttackDamage' ); //Reset this function so that the pawn's attack will be interrupted.
+	DELNPCController( controller ).returnToPreviousState();
 }
 
 /**
@@ -476,23 +584,30 @@ function interrupt(){
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
 	//super.Died( killer , damageType , hitlocation );
 
-	//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
-	bBlockActors = false;
-	bCollideWorld = true;
+	if ( !isInState( 'Dead' ) ){
+		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
+		bBlockActors = false;
+		bCollideWorld = true;
 
-	//Stop friggin rotatin'
-	SetRotation( rotation );
-	SetDesiredRotation( rotation , true , false , 0.0 , true );
-	ResetDesiredRotation();
-	interrupt();
+		//Stop friggin rotatin'
+		SetRotation( rotation );
+		SetDesiredRotation( rotation , true , false , 0.0 , true );
+		ResetDesiredRotation();
+		interrupt();
 
-	//Play died sound
-	say( "Die" , true );
-	changeState( 'Dead' );
-	Controller.pawnDied( self );
-	setTimer( 5.0 , false , 'destroyMe' );
-	//Play death animation
-	playDeathAnimation();
+		//Play died sound
+		say( "Die" , true );
+		Controller.pawnDied( self );
+		controller.Destroy();
+		setTimer( 5.0 , false , 'destroyMe' );
+		//Play death animation
+		playDeathAnimation();
+		goToState( 'Dead' );
+		spawnBloodDecal();
+
+		setTimer( deathAnimationTime , false , 'spawnBloodPoolDecal' );
+	}
+	return true;
 }
 
 /**
@@ -556,7 +671,24 @@ function playBlockingAnimation(){
  */
 function destroyMe(){
 	//controller.Destroy();
+	spawnDespawnEffect();
 	destroy();
+}
+
+/**
+ * Creates a particle effect that will be shown when the pawn's corps is deleted.
+ */
+function spawnDespawnEffect(){
+	local ParticleSystem p;
+	//local rotator spawnRot;
+	//local UTParticleSystemComponent psc;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_flash';
+	//psc.SetTemplate( p );
+
+	//psc.ActivateSystem();
+	//spawnRot = rotator( location - hitlocation );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , getASocketsLocation( 'FlashSocket' ) );
 }
 
 /**
@@ -571,11 +703,11 @@ function increaseAttackNumber(){
 
 /**
  * Say a line from the sound set. Only one sound can be played per 2 seconds.
- * @param dialoge   String  A text representation of what to say. An adapter in the soundset will look for the appropriate soundcue.
+ * @param dialogue   String  A text representation of what to say. An adapter in the soundset will look for the appropriate soundcue.
  * @param bForce    bool    Play the sound even if bCanPlay = false.
  */
 function say( String dialogue , optional bool bForce ){
-	`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	//`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
 	if ( mySoundSet != none && ( mySoundSet.bCanPlay || bForce ) ){
 		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
 		mySoundSet.bCanPlay = false;
@@ -601,7 +733,7 @@ function dealAttackDamage(){
 	damage = DELMeleeWeapon( sword ).CalculateDamage();
 
 	if ( hitPawn != none ){
-		hitPawn.TakeDamage( damage , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
+		hitPawn.TakeDamage( damage , Instigator.Controller , ( location + hitPawn.Location ) / 2 , momentum , class'DELDmgTypeMelee' , , self );
 	}
 }
 
@@ -630,21 +762,20 @@ function Vector getInFrontLocation( optional int yaw ){
  * Returns a pawn when it is in front of this pawn.
  */
 function Pawn checkPawnInFront(){
-	local controller c;
+	local DELPawn p;
 	local vector inFrontLocation;
 	local float checkDistance;
 	local pawn hitPawn;
-	local float averageHeight;
 
 	inFrontLocation = getInFrontLocation();
 	checkDistance = meleeRange + GetCollisionRadius();
 
-	foreach WorldInfo.AllControllers( class'controller' , c ){
-		if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
-			if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , c.Pawn.Location , c.Pawn.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' ){
-				hitPawn = c.Pawn;
-			}
+	foreach WorldInfo.AllPawns( class'DELPawn' , p , location , 2 * meleeRange ){
+		//if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
+		if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' && !p.isInState( 'Dead' ) && p != self ){
+			hitPawn = p;
 		}
+		//}
 	}
 	
 	return hitPawn;
@@ -663,10 +794,27 @@ function resetAttackCombo(){
  * ========================================
  */
 
+state NonMovingState{
+	local name previousState;
+
+	function beginState( name PreviousStateName ){
+		super.beginState( PreviousStateName );
+
+		previousState = PreviousStateName;
+	}
+
+	function returnToPreviousState(){
+		goToState( previousState );
+	}
+}
+/*
+function returnToPreviousState(){
+	goToState( LandMovementState );
+}*/
 /**
  * Used to override the die and takeDamage functions.
  */
-state Dead{
+state Dead extends NonMovingState{
 	/**
 	 * Do nothing.
 	 */
@@ -682,11 +830,25 @@ state Dead{
 		//Do nothing
 	}
 
+	event tick( float deltaTime ){
+		local rotator socketRot;
+		local Vector socketLoc;
+
+		if ( IsTimerActive( 'spawnBloodPoolDecal' ) ){
+			Mesh.GetSocketWorldLocationAndRotation( 'HeadSocket' , socketLoc , socketRot );
+
+			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Character.Particles.p_blood_drops' , socketLoc , socketRot );
+		}
+	}
+
 	/**
 	 * Overriden so that the pawn can't come back to life after dying.
 	 */
 	//final function changeState( optional name newState , optional name Label , optional bool bForceEvents , optional bool bKeepStack ){
 	//}
+}
+
+state Blocking extends NonMovingState{
 }
 
 /**
@@ -759,9 +921,11 @@ function vector getASocketsLocation( name socketName ){
 	//if ( Mesh.class != SkeletalMeshComponent ){
 	//	SkeletalMeshComponent( Mesh ).GetSocketWorldLocationAndRotation( socketName , SocketLocation );
 	//} else {
-		Mesh.GetSocketWorldLocationAndRotation( socketName , SocketLocation );
-	//}
-	return SocketLocation;
+	if ( Mesh.GetSocketWorldLocationAndRotation( socketName , SocketLocation ) ){
+		return SocketLocation;
+	} else {
+		return location;
+	}
 }
 
 /**
@@ -856,4 +1020,8 @@ DefaultProperties
 	hitTime=5
 	barLength=50
 	barWidth=10
+
+	hitSound = SoundCue'Delmor_sound.Weapon.sndc_sword_monster_impact'
+
+	bloodDecalSize = 128.0
 }

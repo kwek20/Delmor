@@ -81,5 +81,5 @@ function drawCTileForced(Canvas c, Texture2D texture, float XL, float YL, int r,
 
 DefaultProperties
 {
-
+	 bAlwaysTick=True
 }

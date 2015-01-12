@@ -47,7 +47,7 @@ DefaultProperties
 	ProjFlightTemplate = ParticleSystem'Particlepackage.Particles.PS_Fire_Small'
 	ProjChargeTemplate = ParticleSystem'Particlepackage.Particles.PS_Fire_Small'
 
-	ProjExplosionTemplate=ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Impact'
+	ProjExplosionTemplate=ParticleSystem'Particlepackage.Particles.PS_Fire_impact'
 	MaxEffectDistance=7000.0
 	Flying = false
 

@@ -4,19 +4,20 @@
 class DELInterfaceQuestText extends DELInterfaceScrollbar;
 
 function load(DELPlayerHud hud){
-	local DELInterfaceStringText msg;
-	msg = new class'DELInterfaceStringText';
-	msg.text = "dfhs dfbgisjdf hijsdhgsdfh sg924tj";
-	msg.completed = true;
-	text.AddItem(msg);
-
-	msg = new class'DELInterfaceStringText';
-	msg.text = "dfhs 46833 457457b5h sg924sjtj";
-	msg.completed = true;
-	text.AddItem(msg);
-
-	text = calculateActualStrings(hud.Canvas, text);
 	super.load(hud);
+	loadQuests(hud.getPlayer().getPawn().QManager.quests);
+	`log("Load Quests");
+	//load the text. Calculate based on backgorund image size
+	text = calculateActualStrings(hud.Canvas, text);
+	
+}
+
+function loadQuests(array<DELQuest> quests)
+{
+	local int i;
+	for (i=0; i<quests.Length; i++){
+		setText(quests[i].title, quests[i].description);
+	}
 }
 
 /**
@@ -101,7 +102,6 @@ function string splitLoc(Canvas c, out string toSplit, float splitOn, optional b
 		} else {str$=((splitWords||i==0)?"":" ")$letterArray[i];}
 	}
 
-	
 	toSplit = "";
 	while(i<letterArray.Length){
 		toSplit$=letterArray[i];
@@ -120,8 +120,23 @@ function array<string> StringToArray(string inputString){
 	return letterArray;
 }
 
+function setText(String title, String description){
+	local DELInterfaceStringText t,d,s1,s2,s3;
+	t=new class'DELInterfaceStringText'; d=new class'DELInterfaceStringText'; s1=new class'DELInterfaceStringText'; s2=new class'DELInterfaceStringText'; s3=new class'DELInterfaceStringText';
+	
+	t.text=title;
+	d.text=description;
+	s1.text="";s2.text="";s3.text="";
+
+	text.AddItem(t);
+	text.AddItem(s1);
+	text.AddItem(d);
+	text.AddItem(s2);
+	text.AddItem(s3);
+}
+
 DefaultProperties
 {
-	offset = 90;
+	offset = 90
 	color=(R=50,G=100,B=100,A=255)
 }

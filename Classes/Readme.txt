@@ -1,1 +1,0 @@
-Pick-up items komt hier.

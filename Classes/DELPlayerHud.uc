@@ -17,41 +17,8 @@ var() PrivateWrite array< InterFaceItem > interfaces;
 
 var bool loadedInterfaces;
 
-/*COMPASS VARIABLES*/
-var DELMinimap GameMinimap;
-var MaterialInstanceConstant GameMiniMapMIC;
-var Material GameMinimapp;
-var float TileSize;
-var int MapDim;
-var int BoxSize;
-var float ResolutionScale;
-var float MPosXMap;
-var float MPosYMap;
-
-//dynamic map render
-var SceneCapture2DComponent SceneCapture2D;
-var TextureRenderTarget2D RenderTarget;
-var Material RenderTextureTemplate;
-var MaterialInstanceConstant RenderTexture;
-
-var Rotator rotation;
-var vector startPos;
-
 simulated event PostBeginPlay() {
 	Super.PostBeginPlay();
-
-	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
-
-	RenderTarget = new(self) class'TextureRenderTarget2D';
-	RenderTarget = class'TextureRenderTarget2D'.static.Create( 512, 512 );
-	
-	SceneCapture2D.SetCaptureParameters( RenderTarget,,,0 );
-	SetLocation( startPos + normal(Vector(rotation)) * 100.0f );
-	SceneCapture2D.ViewMode = SceneCapView_Unlit;
-	
-	RenderTexture = new(self) class'MaterialInstanceConstant';
-	RenderTexture.SetParent( RenderTextureTemplate );
-	RenderTexture.SetTextureParameterValue( 'CapturedTexture', RenderTarget );
 }
 
 /**
@@ -119,7 +86,6 @@ function PlayerOwnerDied(){
 
 function PostRender(){
 	local InterFaceItem interface;
-	local DELHostilePawn dPawn;
 
 	if (!bShowHUD) return;
 
@@ -130,13 +96,9 @@ function PostRender(){
 	super.PostRender();
 	
 	if (!loadedInterfaces)loadInterfaces();
-
+	
 	foreach interfaces(interface){
 		interface.interface.draw(self);
-	}
-
-	ForEach DynamicActors(class'DELHostilePawn', dPawn){
-		dPawn.PostRenderFor(getPlayer(), Canvas, getPlayer().Location, Vector(getPlayer().Rotation));
 	}
 }
 
@@ -176,16 +138,8 @@ defaultproperties
 	TileSize=0.4
 	  BoxSize=12
 	 MapPosition=(X=0.000000,Y=0.000000)
-	clockIcon=(Texture=Texture2D'UDKHUD.Time') 
 	ResolutionScale=1.0
 
 	rotation=(Pitch=-6000,Yaw=0,Roll=0)
 	startPos=(X=0,Y=200,Z=0)
-
-	begin Object class=SceneCapture2DComponent name=SceneCapture2DComponent0
-		TextureTarget=RenderTarget;
-		FarPlane=0;
-		bEnabled=true;
-	End Object
-	SceneCapture2D=SceneCapture2DComponent0
 }

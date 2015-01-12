@@ -13,7 +13,7 @@ class DELInterfaceInventory extends DELInterfaceInteractible;
 var() int inbetween, length, amountX, amountY;
 
 function draw(DELPlayerHud hud){
-	local DELInterfaceObject obj;
+	local DELInterfaceTexture obj;
 	local DELItem item;
 
 	foreach objects(obj){
@@ -104,6 +104,6 @@ DefaultProperties
 	length=100
 	amountX=4
 	amountY=4
-	textures=(Texture2D'DelmorHud.backpack')
+	textures=(Texture2D'DelmorHud.Inventory')
 	openSound=SoundCue'a_interface.menu.UT3MenuScreenSpinCue'
 }

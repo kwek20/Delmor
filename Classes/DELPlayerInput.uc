@@ -90,7 +90,7 @@ simulated exec function moveBackward( float deltaTime ){
  * Goes to state movingForward
  */
 exec function startMovingForward(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingForward' );
 	nKeysPressed ++;
 }
@@ -99,7 +99,7 @@ exec function startMovingForward(){
  * Goes to state movingLeft
  */
 exec function startMovingLeft(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingLeft' );
 	nKeysPressed ++;
 }
@@ -108,7 +108,7 @@ exec function startMovingLeft(){
  * Goes to state movingLeft
  */
 exec function startMovingRight(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingRight' );
 	nKeysPressed ++;
 }
@@ -116,7 +116,7 @@ exec function startMovingRight(){
  * Goes to state movingBackward
  */
 exec function startMovingBackward(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingBackward' );
 	nKeysPressed ++;
 }
@@ -274,7 +274,7 @@ exec function openInventory() {
 }
 
 exec function closeHud() {
-	if (Pawn.Controller.getStateName() == 'Playing' || Pawn.Controller.getStateName() == 'Pauses'){
+	if (getController().getStateName() == 'Playing' || getController().getStateName() == 'Pauses'){
 		getController().closeHud();
 	} else {
 		getController().goToPreviousState();
@@ -421,7 +421,9 @@ exec function mousePress(bool left=false){
 
 	if (!getController().canWalk) return;
 	if (stats.PendingRightPressed) StartAimMode();
-	DELPlayer( Pawn ).startFire(int(!left));
+	if ( !DELPlayer( Pawn ).isInState( 'Dead' ) ){
+		DELPlayer( Pawn ).startFire(int(!left));
+	}
 }
 
 exec function mouseRelease(bool left=false){
@@ -429,7 +431,9 @@ exec function mouseRelease(bool left=false){
 	
 	if (!getController().canWalk) return;
 	if (stats.PendingRightReleased) EndAimMode();
-	DELPlayer( Pawn ).stopFire(int(!left));
+	if ( !DELPlayer( Pawn ).isInState( 'Dead' ) ){
+		DELPlayer( Pawn ).stopFire(int(!left));
+	}
 }
 
 // Called when the middle mouse button is pressed
@@ -547,11 +551,12 @@ event tick( float deltaTime ){
 	//	v = vector( pawn.Rotation ) * pawn.GroundSpeed * deltaTime;
 	//	pawn.Move( -v );
 	//}
-
-	if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
-		targetYaw = pawn.Controller.Rotation.Yaw;
+	if ( !pawn.IsInState( 'Dead' ) ){
+		if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
+			targetYaw = pawn.Controller.Rotation.Yaw;
+		}
+		rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
 	}
-	rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
 }
 /**
  * Set a specific keybinding.

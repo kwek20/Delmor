@@ -5,7 +5,6 @@
  */
 class DELFirstQuestHardMonsterController extends DELHostileController;
 
-
 /**
  * Array keeping track of pathnodes
  */

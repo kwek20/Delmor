@@ -35,6 +35,7 @@ event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vecto
          GiveTo(UHP);
          PlaySound(PickUpSound);
          //UHP.UManager. NotifyHUDMessage(PickUpMessage, ItemAmount_ADD, ItemName);
+
        }
     }
 }
@@ -48,6 +49,8 @@ event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vecto
 	{
 		Other.UManager.AddInventory(ItemType, ItemAmount_ADD );
 		Destroy();
+
+		
 	}
 
 }
