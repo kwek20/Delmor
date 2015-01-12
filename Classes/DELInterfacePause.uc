@@ -91,7 +91,7 @@ function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject 
 }
 
 function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	ConsoleCommand("quit");
+	hud.getPlayer().swapState('MainMenu');
 }
 
 DefaultProperties

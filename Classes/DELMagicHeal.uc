@@ -5,9 +5,29 @@
 class DELMagicHeal extends DELMagic;
 
 /**
+ * the projectile in charging state
+ */
+var Projectile chargingProjectile;
+/**
+ * the location of the projectile during charging
+ */
+var vector locationOfProjectile;
+
+
+/**
  * new Charging state
  */
 simulated state Charging{
+
+	simulated event beginstate(Name NextStateName){
+		if(spellCaster.health + Damage >= spellCaster.HealthMax){
+			gotoState('nothing');
+			return;
+		}
+		super.beginstate(NextStateName);
+		locationOfProjectile = GetSocketPosition(spellcaster);
+		chargingProjectile = Spawn(getSpell() ,self,, locationOfProjectile);
+	}
 	/**
 	 * chargetick for heal spell
 	 * checks if spell doesn't do more heal then health missing
@@ -20,6 +40,11 @@ simulated state Charging{
 			`log("stop timerrrrrr");
 		}
 		consumeMana(ChargeAdd);
+	}
+	simulated event Tick(float DeltaTime){
+		super.Tick(DeltaTime);
+		chargingProjectile.SetLocation(GetSocketPosition(spellcaster));
+		chargingProjectile.LifeSpan += 0.4;
 	}
 	/**
 	 * interrupts during spellcasting
@@ -55,7 +80,9 @@ simulated function shoot(){
 DefaultProperties
 {
 	magicName="Heal"
+	spell = class'DELMagicProjectileHeal'
 	bCanCharge=true
+	MagicPointName = "MagicPoint2"
 	ChargeTime = 0.5
 	ChargeCost = 1;
 	ChargeAdd = 5;

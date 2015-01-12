@@ -10,9 +10,8 @@ class DELMagicProjectileStun extends DELMagicProjectile;
 defaultproperties
 {
 	ProjFlightTemplate=ParticleSystem'Particlepackage.Particles.PS_ice_Small'
-	ProjExplosionTemplate=ParticleSystem'WP_RocketLauncher.Effects.P_WP_RocketLauncher_RocketExplosion'
+	ProjExplosionTemplate=ParticleSystem'Particlepackage.Particles.PS_Ice_impact'
 	MaxEffectDistance=7000.0
-
 	Speed=500
 	MaxSpeed=2000
 	AccelRate=1000.0

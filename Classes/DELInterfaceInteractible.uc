@@ -129,7 +129,6 @@ public function draw(DELPlayerHud hud){
 		if (object != None && object.containsPos(DELPlayerInput(hud.PlayerOwner.PlayerInput).stats.MousePosition)){
 			//mouse on button
 			DELInterfaceObject(object).hover();
-			DELInterfaceObject(object).onHover(hud, true);
 		}
 	}
 	
@@ -138,6 +137,8 @@ public function draw(DELPlayerHud hud){
 		if (object != None)object.draw(hud);
 	}
 }
+
+
 
 /**
  * @return if you can interact

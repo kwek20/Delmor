@@ -8,7 +8,7 @@ class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
-
+var bool isMagician;
 var class<DELMeleeWeapon> swordClass;
 
 /**
@@ -134,8 +134,18 @@ function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	grimoire = Spawn(class'DELMagicFactory');
-	magic = grimoire.getMagic();
+}
+
+exec function becomeMagician(){
+	if(!isMagician){
+		grimoire = Spawn(class'DELMagicFactory');
+		magic = grimoire.getMagic();
+		isMagician=true;
+	}
+}
+
+function OnBecomeMagician(DELSeqAct_BecomeMagician action){
+	becomeMagician();
 }
 
 /**
@@ -182,7 +192,7 @@ function OnCreateQuest(DELSeqAct_CreateQuest Action){
  * @param abilitynumber the number of the ability you want to switch to
  */
 simulated function magicSwitch(int AbilityNumber){
-	if(bNoWeaponFiring){
+	if(bNoWeaponFiring || !isMagician){
 		return;
 	}	
 	if(grimoire != None && AbilityNumber <= grimoire.getMaxSpells()){
@@ -200,6 +210,9 @@ simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
 
 	if( bNoWeaponFiring){
+		return;
+	}
+	if(FireModeNum == 1 && !isMagician){
 		return;
 	}
 	if(FireModeNum == 1 && magic!= None){
@@ -282,6 +295,9 @@ function DELHostilePawn nearestEnemy(){
  * @param	FireModeNum		firemode used. 
  */
 simulated function StopFire(byte FireModeNum){
+	if(FireModeNum == 1 && !isMagician){
+		return;
+	}
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStop();
 	}
@@ -875,4 +891,5 @@ DefaultProperties
 	bIsKickingAChicken = false
 
 	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
+	isMagician = false
 }
