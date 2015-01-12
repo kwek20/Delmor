@@ -1,4 +1,4 @@
-/**
+	/**
  * The quick action interface.<br/>
  * Used for the health and mana potion
  */
