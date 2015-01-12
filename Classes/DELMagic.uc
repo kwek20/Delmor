@@ -38,6 +38,8 @@ var int TotalDamage;
  */
 var bool bCanCharge;
 
+var name MagicPointName;
+
 /**
  * the user of the spell
  */
@@ -52,6 +54,7 @@ var int ChargeCost;
  * the ammount that is added every charge iteration
  */
 var int ChargeAdd;
+
 
 /**
  * the total size the projectile is
@@ -197,7 +200,7 @@ simulated function Vector GetSocketPosition(Pawn Holder){
  
     compo = Holder.Mesh;
     if (compo != none){
-        socket = compo.GetSocketByName('MagicPoint');
+        socket = compo.GetSocketByName(MagicPointName);
         if (socket != none){
             FinalLocation = compo.GetBoneLocation(socket.BoneName);
 			return FinalLocation;
@@ -246,6 +249,7 @@ simulated function class<UDKProjectile> getSpell(){
 DefaultProperties
 {
 	projectileSize = 0.1
+	MagicPointName = "MagicPoint"
 	bCanCharge = false
 	WeaponFireTypes(0)=EWFT_Custom
 	spell = class'UTProj_Grenade'
