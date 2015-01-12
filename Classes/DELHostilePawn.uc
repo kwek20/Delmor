@@ -28,10 +28,8 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	if ( !isInState( 'Dead' ) ){
 		if ( !controller.IsInState( 'Blocking' ) ){
-			`log( " NOT Blocking" );
 			hitWhileNotBlocking(damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 		} else {
-			`log( "Blocking" );
 			hitWhileBlocking( hitLocation , damageType );
 		}
 	}
