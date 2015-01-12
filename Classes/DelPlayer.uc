@@ -5,16 +5,11 @@
  */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
-
-
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
 
-
-
 var class<DELMeleeWeapon> swordClass;
-
 
 /**
  * the factory of spells.
@@ -22,7 +17,6 @@ var class<DELMeleeWeapon> swordClass;
  * is called grimoire for a reason . don't change it
  */
 var DELMagicFactory Grimoire;
-
 
 var bool    bSprinting;
 var bool    bCanSprint;
@@ -218,6 +212,7 @@ simulated function StartFire(byte FireModeNum){
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
 		weapon.StartFire(FireModeNum);
+		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
 	}
 }
 
@@ -233,7 +228,6 @@ function bool anEnemyIsInFrontOfPlayer(){
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) 
 			&& self.CheckCircleCollision( inFrontLocation , GetCollisionRadius() * 0.5 , p.location , p.GetCollisionRadius() ) ){
-				`log( "%%%%%%%%%%%%% An enemy is in front of the player." );
 				return true;
 		}
 	}
@@ -248,7 +242,6 @@ function bool anEnemyIsNearPlayer(){
 
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) ){
-			`log( "%%%%%%%%%%%%% An enemy is near the player." );
 			return true;
 		}
 	}
@@ -350,6 +343,7 @@ exec function startSprint(){
 	//If stamia bigger then Stamina loss and exhausted == false
 	if(Stam >= StamLoss && bExhausted != true){
 		bSprinting= true;
+		Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Lucian_Sprint_AnimTree' );
 		GroundSpeed = 600.000;
 
 		//Recently sprinted?
@@ -396,6 +390,7 @@ exec function startSprint(){
  * if so, stop sprinting
  */
 exec function stopSprint(){
+	Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree' );
 	Groundspeed = 375.0;
 	bSprinting = false;
 	ClearTimer('LowerStam');
@@ -452,6 +447,7 @@ simulated function Exhausted(){
 	ClearTimer('LowerStam');
 	SetTimer(SprintRecoverTimer, false, 'SprintRecovery'); //How long till next sprint
 	SetTimer(StamRegenRate, true, 'RegenStam'); //start regeneration
+	PlaySound( SoundCue'Delmor_sound.Lucian.sndc_lucian_pant' );
 }
 
 /**
@@ -586,13 +582,15 @@ private function startKickingAChicken( DELChickenPawn c ){
  * Actually kick the chicken causing it to move.
  */
 private function actuallyKickChicken(){
-	local Vector selfToChicken;
+	local Vector selfToChicken , footLocation;
 
-	chickenToKick.SetLocation( getASocketsLocation( 'ChickenKickSocket' ) );
+	footLocation = getASocketsLocation( 'ChickenKickSocket' );
+	chickenToKick.SetLocation( footLocation );
 	selfToChicken = chickenToKick.location - Location;
 
 	chickenToKick.knockBack( 500.0 , selfToChicken );
 	chickenToKick.kick();
+	spawnChickenKickEffects( footLocation );
 }
 
 /**
@@ -601,6 +599,19 @@ private function actuallyKickChicken(){
 function finishKick(){
 	bIsKickingAChicken = false;
 }
+
+/**
+ * Spawns a cool particle-effect for extra chicken-kick-y-ness.
+ * @param l Vector  The location where the effect should be spawned.
+ */
+function spawnChickenKickEffects( vector l ){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Character.Particles.p_feathers';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , l );
+}
+
 /**
  * Return the player's position plus 32 in the player's direction.
  * @param yaw   int When given, the player will use this yaw to determine the infront location.
@@ -776,9 +787,43 @@ function playPickupAnimation(){
 	SwingAnim.PlayCustomAnim( 'Lucian_Pickup' , 1.0 , 0.0 , 0.0 , false , true );
 }
 
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+
+	if ( !isInState( 'Dead' ) ){
+		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
+		bBlockActors = false;
+		bCollideWorld = true;
+
+		//Stop friggin rotatin'
+		SetRotation( rotation );
+		SetDesiredRotation( rotation , true , false , 0.0 , true );
+		ResetDesiredRotation();
+		interrupt();
+
+		GroundSpeed = 0.0;
+
+		//Play died sound
+		say( "Die" , true );
+		//Controller.pawnDied( self );
+		//controller.Destroy();
+		setTimer( 5.0 , false , 'destroyMe' );
+		//Play death animation
+		playDeathAnimation();
+		goToState( 'Dead' );
+	}
+
+	//return super.died( killer , damageType , HitLocation );
+	return true;
+}
+
+function returnToPreviousState(){
+	goToState( /*'Playing'*/ 'Playing' );
+}
 
 DefaultProperties
 {
+	deathAnimName = Lucian_Death
+
 	swordClass = class'DELMeleeWeaponDemonSlayer';
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
@@ -823,4 +868,6 @@ DefaultProperties
 	bLockedToCamera = false
 
 	bIsKickingAChicken = false
+
+	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
 }

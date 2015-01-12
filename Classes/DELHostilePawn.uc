@@ -26,14 +26,40 @@ simulated event PostBeginPlay(){
  */
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	if ( !isInState( 'Dead' ) ){
+		if ( !controller.IsInState( 'Blocking' ) ){
+			hitWhileNotBlocking(damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+		} else {
+			hitWhileBlocking( hitLocation , damageType );
+		}
+	}
+}
+
+/*
+ * ==============================================
+ * Below you can two events that are a substitute for the blocking state.
+ * Because switching states in the pawn would cause a bug, I've decided to use this to solve the problem.
+ */
+
+/**
+ * An event that will be called when the pawn is hit while NOT blocking.
+ */
+event hitWhileNotBlocking(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	local int newDamage;
+
 	`log("damage: "$damage);
 	newDamage = damage;
 	if(DamageType == class'DELDmgTypeMelee'){
 		newDamage = damage - (damage * physicalResistance);
 
 		//Play hit sound
+		PlaySound( hitSound );
 		say( "TakeDamage" );
+
+		//Spawn blood
+		spawnBlood( hitLocation );
+
 	} else if(DamageType == class'DELDmgTypeMagical') {
 		newDamage = damage - (damage * magicResistance);
 
@@ -44,7 +70,15 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 			//stun
 		}
 	}
-	super.TakeDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+	ProcessDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+}
+/**
+ * An event that will be called when the pawn is hit while blocking.
+ */
+event hitWhileBlocking( vector HitLocation , class<DamageType> DamageType ){
+	if(DamageType == class'DELDmgTypeMelee'){
+		playBlockingSound();
+	}
 }
 
 simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraPosition, vector CameraDir){
@@ -66,35 +100,14 @@ simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraP
  * Stub to play a blocking sound.
  */
 function playBlockingSound(){
+	PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_impact' );
 }
 
 /**
  * Ends the stun.
  */
 function endStun(){
-	`log( "***************************" );
-	`log( "###########################" );
-	`log( ">>>>>>>>>>>>>>>>>> END STUN" );
-	`log( "###########################" );
-	`log( "***************************" );
 	controller.goToState( 'Attack' );
-}
-
-/**
- * Blocking state.
- * While in the blocking state the pawn should get no damage from melee attacks.
- */
-state Blocking{
-
-	/**
-	 * Overridden so that the pawn take no damage.
-	 */
-	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
-	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-		if(DamageType == class'DELDmgTypeMelee'){
-			playBlockingSound();
-		}
-	}
 }
 
 DefaultProperties

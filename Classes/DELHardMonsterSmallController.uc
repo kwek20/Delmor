@@ -75,6 +75,16 @@ function vector cohesion( pawn p ){
 	return newLocation;
 }
 
+/**
+ * Flee from the player if the gets too close.
+ */
+function fleeFromPlayer(){
+	//Flee from the player
+	if ( player != none && tooCloseToPawn( player ) ){
+		fleeFrom( player );
+	}
+}
+
 /*
  * ===============================================
  * States functions
@@ -92,10 +102,7 @@ auto state Idle{
 		if ( commander != none ){
 			changeState( 'Flock' );
 		}
-		//Flee from the player
-		if ( player != none && tooCloseToPawn( player ) ){
-			goToState( 'Flee' );
-		}
+		fleeFromPlayer();
 	}
 
 	/**
@@ -125,6 +132,7 @@ state Flock{
 		if ( commander == none ){
 			commanderDied();
 		}
+		fleeFromPlayer();
 		
 	}
 
@@ -135,13 +143,13 @@ state Flock{
 	}
 
 	event commanderDied(){
-		changeState( 'Flee' );
+		changeState( 'Idle' );
 	}
 }
 
 state Attack{
 	function beginState( name previousStateName ){
-		goToState( 'Flee' );
+		goToState( 'Idle' );
 	}
 }
 

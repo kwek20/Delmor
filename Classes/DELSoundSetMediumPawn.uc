@@ -23,6 +23,12 @@ function SoundCue getSound( string sName ){
 	case "TauntPlayer":
 		return soundsToPlay[ 4 ];
 		break;
+	case "TakeDamage":
+		return soundsToPlay[ 5 ];
+		break;
+	case "Die":
+		return soundsToPlay[ 6 ];
+		break;
 	}
 }
 DefaultProperties
@@ -33,4 +39,5 @@ DefaultProperties
 	soundsToPlay[3] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_no_more_minions'
 	soundsToPlay[4] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_taunt'
 	soundsToPlay[5] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_take_damage'
+	soundsToPlay[5] = SoundCue'Delmor_sound.MediumPawn.sndc_medium_monster_a_die'
 }

@@ -44,6 +44,8 @@ DefaultProperties
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
 
+	deathAnimationTime = 1.0
+
 	health = 100
 	healthMax = 100
 	healthRegeneration = 0
