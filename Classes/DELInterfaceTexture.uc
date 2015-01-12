@@ -21,6 +21,9 @@ public function setCenter(DELPlayerHud hud){
 
 public function draw(DELPlayerHud hud){
 	drawAllTextures(hud.Canvas);
+	if (DELInterfaceObject(self) != none && DELInterfaceObject(self).isHover){
+		DELInterfaceObject(self).onHover(hud, true);
+	}
 }
 
 public function drawAllTextures(Canvas c, optional bool scale=true){

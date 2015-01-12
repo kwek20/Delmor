@@ -52,7 +52,8 @@ function StartingInventory(){
 	AddInventory(class'DELItemOre', 2);
 	AddInventory(class'DELItemOre', 1);
 	AddInventory(class'DELItemPotionHealth', 5);
-	//AddInventory(class'DELItemPotionMana', 25);
+	AddInventory(class'DELItemPotionMana', 25);
+	AddInventory(class'DELItemFriedChicken', 1);
 }
 
 

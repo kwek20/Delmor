@@ -35,12 +35,6 @@ var float moveRange;
 var int maxIdleTime;
 var int minIdleTime;
 
-/**
- * The pawn to flee from.
- */
-var DELPawn fleeTarget;
-
-
 /** 
  *  Event that is called when the goad is spawned
  *  @param inPawn
@@ -84,38 +78,6 @@ state walk {
 	}
 }
 
-state flee {
-	local Vector targetLocation;
-
-	event tick( float deltaTime ){
-		targetLocation = getFleeTargetLocation();
-		moveTowardsPoint( targetLocation , deltaTime * 6 );
-		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime * 6 + 50.0 ){
-			goToState( 'Eat' );
-		}
-	}
-}
-
-/**
- * Returns a vector based on distance and angle to flee target.
- */
-function vector getFleeTargetLocation(){
-	local rotator selfToTarget;
-	local vector targetLocation;
-
-	selfToTarget = rotator( fleeTarget.location - pawn.Location );
-	targetLocation.X = fleeTarget.Location.X + lengthDirX( 512.0 , selfToTarget.Yaw );
-	targetLocation.Y = fleeTarget.Location.Y + lengthDirY( 512.0 , selfToTarget.Yaw );
-	targetLocation.Z = pawn.Location.Z;
-
-	return targetLocation;
-}
-
-function FleeFrom( DELPawn from ){
-	fleeTarget = from;
-	goToState( 'Flee' );
-}
-
 /**
  * Automaticle flee from DELHostilePawns.
  */
@@ -126,6 +88,16 @@ function fleeFromMonsters(){
 		fleeFrom( nearbyMonster );
 	}
 }
+
+state Flee{
+	/**
+	 * Stop fleeing
+	 */
+	function endFlee(){
+		goToState( 'Eat' );
+	}
+}
+
 /**
  * The state where the goat is doing nothing but eating
  */
@@ -208,4 +180,5 @@ DefaultProperties
 	fleeRangeToPlayer = 128
 	maxIdleTime = 20
 	minIdleTime = 5
+	fleeSpeedupFactor = 4.0
 }

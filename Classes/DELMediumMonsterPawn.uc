@@ -23,11 +23,14 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  * Overridden so that a take damage call will be sent to the controller.
  */
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
-
-	if ( DamageType == class'DELDmgTypeMelee' ){
+	if ( DamageType == class'DELDmgTypeMelee' && !IsInState( 'Blocking' ) ){
+		if ( Rand( 3 ) == 1 ){
+			interrupt();
+			playGetHitAnimation();
+		}
 		DELMediumMonsterController( controller ).pawnHit();
 	}
+	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
 }
 
 /**
@@ -42,6 +45,17 @@ simulated event PostBeginPlay(){
 }
 
 /**
+ * Spawn a blood effect to indicate that the pawn has been hit..
+ */
+function spawnChargeHit( vector l , rotator r ){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_charge_hit';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , l , r );
+}
+
+/**
  * Assigns a soundSet to the pawn.
  */
 private function assignSoundSet(){
@@ -51,61 +65,51 @@ private function assignSoundSet(){
 	mySoundSet = spawn( class'DELSoundSetMediumPawn' );
 }
 
-/**
- * Blocking state.
- * While in the blocking state the pawn should get no damage from melee attacks.
- */
-state Blocking{
-
-	function beginState( name previousStateName ){
-		super.beginState( previousStateName );
-
-		//Stop after five seconds
-		setTimer( 5.0 , false , 'stopBlocking' );
+event hitWhileNotBlocking(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
+class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	//Block randomly
+	if ( bCanBlock && rand( 3 ) == 1 ){
+		`log( "Start blocking" );
+		startBlocking();
+		setTimer( 1.0 , false , 'stopBlocking' );
 	}
-	/**
-	 * Overridden so that the pawn take no damage from melee-attacks.
-	 * However when hit by a force attack, the pawn will be knocked back and the block will end.
-	 */
-	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
-	class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-
-		switch( DamageType ){
-		case class'DELDmgTypeMelee':
-			playBlockingSound();
-			//Block even longer
-			setTimer( 5.0 , false , 'stopBlocking' );
-			knockBack( 100.0 , location - DELHostileController( controller ).player.location , true );
-			break;
-
-		case class'DELDmgTypeMagical':
-			breakBlock();
-			knockBack( 400.0 , location - DELHostileController( controller ).player.location );
+	else{
+		if ( rand( 2 ) == 1 ){
+			getHit();
 		}
 	}
 
-	/**
-	 * Stop blocking and notify the controller that we've stopped blocking.
-	 * Also we will not be able to block for only two seconds.
-	 */
-	function stopBlocking(){
-		super.stopBlocking();
-		DELMediumMonsterController( controller ).PawnStoppedBlocking();
-		bCanBlock = false;
-		setTimer( 2.0 , false , 'resetCanBlock' );
-	}
+	super.hitWhileNotBlocking(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+}
 
-	/**
-	 * Called when hit a by player's force attack.
-	 * When the block is broken the pawn will not be able to block for five seconds.\
-	 * Also notify the controller that our block was broken.
-	 */
-	function breakBlock(){
-		super.stopBlocking();
-		DELMediumMonsterController( controller ).PawnBlockBroken();
-		bCanBlock = false;
-		setTimer( 5.0 , false , 'resetCanBlock' );
+/**
+ * Overridden so that the pawn take no damage from melee-attacks.
+ * However when hit by a force attack, the pawn will be knocked back and the block will end.
+ */
+event hitWhileBlocking( vector HitLocation , class<DamageType> DamageType ){
+	switch( DamageType ){
+	case class'DELDmgTypeMelee':
+		playBlockingSound();
+		//Block even longer
+		setTimer( 5.0 , false , 'stopBlocking' );
+		knockBack( 100.0 , location - DELHostileController( controller ).player.location , true );
+		break;
+
+	case class'DELDmgTypeMagical':
+		DELMediumMonsterController( controller ).breakBlock();
+		knockBack( 400.0 , location - DELHostileController( controller ).player.location );
 	}
+}
+
+/**
+ * Stop blocking and notify the controller that we've stopped blocking.
+ * Also we will not be able to block for only two seconds.
+ */
+function stopBlocking(){
+	super.stopBlocking();
+	DELMediumMonsterController( controller ).PawnStoppedBlocking();
+	bCanBlock = false;
+	setTimer( 2.0 , false , 'resetCanBlock' );
 }
 
 defaultproperties
@@ -135,16 +139,16 @@ defaultproperties
 		CollisionHeight = 64.0
 	end object
 
-	health = 150
-	healthMax = 150
-	healthRegeneration = 4
+	health = 200
+	healthMax = 200
+	healthRegeneration = 8
 	walkingSpeed = 80.0
 	detectionRange = 512.0
 	bCanBlock = true
 	mySoundSet = none
 	meleeRange = 75.0
-	attackInterval = 3.0
-	groundSpeed = 200.0
+	attackInterval = 1.5
+	groundSpeed = 150.0
 
 	//Anim
 	animname[ 0 ] = rhinoman_attack1
@@ -155,5 +159,9 @@ defaultproperties
 	attackAnimationImpactTime[ 2 ] = 0.6851
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
-	getHitAnimName = rhinoman_gettinghit
+	getHitAnimName = Rhinoman_Gettinghit1
+
+	deathAnimationTime = 0.5833
+
+	swordClass = class'DELMeleeWeaponRhinomanFists'
 }

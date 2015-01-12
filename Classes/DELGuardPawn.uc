@@ -6,6 +6,25 @@ class DELGuardPawn extends DELNPCPawn
       placeable
 	  Config(Game);
 
+
+var() array<Pathnode> pathNodeList;
+var() bool patrollingLine;
+var DELGuardController MyController;
+
+simulated function PostBeginPlay()
+{
+	Super.PostBeginPlay();
+	if(Controller == none)
+		SpawnDefaultController();
+	SetPhysics(PHYS_Walking);
+	if (MyController == none)
+	{
+		MyController = Spawn(class'DELGuardController', self);
+	}
+	
+}
+
+
 DefaultProperties
 {
 	Components.Remove(ThirdPersonMesh)
@@ -23,6 +42,6 @@ DefaultProperties
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
-	ControllerClass=class'DELGuardController'
+	ControllerClass=class'Delmor.DELGuardController'
 	GroundSpeed = 100
 }

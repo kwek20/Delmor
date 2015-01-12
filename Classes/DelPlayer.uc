@@ -5,16 +5,11 @@
  */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
-
-
 var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
-
-
-
+var bool isMagician;
 var class<DELMeleeWeapon> swordClass;
-
 
 /**
  * the factory of spells.
@@ -36,6 +31,11 @@ var float   SprintRecoverTimer;
 var float   SprintTimerCount;
 var float   LastSprint;
 var float   ScaledTimer;
+
+/**
+ * The rotation to move in.
+ */
+var rotator moveRotation;
 
 /* ==========================================
  * Camera stuff
@@ -134,8 +134,18 @@ function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
-	grimoire = Spawn(class'DELMagicFactory');
-	magic = grimoire.getMagic();
+}
+
+exec function becomeMagician(){
+	if(!isMagician){
+		grimoire = Spawn(class'DELMagicFactory');
+		magic = grimoire.getMagic();
+		isMagician=true;
+	}
+}
+
+function OnBecomeMagician(DELSeqAct_BecomeMagician action){
+	becomeMagician();
 }
 
 /**
@@ -162,7 +172,23 @@ exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
 }
 
+
+/**
+ * Gets the number of pawns
+ */
+exec function numberOfPawnsNearPlayer(){
+	local DELHostileController c;
+	local int nPawns;
+	/**
+	 * The distance at wich a pawn is considered near the player.
+	 */
+	local float nearDistance;
+
+	nPawns = 0;
+	nearDistance = 256.0;
+
 function OnCompleteObjective(){
+
 
 }
 
@@ -182,7 +208,7 @@ function OnCreateQuest(DELSeqAct_CreateQuest Action){
  * @param abilitynumber the number of the ability you want to switch to
  */
 simulated function magicSwitch(int AbilityNumber){
-	if(bNoWeaponFiring){
+	if(bNoWeaponFiring || !isMagician){
 		return;
 	}	
 	if(grimoire != None && AbilityNumber <= grimoire.getMaxSpells()){
@@ -202,6 +228,9 @@ simulated function StartFire(byte FireModeNum){
 	if( bNoWeaponFiring){
 		return;
 	}
+	if(FireModeNum == 1 && !isMagician){
+		return;
+	}
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStart();
 	}
@@ -217,6 +246,7 @@ simulated function StartFire(byte FireModeNum){
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
 		weapon.StartFire(FireModeNum);
+		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
 	}
 }
 
@@ -232,7 +262,6 @@ function bool anEnemyIsInFrontOfPlayer(){
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) 
 			&& self.CheckCircleCollision( inFrontLocation , GetCollisionRadius() * 0.5 , p.location , p.GetCollisionRadius() ) ){
-				`log( "%%%%%%%%%%%%% An enemy is in front of the player." );
 				return true;
 		}
 	}
@@ -247,7 +276,6 @@ function bool anEnemyIsNearPlayer(){
 
 	foreach worldInfo.AllPawns( class'DELHostilePawn' , p , location , 256.0 ){
 		if ( !p.isInState( 'Dead' ) ){
-			`log( "%%%%%%%%%%%%% An enemy is near the player." );
 			return true;
 		}
 	}
@@ -283,6 +311,9 @@ function DELHostilePawn nearestEnemy(){
  * @param	FireModeNum		firemode used. 
  */
 simulated function StopFire(byte FireModeNum){
+	if(FireModeNum == 1 && !isMagician){
+		return;
+	}
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStop();
 	}
@@ -362,6 +393,7 @@ exec function startSprint(){
 	//If stamia bigger then Stamina loss and exhausted == false
 	if(Stam >= StamLoss && bExhausted != true){
 		bSprinting= true;
+		Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Lucian_Sprint_AnimTree' );
 		GroundSpeed = 600.000;
 
 		//Recently sprinted?
@@ -408,6 +440,7 @@ exec function startSprint(){
  * if so, stop sprinting
  */
 exec function stopSprint(){
+	Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Lucian_AnimTree' );
 	Groundspeed = 375.0;
 	bSprinting = false;
 	ClearTimer('LowerStam');
@@ -464,6 +497,7 @@ simulated function Exhausted(){
 	ClearTimer('LowerStam');
 	SetTimer(SprintRecoverTimer, false, 'SprintRecovery'); //How long till next sprint
 	SetTimer(StamRegenRate, true, 'RegenStam'); //start regeneration
+	PlaySound( SoundCue'Delmor_sound.Lucian.sndc_lucian_pant' );
 }
 
 /**
@@ -598,13 +632,15 @@ private function startKickingAChicken( DELChickenPawn c ){
  * Actually kick the chicken causing it to move.
  */
 private function actuallyKickChicken(){
-	local Vector selfToChicken;
+	local Vector selfToChicken , footLocation;
 
-	chickenToKick.SetLocation( getASocketsLocation( 'ChickenKickSocket' ) );
+	footLocation = getASocketsLocation( 'ChickenKickSocket' );
+	chickenToKick.SetLocation( footLocation );
 	selfToChicken = chickenToKick.location - Location;
 
 	chickenToKick.knockBack( 500.0 , selfToChicken );
 	chickenToKick.kick();
+	spawnChickenKickEffects( footLocation );
 }
 
 /**
@@ -613,6 +649,19 @@ private function actuallyKickChicken(){
 function finishKick(){
 	bIsKickingAChicken = false;
 }
+
+/**
+ * Spawns a cool particle-effect for extra chicken-kick-y-ness.
+ * @param l Vector  The location where the effect should be spawned.
+ */
+function spawnChickenKickEffects( vector l ){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_feathers';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , l );
+}
+
 /**
  * Return the player's position plus 32 in the player's direction.
  * @param yaw   int When given, the player will use this yaw to determine the infront location.
@@ -766,6 +815,8 @@ event Tick( float deltaTime ){
 		adjustCameraDistance( deltaTime );
 		adjustCameraOffset( deltaTime );
 	}
+
+
 }
 
 /*
@@ -789,9 +840,43 @@ function playPickupAnimation(){
 	SwingAnim.PlayCustomAnim( 'Lucian_Pickup' , 1.0 , 0.0 , 0.0 , false , true );
 }
 
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+
+	if ( !isInState( 'Dead' ) ){
+		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
+		bBlockActors = false;
+		bCollideWorld = true;
+
+		//Stop friggin rotatin'
+		SetRotation( rotation );
+		SetDesiredRotation( rotation , true , false , 0.0 , true );
+		ResetDesiredRotation();
+		interrupt();
+
+		GroundSpeed = 0.0;
+
+		//Play died sound
+		say( "Die" , true );
+		//Controller.pawnDied( self );
+		//controller.Destroy();
+		setTimer( 5.0 , false , 'destroyMe' );
+		//Play death animation
+		playDeathAnimation();
+		goToState( 'Dead' );
+	}
+
+	//return super.died( killer , damageType , HitLocation );
+	return true;
+}
+
+function returnToPreviousState(){
+	goToState( /*'Playing'*/ 'Playing' );
+}
 
 DefaultProperties
 {
+	deathAnimName = Lucian_Death
+
 	swordClass = class'DELMeleeWeaponDemonSlayer';
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
@@ -836,4 +921,7 @@ DefaultProperties
 	bLockedToCamera = false
 
 	bIsKickingAChicken = false
+
+	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
+	isMagician = false
 }

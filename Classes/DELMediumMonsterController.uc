@@ -131,7 +131,7 @@ function bool shouldCharge(){
 	//local vector hitLocation , hitNormal , empty;
 	//Trace( hitLocation , hitNormal , attackTarget.location , pawn.Location , false );
 
-	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge/* || hitLocation == empty || hitNormal == empty */){
+	if ( distanceToPoint( attackTarget.location ) < 256.0 || !bCanCharge || getNumberOfMinions() > 0 /*|| hitLocation == empty || hitNormal == empty */){
 		return false;
 	} else {
 		return true;
@@ -178,6 +178,9 @@ function orderHardMonsterToTransform(){
 function startCharge(){
 	bCanCharge = false;
 	changeState( 'Charge' );
+
+	//Change the animtree so that we can show a charge animation.
+	DELPawn( pawn ).Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Rhinoman_Charge_AnimTree' );
 }
 
 /**
@@ -282,6 +285,10 @@ state attack{
 
 		timer = 0.0;
 
+		if ( shouldCharge() ){
+			startCharge();
+		}
+
 		if ( getNumberOfMinions() > 0 ){
 			orderNearbyMinionsToAttackPlayer();
 		}
@@ -297,7 +304,7 @@ state attack{
 			//Flee from the player if the health is low and the player is too close.
 			if ( checkIsInDanger() ){
 				`log( self$" I'm in danger" );
-				changeState( 'Flee' );
+				fleeFrom( attackTarget );
 
 				//Call for backup
 				orderNearbyMinionsToAttackPlayer();
@@ -318,21 +325,30 @@ state attack{
  * When the distance to the player is greater than this number, stop fleeing and heal yourself.
  */
 state flee{
-	event tick( float deltaTime ){
-		local vector selfToPlayer;
-		
-		super.Tick( deltaTime );
-
-		selfToPlayer = pawn.Location - attackTarget.location;
-
-		if ( VSize( selfToPlayer ) >= fleeDistance ){
+	/**
+	 * Only stop fleeing when we have enough hp.
+	 */
+	function endFlee(){
+		if ( VSize( pawn.Location - attackTarget.location ) >= fleeDistance ){
 			//If we have enough hitpoints, return to attack state.
-			if ( pawn.Health >= pawn.HealthMax / 2 && shouldCharge() ){
-				startCharge();
+			if ( pawn.Health >= pawn.HealthMax * 0.6 ){
+				nextMove();
 			}
 		}
 	}
+
+	/**
+	 * Decide the next move, Charge or attack.
+	 */
+	function nextMove(){
+		if ( shouldCharge() ){
+			startCharge();
+		} else {
+			goToState( 'Attack' );
+		}
+	}
 }
+
 
 /**
  * In this state the mediumMonster will stay a few meters away from the player as long as there's easypawns nearby the player.
@@ -357,18 +373,18 @@ state maintainDistanceFromPlayer{
 	}
 	
 	event tick( float deltaTime ){
+		local vector targetLocation;
 		local vector selfToPlayer;
 
 		timer -= deltaTime;
 
-		//Calculate direction
-		selfToPlayer = pawn.Location - attackTarget.location;
+		targetLocation = calculateTargetLocation();
 
 		//Move away
-		if ( VSize( selfToPlayer ) < distanceToPlayer ){
-			moveInDirection( selfToPlayer , deltaTime );
-		} else {
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 1 ){
 			stopPawn();
+		} else {
+			moveTowardsPoint( targetLocation , deltaTime );
 		}
 
 		clearDesiredDirection();
@@ -384,6 +400,18 @@ state maintainDistanceFromPlayer{
 			//Reset timer
 			timer = decisionInterval;
 		}
+	}
+
+	function vector calculateTargetLocation(){
+		local rotator selfToTarget;
+		local vector targetLocation;
+
+		selfToTarget = rotator( pawn.Location - attackTarget.location );
+		targetLocation.X = attackTarget.Location.X + lengthDirX( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+		targetLocation.Y = attackTarget.Location.Y + lengthDirY( 384.0 , - ( selfToTarget.Yaw%65536 ) );
+		targetLocation.Z = attackTarget.Location.Z;
+
+		return targetLocation;
 	}
 
 }
@@ -414,7 +442,10 @@ state Charge{
 
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
 			//moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
-			moveTowardsPoint( playerPosition , deltaTime * 6 );
+			if ( nothingInTheWay( playerPosition ) ){
+			} else {
+				moveTowardsPoint( playerPosition , deltaTime * 6.0 );
+			}
 			//self.moveInDirection( playerPosition - pawn.Location , deltaTime * 6 );
 			//TODO: Check for collision
 			
@@ -425,6 +456,19 @@ state Charge{
 		} else {
 			stopPawn();
 			changeState( 'attack' );
+		}
+	}
+
+	/**
+	 * Returns true when there is no geometry in the way.
+	 */
+	function bool nothingInTheWay( vector traceEnd ){
+		local vector hitLocation , hitNormal , emptyVector;
+
+		if ( trace( hitLocation , hitNormal , traceEnd, pawn.Location , false ) == none ){
+			return false;
+		} else {
+			return true;
 		}
 	}
 
@@ -449,6 +493,7 @@ state Charge{
 				stopPawn();
 				goToState( 'Attack' );
 				p.knockBack( 250.0 , selfToPawn );
+				DELMediumMonsterPawn( pawn ).spawnChargeHit( ( pawn.Location + p.location ) / 2 , rotator( p.location - pawn.Location ) );
 				break;
 			//Knock the monster back
 			default:
@@ -463,6 +508,7 @@ state Charge{
 	 */
 	event EndState( name NextStateName ){
 		super.EndState( NextStateName );
+		DELPawn( pawn ).Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Rhinoman_AnimTree' );
 		setTimer( 5.0 , false , 'resetCanCharge' );
 	}
 }
@@ -473,11 +519,48 @@ state Charge{
  */
 state Blocking{
 
+	function beginState( name previousStateName ){
+		super.beginState( previousStateName );
+
+		//Stop after five seconds
+		setTimer( 5.0 , false , 'stopBlocking' );
+	}
+
 	event tick( float deltaTime ){
 		super.Tick( deltaTime );
 
 		pawn.SetDesiredRotation( rotator( player.location - pawn.Location ) );
 	}
+}
+
+state NonMovingState{
+
+	function getPreviousState( name previousStateName ){
+		//Save the previous state in a variable.
+		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
+			prevState = previousStateName;
+		}
+		else{
+			if ( pawn.Health <= pawn.HealthMax / 2 ){
+				prevState = 'Flee';
+			} else {
+				prevState = 'Attack';
+			}
+		}
+	}
+
+}
+
+/**
+ * Called when hit a by player's force attack.
+ * When the block is broken the pawn will not be able to block for five seconds.\
+ * Also notify the controller that our block was broken.
+ */
+function breakBlock(){
+	DELHostilePawn( Pawn ).stopBlocking();
+	PawnBlockBroken();
+	DELHostilePawn( Pawn ).bCanBlock = false;
+	Pawn.SetTimer( 5.0 , false , 'resetCanBlock' );
 }
 
 /*

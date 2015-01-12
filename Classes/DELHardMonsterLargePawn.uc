@@ -48,6 +48,8 @@ defaultproperties
 	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit
 
+	deathAnimationTime = 1.0
+
 	physicalResistance = 0.0
 	magicResistance = 0.0
 

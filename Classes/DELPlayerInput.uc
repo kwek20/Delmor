@@ -10,6 +10,14 @@ var float pawnRotationSpeed;
  */
 var int nKeysPressed;
 /**
+ * Determines whether a key was pressed.
+ * 0 = Up
+ * 1 = Right
+ * 2 = Left
+ * 3 = Down
+ */
+var array< Bool > bKeyPressed;
+/**
  * An instance of DELmath. This instance will later be used to execute various mathematical functions.
  */
 var DELMath math;
@@ -42,7 +50,7 @@ simulated exec function moveForward( float deltaTime ){
 simulated exec function moveRight( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
-		camToPawn = cameraToPawn( 90.0 );
+		camToPawn = cameraToPawn( 22.5 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			targetYaw = Rotator( camToPawn ).Yaw ;
@@ -57,7 +65,7 @@ simulated exec function moveRight( float deltaTime ){
 simulated exec function moveLeft( float deltaTime ){
 	local Vector camToPawn;
 	if ( Pawn != none ){
-		camToPawn = cameraToPawn( -90.0 );
+		camToPawn = cameraToPawn( -22.5 );
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			targetYaw = Rotator( camToPawn ).Yaw ;
@@ -90,35 +98,39 @@ simulated exec function moveBackward( float deltaTime ){
  * Goes to state movingForward
  */
 exec function startMovingForward(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingForward' );
 	nKeysPressed ++;
+	bKeyPressed[ 0 ] = true;
 }
 
 /**
  * Goes to state movingLeft
  */
 exec function startMovingLeft(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingLeft' );
 	nKeysPressed ++;
+	bKeyPressed[ 2 ] = true;
 }
 
 /**
  * Goes to state movingLeft
  */
 exec function startMovingRight(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingRight' );
 	nKeysPressed ++;
+	bKeyPressed[ 1 ] = true;
 }
 /**
  * Goes to state movingBackward
  */
 exec function startMovingBackward(){
-	if (!getController().canWalk) return;
+	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
 	goToState( 'movingBackward' );
 	nKeysPressed ++;
+	bKeyPressed[ 3 ] = true;
 }
 
 exec function startSprint() {
@@ -320,18 +332,42 @@ exec function stopMoving(){
 	}
 }
 
+exec function stopMovingForward(){
+	stopMoving();
+
+	bKeyPressed[ 0 ] = false;
+}
+
+exec function stopMovingBackward(){
+	stopMoving();
+
+	bKeyPressed[ 3 ] = false;
+}
+
+exec function stopMovingRight(){
+	stopMoving();
+
+	bKeyPressed[ 1 ] = false;
+}
+
+exec function stopMovingLeft(){
+	stopMoving();
+
+	bKeyPressed[ 2 ] = false;
+}
+
 state movingForward extends moving{
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
 
-		moveForward( deltaTime );
+		//moveForward( deltaTime );
 	}
 }
 state movingBackward{
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
 
-		moveBackward( deltaTime );
+		//moveBackward( deltaTime );
 	}
 }
 
@@ -339,7 +375,7 @@ state movingLeft{
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
 
-		moveLeft( deltaTime );
+		//moveLeft( deltaTime );
 		//rotateCameraToPlayer( pawn.Rotation.Yaw + 90 * DegToUnrRot , defaultRotationSpeed , deltaTime );
 	}
 }
@@ -348,7 +384,7 @@ state movingRight{
 	event tick( float deltaTime ){
 		super.tick( deltaTime );
 
-		moveRight( deltaTime );
+		//moveRight( deltaTime );
 	}
 }
 
@@ -421,7 +457,9 @@ exec function mousePress(bool left=false){
 
 	if (!getController().canWalk) return;
 	if (stats.PendingRightPressed) StartAimMode();
-	DELPlayer( Pawn ).startFire(int(!left));
+	if ( !DELPlayer( Pawn ).isInState( 'Dead' ) ){
+		DELPlayer( Pawn ).startFire(int(!left));
+	}
 }
 
 exec function mouseRelease(bool left=false){
@@ -429,7 +467,9 @@ exec function mouseRelease(bool left=false){
 	
 	if (!getController().canWalk) return;
 	if (stats.PendingRightReleased) EndAimMode();
-	DELPlayer( Pawn ).stopFire(int(!left));
+	if ( !DELPlayer( Pawn ).isInState( 'Dead' ) ){
+		DELPlayer( Pawn ).stopFire(int(!left));
+	}
 }
 
 // Called when the middle mouse button is pressed
@@ -469,10 +509,10 @@ exec function load(){
 function setBindings(optional name inKey, optional String inCommand, optional bool change){
 	if(!change) {
 		stats = Spawn(class'DELInputMouseStats');
-		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
-		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
-		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
-		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMoving" );
+		setKeyBinding( 'W' , "startMovingForward | Axis aBaseY Speed=1.0 | OnRelease stopMovingForward" );
+		setKeyBinding( 'A' , "startMovingLeft | Axis aBaseY Speed=1.0 | OnRelease stopMovingLeft" );
+		setKeyBinding( 'D' , "startMovingRight | Axis aBaseY Speed=1.0 | OnRelease stopMovingRight" );
+		setKeyBinding( 'S' , "startMovingBackward | Axis aBaseY Speed=1.0 | OnRelease stopMovingBackward" );
 		setKeyBinding( 'LeftShift' , "StartSprint | OnRelease StopSprint" );
 
 		setKeyBinding('MouseScrollUp', "GBA_PrevWeapon | MiddleMouseScrollUp");
@@ -539,7 +579,8 @@ event PlayerInput(float DeltaTime){
 }
 
 event tick( float deltaTime ){
-	local vector v;
+	local vector camToPawn;
+	local float yawOffSet;
 
 	//`log( "nKeysPressed: "$nKeysPressed );
 	////Move player pawn
@@ -547,11 +588,49 @@ event tick( float deltaTime ){
 	//	v = vector( pawn.Rotation ) * pawn.GroundSpeed * deltaTime;
 	//	pawn.Move( -v );
 	//}
-
-	if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
-		targetYaw = pawn.Controller.Rotation.Yaw;
+	if ( !pawn.IsInState( 'Dead' ) ){
+		if ( DELPlayer( Pawn ).bLockedToCamera && nKeysPressed == 0 ){
+			targetYaw = pawn.Controller.Rotation.Yaw;
+		}
+		if ( nKeysPressed > 0 ){
+			yawOffSet = calculateYawOffset();
+			camToPawn = cameraToPawn( yawOffSet );
+			targetYaw = Rotator( camToPawn ).Yaw;
+		}
+		rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
 	}
-	rotatePawnToDirection( targetYaw , defaultRotationSpeed , deltaTime );
+}
+
+function float calculateYawOffset(){
+	local int yawOffSet;
+
+	if ( bKeyPressed[ 1 ] ){
+		yawOffSet = 90.0;
+	}
+	if ( bKeyPressed[ 2 ] ){
+		yawOffSet = -90.0;
+	}
+	if ( bKeyPressed[ 0 ] ){
+		yawOffSet = 0.0;
+		if ( bKeyPressed[ 1 ] ){
+			yawOffSet += 45.0;
+		}
+		if ( bKeyPressed[ 2 ] ){
+			yawOffSet -= 45.0;
+		}
+	}
+	if ( bKeyPressed[ 3 ] ){
+		yawOffSet = 180.0;
+		if ( bKeyPressed[ 1 ] ){
+			yawOffSet -= 45.0;
+		}
+		if ( bKeyPressed[ 2 ] ){
+			yawOffSet += 45.0;
+		}
+	}
+	
+	
+	return yawOffSet;
 }
 /**
  * Set a specific keybinding.
