@@ -62,8 +62,8 @@ simulated function CustomFire(){
 
 	if( Role == ROLE_Authority ){
 
-		//AimDir = Vector(Instigator.GetAdjustedAimFor( Self, locationOfProjectile));
-		AimDir = Vector(Spellcaster.Rotation);
+		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, locationOfProjectile));
+		//AimDir = Vector(Spellcaster.Rotation);
 		if( chargingProjectile != None && !chargingProjectile.bDeleteMe ){
 			chargingProjectile.damage = totalDamage;
 			chargingProjectile.Init(AimDir);

@@ -223,7 +223,7 @@ simulated function CustomFire(){
 
 		//gets the location and gets the direction
 		Spawnlocation = GetSocketPosition(instigator);
-		AimDir = Vector(Spellcaster.Rotation);
+		AimDir = Vector(Instigator.GetAdjustedAimFor( Self, locationOfProjectile));
 
 		
 		// Spawns a projectile and gives it a direction
