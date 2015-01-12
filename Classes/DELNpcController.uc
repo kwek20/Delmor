@@ -52,7 +52,7 @@ event Possess( Pawn inPawn , bool bVehicleTransition ){
 event pawnTookDamage( optional Actor DamageCauser ){
 	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
 	`log( "Being hit" ); 
-	if ( DamageCauser != none ){
+	if ( DamageCauser != none && isInState( 'Idle' ) ){
 		if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
 			`log( "DELPlayer" );
 			`log( "Retaliate" );

@@ -1,6 +1,6 @@
 /**
  * Pawn class for the medium enemy
- * @author Bram
+ * @author Anders Egberts
  */
 class DELMediumMonsterPawn extends DELHostilePawn
       placeable
@@ -92,7 +92,7 @@ event hitWhileBlocking( vector HitLocation , class<DamageType> DamageType ){
 		playBlockingSound();
 		//Block even longer
 		setTimer( 5.0 , false , 'stopBlocking' );
-		knockBack( 100.0 , location - DELHostileController( controller ).player.location , true );
+		//knockBack( 100.0 , location - DELHostileController( controller ).player.location , true );
 		break;
 
 	case class'DELDmgTypeMagical':
@@ -160,6 +160,7 @@ defaultproperties
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
 	getHitAnimName = Rhinoman_Gettinghit1
+	blockAnimName = Rhinoman_Dodge
 
 	deathAnimationTime = 0.5833
 
