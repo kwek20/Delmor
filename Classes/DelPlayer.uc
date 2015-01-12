@@ -32,6 +32,11 @@ var float   SprintTimerCount;
 var float   LastSprint;
 var float   ScaledTimer;
 
+/**
+ * The rotation to move in.
+ */
+var rotator moveRotation;
+
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -167,7 +172,23 @@ exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
 }
 
+
+/**
+ * Gets the number of pawns
+ */
+exec function numberOfPawnsNearPlayer(){
+	local DELHostileController c;
+	local int nPawns;
+	/**
+	 * The distance at wich a pawn is considered near the player.
+	 */
+	local float nearDistance;
+
+	nPawns = 0;
+	nearDistance = 256.0;
+
 function OnCompleteObjective(){
+
 
 }
 
@@ -301,13 +322,26 @@ simulated function StopFire(byte FireModeNum){
 	}
 }
 
-function PickUp() {   
-	local DELItemInteractible p;
+function PickUpHealth() {   
+	local DELItemPotionHealth p;
 	local float pickupRange;
-	pickupRange = 128.0;
-	foreach WorldInfo.allActors(class'DELItemInteractible', p) {
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemPotionHealth', p) {
 		if (VSize(location-p.location) < pickupRange) {
 			p.pickup();
+			UManager.AddInventory(class'DELItemPotionHealth', 1);
+		}
+	}
+}
+
+function PickUpMana() {   
+	local DELItemPotionMana p;
+	local float pickupRange;
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemPotionMana', p) {
+		if (VSize(location-p.location) < pickupRange) {
+			p.pickup();
+			UManager.AddInventory(class'DELItemPotionMana', 1);
 		}
 	}
 }
@@ -623,7 +657,7 @@ function finishKick(){
 function spawnChickenKickEffects( vector l ){
 	local ParticleSystem p;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_feathers';
+	p = ParticleSystem'Delmor_Effects.Particles.p_feathers';
 
 	worldInfo.MyEmitterPool.SpawnEmitter( p , l );
 }
@@ -755,7 +789,8 @@ event Tick( float deltaTime ){
 	super.Tick( deltaTime );
 
 	//Pick nearby items.
-	PickUp();
+	PickUpHealth();
+	PickUpMana();
 
 	if ( !bIsKickingAChicken ){
 		chicken = chickenIsInFrontOfMe();
@@ -780,6 +815,8 @@ event Tick( float deltaTime ){
 		adjustCameraDistance( deltaTime );
 		adjustCameraOffset( deltaTime );
 	}
+
+
 }
 
 /*

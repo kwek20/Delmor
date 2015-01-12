@@ -20,15 +20,8 @@ function bool usable(DELPlayerHud hud){
 	return (!restrictUse || restrictUse && canUse(hud));
 }
 
-function pickup()
-{
-	`log("Test Pickup!!!");
-	//Components.remove(Mesh);    REMOVE MESH COMMAND HERE //
-}
-
-
 DefaultProperties
 {
-
+	
 	restrictUse=true
 }

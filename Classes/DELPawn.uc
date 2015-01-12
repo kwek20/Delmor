@@ -185,6 +185,7 @@ var int hitTime;
  */
 var float barLength, barWidth;
 
+var array < class<DELItem> > dropableItems;
 
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
@@ -304,7 +305,7 @@ function spawnBlood( vector hitlocation ){
 	local ParticleSystem p;
 	local rotator spawnRot;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_blood_squib';
+	p = ParticleSystem'Delmor_Effects.Particles.p_blood_squib';
 
 	spawnRot = rotator( hitlocation - location );
 	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
@@ -318,7 +319,7 @@ function spawnBloodDecal(){
 	local vector offSet;
 	local rotator rot;
 
-	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_splatter_a';
+	mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_splatter_a';
 
 	offSet.Z = -1.0;
 	rot = rotator( getFloorLocation( location ) - location );
@@ -335,7 +336,7 @@ function spawnBloodPoolDecal(){
 	local vector offSet;
 	local rotator rot;
 
-	mat = DecalMaterial'Delmor_Character.Materials.dcma_blood_pool';
+	mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_pool';
 
 	offSet.Z = -1.0;
 	rot = rotator( getFloorLocation( location ) - location );
@@ -350,7 +351,7 @@ function spawnBloodPoolDecal(){
 function spawnLandSmoke(){
 	local ParticleSystem p;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_land_smoke';
+	p = ParticleSystem'Delmor_Effects.Particles.p_land_smoke';
 
 	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation( location ) );
 }
@@ -578,11 +579,19 @@ function interrupt(){
 	DELNPCController( controller ).returnToPreviousState();
 }
 
+function dropItem(){
+		local class<DELItem> item;
+		item = calculateDrop();
+		Spawn(item, , , location , , , false);
+		`log("HitLocation: " $ location);
+}
+
 /**
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
 	//super.Died( killer , damageType , hitlocation );
+	dropItem();
 
 	if ( !isInState( 'Dead' ) ){
 		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
@@ -683,7 +692,7 @@ function spawnDespawnEffect(){
 	//local rotator spawnRot;
 	//local UTParticleSystemComponent psc;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_flash';
+	p = ParticleSystem'Delmor_Effects.Particles.p_flash';
 	//psc.SetTemplate( p );
 
 	//psc.ActivateSystem();
@@ -788,6 +797,14 @@ function resetAttackCombo(){
 	attackNumber = 0;
 }
 
+function class<DELItem> calculateDrop(){
+	if (dropableItems.Length > 0){
+		return dropableItems[Rand(dropableItems.Length)];
+	} else {
+		return none;
+	}
+}
+
 /*
  * ========================================
  * States
@@ -837,7 +854,7 @@ state Dead extends NonMovingState{
 		if ( IsTimerActive( 'spawnBloodPoolDecal' ) ){
 			Mesh.GetSocketWorldLocationAndRotation( 'HeadSocket' , socketLoc , socketRot );
 
-			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Character.Particles.p_blood_drops' , socketLoc , socketRot );
+			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Effects.Particles.p_blood_drops' , socketLoc , socketRot );
 		}
 	}
 
@@ -960,6 +977,7 @@ DefaultProperties
 {
 	bCanPickUpInventory = true
 	UInventory = DELInventoryManager
+	dropableItems = (class'DELItemPotionHealth', class 'DELItemPotionMana')
 
 	MaxFootstepDistSq=9000000.0
 	health = 100

@@ -45,6 +45,17 @@ simulated event PostBeginPlay(){
 }
 
 /**
+ * Spawn a blood effect to indicate that the pawn has been hit..
+ */
+function spawnChargeHit( vector l , rotator r ){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_charge_hit';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , l , r );
+}
+
+/**
  * Assigns a soundSet to the pawn.
  */
 private function assignSoundSet(){

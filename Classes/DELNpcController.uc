@@ -27,6 +27,11 @@ var float tooCloseDistance;
 var DELPawn fleeTarget;
 
 /**
+ * How much faster the pawn should run when fleeing.
+ */
+var float fleeSpeedupFactor;
+
+/**
  * The previous State.
  */
 var name prevState;
@@ -157,11 +162,11 @@ state flee {
 			targetLocation = getFleeTargetLocation();
 		}
 		
-		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0 ){
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime * fleeSpeedupFactor + 100.0 ){
 			stopPawn();
 			endFlee();
 		} else {
-			moveTowardsPoint( targetLocation , deltaTime );
+			moveTowardsPoint( targetLocation , deltaTime * fleeSpeedupFactor );
 		}
 	}
 
@@ -205,6 +210,14 @@ state NonMovingState{
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
 		
+		getPreviousState( previousStateName );
+
+		startingRotation = pawn.Rotation;
+		pawn.SetDesiredRotation( startingRotation );
+		stopPawn();
+	}
+
+	function getPreviousState( name previousStateName ){
 		//Save the previous state in a variable.
 		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
 			prevState = previousStateName;
@@ -212,10 +225,6 @@ state NonMovingState{
 		else{
 			prevState = 'Attack';
 		}
-
-		startingRotation = pawn.Rotation;
-		pawn.SetDesiredRotation( startingRotation );
-		stopPawn();
 	}
 
 	event Tick( float deltaTime ){
@@ -250,7 +259,7 @@ state NonMovingState{
 	/**
 	 * Returns idle, but will return the previous state when in a nonmoving state.
 	 */
-	function name getPreviousState(){
+	function name getPreviousStateName(){
 		return prevState;
 	}
 
@@ -499,21 +508,21 @@ function moveTowardsActor( Actor a , float deltaTime ){
 }
 
 /**
- * This functions should move the controller's pawn towards a given point.
- * NOTE: This function is to be used ONLY in the Tick-event!
- * @param l         Vector  The location to where the pawn should move.
- * @param deltaTime float   The deltaTime from the Tick-event
- */
+* This functions should move the controller's pawn towards a given point.
+* NOTE: This function is to be used ONLY in the Tick-event!
+* @param l Vector The location to where the pawn should move.
+* @param deltaTime float The deltaTime from the Tick-event
+*/
 function moveTowardsPoint( Vector l , float deltaTime ){
 	local Vector tempDest;
-	/**
-	 * The next location to move. This will be tempDest if the NavMesh works
-	 * succesful. It will be l if the NavMesh doesn't.
-	 */
+/**
+* The next location to move. This will be tempDest if the NavMesh works
+* succesful. It will be l if the NavMesh doesn't.
+*/
 	local Vector nextMoveLocation;
-	/**
-	 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
-	 */
+/**
+* We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
+*/
 	local Vector adjustedLocation;
 
 	//Set nextMoveLocation to l, we'll move directly towards the targetLocation in case the navMesh fails.
@@ -532,6 +541,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
 		moveInDirection( nextMoveLocation - pawn.Location , deltaTime );
 	}
 }
+
 /**
  * Move the pawn in a certain direction.
  * This direction will be calculated from a vector.
@@ -541,7 +551,7 @@ function moveTowardsPoint( Vector l , float deltaTime ){
  */
 function moveInDirection( vector to , float deltaTime ){
 	local rotator adjustedRotation;
-	
+
 	if ( !DELPawn( pawn ).bIsStunned ){
 		//Adjust the rotation so that only the Yaw will be modified.
 		adjustedRotation = adjustRotation( Pawn.Rotation , rotator( to ).Yaw );
@@ -624,4 +634,5 @@ DefaultProperties
 	player = none
 	fleeDistance = 512.0
 	tooCloseDistance = 256.0
+	fleeSpeedupFactor = 2.0
 }
