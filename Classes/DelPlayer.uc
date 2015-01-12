@@ -11,7 +11,7 @@ var array< class<Inventory> > DefaultInventory;
 var DELWeapon sword;
 var DELMagic magic;
 
-
+var bool isMagician;
 
 var class<DELMeleeWeapon> swordClass;
 
@@ -134,8 +134,13 @@ function AddDefaultInventory(){
 	sword = Spawn(swordClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
 	Controller.ClientSwitchToBestWeapon();
+}
+
+
+function OnBecomeMagician(DELSeqAct_BecomeMagician action){
 	grimoire = Spawn(class'DELMagicFactory');
 	magic = grimoire.getMagic();
+	isMagician=true;
 }
 
 /**
@@ -194,7 +199,7 @@ simulated function OnSwitchSword(DELSeqAct_SwitchSword Action){
  * @param abilitynumber the number of the ability you want to switch to
  */
 simulated function magicSwitch(int AbilityNumber){
-	if(bNoWeaponFiring){
+	if(bNoWeaponFiring || !isMagician){
 		return;
 	}	
 	if(grimoire != None && AbilityNumber <= grimoire.getMaxSpells()){
@@ -212,6 +217,9 @@ simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
 
 	if( bNoWeaponFiring){
+		return;
+	}
+	if(FireModeNum == 1 && !isMagician){
 		return;
 	}
 	if(FireModeNum == 1 && magic!= None){
@@ -295,6 +303,9 @@ function DELHostilePawn nearestEnemy(){
  * @param	FireModeNum		firemode used. 
  */
 simulated function StopFire(byte FireModeNum){
+	if(FireModeNum == 1 && !isMagician){
+		return;
+	}
 	if(FireModeNum == 1 && magic!= None){
 		magic.FireStop();
 	}
@@ -820,4 +831,5 @@ DefaultProperties
 	bLockedToCamera = false
 
 	bIsKickingAChicken = false
+	isMagician = false
 }
