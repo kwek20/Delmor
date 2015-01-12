@@ -81,7 +81,7 @@ function PlayClickSound(){
 public function draw(DELPlayerHud hud){
 	hud.Canvas.SetPos(position.X, position.Y);
 	if (textures.Length > 0){
-		drawTexture(hud.Canvas);
+		super.draw(hud);
 	} else {
 		//behind the text square
 		drawStandardbackground(hud.Canvas);

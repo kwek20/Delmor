@@ -32,6 +32,11 @@ var float   SprintTimerCount;
 var float   LastSprint;
 var float   ScaledTimer;
 
+/**
+ * The rotation to move in.
+ */
+var rotator moveRotation;
+
 /* ==========================================
  * Camera stuff
  * ==========================================
@@ -639,7 +644,7 @@ function finishKick(){
 function spawnChickenKickEffects( vector l ){
 	local ParticleSystem p;
 
-	p = ParticleSystem'Delmor_Character.Particles.p_feathers';
+	p = ParticleSystem'Delmor_Effects.Particles.p_feathers';
 
 	worldInfo.MyEmitterPool.SpawnEmitter( p , l );
 }

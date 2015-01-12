@@ -27,6 +27,11 @@ var float tooCloseDistance;
 var DELPawn fleeTarget;
 
 /**
+ * How much faster the pawn should run when fleeing.
+ */
+var float fleeSpeedupFactor;
+
+/**
  * The previous State.
  */
 var name prevState;
@@ -157,11 +162,11 @@ state flee {
 			targetLocation = getFleeTargetLocation();
 		}
 		
-		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime + 100.0 ){
+		if ( VSize( pawn.Location - targetLocation ) <= pawn.GroundSpeed * deltaTime * fleeSpeedupFactor + 100.0 ){
 			stopPawn();
 			endFlee();
 		} else {
-			moveTowardsPoint( targetLocation , deltaTime );
+			moveTowardsPoint( targetLocation , deltaTime * fleeSpeedupFactor );
 		}
 	}
 
@@ -205,6 +210,14 @@ state NonMovingState{
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
 		
+		getPreviousState( previousStateName );
+
+		startingRotation = pawn.Rotation;
+		pawn.SetDesiredRotation( startingRotation );
+		stopPawn();
+	}
+
+	function getPreviousState( name previousStateName ){
 		//Save the previous state in a variable.
 		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
 			prevState = previousStateName;
@@ -212,10 +225,6 @@ state NonMovingState{
 		else{
 			prevState = 'Attack';
 		}
-
-		startingRotation = pawn.Rotation;
-		pawn.SetDesiredRotation( startingRotation );
-		stopPawn();
 	}
 
 	event Tick( float deltaTime ){
@@ -250,7 +259,7 @@ state NonMovingState{
 	/**
 	 * Returns idle, but will return the previous state when in a nonmoving state.
 	 */
-	function name getPreviousState(){
+	function name getPreviousStateName(){
 		return prevState;
 	}
 
@@ -625,4 +634,5 @@ DefaultProperties
 	player = none
 	fleeDistance = 512.0
 	tooCloseDistance = 256.0
+	fleeSpeedupFactor = 2.0
 }
