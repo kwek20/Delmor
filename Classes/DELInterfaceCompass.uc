@@ -40,43 +40,45 @@ function draw(DELPlayerHud hud){
 	local float CompassRotation, MapRotation;
 	local LinearColor MapOffset;
 
-	pawn = hud.getPlayer().getPawn();
-	if (pawn == None || pawn.Health <= 0)return;
+	if ( GameMinimap != none ){
+		pawn = hud.getPlayer().getPawn();
+		if (pawn == None || pawn.Health <= 0)return;
 
-	super.draw(hud);
+		super.draw(hud);
 
-	startX = position.X+position.Z/8;
-	startY = position.Y+position.W/5-startX;
+		startX = position.X+position.Z/8;
+		startY = position.Y+position.W/5-startX;
 
-	MapDim = MapDim * ResolutionScale;
+		MapDim = MapDim * ResolutionScale;
 
-	//returns the direction the in-game placed minimap is pointing
-	TrueNorth = GameMinimap.getRadianHeading();
-	//returns the player heading in-game
-	Playerheading = getPlayerHeading();
+		//returns the direction the in-game placed minimap is pointing
+		TrueNorth = GameMinimap.getRadianHeading();
+		//returns the player heading in-game
+		Playerheading = getPlayerHeading();
 	
-	//Check wether the compass should rotate along with the player rotation, it shouldnt.
-	if(GameMinimap.bForwardAlwaysUp){
-		MapRotation = PlayerHeading;
-		CompassRotation = PlayerHeading - TrueNorth;
-	} else {
-		MapRotation = PlayerHeading - TrueNorth;
-		CompassRotation = MapRotation;
+		//Check wether the compass should rotate along with the player rotation, it shouldnt.
+		if(GameMinimap.bForwardAlwaysUp){
+			MapRotation = PlayerHeading;
+			CompassRotation = PlayerHeading - TrueNorth;
+		} else {
+			MapRotation = PlayerHeading - TrueNorth;
+			CompassRotation = MapRotation;
+		}
+
+		GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
+		GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
+		GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
+		GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
+
+		hud.Canvas.SetPos(startX, startY);   
+		hud.Canvas.DrawMaterialTile(GameMinimap.Minimap, MapDim, MapDim, 0.0,0.0,1.0,1.0);
+
+		hud.Canvas.SetPos(startX, startY);   
+		hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
+		//Draw the overlay
+		hud.Canvas.SetPos(startX, startY);   
+		hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
 	}
-
-	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
-	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
-	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
-	GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
-
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawMaterialTile(GameMinimap.Minimap, MapDim, MapDim, 0.0,0.0,1.0,1.0);
-
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
-	//Draw the overlay
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
 }
 
 /**

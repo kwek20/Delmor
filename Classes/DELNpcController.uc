@@ -50,18 +50,12 @@ event Possess( Pawn inPawn , bool bVehicleTransition ){
  * Called when the pawn took damage.
  */
 event pawnTookDamage( optional Actor DamageCauser ){
-	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
-	`log( "Being hit" ); 
 	if ( DamageCauser != none && isInState( 'Idle' ) ){
 		if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
-			`log( "DELPlayer" );
-			`log( "Retaliate" );
 			attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
 			changeState( 'Attack' );
 		}
 		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
-			`log( "DELMagicProjectile" );
-			`log( "Retaliate" );
 			//Attack target will be set to the player since he's to only one who can cast magic in-game.
 			attackTarget = findPlayer();
 			changeState( 'Attack' );
@@ -77,7 +71,6 @@ auto state Idle{
 		if ( player == none ){
 			//Find the player
 			player = findPlayer();
-			`log( "findPlayer: player: "$player );
 		}
 	}
 }
@@ -113,7 +106,6 @@ state Attack{
 		 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 		 */
 		local vector adjustedLocation;
-		//`log( self$" Target In Range" );
 		//Don't attack while moving, set the pawn still.
 		stopPawn();
 
@@ -219,7 +211,7 @@ state NonMovingState{
 
 	function getPreviousState( name previousStateName ){
 		//Save the previous state in a variable.
-		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
+		if ( previousStateName != 'KnockedBack'/* && previousStateName != 'Blocking'*/ && previousStateName != 'GettingHit' ){
 			prevState = previousStateName;
 		}
 		else{
@@ -251,8 +243,6 @@ state NonMovingState{
 	 * Returns to the previous state.
 	 */
 	function returnToPreviousState(){
-		`log( "============================================" );
-		`log( self$" returnToPreviousState: "$prevState );
 		goToState( prevState );
 	}
 
@@ -289,8 +279,12 @@ state Attacking extends NonMovingState{
 		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );
 	}
 
+	event Tick( float deltaTime ){
+		self.clearDesiredDirection();
+		pawn.SetRotation( rotator( adjustLocation( attackTarget.location , pawn.Location.Z ) - pawn.Location ) );
+	}
+
 	function SwingFinished(){
-		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
 		returnToPreviousState();
 	}
 }
@@ -414,6 +408,7 @@ function rotator adjustRotation( rotator inRotation , float targetYaw ){
  * Checks whether a pawn to too close to this pawn.
  */
 function bool tooCloseToPawn( DELPawn p ){
+	if ( p == none ) return false;
 	if ( VSize( p.location - Pawn.Location ) < tooCloseDistance ){
 		return true;
 	}
@@ -574,7 +569,6 @@ function clearDesiredDirection(){
  * Sets the controller's pawn still.
  */
 function stopPawn(){
-	//www`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;

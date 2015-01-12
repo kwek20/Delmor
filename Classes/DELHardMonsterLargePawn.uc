@@ -6,6 +6,67 @@ class DELHardMonsterLargePawn extends DELHostilePawn
       placeable
 	  Config(Game);
 
+/**
+ * The effective radius of the shockwave attack.
+ */
+var float shockWaveRadius;
+
+/**
+ * Overridden so that we'll perform a shockwave attack on the second attack.
+ */
+function attackEffects( int attackNumber ){
+	`log( "attackEffects. attackNumber: "$attackNumber );
+	switch( attackNumber - 1 ){
+	case 1:
+		shockWave();
+		break;
+	default:
+		self.dealAttackDamage();
+		break;
+	}
+}
+
+/**
+ * Perform a shockwave that blasts any pawn away.
+ */
+function shockWave(){
+	local DELPawn p;
+	local vector momentum , shockwaveLocation;
+	local float shockwaveDamage;
+
+	shockwaveLocation = getInFrontLocation();
+
+	`log( self$" shockWave" );
+	foreach WorldInfo.AllPawns( class'DELPawn' , p , shockwaveLocation , shockWaveRadius ){
+		if ( p != self ){
+			shockwaveDamage = DELMeleeWeapon( sword ).CalculateDamage();
+			p.knockBack( 384.0 , adjustLocation( p.location  , shockwaveLocation.Z ) - getFloorLocation( location ) , false );
+			//p.TakeDamage( DELMeleeWeapon( sword ).CalculateDamage() , Instigator.controller , ( p.location + location ) / 2 , momentum , class'DELDmgTypeMelee' );
+			p.TakeRadiusDamage( Instigator.controller , shockwaveDamage , shockWaveRadius , class'DELDmgTypeMelee' , 1000 , shockwaveLocation , false , self );
+		}
+	}
+
+	spawnShockwaveEffect( shockwaveLocation );
+}
+
+function spawnShockwaveEffect( vector shockwaveLocation ){
+	local ParticleSystem p;
+	local vector offSet;
+	local rotator rot;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_culpa_shockwave';
+	offSet.Z = +1.0;
+
+	rot.Pitch = 0 * DegToUnrRot;
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , getFloorLocation( shockwaveLocation ) + offSet , rot );
+}
+
+/**
+ * Empty knockback, Culpas cannot be knocked back.
+ */
+function knockBack( float intensity , vector direction , optional bool bNoAnimation ){
+}
 
 defaultproperties
 {
@@ -40,15 +101,15 @@ defaultproperties
 	//Anim
 	animname[ 0 ] = Culpa_Big_Attack
 	attackAnimationImpactTime[ 0 ] = 0.8533
-	animname[ 1 ] = Culpa_Big_Attack
-	attackAnimationImpactTime[ 1 ] = 0.8533
+	animname[ 1 ] = Culpa_Big_Attack_Jump
+	attackAnimationImpactTime[ 1 ] = 0.8840
 	animname[ 2 ] = Culpa_Big_Attack
 	attackAnimationImpactTime[ 2 ] = 0.8533
-	deathAnimName = Culpa_Big_Val
+	deathAnimName = Culpa_Big_Death_Extended
 	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit
 
-	deathAnimationTime = 1.0
+	deathAnimationTime = 2.173
 
 	physicalResistance = 0.0
 	magicResistance = 0.0
@@ -57,4 +118,8 @@ defaultproperties
 		CollisionRadius = 64.0
 		CollisionHeight = +132.0
 	end object
+
+	shockWaveRadius = 512.0
+
+	bloodDecalSize = 256.0
 }

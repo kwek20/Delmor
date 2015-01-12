@@ -461,7 +461,6 @@ private function regenerate(){
  * Spawns the pawn's controller and deletes the previous one.
  */
 function SpawnController(){
-	`log( "Spawn controller. ControllerClass: " $ControllerClass );
 	if ( controller != none )
 		controller.Destroy();
 
@@ -476,16 +475,18 @@ function SpawnController(){
  * @param bNoAnimation  bool    When true, the knockback animation will NOT be played.
  */
 function knockBack( float intensity , vector direction , optional bool bNoAnimation ){
-	spawnKnockBackForce( intensity , direction );
-	controller.goToState( 'KnockedBack' );
-	//goToState( 'KnockedBack' );
-	bBlockActors = false;
+	if ( !isInState( 'Dead' ) ){
+		spawnKnockBackForce( intensity , direction );
+		controller.goToState( 'KnockedBack' );
+		//goToState( 'KnockedBack' );
+		bBlockActors = false;
 
-	if ( !bNoAnimation ){
-		playknockBackAnimation();
+		if ( !bNoAnimation ){
+			playknockBackAnimation();
+		}
+
+		interrupt();
 	}
-
-	interrupt();
 }
 
 /**
@@ -551,11 +552,25 @@ function attack(){
 	if ( !controller.IsInState( 'Attacking' ) ){
 		playAttackAnimation();
 		controller.goToState( 'Attacking' );
-		setTimer( attackInterval + 0.2 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
-		setTimer( attackAnimationImpactTime[ attackNumber ] , false , 'dealAttackDamage' ); //A short delay before dealing actual damage.
-		increaseAttackNumber();
+		setTimer( attackInterval * 1.5 , false , 'resetAttackCombo' ); //Reset the attack combo if not immidiatly attacking again.
+		setTimer( attackAnimationImpactTime[ attackNumber ] , false , 'attackFinished' ); //A short delay before dealing actual damage.
 		say( "AttackSwing" );
+		increaseAttackNumber();
 	}
+}
+
+/**
+ * Called when the attack is finished, deal the attack damage and perform an eventual special effect.
+ */
+function attackFinished(){
+	attackEffects( attackNumber );
+}
+
+/**
+ * Perform a special attack effect. Override this later so you can add special shockwave attacks and stuff.
+ */
+function attackEffects( int attackNumber ){
+	dealAttackDamage();
 }
 
 /**
@@ -583,7 +598,6 @@ function dropItem(){
 		local class<DELItem> item;
 		item = calculateDrop();
 		Spawn(item, , , location , , , false);
-		`log("HitLocation: " $ location);
 }
 
 /**
@@ -716,11 +730,14 @@ function increaseAttackNumber(){
  * @param bForce    bool    Play the sound even if bCanPlay = false.
  */
 function say( String dialogue , optional bool bForce ){
-	//`log( ">>>>>>>>>>>>>>>>>>>> "$self$" said something ( "$dialogue$" )" );
+	local SoundCue snd;
 	if ( mySoundSet != none && ( mySoundSet.bCanPlay || bForce ) ){
-		mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
-		mySoundSet.bCanPlay = false;
-		mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
+		snd = mySoundSet.getSound( dialogue );
+		if ( snd != none ){
+			mySoundSet.PlaySound( mySoundSet.getSound( dialogue ) );
+			mySoundSet.bCanPlay = false;
+			mySoundSet.setTimer( 0.5 , false , nameOf( mySoundSet.resetCanPlay ) );
+		}
 	}
 }
 
@@ -741,9 +758,8 @@ function dealAttackDamage(){
 	hitPawn = checkPawnInFront();
 	damage = DELMeleeWeapon( sword ).CalculateDamage();
 
-	if ( hitPawn != none ){
-		hitPawn.TakeDamage( damage , Instigator.Controller , ( location + hitPawn.Location ) / 2 , momentum , class'DELDmgTypeMelee' , , self );
-	}
+	if ( hitPawn == none ) return;
+	hitPawn.TakeDamage( damage , Instigator.Controller , ( location + hitPawn.Location ) / 2 , momentum , class'DELDmgTypeMelee' , , self );
 }
 
 /**
@@ -773,11 +789,10 @@ function Vector getInFrontLocation( optional int yaw ){
 function Pawn checkPawnInFront(){
 	local DELPawn p;
 	local vector inFrontLocation;
-	local float checkDistance;
 	local pawn hitPawn;
 
 	inFrontLocation = getInFrontLocation();
-	checkDistance = meleeRange + GetCollisionRadius();
+	//checkDistance = meleeRange + GetCollisionRadius();
 
 	foreach WorldInfo.AllPawns( class'DELPawn' , p , location , 2 * meleeRange ){
 		//if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
