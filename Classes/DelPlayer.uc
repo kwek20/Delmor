@@ -136,14 +136,21 @@ function AddDefaultInventory(){
 	Controller.ClientSwitchToBestWeapon();
 }
 
+/**
+ * command for becoming a magician
+ */
 exec function becomeMagician(){
 	if(!isMagician){
 		grimoire = Spawn(class'DELMagicFactory');
 		magic = grimoire.getMagic();
 		isMagician=true;
+		DELPlayerController(controller).reloadHud();
 	}
 }
 
+/**
+ * delegation for becoming magician the kismet way
+ */
 function OnBecomeMagician(DELSeqAct_BecomeMagician action){
 	becomeMagician();
 }
@@ -196,7 +203,9 @@ function OnAddObjective(DELSeqAct_AddObjective Action){
 
 }
 
-
+/**
+ * kismet delegation for creating a quest
+ */
 function OnCreateQuest(DELSeqAct_CreateQuest Action){
 	local array<String> questStuff;
 	questStuff = action.getQuestInfo();

@@ -115,24 +115,8 @@ public function drawIdentifier(Canvas c){
  */
 public function drawTexture(Canvas c, optional bool scale=true){
 	super.drawTexture(c, scale);
-	if(bLastClicked && textures.Length>0){
-		c.SetDrawColor(clickedColor.R,clickedColor.G,clickedColor.B,clickedColor.A);
-		c.SetPos(position.X-5,position.Y-5,position.Z);
-		c.DrawBox(position.W + 2*5 , position.Z + 2*5); 
-	}
-}
 
-/**
- * checks if this item from the quick menu is the last used one
- * if not, then it will be
- * if it is then it won't be anymore
- * @author harmen wiersma
- */
-public function useQItem(){
-	if(bLastClicked){ bLastClicked = false;}
-	else{ bLastClicked =true;}
 }
-
 
 /**
  * Sets the indentifier key for this button.<br/>
