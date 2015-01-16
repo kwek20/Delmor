@@ -207,6 +207,11 @@ public function onMouseUse(DELInputMouseStats stats){
  * HUD functions
  ###############*/
 
+function reloadHud(){
+	getHud().clearInterfaces();
+	checkHuds();
+}
+
 function checkHuds(){
 	if (getHud() == None)return;
 
