@@ -35,7 +35,7 @@ DefaultProperties
 		Scale3D=(X=1, Y=1, Z=1)
 		bHasPhysicsAssetInstance=false
 		bAcceptsLights=true
-		Translation=(Z=-19.0)
+		Translation=(Z=-46.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)

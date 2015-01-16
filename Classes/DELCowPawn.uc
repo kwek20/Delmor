@@ -6,11 +6,14 @@ class DELCowPawn extends DELAnimalPawn
 	  Config(Game);
 var SoundCue kickSound;
 var bool canPlaySound;
+var int minCow, maxCow;
 
 simulated function PostBeginPlay() {
 	super.PostBeginPlay();
 	assignSoundSet();
 	`log(self);
+	SetTimer((Rand(maxCow-minCow) + minCow), true, 'playMoe');
+	
 }
 
 /**
@@ -21,6 +24,10 @@ private function assignSoundSet(){
 		mySoundSet.Destroy();
 	}
 	mySoundSet = spawn( class'DELSoundSetCow' );
+}
+
+function playMoe() {
+	PlaySound( kickSound );
 }
 
 function kick() {
@@ -54,7 +61,7 @@ DefaultProperties
 		Scale3D=(X=1, Y=1, Z=1)
 		bHasPhysicsAssetInstance=false
 		bAcceptsLights=true
-		Translation=(Z=-19.0)
+		Translation=(Z=-28.0)
 	End Object
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
@@ -63,6 +70,8 @@ DefaultProperties
 	CollisionRadius = 44.0;
 	CollisionHeight = +32.0;
 	end object
+	minCow = 10
+	maxCow = 30
 
 	ControllerClass=class'DELCowController'
 	GroundSpeed=50
