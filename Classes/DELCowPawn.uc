@@ -4,15 +4,15 @@
 class DELCowPawn extends DELAnimalPawn
       placeable
 	  Config(Game);
-var SoundCue kickSound;
+var SoundCue cowSound;
 var bool canPlaySound;
-var int minCow, maxCow;
+var int minCowTime, maxCowTime;
 
 simulated function PostBeginPlay() {
 	super.PostBeginPlay();
 	assignSoundSet();
 	`log(self);
-	SetTimer((Rand(maxCow-minCow) + minCow), true, 'playMoe');
+	SetTimer((Rand(maxCowTime-minCowTime) + minCowTime), true, 'playCowSound');
 	
 }
 
@@ -26,8 +26,8 @@ private function assignSoundSet(){
 	mySoundSet = spawn( class'DELSoundSetCow' );
 }
 
-function playMoe() {
-	PlaySound( kickSound );
+function playCowSound() {
+	PlaySound( cowSound );
 }
 
 function kick() {
@@ -70,10 +70,10 @@ DefaultProperties
 	CollisionRadius = 44.0;
 	CollisionHeight = +32.0;
 	end object
-	minCow = 10
-	maxCow = 30
+	minCowTime = 10
+	maxCowTime = 30
 
 	ControllerClass=class'DELCowController'
 	GroundSpeed=50
-	kickSound = SoundCue'Delmor_sound.Cow_cue'
+	cowSound = SoundCue'Delmor_sound.Cow_cue'
 }
