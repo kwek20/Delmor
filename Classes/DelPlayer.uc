@@ -195,12 +195,16 @@ exec function numberOfPawnsNearPlayer(){
 	nearDistance = 256.0;
 }
 
-function OnCompleteObjective(){
-
+function OnUpdateObjective(DELSeqAct_UpdateObjective Action){
+	local String Questname, Objective;
+	Questname = action.getInfo()[0];
+	Objective = action.getInfo()[1];
 }
 
 function OnAddObjective(DELSeqAct_AddObjective Action){
-
+	local String questTitle, ObjectiveText;
+	local int totalAmountToComplete;
+	action.getValues(questTitle,ObjectiveText,totalAmountToComplete);
 }
 
 /**
