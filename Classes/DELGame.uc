@@ -5,6 +5,7 @@ var DELMinimap GameMinimap;
 var private string PendingSaveGameFileName; // Pending save game state file name
 var DELPlayer PendingPlayerPawn;                 // Pending player pawn for the player controller to spawn when loading a game state
 var DELSaveGameState StreamingSaveGameState;   // Save game state used for when streaming levels are waiting to be loaded
+var int awesomeTick;
 
 function InitGame( string Options, out string ErrorMessage ){
 	local DELMinimap ThisMinimap;
@@ -124,6 +125,12 @@ function Pawn SpawnDefaultPawnFor(Controller NewPlayer, NavigationPoint StartSpo
 
     return SpawnedPawn;
 }
+
+exec function logThis(){
+	awesomeTick = awesomeTick +1;
+	`log("logged "$ awesomeTick);
+}
+
 
 DefaultProperties 
 {

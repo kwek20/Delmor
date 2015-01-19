@@ -1,1 +1,0 @@
-class DELSequenceVariable extends SequenceVariable;

@@ -125,6 +125,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 	if (SkelComp == Mesh){
 		SwingAnim = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('SwingCustomAnim'));
 	}
+
+	//initiate a 0.3 second tick
+	SetTimer(0.3 ,true, NameOf(DelmorWorldTick));
 }
 
 /**
@@ -195,12 +198,15 @@ exec function numberOfPawnsNearPlayer(){
 	nearDistance = 256.0;
 }
 
-function OnCompleteObjective(){
-
+function OnUpdateObjective(DELSeqAct_UpdateObjective Action){
+	local String Questname, Objective;
+	action.getInfo(Questname, Objective);
 }
 
 function OnAddObjective(DELSeqAct_AddObjective Action){
-
+	local String questTitle, ObjectiveText;
+	local int totalAmountToComplete;
+	action.getValues(questTitle,ObjectiveText,totalAmountToComplete);
 }
 
 /**
@@ -826,6 +832,14 @@ event Tick( float deltaTime ){
 
 
 }
+
+
+function DelmorWorldTick(){
+	`log("event called");
+	TriggerGlobalEventClass(class'DELSeqEvent_Tick',self);
+}
+
+
 
 /*
  * ==================================
