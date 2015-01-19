@@ -80,6 +80,7 @@ function array<Texture2D> getIcons(DELPlayerHud hud){
  * @param button button the mouse clicked
  */
 function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
+	`log("use Magic in DELInterfacebar");
 	hud.getPlayer().getPawn().magicSwitch(DELInterfaceButton(button).identifierKey);
 }
 

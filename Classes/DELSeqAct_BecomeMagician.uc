@@ -4,8 +4,8 @@ class DELSeqAct_BecomeMagician extends DELSequenceAction;
 
 DefaultProperties
 {
-	ObjName="Toggle Sword"
+	ObjName="Become Magician"
 	ObjCategory="Delmor"
-	
+		
 	VariableLinks(0)=(bModifiesLinkedObject=true)
 }
