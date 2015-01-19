@@ -563,13 +563,13 @@ event pawnHit(){
 	nTimesHit ++;
 
 	`log( "nTimesHit: "$nTimesHit );
-	if( nTimesHit >= 3 ){
+	if( nTimesHit >= 3 && pawn.Health < pawn.HealthMax / 2 ){
 		`log( "Start blocking" );
 		//block();
 		DELPawn( pawn ).startBlocking();
 	}
 
-	if ( pawn.Health < pawn.HealthMax / 2 ){
+	if ( pawn.Health < pawn.HealthMax / 4 ){
 		fleeFrom( attackTarget );
 	}
 

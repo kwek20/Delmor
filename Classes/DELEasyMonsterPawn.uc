@@ -94,9 +94,9 @@ function breakBlock(){
 
 defaultproperties
 {	
-	//swordClass = class'DELMeleeWeaponFists'
+	swordClass = class'DELMeleeWeaponFists'
 	//swordClass = class'DELMeleeWeaponBattleAxe'
-	swordClass = class'DELMeleeWeaponDagger'
+	//swordClass = class'DELMeleeWeaponDagger'
 	
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
