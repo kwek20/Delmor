@@ -6,10 +6,8 @@
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
 var array< class<Inventory> > DefaultInventory;
-var DELWeapon sword;
 var DELMagic magic;
 var bool isMagician;
-var class<DELMeleeWeapon> swordClass;
 
 /**
  * the factory of spells.
@@ -261,7 +259,6 @@ simulated function StartFire(byte FireModeNum){
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
 		weapon.StartFire(FireModeNum);
-		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
 	}
 }
 
@@ -728,7 +725,7 @@ simulated function bool CalcCamera(float DeltaTime, out vector out_CamLoc, out r
 		//Get the controller's rotation as camera angle.
 		targetRotation = Controller.Rotation;
 
-		out_CamLoc = Location;
+		out_CamLoc = self.getASocketsLocation( 'CenterSocket' )/*Location*/;
 		out_CamLoc.X -= Cos(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
 		out_CamLoc.Y -= Sin(targetRotation.Yaw * UnrRotToRad) * Cos(camPitch * UnrRotToRad) * camOffsetDistance;
 		out_CamLoc.Z -= Sin(camPitch * UnrRotToRad) * camOffsetDistance;
@@ -881,7 +878,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		say( "Die" , true );
 		//Controller.pawnDied( self );
 		//controller.Destroy();
-		setTimer( 5.0 , false , 'destroyMe' );
+		//setTimer( 5.0 , false , 'destroyMe' );
 		//Play death animation
 		playDeathAnimation();
 		goToState( 'Dead' );
@@ -900,6 +897,9 @@ DefaultProperties
 	deathAnimName = Lucian_Death
 
 	swordClass = class'DELMeleeWeaponDemonSlayer';
+	//swordClass = class'DELMeleeWeaponBattleAxe'
+	//swordClass = class'DELMeleeWeaponDagger'
+
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
 	bCanBeBaseForPawn=true
 

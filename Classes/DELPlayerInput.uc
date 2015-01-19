@@ -54,7 +54,6 @@ simulated exec function moveRight( float deltaTime ){
 		if ( !DELPlayer( Pawn ).bLookMode ){
 			//Pawn.SetRotation( Rotator( camToPawn ) );
 			targetYaw = Rotator( camToPawn ).Yaw ;
-			`log( "targetYaw: "$targetYaw);
 		}
 		//Pawn.Velocity = Normal( camToPawn );
 	}
@@ -643,4 +642,8 @@ DefaultProperties
 {
 	defaultRotationSpeed = 1600.0
 	nKeysPressed = 0
+	bKeyPressed[ 0 ] = false
+	bKeyPressed[ 1 ] = false
+	bKeyPressed[ 2 ] = false
+	bKeyPressed[ 3 ] = false
 }

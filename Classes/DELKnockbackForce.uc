@@ -75,17 +75,15 @@ function setPower( float inPower ){
  * Destroys the force effects.
  */
 function endForce(){
-	`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" );
-	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
-	`log( "pawnsPreviousState: "$pawnsPreviousState );
-	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
-	`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" );
-
 	if ( zPower < 100.0 ){
 		myPawn.spawnLandSmoke();
 	}
- 
-	myPawn.controller.goToState( pawnsPreviousState );
+	
+	if ( pawnsPreviousState != '' ){
+		myPawn.controller.goToState( pawnsPreviousState );
+	} else {
+		myPawn.controller.goToState( 'Idle' );
+	}
 	//DELNpcController( myPawn.controller ).returnToPreviousState();
 	//myPawn.returnToPreviousState();
 	destroy();

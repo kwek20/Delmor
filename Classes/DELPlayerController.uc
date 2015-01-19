@@ -267,6 +267,8 @@ function UpdateRotation(float DeltaTime){
 	local float pitchClampMin , pitchClampMax;
 	local Rotator	DeltaRot, newRotation, ViewRotation;
 
+	if ( pawn == none ) return;
+
 	pitchClampMax = -15000.0;
 	pitchClampMin = 4500.0;
 

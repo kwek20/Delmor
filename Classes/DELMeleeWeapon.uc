@@ -229,6 +229,7 @@ simulated function FireAmmunition(){
 		} else {
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname3, 1.0);
 		}
+		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
 		super.FireAmmunition();
 	}
 }

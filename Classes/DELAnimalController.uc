@@ -59,12 +59,9 @@ auto state Idle {
  * state where the goat is walking to a random player
  */
 state walk {
-	local Vector targetLocation;
-	local bool playerIsSeen;
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
 		nextLocation = getRandomLocation();
-		playerIsSeen = false;
 	}	
 
 	event Tick( float deltaTime ){
@@ -167,10 +164,31 @@ function Vector GetALocation() {
  */
 function Vector GetLocationInMoveRange(){
 	local Vector temp;
+	
 	temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Z = startPosition.Z;// + Rand(5000);
+
+	while( bLocationObstructed( temp ) ){
+		temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
+		temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
+	}
 	return temp;
+}
+
+function bool bLocationObstructed( Vector location ){
+	local Brush b;
+	local StaticMeshActor s;
+
+	foreach CollidingActors( class'Brush' , b , 128.0 , location ){
+		return true;
+	}
+	
+	foreach CollidingActors( class'StaticMeshActor' , s , 128.0 , location ){
+		return true;
+	}
+
+	return false;
 }
 
 DefaultProperties

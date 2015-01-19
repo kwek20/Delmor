@@ -42,31 +42,33 @@ function draw(DELPlayerHud hud){
 	local float CompassRotation, MapRotation;
 	local LinearColor MapOffset;
 
-	pawn = hud.getPlayer().getPawn();
-	if (pawn == None || pawn.Health <= 0)return;
+	if ( GameMinimap != none ){
+		pawn = hud.getPlayer().getPawn();
+		if (pawn == None || pawn.Health <= 0)return;
 
-	super.draw(hud);
+		super.draw(hud);
 
-	//returns the direction the in-game placed minimap is pointing
-	TrueNorth = GameMinimap.getRadianHeading();
-	//returns the player heading in-game
-	Playerheading = getPlayerHeading();
+		//returns the direction the in-game placed minimap is pointing
+		TrueNorth = GameMinimap.getRadianHeading();
+		//returns the player heading in-game
+		Playerheading = getPlayerHeading();
 	
-	//Check wether the compass should rotate along with the player rotation, it shouldnt.
-	if(GameMinimap.bForwardAlwaysUp){
-		MapRotation = PlayerHeading;
-		CompassRotation = PlayerHeading - TrueNorth;
-	} else {
-		MapRotation = PlayerHeading - TrueNorth;
-		CompassRotation = MapRotation;
+		//Check wether the compass should rotate along with the player rotation, it shouldnt.
+		if(GameMinimap.bForwardAlwaysUp){
+			MapRotation = PlayerHeading;
+			CompassRotation = PlayerHeading - TrueNorth;
+		} else {
+			MapRotation = PlayerHeading - TrueNorth;
+			CompassRotation = MapRotation;
+		}
+
+		GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
+		GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
+		GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
+		GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
+
+		drawMaterialTiles(hud.Canvas, materials);
 	}
-
-	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
-	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
-	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
-	GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
-
-	drawMaterialTiles(hud.Canvas, materials);
 }
 
 function drawMaterialTiles(Canvas c, array<MaterialInstanceConstant> materials){
