@@ -873,8 +873,8 @@ DefaultProperties
 {
 	deathAnimName = Lucian_Death
 
-	swordClass = class'DELMeleeWeaponDemonSlayer';
-	//swordClass = class'DELMeleeWeaponBattleAxe'
+	//swordClass = class'DELMeleeWeaponDemonSlayer';
+	swordClass = class'DELMeleeWeaponBattleAxe'
 	//swordClass = class'DELMeleeWeaponDagger'
 
 	SoundGroupClass=class'Delmor.DELPlayerSoundGroup'
