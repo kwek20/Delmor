@@ -275,15 +275,9 @@ state wander{
 }
 
 state attack{
-	/**
-	 * Timer for decisions.
-	 */
-	local float timer;
 
 	function beginState( name previousStateName ){
 		super.beginState( previousStateName );
-
-		timer = 0.0;
 
 		if ( shouldCharge() ){
 			startCharge();
@@ -291,32 +285,28 @@ state attack{
 
 		if ( getNumberOfMinions() > 0 ){
 			orderNearbyMinionsToAttackPlayer();
-		}
-		else{
+		} else {
 			DELMediumMonsterPawn( Pawn ).say( "TauntPlayer" );
 		}
+
+		SetTimer( decisionInterval , true , 'decisionTimer' );
 	}
 
-	event tick( float deltaTime ){
-		super.Tick( deltaTime );
-		timer -= deltaTime;
-		if ( timer <= 0.0 ){
-			//Flee from the player if the health is low and the player is too close.
-			if ( checkIsInDanger() ){
-				`log( self$" I'm in danger" );
-				fleeFrom( attackTarget );
+	/**
+	 * Make a decision for your next move.
+	 */
+	function decisionTimer(){
+		//if ( checkIsInDanger() ){
+		//	`log( self$" I'm in danger" );
+		//	fleeFrom( attackTarget );
 
-				//Call for backup
-				orderNearbyMinionsToAttackPlayer();
-			}
+			//Call for backup
+		//	orderNearbyMinionsToAttackPlayer();
+		//}
 
-			//Wait till the player has killed the easypawns before attacking
-			if ( nPawnsNearPlayer() > 2 ){
-				changeState( 'maintainDistanceFromPlayer' );
-			}
-
-			//Reset the timer
-			timer = decisionInterval;
+		//Wait till the player has killed the easypawns before attacking
+		if ( nPawnsNearPlayer() > 2 ){
+			changeState( 'maintainDistanceFromPlayer' );
 		}
 	}
 }
@@ -354,29 +344,13 @@ state flee{
  * In this state the mediumMonster will stay a few meters away from the player as long as there's easypawns nearby the player.
  */
 state maintainDistanceFromPlayer{
-	/**
-	 * The distance to keep from the player.
-	 */
-	local float distanceToPlayer;
-	/**
-	 * When the number of easymonsterpawns is smaller than this number, the medium pawn should attack.
-	 */
-	local int maximumPawnsNearPlayer;
-	local float timer;
 
 	function beginState( name previousStateName ){
-		distanceToPlayer = 384.0;
-		maximumPawnsNearPlayer = 3;
-		timer = decisionInterval;
-
-		`log( "Maintain your distance" );
+		SetTimer( decisionInterval , true , 'decisionTimer' );
 	}
 	
 	event tick( float deltaTime ){
 		local vector targetLocation;
-		local vector selfToPlayer;
-
-		timer -= deltaTime;
 
 		targetLocation = calculateTargetLocation();
 
@@ -389,16 +363,15 @@ state maintainDistanceFromPlayer{
 
 		clearDesiredDirection();
 		pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
+	}
 
-		//Return to the fight when the easy pawns have died.
-		if ( timer <= 0.0 ){
-			if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ getNumberOfMinions() == 0 && shouldCharge() ){
-				orderHardMonsterToTransform();
-				startCharge();
-			}
-
-			//Reset timer
-			timer = decisionInterval;
+	/**
+	 * Make a decision for your next move.
+	 */
+	function decisionTimer(){
+		if ( /*nPawnsNearPlayer() <= maximumPawnsNearPlayer*/ getNumberOfMinions() == 0 && shouldCharge() ){
+			orderHardMonsterToTransform();
+			startCharge();
 		}
 	}
 
@@ -443,6 +416,7 @@ state Charge{
 		if ( distanceToPoint( playerPosition ) > Pawn.GroundSpeed * deltaTime * 6.0 + 10.0 ){
 			//moveInDirection( playerPosition - pawn.Location , deltaTime * 6 /*We run to the player, so we move faster*/ );
 			if ( nothingInTheWay( playerPosition ) ){
+				moveInDirection( playerPosition - pawn.Location , deltaTime * 6 );
 			} else {
 				moveTowardsPoint( playerPosition , deltaTime * 6.0 );
 			}
@@ -513,6 +487,22 @@ state Charge{
 	}
 }
 
+state NonMovingState{
+
+	function getPreviousState( name previousStateName ){
+		//Save the previous state in a variable.
+		if ( previousStateName != 'KnockedBack' /*&& previousStateName != 'Blocking'*/ && previousStateName != 'GettingHit' ){
+			prevState = previousStateName;
+		} else{
+			if ( pawn.Health <= pawn.HealthMax / 2 ){
+				prevState = 'Flee';
+			} else {
+				prevState = 'Attack';
+			}
+		}
+	}
+}
+
 /**
  * When the pawn is blocking, also go to a blocking state so that the pawn will not move.
  * When un-blocking see if you should perform a charge attack.
@@ -529,26 +519,9 @@ state Blocking{
 	event tick( float deltaTime ){
 		super.Tick( deltaTime );
 
-		pawn.SetDesiredRotation( rotator( player.location - pawn.Location ) );
+		`log( "Blocking" );
+		pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
 	}
-}
-
-state NonMovingState{
-
-	function getPreviousState( name previousStateName ){
-		//Save the previous state in a variable.
-		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
-			prevState = previousStateName;
-		}
-		else{
-			if ( pawn.Health <= pawn.HealthMax / 2 ){
-				prevState = 'Flee';
-			} else {
-				prevState = 'Attack';
-			}
-		}
-	}
-
 }
 
 /**
@@ -558,9 +531,9 @@ state NonMovingState{
  */
 function breakBlock(){
 	DELHostilePawn( Pawn ).stopBlocking();
-	PawnBlockBroken();
+	fleeFrom( attackTarget );
 	DELHostilePawn( Pawn ).bCanBlock = false;
-	Pawn.SetTimer( 5.0 , false , 'resetCanBlock' );
+	Pawn.SetTimer( 10.0 , false , 'resetCanBlock' );
 }
 
 /*
@@ -592,10 +565,15 @@ event pawnHit(){
 	`log( "nTimesHit: "$nTimesHit );
 	if( nTimesHit >= 3 ){
 		`log( "Start blocking" );
-		block();
+		//block();
+		DELPawn( pawn ).startBlocking();
 	}
 
-	setTimer( 1.0 , false , 'resetNumberOfTimesHit' );
+	if ( pawn.Health < pawn.HealthMax / 2 ){
+		fleeFrom( attackTarget );
+	}
+
+	setTimer( 2.0 , false , 'resetNumberOfTimesHit' );
 }
 
 /**
@@ -607,12 +585,6 @@ event PawnStoppedBlocking(){
 	} else {
 		changeState( 'Attack' );
 	}
-}
-/**
- * When the block is broken. Go to flee state
- */
-event PawnBlockBroken(){
-	changeState( 'Flee' );
 }
 
 DefaultProperties

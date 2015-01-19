@@ -51,14 +51,18 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 		}
 	}*/
 
+	`log( self$" hitWhileNotBlocking" );
+
+
 	//Block randomly
-	if ( bCanBlock && rand( 3 ) == 1 ){
-		`log( "Start blocking" );
-		startBlocking();
-		setTimer( 1.0 , false , 'stopBlocking' );
+	if ( rand( 3 ) > 1 ){
+		`log( "Ratman gethit" );
+		getHit();
 	} else {
-		if ( rand( 2 ) == 1 ){
-			getHit();
+		if ( bCanBlock && rand( 3 ) == 1 ){
+			`log( "Start blocking" );
+			startBlocking();
+			setTimer( 1.0 , false , 'stopBlocking' );
 		}
 	}
 
@@ -90,7 +94,9 @@ function breakBlock(){
 
 defaultproperties
 {	
-	swordClass = class'DELMeleeWeaponFists'
+	//swordClass = class'DELMeleeWeaponFists'
+	//swordClass = class'DELMeleeWeaponBattleAxe'
+	swordClass = class'DELMeleeWeaponDagger'
 	
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder

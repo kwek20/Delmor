@@ -22,7 +22,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
 /**
  * Overridden so that a take damage call will be sent to the controller.
  */
-event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+/*event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	if ( DamageType == class'DELDmgTypeMelee' && !IsInState( 'Blocking' ) ){
 		if ( Rand( 3 ) == 1 ){
 			interrupt();
@@ -31,7 +31,7 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
 		DELMediumMonsterController( controller ).pawnHit();
 	}
 	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
-}
+}*/
 
 /**
  * This soundset contains the pawn's voice
@@ -68,15 +68,20 @@ private function assignSoundSet(){
 event hitWhileNotBlocking(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	//Block randomly
-	if ( bCanBlock && rand( 3 ) == 1 ){
+	/*if ( bCanBlock && rand( 3 ) == 1 ){
 		`log( "Start blocking" );
 		startBlocking();
 		setTimer( 1.0 , false , 'stopBlocking' );
-	}
-	else{
+	} else {
 		if ( rand( 2 ) == 1 ){
 			getHit();
 		}
+	}*/
+	if ( DamageType == class'DELDmgTypeMelee' && !IsInState( 'Blocking' ) ){
+		if ( Rand( 3 ) == 1 ){
+			getHit();
+		}
+		DELMediumMonsterController( controller ).pawnHit();
 	}
 
 	super.hitWhileNotBlocking(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
@@ -90,6 +95,7 @@ event hitWhileBlocking( vector HitLocation , class<DamageType> DamageType ){
 	switch( DamageType ){
 	case class'DELDmgTypeMelee':
 		playBlockingSound();
+		spawnBlockEffect( hitLocation );
 		//Block even longer
 		setTimer( 5.0 , false , 'stopBlocking' );
 		//knockBack( 100.0 , location - DELHostileController( controller ).player.location , true );
@@ -160,9 +166,10 @@ defaultproperties
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
 	getHitAnimName = Rhinoman_Gettinghit1
-	blockAnimName = Rhinoman_Dodge
+	blockAnimName = Rhinoman_Dodge_extended
 
 	deathAnimationTime = 0.5833
 
 	swordClass = class'DELMeleeWeaponRhinomanFists'
+	//swordClass = class'DELMeleeWeaponBattleAxe'
 }

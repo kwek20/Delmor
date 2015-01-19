@@ -309,6 +309,21 @@ function spawnBlood( vector hitlocation ){
 
 	spawnRot = rotator( hitlocation - location );
 	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
+
+	spawnBloodSplatter( hitLocation );
+}
+
+/**
+ * Spawn a blood effect to indicate that the pawn has been hit but is blocking
+ */
+function spawnBlockEffect( vector hitlocation ){
+	local ParticleSystem p;
+	local rotator spawnRot;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_block_effect';
+
+	spawnRot = rotator( hitlocation - location );
+	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
 }
 
 /**
@@ -316,12 +331,10 @@ function spawnBlood( vector hitlocation ){
  */
 function spawnBloodDecal(){
 	local MaterialInterface mat;
-	local vector offSet;
 	local rotator rot;
 
 	mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_splatter_a';
 
-	offSet.Z = -1.0;
 	rot = rotator( getFloorLocation( location ) - location );
 	rot.Yaw = rotation.yaw;
 
@@ -333,16 +346,40 @@ function spawnBloodDecal(){
  */
 function spawnBloodPoolDecal(){
 	local MaterialInterface mat;
-	local vector offSet;
 	local rotator rot;
 
 	mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_pool';
 
-	offSet.Z = -1.0;
 	rot = rotator( getFloorLocation( location ) - location );
 	rot.Yaw = rotation.yaw;
 
 	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( getASocketsLocation( 'FlashSocket' ) ) , rot , bloodDecalSize , bloodDecalSize , 2 , false , 0 , , true , false , , , , 10.0 );
+}
+
+/**
+ * Spawns a bloodsplatter decal on the floor or walls when hit
+ */
+function spawnBloodSplatter( vector hitLocation ){
+	local MaterialInterface mat;
+	local rotator rot;
+	local vector traceEnd , wallLocation , hitNormal;
+	local float size;
+
+	rot = rotator( hitLocation - location );
+
+	traceEnd.X = hitlocation.X + 1024.0 * cos( rot.Yaw * UnrRotToRad );
+	traceEnd.Y = hitlocation.Y + 1024.0 * sin( rot.Yaw * UnrRotToRad );
+	traceEnd.Z = hitlocation.Z + 1024.0 * sin( rot.Pitch * UnrRotToRad ) - 32.0;
+
+	rot = rotator( traceEnd - hitLocation );
+
+	if ( Trace( wallLocation , hitNormal , traceEnd , location , false ) != none ){
+		
+		mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_splatter_c';
+
+		size = 96.0 + VSize( hitLocation - wallLocation ) * 0.75;
+		WorldInfo.MyDecalManager.SpawnDecal( mat , wallLocation , rot , size , size , 64 , false , 0 , , true , false , , , , 10.0 );
+	}
 }
 
 /**
@@ -408,10 +445,12 @@ function magicSwitch(int AbilityNumber);
  */
 function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
-		DELNPCController( Controller ).changeState( 'Blocking' );
+		DELNPCController( Controller ).goToState( 'Blocking' );
+		playBlockingAnimation();
+		`log( "Went to state: BLOCKING" );
+		interrupt( true );
+		`log( "controller.GetStateName(): "$ controller.GetStateName() );
 	}
-	interrupt();
-	playBlockingAnimation();
 }
 
 /**
@@ -585,13 +624,16 @@ function getHit(){
 
 /**
  * Interrupts any attack that the pawn was performing.
+ * @param bDontInterruptState   bool    When true the controller will not return to the previous state.
  */
-function interrupt(){
+function interrupt( optional bool bDontInterruptState ){
 	Velocity.X = 0.0;
 	Velocity.Y = 0.0;
 	Velocity.Z = 0.0;
-	ClearTimer( 'dealAttackDamage' ); //Reset this function so that the pawn's attack will be interrupted.
-	DELNPCController( controller ).returnToPreviousState();
+	ClearTimer( 'attackFinished' ); //Reset this function so that the pawn's attack will be interrupted.
+	if ( !bDontInterruptState ){
+		DELNPCController( controller ).returnToPreviousState();
+	}
 }
 
 function dropItem(){
@@ -628,18 +670,28 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		goToState( 'Dead' );
 		spawnBloodDecal();
 
-		setTimer( deathAnimationTime , false , 'spawnBloodPoolDecal' );
+		setTimer( deathAnimationTime , false , 'hitFloor' );
 	}
 	return true;
+}
+
+/**
+ * Called when the corpse of the pawn has hit the floor after dying.
+ * This is actually an event, but timers require functions.
+ */
+function hitFloor(){
+
+	spawnBloodPoolDecal();
 }
 
 /**
  * Transforms the pawn into a given class.
  * Hitpoint percentage, rotation and location will be preserved.
  * @param toTransformInto   class<DELPawn> The class to transform into.
+ * @return the newPawn
  */
-function shapeShift( class<DELPawn> toTransformInto ){
-	local DELPawn p;
+function shapeShift( class<DELPawn> toTransformInto , out DELPawn p ){
+//	local DELPawn p;
 
 	p = spawn( toTransformInto , , , , , , true );
 	p.health = ( p.healthMax / healthMax ) * health;
@@ -866,7 +918,7 @@ state Dead extends NonMovingState{
 		local rotator socketRot;
 		local Vector socketLoc;
 
-		if ( IsTimerActive( 'spawnBloodPoolDecal' ) ){
+		if ( IsTimerActive( 'hitFloor' ) ){
 			Mesh.GetSocketWorldLocationAndRotation( 'HeadSocket' , socketLoc , socketRot );
 
 			worldInfo.MyEmitterPool.SpawnEmitter( ParticleSystem'Delmor_Effects.Particles.p_blood_drops' , socketLoc , socketRot );

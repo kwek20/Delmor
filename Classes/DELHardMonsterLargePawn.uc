@@ -11,6 +11,40 @@ class DELHardMonsterLargePawn extends DELHostilePawn
  */
 var float shockWaveRadius;
 
+event tick( float deltaTime ){
+	super.tick( deltaTime );
+
+	scaleMesh( deltaTime );
+}
+
+function scaleMesh( float deltaTime ){
+	local vector newScale , scaleAdd , targetScale;
+
+	targetScale.X = 1.0;
+	targetScale.Y = 1.0;
+	targetScale.Z = 1.0;
+
+	//Increase size
+	if ( !meshIsBigEnough() ){
+		scaleAdd.X = deltaTime * 0.5;
+		scaleAdd.Y = deltaTime * 0.5;
+		scaleAdd.Z = deltaTime * 0.5;
+
+		newScale = Mesh.Scale3D + scaleAdd;
+		Mesh.SetScale3D( newScale );
+	} else {
+		Mesh.SetScale3D( targetScale );
+	}
+}
+
+function bool meshIsBigEnough(){
+	if ( Mesh.Scale3D.X >= 1.0 ){
+		return true;
+	} else {
+		return false;
+	}
+}
+
 /**
  * Overridden so that we'll perform a shockwave attack on the second attack.
  */
@@ -66,6 +100,12 @@ function spawnShockwaveEffect( vector shockwaveLocation ){
  * Empty knockback, Culpas cannot be knocked back.
  */
 function knockBack( float intensity , vector direction , optional bool bNoAnimation ){
+}
+
+function hitFloor(){
+	super.hitFloor();
+
+	spawnShockwaveEffect( getFloorLocation( getASocketsLocation( 'FlashSocket' ) ) );
 }
 
 defaultproperties

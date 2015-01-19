@@ -50,16 +50,18 @@ event Possess( Pawn inPawn , bool bVehicleTransition ){
  * Called when the pawn took damage.
  */
 event pawnTookDamage( optional Actor DamageCauser ){
-	if ( DamageCauser != none && isInState( 'Idle' ) ){
-		if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
-			attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
-			changeState( 'Attack' );
-		}
-		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
-			//Attack target will be set to the player since he's to only one who can cast magic in-game.
-			attackTarget = findPlayer();
-			changeState( 'Attack' );
-		}
+	if ( !isInState( 'Idle' ) ) return;
+	if ( DamageCauser == none ) return;
+	return;
+
+	if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
+		attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
+		changeState( 'Attack' );
+	}
+	if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
+		//Attack target will be set to the player since he's to only one who can cast magic in-game.
+		attackTarget = findPlayer();
+		changeState( 'Attack' );
 	}
 }
 
@@ -197,7 +199,6 @@ function FleeFrom( DELPawn from ){
  */
 state NonMovingState{
 	local Rotator startingRotation;
-	local name previousState;
 
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
@@ -211,7 +212,7 @@ state NonMovingState{
 
 	function getPreviousState( name previousStateName ){
 		//Save the previous state in a variable.
-		if ( previousStateName != 'KnockedBack'/* && previousStateName != 'Blocking'*/ && previousStateName != 'GettingHit' ){
+		if ( previousStateName != 'KnockedBack' && previousStateName != 'Blocking' && previousStateName != 'GettingHit' ){
 			prevState = previousStateName;
 		}
 		else{
@@ -436,6 +437,8 @@ function DELPlayer findPlayer(){
 function changeState( name newState ){
 	if ( player != none ){
 		goToState( newState );
+	} else {
+		`log( "Didn't change states" );
 	}
 }
 

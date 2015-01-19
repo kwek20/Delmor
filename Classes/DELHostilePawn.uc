@@ -77,6 +77,7 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 event hitWhileBlocking( vector HitLocation , class<DamageType> DamageType ){
 	if(DamageType == class'DELDmgTypeMelee'){
 		playBlockingSound();
+		spawnBlockEffect( hitLocation );
 	}
 }
 
