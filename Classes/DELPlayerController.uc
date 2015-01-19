@@ -131,8 +131,15 @@ state Credits extends BaseState{
 	}
 }
 
-state End extends MouseState{
-	
+state DeathScreen extends MouseState{
+	function BeginState(Name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		drawBars = true;
+		addInterface(class'DELInterfaceDeathScreen');
+		checkHuds();
+	}
+
+Begin:
 }
 
 state Inventory extends MouseState{
@@ -164,6 +171,10 @@ function swapState(name StateName){
 
 function goToPreviousState(){
 	swapState(previousState);
+}
+
+function PawnDied (Pawn P){
+	super.PawnDied(P);
 }
 
 /*#####################
@@ -313,6 +324,10 @@ function DELPawn getPawn(){
 	return DELPawn(self.Pawn);
 }
 
+function bool isDead(){
+	return getPawn().getStateName() == 'Dead' || getStateName() == 'Dead' || getStateName() == 'DeathScreen';    
+}
+
 public function String getSubtitle(){
 	local int totalTime;
 	if (subtitle == "" || currentTime == 0) return "";
@@ -339,9 +354,8 @@ exec function AddItem(string item, int amount){
 }
 
 function AddToInventory(string item, int amount) {
-    if (amount > 20) {
-		`log("Amount to big");
-    } else {
+    if (amount > 20) amount = 20;
+    
 		switch (item) {
 			case "herb":
 				addHerb(amount);
@@ -354,7 +368,7 @@ function AddToInventory(string item, int amount) {
 			default:
 			break;
 			}
-	}
+	
 }
 
 function addHerb(int amount) {
@@ -365,15 +379,13 @@ function addOre(int amount) {
 	getPawn().UManager.AddInventory(class'DELItemOre', amount);
 }
 
-exec function SaveGame(string FileName)
-{
+exec function SaveGame(string FileName){
     local DELSaveGameState GameSave;
 
     // Instance the save game state
     GameSave = new class'DELSaveGameState';
 
-    if (GameSave == None)
-    {
+    if (GameSave == None){
 		return;
     }
 
@@ -381,22 +393,19 @@ exec function SaveGame(string FileName)
     GameSave.SaveGameState();   // Ask the save game state to save the game
 
     // Serialize the save game state object onto disk
-    if (class'Engine'.static.BasicSaveObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION))
-    {
+    if (class'Engine'.static.BasicSaveObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION)){
         // If successful then send a message
 		ClientMessage("Saved game state to " $ FileName $ ".", 'System');
     }
 }
 
-exec function LoadGame(string FileName)
-{
+exec function LoadGame(string FileName){
     local DELSaveGameState GameSave;
 
     // Instance the save game state
     GameSave = new class'DELSaveGameState';
 
-    if (GameSave == None)
-    {
+    if (GameSave == None){
 		return;
     }
 
@@ -404,44 +413,34 @@ exec function LoadGame(string FileName)
     ScrubFileName(FileName);
 
     // Attempt to deserialize the save game state object from disk
-    if (class'Engine'.static.BasicLoadObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION))
-    {
+    if (class'Engine'.static.BasicLoadObject(GameSave, FileName, true, class'DELSaveGameState'.const.VERSION)){
         // Start the map with the command line parameters required to then load the save game state
 		ConsoleCommand("start " $ GameSave.PersistentMapFileName $ "?Game=DELSaveGameState.DELGame?DELSaveGameState=" $ FileName);
     }
 	GameSave.LoadGameState();
 }
 
-function ScrubFileName(out string FileName)
-{
+function ScrubFileName(out string FileName){
     // Add the extension if it does not exist
-    if (InStr(FileName, ".sav",, true) == INDEX_NONE)
-    {
+    if (InStr(FileName, ".sav",, true) == INDEX_NONE){
 		FileName $= ".sav";
     }
 
     FileName = Repl(FileName, " ", "_");                            // If the file name has spaces, replace then with under scores
     FileName = class'DELSaveGameState'.const.SAVE_LOCATION $ FileName; // Prepend the filename with the save folder location
-
-	`log(FileName);
 }
 
-
-///////////////////////////////////////////////////
-///////////////////////////////////////////////////
 /**
  * This exec function will save the game state to the file name provided.
  *
  * @param      FileName      File name to save the SaveGameState to
  */
-exec function SaveGameState(string FileName)
-{
+exec function SaveGameState(string FileName){
   local DELSaveGameState SaveGameState;
 
   // Instance the save game state
   SaveGameState = new () class'DELSaveGameState';
-  if (SaveGameState == None)
-  {
+  if (SaveGameState == None){
     return;
   }
 
@@ -452,8 +451,7 @@ exec function SaveGameState(string FileName)
   SaveGameState.SaveGameState();
 
   // Serialize the save game state object onto disk
-  if (class'Engine'.static.BasicSaveObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION))
-  {
+  if (class'Engine'.static.BasicSaveObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION)){
     // If successful then send a message
     ClientMessage("Saved game state to "$FileName$".", 'System');
   }
@@ -464,15 +462,13 @@ exec function SaveGameState(string FileName)
  *
  * @param    FileName    File name of load the SaveGameState from
  */
-exec function LoadGameState(string FileName)
-{
+exec function LoadGameState(string FileName){
   local DELSaveGameState SaveGameState;
 
 
   // Instance the save game state
   SaveGameState = new () class'DELSaveGameState';
-  if (SaveGameState == None)
-  {
+  if (SaveGameState == None){
     return;
   }
 
@@ -480,8 +476,8 @@ exec function LoadGameState(string FileName)
   ScrubFileName(FileName);
 
   // Attempt to deserialize the save game state object from disk
-  if (class'Engine'.static.BasicLoadObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION))
-  {
+  if (class'Engine'.static.BasicLoadObject(SaveGameState, FileName, true, class'DELSaveGameState'.const.VERSION)){
+
   }
 
   SaveGameState.LoadGameState();
