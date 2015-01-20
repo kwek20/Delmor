@@ -14,8 +14,7 @@ simulated function PostBeginPlay()
 	if(Controller == none)
 		SpawnDefaultController();
 	SetPhysics(PHYS_Walking);
-	if (MyController == none)
-	{
+	if (MyController == none){
 		MyController = Spawn(class'DELMinerController', self);
 	}
 	
