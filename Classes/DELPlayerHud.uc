@@ -82,7 +82,7 @@ function PostRender(){
 	local InterFaceItem interface;
 
 	if (!bShowHUD) return;
-	if (getPlayer().isDead()) return;
+	if (getPlayer().isDead() && !(getPlayer().getStateName() == 'DeathScreen' || getPlayer().getStateName() == 'MainMenu')) return;
 
 	if ( sizeChanged() ){
 		reScaleStuff();

@@ -20,6 +20,7 @@ function load(DELPlayerHud hud){
 	button = Spawn(class'DELInterfaceButtonMain');
 
 	setPos(0,0,hud.SizeX,hud.SizeY,hud);
+
 	buttonHeight = button.hoverTextures[0].SizeY/2;
 	length = hud.sizeX*backgroundDimensionWidth - 2*inbetween;
 	startX = hud.sizeX-button.hoverTextures[0].SizeX*0.75;
@@ -84,7 +85,6 @@ function options(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject 
 }
 
 function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	//hud.getPlayer().swapState('Credits');
 	hud.ConsoleCommand("movietest credits");
 }
 

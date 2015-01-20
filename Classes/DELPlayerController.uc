@@ -47,6 +47,7 @@ state Playing extends PlayerWalking{
 		drawBars = true;
 		drawSubtitles = true;
 		checkHuds();
+		
 		self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 	}
 
@@ -134,11 +135,16 @@ state Credits extends BaseState{
 state DeathScreen extends MouseState{
 	function BeginState(Name PreviousStateName){
 		super.BeginState(PreviousStateName);
-		drawBars = true;
+		drawDefaultHud = false;
+		drawSubtitles = false;
 		addInterface(class'DELInterfaceDeathScreen');
 		checkHuds();
 	}
 
+	function swapState(name StateName){
+		if (!(StateName == 'MainMenu' || StateName == 'Playing')) return;
+		super.swapState(StateName);
+	}
 Begin:
 }
 

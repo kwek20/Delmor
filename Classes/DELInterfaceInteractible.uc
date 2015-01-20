@@ -93,13 +93,17 @@ protected function DELInterfaceButton getButtonByKey(int key){
  * @return the object or None
  */
 protected function DELInterfaceTexture getObjectByPosition(IntPoint position){
-	local DELInterfaceTexture object;
+	local DELInterfaceTexture object, currentSmallest;
 	foreach objects(object){
 		if (object.containsPos(position)) {
-			return object;
+			if (object.position.Z == 0 || object.position.W == 0)continue;
+
+			if (currentSmallest == None || (currentSmallest.position.Z > object.position.Z)) {
+				currentSmallest = object;
+			}
 		}
 	}
-	return None;
+	return currentSmallest;
 }
 
 /**

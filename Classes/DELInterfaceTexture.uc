@@ -80,7 +80,7 @@ public function removeTextures(){
 }
 
 /**
- * Set the button position\
+ * Set the button position
  * @param x
  * @param y
  * @param length
@@ -92,7 +92,7 @@ public function setPos(int x, int y, int length, int width, DELPlayerHud hud){
 }
 
 /**
- * Set the button position\
+ * Set the button position
  * @param x
  * @param y
  * @param length
@@ -111,4 +111,5 @@ public function setPosition(int x, int y, int length, int width, DELPlayerHud hu
 DefaultProperties
 {
 	defaultFont=Font'DelmorHud.augusta'
+	bigFont=Font'DelmorHud.augustaBig'
 }

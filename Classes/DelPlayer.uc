@@ -868,7 +868,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		say( "Die" , true );
 		//Controller.pawnDied( self );
 		//controller.Destroy();
-		setTimer( 5.0 , false , 'showDeadScreen' );
+		setTimer( 3.0 , false , 'showDeadScreen' );
 		//Play death animation
 		playDeathAnimation();
 		goToState('Dead');
