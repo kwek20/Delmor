@@ -245,7 +245,7 @@ state wander extends Idle{
 		randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
 		randomLoc.Z = pawn.Location.Z;
 
-		while( !pointReachable( randomLoc ) && nTries < 100 ){
+		while( bLocationObstructed( randomLoc ) && nTries < 100 ){
 			nTries ++;
 			randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
 			randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
@@ -522,6 +522,33 @@ function float lengthDirY( float len , float dir ){
 	Radians = UnrRotToRad * dir;
 
 	return len * -sin( Radians );
+}
+
+/**
+ * Returns true when a location is obstructed by a static-mesh or brush or is simply unreachable.
+ */
+function bool bLocationObstructed( Vector l ){
+	local Brush b;
+	local StaticMeshActor s;
+	local vector hitLocation , hitNormal;
+
+	foreach pawn.CollidingActors( class'Brush' , b , 128.0 , l ){
+		return true;
+	}
+	
+	foreach pawn.CollidingActors( class'StaticMeshActor' , s , 128.0 , l ){
+		return true;
+	}
+
+	if ( trace( hitLocation , hitNormal, l , pawn.Location , false ) != none ){
+		return true;
+	}
+
+	if ( !PointReachable( l ) ){
+		return true;
+	}
+
+	return false;
 }
 
 /**

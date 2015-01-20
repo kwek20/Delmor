@@ -174,7 +174,7 @@ function Vector GetLocationInMoveRange(){
 	temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Z = startPosition.Z;// + Rand(5000);
 
-	while(!PointReachable( temp ) && nTries < 100 ){
+	while( bLocationObstructed( temp ) && nTries < 100 ){
 		nTries ++;
 		temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
 		temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
@@ -185,21 +185,6 @@ function Vector GetLocationInMoveRange(){
 		goToState( 'Eat' );
 	}
 	return temp;
-}
-
-function bool bLocationObstructed( Vector location ){
-	local Brush b;
-	local StaticMeshActor s;
-
-	foreach CollidingActors( class'Brush' , b , 128.0 , location ){
-		return true;
-	}
-	
-	foreach CollidingActors( class'StaticMeshActor' , s , 128.0 , location ){
-		return true;
-	}
-
-	return false;
 }
 
 DefaultProperties
