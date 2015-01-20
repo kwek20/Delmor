@@ -150,7 +150,6 @@ function rotatePawnToDirection( int targetYaw , int rotationSpeed , float deltaT
 	local rotator newRotation;
 
 	if (getController().isDead()) return;
-	`log("NOT DEAD");
 
 	math = GetMath();
 	yaw = pawn.Rotation.Yaw % 65536;
