@@ -6,7 +6,7 @@ class DELMinerPawn extends DELNPCPawn
       placeable
 	  Config(Game);
 
-var DELMailmanController MyController;
+var DELMinerController MyController;
 
 simulated function PostBeginPlay()
 {
