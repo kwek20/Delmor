@@ -147,9 +147,18 @@ var AnimNodePlayCustomAnim DeathAnim;
 
 var array<name> animname;
 var name deathAnimName;
+var name knockBackStartAnimName;
+var float knockBackStartAnimLength;
 var name knockBackAnimName;
+var float knockBackAnimLength;
+var name knockBackStandupAnimName;
+var float knockBackStandupAnimLength;
 var name getHitAnimName;
 var name blockAnimName;
+/**
+ * When the pawn has a split knockbackAnimation, we must time these correctly.
+ */
+var bool bHasSplittedKnockbackAnim;
 /**
  * The time in an attack animation when the swing should hit the player.
  */
@@ -310,7 +319,9 @@ function spawnBlood( vector hitlocation ){
 	spawnRot = rotator( hitlocation - location );
 	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation , spawnRot );
 
-	spawnBloodSplatter( hitLocation );
+	if ( rand( 2 ) == 1 ){
+		spawnBloodSplatter( hitLocation );
+	}
 }
 
 /**
@@ -338,7 +349,7 @@ function spawnBloodDecal(){
 	rot = rotator( getFloorLocation( location ) - location );
 	rot.Yaw = rotation.yaw;
 
-	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( location ) , rot , 96.0 , 96.0 , 2 , false , 0 , , true , false , , , , 10.0 );
+	WorldInfo.MyDecalManager.SpawnDecal( mat , getFloorLocation( location ) , rot , 96.0 , 96.0 , 2 , false , 180 , , true , false , , , , 10.0 );
 }
 
 /**
@@ -367,9 +378,9 @@ function spawnBloodSplatter( vector hitLocation ){
 
 	rot = rotator( hitLocation - location );
 
-	traceEnd.X = hitlocation.X + 1024.0 * cos( rot.Yaw * UnrRotToRad );
-	traceEnd.Y = hitlocation.Y + 1024.0 * sin( rot.Yaw * UnrRotToRad );
-	traceEnd.Z = hitlocation.Z + 1024.0 * sin( rot.Pitch * UnrRotToRad ) - 32.0;
+	traceEnd.X = hitlocation.X + 512.0 * cos( rot.Yaw * UnrRotToRad );
+	traceEnd.Y = hitlocation.Y + 512.0 * sin( rot.Yaw * UnrRotToRad );
+	traceEnd.Z = hitlocation.Z + 512.0 * sin( rot.Pitch * UnrRotToRad ) - 32.0;
 
 	rot = rotator( traceEnd - hitLocation );
 
@@ -377,8 +388,8 @@ function spawnBloodSplatter( vector hitLocation ){
 		
 		mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_splatter_c';
 
-		size = 96.0 + VSize( hitLocation - wallLocation ) * 0.75;
-		WorldInfo.MyDecalManager.SpawnDecal( mat , wallLocation , rot , size , size , 64 , false , 0 , , true , false , , , , 10.0 );
+		size = 96.0 + VSize( hitLocation - wallLocation ) * 0.5;
+		WorldInfo.MyDecalManager.SpawnDecal( mat , wallLocation , rot , size , size , size , false , 0 , , true , false , , , , 10.0 );
 	}
 }
 
@@ -724,8 +735,27 @@ function playDeathAnimation(){
  * Plays a knockdown-animation.
  */
 function playKnockBackAnimation(){
-	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 1.0 , 0.0 , false , true );
+	if ( bHasSplittedKnockbackAnim ){
+		SwingAnim.PlayCustomAnim(knockBackStartAnimName, 1.0 , 1.0 , 0.0 , false , true );
+		SetTimer( knockBackStartAnimLength , false , 'playKnockBackDownAnimation' );
+	} else {
+		SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 1.0 , 0.0 , false , true );
+	}
 }
+
+/**
+ * Plays the single-framed knockback-down animation.
+ */
+function playKnockBackDownAnimation(){
+	SwingAnim.PlayCustomAnim(knockBackAnimName, 1.0 , 1.0 , 0.0 , true , false );
+}
+
+/**
+ * Plays the single-framed knockback-down animation.
+ */
+function playKnockBackStandUpAnimation(){
+	SwingAnim.PlayCustomAnim( knockBackStandupAnimName , 1.0 , 1.0 , 0.0 , false , true );
+} 
 
 /**
  * Plays a get hit animation.

@@ -24,11 +24,6 @@ var float decisionInterval;
 var float commandRadius;
 
 /**
- * The radius to wander in.
- */
-var float wanderRadius;
-
-/**
  * Determines whether the pawn is allowed to charge.
  */
 var bool bCanCharge;
@@ -90,20 +85,6 @@ private function int nPawnsNearPlayer(){
 	}
 
 	return nPawns;
-}
-
-/**
- * Gets a random position within the pawn's wanderRadius.
- */
-private function vector getRandomLocation(){
-	local vector randomLoc;
-
-	randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
-	randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
-	randomLoc.Z = pawn.Location.Z;
-
-	`log( self$" randomLoc: "$randomLoc );
-	return randomLoc;
 }
 
 /**
@@ -180,7 +161,8 @@ function startCharge(){
 	changeState( 'Charge' );
 
 	//Change the animtree so that we can show a charge animation.
-	DELPawn( pawn ).Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Rhinoman_Charge_AnimTree' );
+	//DELPawn( pawn ).Mesh.SetAnimTreeTemplate( AnimTree'Delmor_Character.AnimTrees.Rhinoman_Charge_AnimTree' );
+	DELPawn( Pawn ).SwingAnim.PlayCustomAnim('Rhinoman_Charge_run', 1.0 , 0.0 , 0.0 , true , true );
 }
 
 /**
@@ -229,48 +211,6 @@ auto state idle{
 		if( pawn != none ){
 			changeState( 'wander' );
 		}
-	}
-}
-/**
- * Wander randomly on the map.
- */
-state wander{
-	local vector targetLocation;
-	local float timeAtLocation;
-	local float maxTimeAtPoint;
-
-	function beginState( name previousStateName ){
-		targetLocation = getRandomLocation();
-		resetTimer();
-	}
-
-	event tick( float deltaTime ){
-		if ( distanceToPoint( targetLocation ) > 32.0 ){
-			self.moveTowardsPoint( targetLocation , deltaTime );
-		} else {
-			stopPawn();
-			timeAtLocation += deltaTime;
-
-			if ( timeAtLocation > maxTimeAtPoint ){
-				targetLocation = getRandomLocation();
-				resetTimer();
-			}
-		}
-	}
-
-	/**
-	 * Assault the player when you see him.
-	 */
-	event seePlayer( pawn p ){
-		engagePlayer( p );
-	}
-
-	/**
-	 * Sets timeAtLocation to 0.0 and gets a new maxTimeAtPoint.
-	 */
-	private function resetTimer(){
-		timeAtLocation = 0.0;
-		maxTimeAtPoint = 1 + rand( 5 );
 	}
 }
 
@@ -462,11 +402,12 @@ state Charge{
 
 			switch( p.Class ){
 			//Knock the player back and deal damage.
-			case class'DELPlayer': 
+			case class'DELPlayer':
+				p.knockBack( 250.0 , selfToPawn );
 				p.TakeDamage( 25 , Instigator.Controller , location , momentum , class'DELDmgTypeMelee' , , self );
 				stopPawn();
+				DELPawn( Pawn ).SwingAnim.PlayCustomAnim( 'Rhinoman_Charge_ending', 1.0 , 0.0 , 0.0 , true , true );
 				goToState( 'Attack' );
-				p.knockBack( 250.0 , selfToPawn );
 				DELMediumMonsterPawn( pawn ).spawnChargeHit( ( pawn.Location + p.location ) / 2 , rotator( p.location - pawn.Location ) );
 				break;
 			//Knock the monster back
@@ -592,5 +533,4 @@ DefaultProperties
 	bCanCharge = true;
 	decisionInterval = 0.5
 	commandRadius = 512.0
-	wanderRadius = 512.0
 }

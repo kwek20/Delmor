@@ -133,6 +133,7 @@ defaultproperties
 	attackAnimationImpactTime[ 2 ] = 0.7219
 	deathAnimName = ratman_death
 	knockBackAnimName = ratman_knockback
+	knockBackAnimLength = 3.3
 	getHitAnimName = ratman_gettinghit
 
 	deathAnimationTime = 0.6387

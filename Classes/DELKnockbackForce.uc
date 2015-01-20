@@ -28,6 +28,16 @@ var float beginZ;
 var float gravity;
 
 /**
+ * When the pawn has landed it will standup. Forces will no longer be applied.
+ */
+var bool bLanded;
+
+/**
+ * Number of seconds passed since the knockback began.
+ */
+var float timePassed;
+
+/**
  * When landed, set the pawn's controller's state back to this state.
  */
 var name pawnsPreviousState;
@@ -38,12 +48,18 @@ event Tick( float deltaTime ){
 	if ( myPawn == none ){
 		destroy();
 	}
+
+	timePassed += deltaTime; 
+
+	if ( bLanded ) return;
 	
 	//Move the pawn
 	newLocation.X = myPawn.location.X + ( power * normal( direction ).X * deltaTime );
 	newLocation.Y = myPawn.location.Y + ( power * normal( direction ).Y * deltaTime );
 	newLocation.Z = myPawn.location.Z + ( zPower * deltaTime );
 	
+	SetCollisionSize( myPawn.GetCollisionRadius() , myPawn.GetCollisionHeight() );
+
 	//Collide with brushes
 	if (Trace(HitLocation, HitNormal, newLocation, myPawn.location , false, vect(0.0, 0.0, 0.0)) != none ){
 		//The pawn collided, the force will be stopped now.
@@ -72,13 +88,33 @@ function setPower( float inPower ){
 }
 
 /**
- * Destroys the force effects.
+ * IS NOW "LANDED", The pawn has hit the ground, determine what to do next.
  */
 function endForce(){
 	if ( zPower < 100.0 ){
 		myPawn.spawnLandSmoke();
 	}
+
+	bLanded = true;
 	
+	if ( myPawn.bHasSplittedKnockbackAnim ){
+		myPawn.ClearTimer( 'playKnockBackDownAnimation' );
+		setTimer( myPawn.knockBackStandupAnimLength , false , 'standup' );
+		if ( !myPawn.isInState( 'Dead' ) ){ myPawn.playKnockBackStandUpAnimation(); }
+	}
+	else {
+		if ( timePassed >= myPawn.knockBackAnimLength ){
+			standup();
+		} else {
+			setTimer( myPawn.knockBackAnimLength - timePassed , false , 'standup' );
+		}
+	}
+}
+
+/**
+ * Returns to previous-state and destroys the force effects.
+ */
+function standup(){
 	if ( pawnsPreviousState != '' ){
 		myPawn.controller.goToState( pawnsPreviousState );
 	} else {

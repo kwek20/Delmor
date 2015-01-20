@@ -77,7 +77,7 @@ simulated function PostBeginPlay(){
 simulated function ProcessTouch (Actor Other, vector HitLocation, vector HitNormal){
 	if ( Other != Instigator ){
 		if ( !Other.IsA('Projectile') || Other.bProjTarget ){
-			if ( !Other.IsInState( 'Dead' ) ){
+			if ( !Other.IsInState( 'Dead' ) && other.IsA( 'DELHostilePawn' ) ){
 				MomentumTransfer = (DELPawn(Other) != None) ? 0.0 : 1.0;
 				Other.TakeDamage(Damage, InstigatorController, HitLocation, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
 				Explode(HitLocation, HitNormal);

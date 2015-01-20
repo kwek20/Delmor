@@ -66,6 +66,7 @@ simulated function draw(DELPlayerHud hud){
 function drawBar(Canvas c, Texture2D texture, Texture2D tEdge, Texture2D edge, float length, float currentVar, float maxVar, float startX, float startY){
 	local float totalLength, factor;
 
+	if ( maxVar == 0.0 ) return;
 	//total length of the bar
 	totalLength = length * (currentVar / maxVar);
 	//calculate factor for image scaling

@@ -165,6 +165,7 @@ defaultproperties
 	attackAnimationImpactTime[ 2 ] = 0.6851
 	deathAnimName = rhinoman_death
 	knockBackAnimName = rhinoman_knockback
+	knockBackAnimLength = 3.3333
 	getHitAnimName = Rhinoman_Gettinghit1
 	blockAnimName = Rhinoman_Dodge_extended
 

@@ -169,7 +169,7 @@ function Vector GetLocationInMoveRange(){
 	temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Z = startPosition.Z;// + Rand(5000);
 
-	while( bLocationObstructed( temp ) ){
+	while( /*bLocationObstructed( temp )*/ !PointReachable( temp ) ){
 		temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
 		temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
 	}

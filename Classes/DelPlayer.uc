@@ -180,22 +180,6 @@ exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
 }
 
-
-/**
- * Gets the number of pawns
- */
-exec function numberOfPawnsNearPlayer(){
-	local DELHostileController c;
-	local int nPawns;
-	/**
-	 * The distance at wich a pawn is considered near the player.
-	 */
-	local float nearDistance;
-
-	nPawns = 0;
-	nearDistance = 256.0;
-}
-
 function OnUpdateObjective(DELSeqAct_UpdateObjective Action){
 	local String Questname, Objective;
 	action.getInfo(Questname, Objective);
@@ -229,6 +213,19 @@ simulated function magicSwitch(int AbilityNumber){
 	}
 }
 
+/**
+ * Checks whether the player is being knockedBack.
+ * @return true when being knockedback (Knockbackforce applied.)
+ */
+function bool isBeingKnockedBack(){
+	local DELKnockBackForce f;
+
+	foreach WorldInfo.AllActors( class'DELKnockBackForce' , f ){
+		if ( f.myPawn == self ){
+			return true;
+		}
+	}
+}
 
 /**
  * Pawn starts firing!
@@ -237,6 +234,8 @@ simulated function magicSwitch(int AbilityNumber){
  */
 simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
+
+	if ( isBeingKnockedBack() ) return;
 
 	if( bNoWeaponFiring){
 		return;
@@ -937,7 +936,7 @@ DefaultProperties
 	camTargetDistance = 200.0
 	defaultCameraHeight = 48.0
 	cameraTargetHeight = 48.0
-	cameraZoomHeight = 64.0
+	cameraZoomHeight = 48.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
@@ -946,4 +945,12 @@ DefaultProperties
 
 	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
 	isMagician = false
+
+	knockBackStartAnimName = Lucian_KnockbackFALL
+	knockBackStartAnimLength = 0.8
+	knockBackAnimName = Lucian_KnockbackDOWN
+	knockBackStandupAnimName = Lucian_KnockbackSTANDUP
+	knockBackStandupAnimLength = 1.0
+
+	bHasSplittedKnockbackAnim = true
 }
