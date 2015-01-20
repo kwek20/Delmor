@@ -4,15 +4,11 @@ var int healingAmount;
 var StaticMeshComponent healthPotion;
 
 event Destroyed (){
-	//super().invAdd.AddInventory(class'DELItemOre', 1);
-	`log("HealPotion BOOOOM");
-	
+
 }
 
 function pickup()
 {
-	`log("Test Pickup!!!");
-	    //REMOVE MESH COMMAND HERE //
 	Destroy();
 }
 
@@ -32,7 +28,7 @@ DefaultProperties
 	texture=Texture2D'DelmorHud.health_potion'
 
 	Begin Object Class=StaticMeshComponent Name=healthPotion
-		StaticMesh=StaticMesh'Delmor_test.Meshes.Potion_Health'
+		StaticMesh=StaticMesh'delmor_items.Meshes.sk_HealthPotion'
 		HiddenGame=false
 		HiddenEditor=false
 	End Object

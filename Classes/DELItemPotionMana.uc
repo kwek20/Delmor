@@ -3,15 +3,10 @@ class DELItemPotionMana extends DELItemInteractible placeable;
 var int manaAmount;
 
 event Destroyed (){
-	//super().invAdd.AddInventory(class'DELItemOre', 1);
-	`log("manaPotion BOOOOM");
-	
 }
 
 function pickup()
 {
-	`log("Test Pickup!!!");
-	    //REMOVE MESH COMMAND HERE //
 	Destroy();
 }
 
@@ -34,7 +29,7 @@ DefaultProperties
 	texture=Texture2D'DelmorHud.mana_potion'
 
 	Begin Object Class=StaticMeshComponent Name=manaPotion
-		StaticMesh=StaticMesh'Delmor_test.Meshes.Potion_Mana'
+		StaticMesh=StaticMesh'delmor_items.Meshes.sk_ManaPotion'
 		HiddenGame=false
 		HiddenEditor=false
 	End Object

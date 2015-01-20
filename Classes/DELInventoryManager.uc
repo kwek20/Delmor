@@ -42,15 +42,6 @@ function bool CheckInventorySize(class<DELItem> ItemToCheck, int AmountWantingTo
  * with low low health.)
  */
 function StartingInventory(){
-	AddInventory(class'DELItemHerb', 6);
-	AddInventory(class'DELItemOre', 5);
-	AddInventory(class'DELItemOre', 1);
-	AddInventory(class'DELItemOre', 3);
-	AddInventory(class'DELItemOre', 1);
-	AddInventory(class'DELItemOre', 20);
-	AddInventory(class'DELItemOre', 4);
-	AddInventory(class'DELItemOre', 2);
-	AddInventory(class'DELItemOre', 1);
 	AddInventory(class'DELItemPotionHealth', 5);
 	AddInventory(class'DELItemPotionMana', 25);
 	AddInventory(class'DELItemFriedChicken', 1);
