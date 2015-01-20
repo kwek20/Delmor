@@ -364,9 +364,22 @@ function PickUpHealth() {
 	local float pickupRange;
 	pickupRange = 64.0;
 	foreach WorldInfo.allActors(class'DELItemPotionHealth', p) {
+		if (p.getName() != "Health potion") return;
 		if (VSize(location-p.location) < pickupRange) {
 			p.pickup();
 			UManager.AddInventory(class'DELItemPotionHealth', 1);
+		}
+	}
+}
+
+function PickUpDFC() {   
+	local DELItemFriedChicken p;
+	local float pickupRange;
+	pickupRange = 64.0;
+	foreach WorldInfo.allActors(class'DELItemFriedChicken', p) {
+		if (VSize(location-p.location) < pickupRange) {
+			p.pickup();
+			UManager.AddInventory(class'DELItemFriedChicken', p.getAmount());
 		}
 	}
 }
@@ -827,6 +840,7 @@ event Tick( float deltaTime ){
 	//Pick nearby items.
 	PickUpHealth();
 	PickUpMana();
+	PickUpDFC();
 
 	if ( !bIsKickingAChicken ){
 		chicken = chickenIsInFrontOfMe();
