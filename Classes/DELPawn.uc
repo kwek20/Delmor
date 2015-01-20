@@ -206,15 +206,6 @@ simulated event PostBeginPlay(){
 	SetMovementPhysics();
 
 	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
-
-	 //Set up custom inventory manager
-     if (UInventory != None){
-		UManager = Spawn(UInventory, Self);
-		if ( UManager == None ){
-			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
-		}
-	}
-	AddDefaultInventory();
 }
 
 event tick( float deltaTime ){
@@ -646,7 +637,8 @@ function interrupt( optional bool bDontInterruptState ){
 function dropItem(){
 		local class<DELItem> item;
 		item = calculateDrop();
-		Spawn(item, , , location , , , false);
+		Spawn(item, , , getFloorLocation(location) , , , false);
+		`log("HitLocation: " $ getFloorLocation(location));
 }
 
 /**

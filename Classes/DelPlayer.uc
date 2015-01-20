@@ -188,6 +188,14 @@ function OnBecomeMagician(DELSeqAct_BecomeMagician action){
  */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
+
+	//Set up custom inventory manager
+     if (UInventory != None){
+		UManager = Spawn(UInventory, Self);    // NAKIJKEN
+		if ( UManager == None ){
+			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+		}
+	}
 	AddDefaultInventory();
 
 	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );

@@ -16,7 +16,7 @@ function loadQuests(array<DELQuest> quests)
 {
 	local int i;
 	for (i=0; i<quests.Length; i++){
-		setText(quests[i].title, quests[i].description);
+		setText(quests[i].title, quests[i].description, quests[i].objectives, quests[i].completed);
 	}
 }
 
@@ -120,19 +120,32 @@ function array<string> StringToArray(string inputString){
 	return letterArray;
 }
 
-function setText(String title, String description){
-	local DELInterfaceStringText t,d,s1,s2,s3;
-	t=new class'DELInterfaceStringText'; d=new class'DELInterfaceStringText'; s1=new class'DELInterfaceStringText'; s2=new class'DELInterfaceStringText'; s3=new class'DELInterfaceStringText';
+function setText(String title, String description, array<DELQuestObjective> objectives, Bool completed){
+	local DELInterfaceStringText t,d, o, space;
+	local int i;
+	t=new class'DELInterfaceStringText'; d=new class'DELInterfaceStringText'; o=new class'DELInterfaceStringText'; space=new class'DELInterfaceStringText';
 	
 	t.text=title;
 	d.text=description;
-	s1.text="";s2.text="";s3.text="";
+	space.text="";
 
 	text.AddItem(t);
-	text.AddItem(s1);
+	text.AddItem(space);
 	text.AddItem(d);
-	text.AddItem(s2);
-	text.AddItem(s3);
+	text.AddItem(space);
+	for (i=0; i<objectives.Length; i++){
+		o.text="-" $ objectives[i].objective;
+		if (objectives[i].complete == true){
+			o.completed=true;
+		}
+		text.AddItem(o);
+	}
+	if (completed) {
+		t.completed=true;
+		d.completed=true;
+	}
+		text.AddItem(space);
+		text.AddItem(space);
 }
 
 DefaultProperties
