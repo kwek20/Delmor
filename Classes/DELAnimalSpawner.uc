@@ -10,6 +10,7 @@ var() int spawnDelay;
 var() float spawnArea;
 var() int numberOfChickens;
 var() int numberOfCows;
+var() int numberOfGoats;
 var bool bCanSpawn;
 
 /**
@@ -70,6 +71,12 @@ function startSpawn() {
 		if(checkAnimalsToSpawn(class'DELCowPawn', numberOfCows)) {
 			newLocation = getRandomLocation();
 			spawnPawn(class'DELCowPawn', newLocation);
+		}
+	}
+	for(i = 0; i < numberOfCows; i++) {
+		if(checkAnimalsToSpawn(class'DELGoatPawn', numberOfGoats)) {
+			newLocation = getRandomLocation();
+			spawnPawn(class'DELGoatPawn', newLocation);
 		}
 	}
 			

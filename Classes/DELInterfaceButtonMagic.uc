@@ -9,12 +9,11 @@ class DELInterfaceButtonMagic extends DELInterfaceHotbarButton;
 function use(){
 	if (bLastClicked) return;
 	super.use();
-	`log("use magic in interfacebuttonMagic");
-	`log("last clicked = "$bLastClicked);
 }
 
 public function draw(DELPlayerHud hud){
 	super.draw(hud);
+	if (DElPlayer(hud.getPlayer().getPawn()).Grimoire == none) return;
 	bLastClicked = identifiedBy(DElPlayer(hud.getPlayer().getPawn()).Grimoire.getActiveNumber());
 	if(bLastClicked) drawGoldenEdge(hud.Canvas);
 

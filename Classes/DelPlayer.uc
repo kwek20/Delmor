@@ -166,14 +166,6 @@ simulated event PostBeginPlay(){
 
 	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
 	SetThirdPersonCamera( true );
-
-	QManager = Spawn(class'DELQuestManager',,,);
-	QManager.createQuest("The Interview", "Je moet de grote leider van Noord-Korea vermoorden.");
-	QManager.createQuest("Dropbox", "Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen. Je moet een pakketje droppen bij de Hogeschool Arnhem Nijmegen.");
-	QManager.createQuest("The Crash", "Schiet een drone uit de lucht boven China.");
-	QManager.createQuest("Apple Destroyer", "Installeer Windows 10 op alle Apple computers.");
-	QManager.addObjective(QManager.getQuest("The Interview"), "Krijg een geweer");
-	QManager.completeObjective(QManager.getQuest("The Interview"), "Krijg een geweer");
 }
 
 exec function suicideFail(){
@@ -831,7 +823,6 @@ event Tick( float deltaTime ){
 
 
 function DelmorWorldTick(){
-	`log("event called");
 	TriggerGlobalEventClass(class'DELSeqEvent_Tick',self);
 }
 
@@ -859,7 +850,6 @@ function playPickupAnimation(){
 }
 
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-
 	if ( !isInState( 'Dead' ) ){
 		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
 		bBlockActors = false;
@@ -877,14 +867,18 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		say( "Die" , true );
 		//Controller.pawnDied( self );
 		//controller.Destroy();
-		//setTimer( 5.0 , false , 'destroyMe' );
+		setTimer( 5.0 , false , 'showDeadScreen' );
 		//Play death animation
 		playDeathAnimation();
-		goToState( 'Dead' );
+		goToState('Dead');
 	}
 
 	//return super.died( killer , damageType , HitLocation );
 	return true;
+}
+
+function showDeadScreen(){
+	DELPlayerController(Controller).swapState('DeathScreen');
 }
 
 function returnToPreviousState(){

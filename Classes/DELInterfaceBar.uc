@@ -68,7 +68,6 @@ function load(DELPlayerHud hud){
  * @author harmen wiersma
  */
 function array<Texture2D> getIcons(DELPlayerHud hud){
-	local array<Texture2D> textures;
 	return DELPlayer(hud.getPlayer().getPawn()).grimoire != none ? DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons() : textures;
 }
 

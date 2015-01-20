@@ -13,18 +13,21 @@ var() Texture2D healthBar, healthBarEdge;
 var() Texture2D manaBar, manaBarEdge;
 var() Texture2D edge;
 
+const hudFactorScaleX = 0.3;
+const hudFactorScaleY = 0.15;
+
 function load(DELPlayerHud hud){
 	local float yStart, xStart;
 	yStart = hud.SizeY/36;
 	xStart = hud.SizeY/36;
 
-	setPos(xStart,yStart,hud.SizeX/3, hud.SizeY/7, hud);
+	setPos(xStart,yStart,hud.SizeX*hudFactorScaleX, hud.SizeY*hudFactorScaleY, hud);
 	barSize = position.W / 4;
 	super.load(hud);
 }
 
 simulated function draw(DELPlayerHud hud){
-	local float length, totalLength, factor, startX, startY;
+	local float length, startX, startY;
 	local DELPawn pawn;
 	
 	pawn = hud.getPlayer().getPawn();
@@ -34,9 +37,6 @@ simulated function draw(DELPlayerHud hud){
 	length = position.Z/2.3;
 	startX = position.X+position.Z/2;
 	startY = position.Y + position.W/4 - barSize/2;
-
-	totalLength = length * (float(pawn.Health) / float(pawn.HealthMax));
-	factor = totalLength / length;
 
 	//health bar
 	hud.Canvas.SetDrawColor(255, 0, 0); // Red

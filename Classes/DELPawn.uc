@@ -458,9 +458,7 @@ function startBlocking(){
 	if ( !bIsStunned && bCanBlock ){
 		DELNPCController( Controller ).goToState( 'Blocking' );
 		playBlockingAnimation();
-		`log( "Went to state: BLOCKING" );
 		interrupt( true );
-		`log( "controller.GetStateName(): "$ controller.GetStateName() );
 	}
 }
 
@@ -528,7 +526,6 @@ function knockBack( float intensity , vector direction , optional bool bNoAnimat
 	if ( !isInState( 'Dead' ) ){
 		spawnKnockBackForce( intensity , direction );
 		controller.goToState( 'KnockedBack' );
-		//goToState( 'KnockedBack' );
 		bBlockActors = false;
 
 		if ( !bNoAnimation ){
@@ -553,8 +550,7 @@ function spawnKnockBackForce( float intensity , vector direction ){
 	knockBack.beginZ = location.Z;
 	if ( controller.IsChildState( controller.GetStateName() , 'NonMovingState' ) ){
 		knockBack.pawnsPreviousState = DELNPCcontroller( controller ).getPreviousState();
-	}
-	else{
+	} else {
 		knockBack.pawnsPreviousState = controller.GetStateName();
 	}
 }
@@ -657,7 +653,6 @@ function dropItem(){
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-	//super.Died( killer , damageType , hitlocation );
 	dropItem();
 
 	if ( !isInState( 'Dead' ) ){
@@ -674,7 +669,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		//Play died sound
 		say( "Die" , true );
 		Controller.pawnDied( self );
-		controller.Destroy();
+		//controller.Destroy();
 		setTimer( 5.0 , false , 'destroyMe' );
 		//Play death animation
 		playDeathAnimation();
@@ -775,7 +770,6 @@ function playBlockingAnimation(){
  * Removes the pawn and its controller from the level and memory.
  */
 function destroyMe(){
-	//controller.Destroy();
 	spawnDespawnEffect();
 	destroy();
 }
@@ -785,14 +779,8 @@ function destroyMe(){
  */
 function spawnDespawnEffect(){
 	local ParticleSystem p;
-	//local rotator spawnRot;
-	//local UTParticleSystemComponent psc;
-
 	p = ParticleSystem'Delmor_Effects.Particles.p_flash';
-	//psc.SetTemplate( p );
 
-	//psc.ActivateSystem();
-	//spawnRot = rotator( location - hitlocation );
 	worldInfo.MyEmitterPool.SpawnEmitter( p , getASocketsLocation( 'FlashSocket' ) );
 }
 
@@ -874,14 +862,11 @@ function Pawn checkPawnInFront(){
 	local pawn hitPawn;
 
 	inFrontLocation = getInFrontLocation();
-	//checkDistance = meleeRange + GetCollisionRadius();
 
 	foreach WorldInfo.AllPawns( class'DELPawn' , p , location , 2 * meleeRange ){
-		//if ( VSize( Location - c.Pawn.Location ) < checkDistance + c.Pawn.GetCollisionRadius() && c.Pawn != self ){
 		if ( CheckCircleCollision( inFrontLocation , GetCollisionRadius() , p.Location , p.GetCollisionRadius() ) && hitPawn.Class != class'DELPlayer' && !p.isInState( 'Dead' ) && p != self ){
 			hitPawn = p;
 		}
-		//}
 	}
 	
 	return hitPawn;
@@ -921,10 +906,7 @@ state NonMovingState{
 		goToState( previousState );
 	}
 }
-/*
-function returnToPreviousState(){
-	goToState( LandMovementState );
-}*/
+
 /**
  * Used to override the die and takeDamage functions.
  */
