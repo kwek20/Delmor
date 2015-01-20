@@ -65,7 +65,7 @@ function attackEffects( int attackNumber ){
  */
 function shockWave(){
 	local DELPawn p;
-	local vector momentum , shockwaveLocation;
+	local vector shockwaveLocation;
 	local float shockwaveDamage;
 
 	shockwaveLocation = getInFrontLocation();

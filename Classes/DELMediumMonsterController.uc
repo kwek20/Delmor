@@ -504,7 +504,7 @@ event pawnHit(){
 	nTimesHit ++;
 
 	`log( "nTimesHit: "$nTimesHit );
-	if( nTimesHit >= 3 && pawn.Health < pawn.HealthMax / 2 ){
+	if( nTimesHit >= 3 && pawn.Health < pawn.HealthMax * 0.75 ){
 		`log( "Start blocking" );
 		//block();
 		DELPawn( pawn ).startBlocking();

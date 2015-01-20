@@ -388,7 +388,7 @@ function spawnBloodSplatter( vector hitLocation ){
 		
 		mat = DecalMaterial'Delmor_Effects.Materials.dcma_blood_splatter_c';
 
-		size = 96.0 + VSize( hitLocation - wallLocation ) * 0.5;
+		size = 64.0 + VSize( hitLocation - wallLocation ) * 0.5;
 		WorldInfo.MyDecalManager.SpawnDecal( mat , wallLocation , rot , size , size , size , false , 0 , , true , false , , , , 10.0 );
 	}
 }

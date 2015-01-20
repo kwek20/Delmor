@@ -132,9 +132,15 @@ defaultproperties
 	animname[ 2 ] = ratman_jumpattack
 	attackAnimationImpactTime[ 2 ] = 0.7219
 	deathAnimName = ratman_death
-	knockBackAnimName = ratman_knockback
-	knockBackAnimLength = 3.3
 	getHitAnimName = ratman_gettinghit
+
+	knockBackStartAnimName = ratman_knockback_start
+	knockBackStartAnimLength = 0.6
+	knockBackAnimName = ratman_knockback_down
+	knockBackStandupAnimName = ratman_knockback_standup
+	knockBackStandupAnimLength = 2.7
+
+	bHasSplittedKnockbackAnim = true
 
 	deathAnimationTime = 0.6387
 	bloodDecalSize = 96.0

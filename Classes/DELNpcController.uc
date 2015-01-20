@@ -493,10 +493,8 @@ function DELPlayer findPlayer(){
  * if the player variable is not null.
  */
 function changeState( name newState ){
-	if ( player != none ){
+	if ( player != none && !isInState( 'KnockedBack' ) ){
 		goToState( newState );
-	} else {
-		`log( "Didn't change states" );
 	}
 }
 

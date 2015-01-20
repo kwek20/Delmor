@@ -105,12 +105,38 @@ simulated function bool IsFirstPerson(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
+	playSound( hitSound );
+	playGetHitAnimation();
+
 	super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	if(magic != none){
 		magic.Interrupt();
 	}
+
+	if ( DamageType == class'DELDmgTypeMelee' ){
+		spawnBlood( hitLocation );
+	}
 }
 
+function playGetHitAnimation(){
+	local name animName;
+
+	switch( rand( 3 ) ){
+	case 1:
+		animName = 'Lucian_hit1';
+		break;
+	case 2:
+		animName = 'Lucian_hit2';
+		break;
+	case 3:
+		animName = 'Lucian_hit3';
+		break;
+	default:
+		animName = 'Lucian_hit1';
+		break;
+	}
+	SwingAnim.PlayCustomAnim(animName, 1.0 , 0.0 , 0.0 , false , true );
+}
 
 /**
  * selects a point in the animtree so it is easier acessible
@@ -871,6 +897,8 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		//Play death animation
 		playDeathAnimation();
 		goToState('Dead');
+
+		//DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).destroy();
 	}
 
 	//return super.died( killer , damageType , HitLocation );
@@ -940,6 +968,7 @@ DefaultProperties
 	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
 	isMagician = false
 
+	getHitAnimName = Lucian_hit1
 	knockBackStartAnimName = Lucian_KnockbackFALL
 	knockBackStartAnimLength = 0.8
 	knockBackAnimName = Lucian_KnockbackDOWN
