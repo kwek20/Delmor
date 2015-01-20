@@ -3,15 +3,6 @@ class DELItemPotionHealth extends DELItemInteractible placeable;
 var int healingAmount;
 var StaticMeshComponent healthPotion;
 
-event Destroyed (){
-
-}
-
-function pickup()
-{
-	Destroy();
-}
-
 function bool canUse(DELPlayerHud hud){
 	return hud.getPlayer().getPawn().health < hud.getPlayer().getPawn().healthMax;
 }

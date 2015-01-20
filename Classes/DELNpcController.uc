@@ -238,16 +238,20 @@ state wander extends Idle{
 	 * Gets a random position within the pawn's wanderRadius.
 	 */
 	private function vector getRandomLocation(){
-		local vector randomLoc;
+		local vector randomLoc , offset;
+		local int nTries;
 
 		randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
 		randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
 		randomLoc.Z = pawn.Location.Z;
 
-		while( !pointReachable( randomLoc ) ){
+		while( !pointReachable( randomLoc ) && nTries < 100 ){
+			nTries ++;
 			randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
 			randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
 		}
+		offSet.Z = 32.0;
+		randomLoc = DELPawn( pawn ).getFloorLocation( randomLoc + offSet );
 		return randomLoc;
 	}
 }

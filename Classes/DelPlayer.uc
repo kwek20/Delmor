@@ -86,6 +86,11 @@ var bool bIsKickingAChicken;
 var DELChickenPawn chickenToKick;
 
 /**
+ * The range at which items can be picked up.
+ */
+var float pickupRange;
+
+/**
  * makes sure everybode knows this player is not first-person and never will be
  */
 simulated function bool IsFirstPerson(){
@@ -359,7 +364,7 @@ simulated function StopFire(byte FireModeNum){
 	}
 }
 
-function PickUpHealth() {   
+/*function PickUpHealth() {   
 	local DELItemPotionHealth p;
 	local float pickupRange;
 	pickupRange = 64.0;
@@ -392,6 +397,20 @@ function PickUpMana() {
 		if (VSize(location-p.location) < pickupRange) {
 			p.pickup();
 			UManager.AddInventory(class'DELItemPotionMana', 1);
+		}
+	}
+}*/
+
+/**
+ * Picks up any items whitin the pickup range.
+ */
+function PickUpItems(){
+	local DELItem i;
+
+	foreach WorldInfo.AllActors( class'DELItem' , i ){
+		if ( VSize( location - i.location ) < pickupRange ) {
+			i.pickup( self );
+			self.playPickupAnimation();
 		}
 	}
 }
@@ -838,9 +857,10 @@ event Tick( float deltaTime ){
 	super.Tick( deltaTime );
 
 	//Pick nearby items.
-	PickUpHealth();
-	PickUpMana();
-	PickUpDFC();
+	//PickUpHealth();
+	//PickUpMana();
+	//PickUpDFC();
+	self.PickUpItems();
 
 	if ( !bIsKickingAChicken ){
 		chicken = chickenIsInFrontOfMe();
@@ -996,4 +1016,6 @@ DefaultProperties
 	knockBackStandupAnimLength = 1.0
 
 	bHasSplittedKnockbackAnim = true
+
+	pickupRange = 64.0
 }

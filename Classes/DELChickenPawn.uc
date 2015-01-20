@@ -36,7 +36,15 @@ function resetPlaySound() {
 	canPlaySound = true;
 }
 
-function dropItem(Controller killer , class<DamageType> damageType ){
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+	dropItem();
+	say( "TakeDamage" , true );
+	DELPlayer( GetALocalPlayerController().Pawn ).spawnChickenKickEffects( location );
+	controller.destroy();
+	destroy();
+}
+
+function dropItem(){
 	Spawn(class'DELItemFriedChicken', , , getFloorLocation(location) , , , false);
 }
 

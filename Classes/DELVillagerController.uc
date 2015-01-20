@@ -1,3 +1,8 @@
+/**
+ * The villagers greets the player when he gets close, and then looks at him for a few seconds.
+ * 
+ * @author Anders Egberts
+ */
 class DELVillagerController extends DELAnimalController;
 
 /**

@@ -30,6 +30,16 @@ function bool isBound(){
 	return playerBound;
 }
 
+/**
+ * Picks up the item, putting it in the player's inventory.
+ * @param picker    DELPawn The pawn that has picked up the item.
+ */
+function pickUp( DELPawn picker ){
+	`log( "Picked up: "$self );
+	picker.UManager.AddInventory( self.Class , 1 );
+	destroy();
+}
+
 defaultproperties
 {
 	itemName="None"

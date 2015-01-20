@@ -634,18 +634,16 @@ function interrupt( optional bool bDontInterruptState ){
 	}
 }
 
-function dropItem(Controller killer , class<DamageType> damageType ){
+function dropItem(){
 		local class<DELItem> item;
 		item = calculateDrop();
-		Spawn(item, , , getFloorLocation(location) , , , false);
+		Spawn(item, , , getFloorLocation( self.getASocketsLocation( 'FlashSocket' ) ) , , , false);
 }
 
 /**
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-	dropItem(killer, damageType);
-
 	if ( !isInState( 'Dead' ) ){
 		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
 		bBlockActors = false;
@@ -677,7 +675,7 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
  * This is actually an event, but timers require functions.
  */
 function hitFloor(){
-
+	dropItem();
 	spawnBloodPoolDecal();
 }
 

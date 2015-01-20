@@ -2,6 +2,15 @@ class DELItemFriedChicken extends DELItemPotionHealth;
 
 var StaticMeshComponent DFCBucket;
 
+/**
+ * Picks up the item, putting it in the player's inventory.
+ */
+function pickUp( DELPawn picker ){
+	`log( "Picked up: "$self );
+	picker.UManager.AddInventory( self.Class, getAmount() );
+	destroy();
+}
+
 DefaultProperties
 {
 	texture=Texture2D'DelmorHud.DFC'
