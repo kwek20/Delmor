@@ -36,6 +36,11 @@ var float fleeSpeedupFactor;
  */
 var name prevState;
 
+/**
+ * The radius to wander in.
+ */
+var float wanderRadius;
+
 /*
  * ==============================================
  * States
@@ -191,6 +196,59 @@ function FleeFrom( DELPawn from ){
 	fleeTarget = from;
 	if ( !isInState( 'KnockedBack' ) ){
 		goToState( 'Flee' );
+	}
+}
+
+/**
+ * Wander randomly on the map.
+ */
+state wander extends Idle{
+	local vector targetLocation;
+	local float timeAtLocation;
+	local float maxTimeAtPoint;
+
+	function beginState( name previousStateName ){
+		targetLocation = getRandomLocation();
+		resetTimer();
+	}
+
+	event tick( float deltaTime ){
+		if ( distanceToPoint( targetLocation ) > 32.0 ){
+			self.moveTowardsPoint( targetLocation , deltaTime );
+		} else {
+			stopPawn();
+			timeAtLocation += deltaTime;
+
+			if ( timeAtLocation > maxTimeAtPoint ){
+				targetLocation = getRandomLocation();
+				resetTimer();
+			}
+		}
+	}
+
+	/**
+	 * Sets timeAtLocation to 0.0 and gets a new maxTimeAtPoint.
+	 */
+	private function resetTimer(){
+		timeAtLocation = 0.0;
+		maxTimeAtPoint = 1 + rand( 5 );
+	}
+
+	/**
+	 * Gets a random position within the pawn's wanderRadius.
+	 */
+	private function vector getRandomLocation(){
+		local vector randomLoc;
+
+		randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
+		randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
+		randomLoc.Z = pawn.Location.Z;
+
+		while( !pointReachable( randomLoc ) ){
+			randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
+			randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
+		}
+		return randomLoc;
 	}
 }
 
@@ -435,10 +493,8 @@ function DELPlayer findPlayer(){
  * if the player variable is not null.
  */
 function changeState( name newState ){
-	if ( player != none ){
+	if ( player != none && !isInState( 'KnockedBack' ) ){
 		goToState( newState );
-	} else {
-		`log( "Didn't change states" );
 	}
 }
 
@@ -632,4 +688,5 @@ DefaultProperties
 	fleeDistance = 512.0
 	tooCloseDistance = 256.0
 	fleeSpeedupFactor = 2.0
+	wanderRadius = 512.0
 }

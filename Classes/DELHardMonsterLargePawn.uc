@@ -65,7 +65,7 @@ function attackEffects( int attackNumber ){
  */
 function shockWave(){
 	local DELPawn p;
-	local vector momentum , shockwaveLocation;
+	local vector shockwaveLocation;
 	local float shockwaveDamage;
 
 	shockwaveLocation = getInFrontLocation();
@@ -135,7 +135,7 @@ defaultproperties
 	GroundSpeed = 95.0
 
 	attackInterval = 1.0
-	meleeRange = 96.0
+	meleeRange = 112.0
 	detectionRange = 102400000.0
 
 	//Anim

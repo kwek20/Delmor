@@ -105,12 +105,38 @@ simulated function bool IsFirstPerson(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
+	playSound( hitSound );
+	playGetHitAnimation();
+
 	super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	if(magic != none){
 		magic.Interrupt();
 	}
+
+	if ( DamageType == class'DELDmgTypeMelee' ){
+		spawnBlood( hitLocation );
+	}
 }
 
+function playGetHitAnimation(){
+	local name animName;
+
+	switch( rand( 3 ) ){
+	case 1:
+		animName = 'Lucian_hit1';
+		break;
+	case 2:
+		animName = 'Lucian_hit2';
+		break;
+	case 3:
+		animName = 'Lucian_hit3';
+		break;
+	default:
+		animName = 'Lucian_hit1';
+		break;
+	}
+	SwingAnim.PlayCustomAnim(animName, 1.0 , 0.0 , 0.0 , false , true );
+}
 
 /**
  * selects a point in the animtree so it is easier acessible
@@ -162,6 +188,14 @@ function OnBecomeMagician(DELSeqAct_BecomeMagician action){
  */
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
+
+	//Set up custom inventory manager
+     if (UInventory != None){
+		UManager = Spawn(UInventory, Self);    // NAKIJKEN
+		if ( UManager == None ){
+			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
+		}
+	}
 	AddDefaultInventory();
 
 	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
@@ -170,22 +204,6 @@ simulated event PostBeginPlay(){
 
 exec function suicideFail(){
 	health = healthmax -(healthmax * 0.8);
-}
-
-
-/**
- * Gets the number of pawns
- */
-exec function numberOfPawnsNearPlayer(){
-	local DELHostileController c;
-	local int nPawns;
-	/**
-	 * The distance at wich a pawn is considered near the player.
-	 */
-	local float nearDistance;
-
-	nPawns = 0;
-	nearDistance = 256.0;
 }
 
 function OnUpdateObjective(DELSeqAct_UpdateObjective Action){
@@ -221,6 +239,19 @@ simulated function magicSwitch(int AbilityNumber){
 	}
 }
 
+/**
+ * Checks whether the player is being knockedBack.
+ * @return true when being knockedback (Knockbackforce applied.)
+ */
+function bool isBeingKnockedBack(){
+	local DELKnockBackForce f;
+
+	foreach WorldInfo.AllActors( class'DELKnockBackForce' , f ){
+		if ( f.myPawn == self ){
+			return true;
+		}
+	}
+}
 
 /**
  * Pawn starts firing!
@@ -229,6 +260,8 @@ simulated function magicSwitch(int AbilityNumber){
  */
 simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
+
+	if ( isBeingKnockedBack() ) return;
 
 	if( bNoWeaponFiring){
 		return;
@@ -872,6 +905,8 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		//Play death animation
 		playDeathAnimation();
 		goToState('Dead');
+
+		//DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).destroy();
 	}
 
 	//return super.died( killer , damageType , HitLocation );
@@ -931,7 +966,7 @@ DefaultProperties
 	camTargetDistance = 200.0
 	defaultCameraHeight = 48.0
 	cameraTargetHeight = 48.0
-	cameraZoomHeight = 64.0
+	cameraZoomHeight = 48.0
 	camPitch = -5000.0
 	bLookMode = false
 	bLockedToCamera = false
@@ -940,4 +975,13 @@ DefaultProperties
 
 	hitSound = SoundCue'Delmor_sound.Lucian.sndc_lucian_hit'
 	isMagician = false
+
+	getHitAnimName = Lucian_hit1
+	knockBackStartAnimName = Lucian_KnockbackFALL
+	knockBackStartAnimLength = 0.8
+	knockBackAnimName = Lucian_KnockbackDOWN
+	knockBackStandupAnimName = Lucian_KnockbackSTANDUP
+	knockBackStandupAnimLength = 1.0
+
+	bHasSplittedKnockbackAnim = true
 }
