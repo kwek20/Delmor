@@ -905,8 +905,6 @@ function bool died( Controller killer , class<DamageType> damageType , vector Hi
 		//Play death animation
 		playDeathAnimation();
 		goToState('Dead');
-
-		//DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).destroy();
 	}
 
 	//return super.died( killer , damageType , HitLocation );
