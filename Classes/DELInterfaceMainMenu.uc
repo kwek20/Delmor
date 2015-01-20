@@ -90,6 +90,7 @@ function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject 
 
 function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
 	ConsoleCommand("quit");
+	ConsoleCommand("quit");
 }
 
 function start(DELPlayerController c){

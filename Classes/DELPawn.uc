@@ -634,18 +634,17 @@ function interrupt( optional bool bDontInterruptState ){
 	}
 }
 
-function dropItem(){
+function dropItem(Controller killer , class<DamageType> damageType ){
 		local class<DELItem> item;
 		item = calculateDrop();
 		Spawn(item, , , getFloorLocation(location) , , , false);
-		`log("HitLocation: " $ getFloorLocation(location));
 }
 
 /**
  * Play a die sound and dying animation upon death.
  */
 function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
-	dropItem();
+	dropItem(killer, damageType);
 
 	if ( !isInState( 'Dead' ) ){
 		//Make it so that the player can walk over the corpse and will not be blocked by the collision cylinder.
