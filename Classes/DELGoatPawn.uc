@@ -6,13 +6,13 @@ class DELGoatPawn extends DELAnimalPawn
 	  Config(Game);
 var SoundCue goatSound;
 var bool canPlaySound;
-var int minCowTime, maxCowTime;
+var int minGoatTime, maxGoatTime;
 
 simulated function PostBeginPlay() {
 	super.PostBeginPlay();
 	assignSoundSet();
 	`log(self);
-	SetTimer((Rand(maxCowTime-minCowTime) + minCowTime), true, 'playGoatSound');
+	SetTimer((Rand(maxGoatTime-minGoatTime) + minGoatTime), true, 'playGoatSound');
 	
 }
 
@@ -70,10 +70,10 @@ DefaultProperties
 	CollisionRadius = 44.0;
 	CollisionHeight = +32.0;
 	end object
-	minCowTime = 10
-	maxCowTime = 30
+	minGoatTime = 10
+	maxGoatTime = 30
 
 	ControllerClass=class'DELGoatController'
 	GroundSpeed=50
-	cowSound = SoundCue'Delmor_sound.Cow_cue'
+	goatSound = SoundCue'Delmor_sound.Goat_cue'
 }
