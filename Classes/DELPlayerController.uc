@@ -142,7 +142,7 @@ state DeathScreen extends MouseState{
 	}
 
 	function swapState(name StateName){
-		if (!(StateName == 'MainMenu' || StateName == 'Playing')) return;
+		startOver();
 		super.swapState(StateName);
 	}
 Begin:
@@ -219,6 +219,29 @@ public function onMouseUse(DELInputMouseStats stats){
 		}
 	}
 }
+
+function startOver(){
+		Worldinfo.Game.RestartPlayer(self);
+		getPawn().gotoState('Playing');
+
+		getPawn().setLocation(getRespawn().Location);
+
+		getPawn().Mana = getPawn().manaMax;
+		getPawn().Health = getPawn().HealthMax;
+
+		getPawn().UManager.clear();
+		getPawn().UManager.StartingInventory();
+
+		SetPause(false);
+	}
+
+	function DELRespawnPathNode getRespawn(){
+		local DELRespawnPathNode n;
+		foreach WorldInfo.AllActors( class'DELRespawnPathNode' , n ){
+			return n;
+		}
+		return none;
+	}
 
 /*################
  * HUD functions
