@@ -6,6 +6,7 @@
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
 var array< class<Inventory> > DefaultInventory;
+var DELMeleeWeapon sword;
 var DELMagic magic;
 var bool isMagician;
 
@@ -214,12 +215,14 @@ exec function suicideFail(){
 function OnUpdateObjective(DELSeqAct_UpdateObjective Action){
 	local String Questname, Objective;
 	action.getInfo(Questname, Objective);
+	QManager.completeObjective(Qmanager.getQuest(questname),Objective);
 }
 
 function OnAddObjective(DELSeqAct_AddObjective Action){
 	local String questTitle, ObjectiveText;
 	local int totalAmountToComplete;
 	action.getValues(questTitle,ObjectiveText,totalAmountToComplete);
+	QManager.addObjective(Qmanager.getQuest(QuestTitle),ObjectiveText);
 }
 
 /**
@@ -267,6 +270,8 @@ function bool isBeingKnockedBack(){
  */
 simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
+	`log("start fire");
+	`log(sword);
 
 	if ( isBeingKnockedBack() ) return;
 
@@ -280,6 +285,7 @@ simulated function StartFire(byte FireModeNum){
 		magic.FireStart();
 	}
 	if(FireModeNum == 0 && sword != None){
+		
 		//Stop moving (So that the auto-aim will work.
 		//DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).stopMoving();
 		//Turn the player towards a nearby enemy when there's no enemy in front of him.
@@ -290,7 +296,8 @@ simulated function StartFire(byte FireModeNum){
 		else{
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
-		sword.StartFire(FireModeNum);
+		`log("sword slash");
+		weapon.StartFire(FireModeNum);
 	}
 }
 
