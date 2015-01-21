@@ -6,6 +6,6 @@ var Bool complete;
 
 DefaultProperties
 {
-	completed = false
+	complete = false
 	objective = "None"
 }

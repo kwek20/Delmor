@@ -205,6 +205,7 @@ simulated event PostBeginPlay(){
 		}
 	}
 	AddDefaultInventory();
+	QManager = Spawn(class'DELQuestManager',,,);
 
 	setCameraOffset( 0.0 , 0.0 , defaultCameraHeight );
 	SetThirdPersonCamera( true );
