@@ -17,11 +17,13 @@ DefaultProperties
 	itemName="Health potion"
 	itemDescription="Made from beating child hearts!"
 	texture=Texture2D'DelmorHud.health_potion'
+	amount=1
 
 	Begin Object Class=StaticMeshComponent Name=healthPotion
 		StaticMesh=StaticMesh'delmor_items.Meshes.sk_HealthPotion'
 		HiddenGame=false
 		HiddenEditor=false
+		Scale=2.0
 	End Object
 
 	bCollideActors=true

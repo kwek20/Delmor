@@ -417,7 +417,7 @@ function PickUpItems(){
 	local DELItem i;
 
 	foreach WorldInfo.AllActors( class'DELItem' , i ){
-		if ( VSize( location - i.location ) < pickupRange ) {
+		if ( VSize( location - self.adjustLocation( i.location , location.z ) ) < pickupRange && !i.bIsFlying ){
 			i.pickup( self );
 			self.playPickupAnimation();
 		}

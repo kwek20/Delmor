@@ -100,7 +100,7 @@ function vector getFloorLocation( vector l ){
 	local vector groundLocation , hitNormal , traceStart , traceEnd;
 
 	traceStart = l;
-	traceStart.Z = l.Z + 256.0;
+	traceStart.Z = l.Z + 512.0;
 
 	traceEnd.X = location.x;
 	traceEnd.Y = location.y;

@@ -43,4 +43,6 @@ DefaultProperties
 	End Object
     Mesh=MeleeWeapon
     Components.Add(MeleeWeapon)
+
+	criticalHitChance = 20
 }

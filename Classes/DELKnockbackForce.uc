@@ -71,10 +71,10 @@ event Tick( float deltaTime ){
 	myPawn.move( myPawn.velocity );
 
 	//We've hit the ground
-	if ( myPawn.location.Z <= beginZ + 2.0 && zPower <= 0.0 ){
+	if ( myPawn.location.Z <= myPawn.getFloorLocation( myPawn.location ).Z + 2.0 && zPower <= 0.0 ){
 		endForce();
 	}
-
+ 
 	//Gravity
 	zPower -= gravity;
 }

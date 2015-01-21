@@ -18,11 +18,13 @@ DefaultProperties
 	itemName="Mana potion"
 	itemDescription="Mana powers straight from a unicorn horn"
 	texture=Texture2D'DelmorHud.mana_potion'
+	amount=1
 
 	Begin Object Class=StaticMeshComponent Name=manaPotion
 		StaticMesh=StaticMesh'delmor_items.Meshes.sk_ManaPotion'
 		HiddenGame=false
 		HiddenEditor=false
+		Scale=2.0
 	End Object
 
 	Mesh=manahPotion

@@ -25,6 +25,11 @@ var float criticalHitChance;
  */
 var float criticalDamageMultiplier;
 
+/**
+ * Made empty to prevent weapon dropping.
+ */
+function DropFrom(vector StartLocation, vector StartVelocity){
+}
 
 /**
  * default setting to all weapons
@@ -34,4 +39,5 @@ DefaultProperties
 	criticalHitChance = 5;
 	criticalDamageMultiplier = 4;
 	bCanThrow = false
+	bDropOnDeath = false
 }

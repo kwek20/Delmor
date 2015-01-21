@@ -51,10 +51,8 @@ private function DELPawn findLowHealthMonster(){
  * Returns true when the pawn's health is below 25% and the player is nearby.
  */
 private function bool checkIsInDanger(){
-	`log( "checkIsInDanger" );
 	//First we'll check if the pawn's health is low
 	if ( pawn.Health <= pawn.HealthMax / 4 ){
-		`log( self$" checkIsInDanger: health is low" );
 		//Then we'll check if the player is close enough to attack.
 		if ( VSize( pawn.Location - attackTarget.location ) < attackTarget.meleeRange ){
 			return true;
@@ -184,8 +182,6 @@ function resetNumberOfTimesHit(){
  * While blocking, the pawn cannot be hit by mêlee-attacks but is still vurnable to magic.
  */
 function block(){
-	`log( ">>>>>>>>>>>>>>> BLOCK" );
-
 	goToState( 'Blocking' );
 	DELMediumMonsterPawn( pawn ).startBlocking();
 }
@@ -236,13 +232,6 @@ state attack{
 	 * Make a decision for your next move.
 	 */
 	function decisionTimer(){
-		//if ( checkIsInDanger() ){
-		//	`log( self$" I'm in danger" );
-		//	fleeFrom( attackTarget );
-
-			//Call for backup
-		//	orderNearbyMinionsToAttackPlayer();
-		//}
 
 		//Wait till the player has killed the easypawns before attacking
 		if ( nPawnsNearPlayer() > 2 ){
@@ -460,8 +449,7 @@ state Blocking{
 	event tick( float deltaTime ){
 		super.Tick( deltaTime );
 
-		`log( "Blocking" );
-		pawn.SetRotation( rotator( attackTarget.location - pawn.Location ) );
+		pawn.SetRotation( self.adjustRotation( rotator( attackTarget.location - pawn.Location ) , rotation.Yaw ) );
 	}
 }
 
@@ -500,12 +488,9 @@ event minionDied(){
  * If the pawn has been hit three times in a row it should block.
  */
 event pawnHit(){
-	`log( ">>>>>>>>>>>>>>>>>> My pawn has been hit" );
 	nTimesHit ++;
 
-	`log( "nTimesHit: "$nTimesHit );
 	if( nTimesHit >= 3 && pawn.Health < pawn.HealthMax * 0.75 ){
-		`log( "Start blocking" );
 		//block();
 		DELPawn( pawn ).startBlocking();
 	}

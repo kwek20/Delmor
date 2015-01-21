@@ -208,6 +208,12 @@ simulated event PostBeginPlay(){
 	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
 }
 
+/**
+ * Made empty to prevent inventory tossing
+ */
+function TossInventory( Inventory inv , optional Vector ForceVelocity ){
+}
+
 event tick( float deltaTime ){
 	super.tick( deltaTime );
 
@@ -407,18 +413,23 @@ function spawnLandSmoke(){
  * Returns the location of the ground beneath the given location.
  */
 function vector getFloorLocation( vector l ){
-	local vector groundLocation , hitNormal , traceEnd;
+	local vector groundLocation , hitNormal , traceStart , traceEnd , defaultLoc;
 
-	traceEnd.X = location.x;
-	traceEnd.Y = location.y;
-	traceEnd.Z = location.z - 512.0;
+	traceStart = location;
+	traceStart.Z = location.z + 256.0;
+
+	traceEnd = location;
+	traceEnd.Z = location.z - 1024.0;
+
+	defaultLoc = location;
+	defaultLoc.Z = -100000.0;
 
 	//Trace and get a ground location, that way the smoke will be placed on the ground and not the air.
-	Trace( groundLocation , hitNormal , traceEnd , l , false );
-
-	return groundLocation;
+	if ( Trace( groundLocation , hitNormal , traceEnd , l , false ) != none ){
+		return groundLocation;
+	}
+	return defaultLoc;
 }
-
 /**
  * adds the weapons(magic + masterSword to the player)
  */
