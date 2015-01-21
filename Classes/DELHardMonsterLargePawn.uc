@@ -49,7 +49,6 @@ function bool meshIsBigEnough(){
  * Overridden so that we'll perform a shockwave attack on the second attack.
  */
 function attackEffects( int attackNumber ){
-	`log( "attackEffects. attackNumber: "$attackNumber );
 	switch( attackNumber - 1 ){
 	case 1:
 		shockWave();
@@ -70,7 +69,6 @@ function shockWave(){
 
 	shockwaveLocation = getInFrontLocation();
 
-	`log( self$" shockWave" );
 	foreach WorldInfo.AllPawns( class'DELPawn' , p , shockwaveLocation , shockWaveRadius ){
 		if ( p != self ){
 			shockwaveDamage = DELMeleeWeapon( sword ).CalculateDamage();

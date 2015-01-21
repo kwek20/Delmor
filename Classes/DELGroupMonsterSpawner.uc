@@ -86,9 +86,31 @@ function Vector getRandomLocation() {
 	local Vector tempLocation;
 	tempLocation.X = self.Location.X  + (Rand(2 * SpawnArea) - SpawnArea);
 	tempLocation.Y = self.Location.Y  + (Rand(2 * SpawnArea) - SpawnArea);
-	tempLocation.Z = 10;
+	tempLocation.Z = Location.Z;
+
+	tempLocation = getFloorLocation( tempLocation );
+
 	return tempLocation;
 }   
+
+/**
+ * Returns the location of the ground beneath the given location.
+ */
+function vector getFloorLocation( vector l ){
+	local vector groundLocation , hitNormal , traceStart , traceEnd;
+
+	traceStart = l;
+	traceStart.Z = l.Z + 256.0;
+
+	traceEnd.X = location.x;
+	traceEnd.Y = location.y;
+	traceEnd.Z = location.z - 512.0;
+
+	//Trace and get a ground location, that way the smoke will be placed on the ground and not the air.
+	Trace( groundLocation , hitNormal , traceEnd , traceStart , false );
+
+	return groundLocation;
+}
 
 function bool checkMonsterToSpawn(class<DELHostilePawn> monsterToCheck, int MaxNumberOfClass) {
 	local Actor C;
