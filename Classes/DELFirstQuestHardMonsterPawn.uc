@@ -1,4 +1,4 @@
-class DELFirstQuestHardMonsterPawn extends DELHostilePawn
+class DELFirstQuestHardMonsterPawn extends DELHardMonsterSmallPawn
       placeable
 	  Config(Game);
 
@@ -10,7 +10,7 @@ function transform(){
 
 DefaultProperties
 {
-	ControllerClass=class'Delmor.DELFirstQuestHardMonsterController'
+	ControllerClass=class'DELFirstQuestCulpaController'
 
 	health = 100
 	healthMax = 100
