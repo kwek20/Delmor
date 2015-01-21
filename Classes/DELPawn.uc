@@ -315,6 +315,14 @@ function spawnBlood( vector hitlocation ){
 	}
 }
 
+function spawnCriticalHitEffect( vector hitlocation ){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_critical_hit';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , hitlocation );
+}
+
 /**
  * Spawn a blood effect to indicate that the pawn has been hit but is blocking
  */

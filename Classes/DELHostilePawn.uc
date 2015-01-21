@@ -27,10 +27,18 @@ simulated event PostBeginPlay(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	if ( !isInState( 'Dead' ) ){
-		if ( !controller.IsInState( 'Blocking' ) ){
-			hitWhileNotBlocking(damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
-		} else {
-			hitWhileBlocking( hitLocation , damageType );
+		switch( DamageType ){
+		case class'DELDmgTypeStun':
+			self.stun( 10.0 );
+			break;
+
+		default:
+			if ( !controller.IsInState( 'Blocking' ) ){
+				hitWhileNotBlocking(damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
+			} else {
+				hitWhileBlocking( hitLocation , damageType );
+			}
+			break;
 		}
 	}
 }
@@ -49,6 +57,9 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	local int newDamage;
 
 	newDamage = damage;
+	if ( DamageType == class'DELDmgTypeMeleeCritical' ){
+		spawnCriticalHitEffect( hitLocation );
+	}
 	if(DamageType == class'DELDmgTypeMelee'){
 		newDamage = damage - (damage * physicalResistance);
 

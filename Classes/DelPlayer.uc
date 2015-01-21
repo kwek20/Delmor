@@ -112,7 +112,9 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
 	playSound( hitSound );
-	playGetHitAnimation();
+	if ( rand( 3 ) == 1 ){
+		playGetHitAnimation();
+	}
 
 	super.TakeDamage(Damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	if(magic != none){
