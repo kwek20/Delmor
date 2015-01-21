@@ -29,6 +29,17 @@ var array<int> swings;
  */
 var const int maxSwings;
 
+var bool bSwinging;
+
+
+/*
+simulated function StartFire(byte FireModeNum){
+	if(bSwinging) return;
+
+	bSwinging = true;
+	super.StartFire(FireModeNum);
+}*/
+
 
 /**
  * is an abbreviation of the weaponFiring state
@@ -45,7 +56,8 @@ simulated state Swinging extends WeaponFiring {
 	}
 	simulated event EndState(Name NextStateName){
 		super.EndState(NextStateName);
-		SetTimer(GetFireInterval(CurrentFireMode), false, nameof(ResetSwings));
+		//bSwinging =false;
+		SetTimer(1.0, false, nameof(ResetSwings));
 	}
 }
 
@@ -221,9 +233,8 @@ simulated function FireAmmunition(){
 	SwingHitActors.Remove(0, SwingHitActors.Length);
 
 	if (HasAmmo(CurrentFireMode)){
-		`log(Swings[0]);
 		if (MaxSwings - Swings[0] == 0) {
-			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname1, 1.f,0.1f,0.1f,false,true);
+			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname1, 1.f);
 		} else if (MaxSwings - Swings[0] == 1){
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname2, 1.0);
 		} else {
@@ -242,15 +253,13 @@ DefaultProperties
 	swordHiltSocketName = SwordHiltSocket
 	swordTipSocketName = SwordTipSocket
 	handSocketName = WeaponPoint
-	//swordHiltSocketName = StartControl
-	//swordTipSocketName = EndControl
 
 	dmgType = class'DELDmgTypeMelee'
 
 	MaxSwings=3
 	Swings(0)=3
 
-	FireInterval(0)= 2.0
+	FireInterval(0)= 1.0
 
 	damageMin = 1
 	damageMax = 1
@@ -258,6 +267,7 @@ DefaultProperties
 	bMeleeWeapon=true
 	bInstantHit=true
 	bCanThrow=false
+	bSwinging = false
 
 	FiringStatesArray(0)="Swinging"
 

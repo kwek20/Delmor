@@ -288,7 +288,7 @@ simulated function StartFire(byte FireModeNum){
 		else{
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
-		weapon.StartFire(FireModeNum);
+		sword.StartFire(FireModeNum);
 	}
 }
 

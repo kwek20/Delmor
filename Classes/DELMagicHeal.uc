@@ -18,8 +18,11 @@ var vector locationOfProjectile;
  * new Charging state
  */
 simulated state Charging{
+	local float initGroundSpeed;
 
 	simulated event beginstate(Name NextStateName){
+		initGroundSpeed = spellCaster.GroundSpeed;
+
 		if(spellCaster.health + Damage >= spellCaster.HealthMax){
 			gotoState('nothing');
 			return;
@@ -27,6 +30,7 @@ simulated state Charging{
 		super.beginstate(NextStateName);
 		locationOfProjectile = GetSocketPosition(spellcaster);
 		chargingProjectile = Spawn(getSpell() ,self,, locationOfProjectile);
+		spellCaster.GroundSpeed = 0;
 	}
 	/**
 	 * chargetick for heal spell
@@ -37,14 +41,16 @@ simulated state Charging{
 		if(spellCaster.health + totalDamage >= spellCaster.HealthMax){
 			//when the health you get is higher than the health you need
 			ClearTimer(NameOf(chargeTick));
-			`log("stop timerrrrrr");
 		}
 		consumeMana(ChargeAdd);
 	}
 	simulated event Tick(float DeltaTime){
+		local bool awesome;
 		super.Tick(DeltaTime);
-		chargingProjectile.SetLocation(GetSocketPosition(spellcaster));
+		locationOfProjectile = GetSocketPosition(spellcaster);
+		awesome = chargingProjectile.SetLocation(locationOfProjectile);
 		chargingProjectile.LifeSpan += 0.4;
+		
 	}
 	/**
 	 * interrupts during spellcasting
@@ -54,6 +60,9 @@ simulated state Charging{
 		GoToState('Nothing');
 	}
 
+	simulated function endstate(name NextStateName){
+		spellCaster.GroundSpeed = initGroundSpeed;
+	}
 }
 
 /**
