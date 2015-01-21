@@ -15,6 +15,10 @@ var array<Actor> swingHitActors;
  * the damagetype the weapon does
  */
 var class<DamageType> dmgType;
+
+var class<DamageType> currentDmgType;
+
+var class<DamageType> critDmgType;
 /**
  * name of the swing to be used with this weapon
  */
@@ -31,7 +35,7 @@ var const int maxSwings;
 
 var bool bSwinging;
 
-
+/*
 function StartFire(byte FireModeNum){
 	`log("starrt fireeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 	if(bSwinging == true) {
@@ -39,7 +43,7 @@ function StartFire(byte FireModeNum){
 		return;
 	}
 	super.StartFire(FireModeNum);
-}
+}*/
 
 
 /**
@@ -121,7 +125,7 @@ simulated function TraceSwing(){
 
 	foreach TraceActors(class'DELHostilePawn', HitActor, HitLoc, HitNorm, SwordTip, SwordHilt){
 		if ( AddToSwingHitActors(HitActor) && !hitActor.IsInState( 'Dead' ) ){
-			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);
+			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, currentDmgType);
 			//PlaySound(SwordClank);
 		}
 	}
@@ -171,6 +175,7 @@ simulated function Vector GetSwordSocketLocation(Name SocketName){
  */
 simulated function int CalculateDamage(){
 	local int damageRange, damage;
+	currentDmgType = dmgType;
 	damageRange = (damageMax - damageMin);
 	damage = damageMin +Rand(damageRange);
 	if (doesCrit()) damage = addCrit(damage);
@@ -193,6 +198,7 @@ simulated function bool doesCrit(){
  * @return new crit damage
  */
 simulated function int addCrit(int damage){
+	currentDmgType = critDmgType;
 	return damage * criticalDamageMultiplier;
 }
 
@@ -256,7 +262,9 @@ DefaultProperties
 	swordTipSocketName = SwordTipSocket
 	handSocketName = WeaponPoint
 
+	
 	dmgType = class'DELDmgTypeMelee'
+	critDmgType = class'DELDmgTypeMeleeCritical'
 
 	MaxSwings=3
 	Swings(0)=3
