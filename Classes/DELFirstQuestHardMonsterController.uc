@@ -8,7 +8,7 @@ class DELFirstQuestHardMonsterController extends DELHostileController;
 /**
  * Array keeping track of pathnodes
  */
-var array<DELFirstQuestPathnodes> PathnodeList;
+var array<DELFirstQuestPathnode> PathnodeList;
 
 /**
  * Counter for said array
@@ -18,7 +18,7 @@ var int _Pathnode;
 /**
  * The current node the bot is moving to
  */
-var DELFirstQuestPathnodes currentNode;
+var DELFirstQuestPathnode currentNode;
 
 
 /**
@@ -34,7 +34,7 @@ var int minimumDistance;
 /**
  * Node the bot will end at
  */
-var DELFirstQuestPathnodes endNode;
+var DELFirstQuestPathnode endNode;
 
 /**
  * Distance from bot to player
@@ -58,9 +58,9 @@ var() float botSpeed;
  */
 
 simulated function PostBeginPlay(){
-	local DELFirstQuestPathnodes P;
+	local DELFirstQuestPathnode P;
 	super.PostBeginPlay();
-		foreach WorldInfo.AllActors(class 'DELFirstQuestPathnodes', P){
+		foreach WorldInfo.AllActors(class 'DELFirstQuestPathnode', P){
 			PathnodeList.AddItem(P);
 			}
 		endNode = PathnodeList[PathnodeList.Length];
@@ -85,7 +85,7 @@ function Vector getNextNode(){
 /**
  * Converts pathnode to vector location
  */
-function Vector NodeToVect(DELFirstQuestPathnodes N){
+function Vector NodeToVect(DELFirstQuestPathnode N){
 	local Vector V;
 	V.X = N.Location.X;
 	V.Y = N.Location.Y;

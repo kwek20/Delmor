@@ -43,7 +43,21 @@ function bool isBound(){
 function pickUp( DELPawn picker ){
 	`log( "Picked up: "$self );
 	picker.UManager.AddInventory( self.Class , 1 );
+	spawnPickupEffect();
 	destroy();
+}
+
+/**
+ * Spawn a nice particle effect.
+ */
+function spawnPickupEffect(){
+	local ParticleSystem p;
+	local vector offSet;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_item_pickup';
+	offSet.Z = 10.0;
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , location + offSet );
 }
 
 defaultproperties
@@ -54,5 +68,14 @@ defaultproperties
 	pickupSound=SoundCue'Delmor_sound.Pickup_Pop_Cue'
 	amount=0
 	playerBound=false
-	maxSize=20;
+	maxSize=20
+
+	Begin Object Class=ParticleSystemComponent Name=GlowEffect
+		bAutoActivate=TRUE
+		Template=ParticleSystem'Delmor_Effects.Particles.p_item'
+		Translation=(X=0.0,Y=0.0,Z=10.0)
+		SecondsBeforeInactive=1.0f
+	End Object
+	BaseGlow=GlowEffect
+	Components.Add(GlowEffect)
 }

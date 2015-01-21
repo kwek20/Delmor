@@ -1,4 +1,9 @@
-class DELFirstQuestPathnodes extends Actor placeable;
+class DELFirstQuestPathnode extends Actor placeable;
+
+/**
+ * It's number in the pathsequence.
+ */
+var() int index;
 
 DefaultProperties
 {

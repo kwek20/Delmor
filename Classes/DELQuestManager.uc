@@ -28,18 +28,10 @@ function addObjective(DELQuest quest, String questObjective){
 
 	quest.objectives.AddItem(AddObjective);
 
-	
-	for (i=0; i < quest.objectives.Length; i++){
-		if (quest.objectives[i].objective == questObjective){
-			quest.objectives[i].complete = true;
-		}
-	}
-
 	`log("Added objective: " $ questObjective $ " to quest: " $ quest.title);
 }
 
-function completeObjective(DELQuest quest, String questObjective)
-{
+function completeObjective(DELQuest quest, String questObjective) {
 	local int i;
 	for (i=0; i < quest.objectives.Length; i++){
 		if (quest.objectives[i].objective == questObjective){
@@ -50,8 +42,7 @@ function completeObjective(DELQuest quest, String questObjective)
 	}
 }
 
-function completeQuest(DELQuest quest)
-{
+function completeQuest(DELQuest quest) {
 	local int i, completeCount;
 
 	for (i=0; i < quest.objectives.Length; i++){
@@ -68,8 +59,7 @@ function completeQuest(DELQuest quest)
 	}
 }
 
-function DELQuest getQuest(String questName)
-{
+function DELQuest getQuest(String questName) {
 	local int i;
 	for (i=0; i < quests.Length; i++){
 		if (quests[i].title == questName){
