@@ -17,6 +17,9 @@ function SoundCue getSound( string sName ){
 	case "Die":
 		return soundsToPlay[ 2 ];
 		break;
+	default:
+		return none;
+		break;
 	}
 }
 

@@ -1,7 +1,7 @@
 /**
  * Pawn class used for the goat.
  */
-class DELChickenPawn extends DELAnimalPawn
+class DELChickenPawn extends DELHostileAnimalPawn
       placeable
 	  Config(Game);
 var SoundCue kickSound;
@@ -10,7 +10,6 @@ var bool canPlaySound;
 simulated function PostBeginPlay() {
 	super.PostBeginPlay();
 	assignSoundSet();
-	`log(self);
 }
 
 /**
@@ -35,6 +34,18 @@ function kick() {
 
 function resetPlaySound() {
 	canPlaySound = true;
+}
+
+function bool died( Controller killer , class<DamageType> damageType , vector HitLocation ){
+	dropItem();
+	say( "TakeDamage" , true );
+	DELPlayer( GetALocalPlayerController().Pawn ).spawnChickenKickEffects( location );
+	controller.destroy();
+	destroy();
+}
+
+function dropItem(){
+	Spawn(class'DELItemFriedChicken', , , getFloorLocation(location) , , , false);
 }
 
 /**
@@ -67,4 +78,6 @@ DefaultProperties
 	ControllerClass=class'DELChickenController'
 	GroundSpeed=50
 	kickSound = SoundCue'Delmor_sound.90132_killChicken_Cue'
+
+	
 }

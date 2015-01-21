@@ -11,7 +11,7 @@ class DELHardMonsterSmallPawn extends DELHostilePawn
 event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	super.TakeDamage( Damage, EventInstigator, HitLocation, Momentum, DamageType, HitInfo, DamageCauser );
 
-	if ( health <= healthMax / 2 && health > 0 ){ //Notify the controller that I'm damaged.
+	if ( health <= healthMax * 0.75 && health > 0 ){ //Notify the controller that I'm damaged.
 		DELHardMonsterSmallController( controller ).hitpointsBelowHalf();
 	}
 }
@@ -20,7 +20,26 @@ event TakeDamage(int Damage, Controller EventInstigator, vector HitLocation, vec
  * Replaces the the small version of the pawn with a large version.
  */
 exec function transform(){
-	shapeShift( class'DELHardMonsterLargePawn' );
+	local DELPawn newPawn;
+	local Vector scale;
+
+	shapeShift( class'DELHardMonsterLargePawn' , newPawn );
+
+	scale.X = 0.5;
+	scale.Y = 0.5;
+	scale.Z = 0.5;
+
+	newPawn.Mesh.SetScale3D( scale );
+	spawnTransformEffects();
+	//newPawn.Mesh.Materials.Remove();
+}
+
+function spawnTransformEffects(){
+	local ParticleSystem p;
+
+	p = ParticleSystem'Delmor_Effects.Particles.p_culpa_transform';
+
+	worldInfo.MyEmitterPool.SpawnEmitter( p , location );
 }
 
 DefaultProperties
@@ -44,10 +63,11 @@ DefaultProperties
 	Mesh=ThirdPersonMesh
     Components.Add(ThirdPersonMesh)
 
-	deathAnimationTime = 1.0
+	deathAnimName = Chulpa_medium_Death
+	deathAnimationTime = 0.4591
 
-	health = 100
-	healthMax = 100
+	health = 200
+	healthMax = 200
 	healthRegeneration = 0
 	GroundSpeed = 365.0
 	Begin Object Name=CollisionCylinder

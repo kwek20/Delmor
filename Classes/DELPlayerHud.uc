@@ -77,17 +77,12 @@ function array<DELInterface> getInterfaces(){
 	return interfaceArray;
 }
 
-function PlayerOwnerDied(){
-	local DELPlayerController PC;
-    PC = getPlayer();
-	PC.gotoState('End');
-}
-
 
 function PostRender(){
 	local InterFaceItem interface;
 
 	if (!bShowHUD) return;
+	if (getPlayer().isDead() && !(getPlayer().getStateName() == 'DeathScreen' || getPlayer().getStateName() == 'MainMenu')) return;
 
 	if ( sizeChanged() ){
 		reScaleStuff();

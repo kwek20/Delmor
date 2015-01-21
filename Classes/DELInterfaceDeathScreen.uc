@@ -1,10 +1,13 @@
-class DELInterfaceMainMenu extends DELInterfaceInteractible;
+class DELInterfaceDeathScreen extends DELInterfaceInteractible;
 
-var() int inbetween, buttonAmount;
-var float backgroundDimensionWidth;
+var Color bgColor, textColor;
+var Texture2D deathImage;
 
 var array<Texture2D> buttonTextures;
-var Texture2D logo;
+
+var float backgroundDimensionWidth, inbetween;
+
+var int buttonAmount;
 
 function load(DELPlayerHud hud){
 	local DELInterfaceButtonMain button;
@@ -12,16 +15,16 @@ function load(DELPlayerHud hud){
 	local int length, startX, startY;
 	local float buttonHeight;
 
+	setPos(0,0,hud.SizeX,hud.SizeY,hud);
+
 	interface = Spawn(class'DELInterfaceTexture');
-	interface.setTexture(logo);
-	interface.setPos(50,50,hud.SizeX/5,logo.SizeY/(logo.SizeX/(hud.SizeX/5)), hud);
+	interface.setTexture(deathImage);
+	interface.setPos(hud.CenterX-deathImage.SizeX/2, hud.CenterY-deathImage.SizeY/2, deathImage.SizeX, deathImage.SizeY, hud);
 	addInteractible(interface);
 
 	button = Spawn(class'DELInterfaceButtonMain');
-
-	setPos(0,0,hud.SizeX,hud.SizeY,hud);
-
 	buttonHeight = button.hoverTextures[0].SizeY/2;
+
 	length = hud.sizeX*backgroundDimensionWidth - 2*inbetween;
 	startX = hud.sizeX-button.hoverTextures[0].SizeX*0.75;
 	startY = hud.sizeY/2 - (buttonHeight*buttonAmount + inbetween*(buttonAmount+2))/2 + inbetween;
@@ -42,33 +45,14 @@ function load(DELPlayerHud hud){
 	button.setTexture(buttonTextures[1]);
 	addInteractible(button);
 
-	//options button
-	startY+=buttonHeight+inbetween;
-	button = Spawn(class'DELInterfaceButtonMain');
-	button.setPosition(startX, startY, length, buttonHeight, hud);
-	button.setRun(options);
-	button.setHoverTexture(buttonTextures[2]);
-	button.setTexture(buttonTextures[2]);
-	addInteractible(button);
-
-	//credits button
-	startY+=buttonHeight+inbetween;
-	button = Spawn(class'DELInterfaceButtonMain');
-	button.setPosition(startX, startY, length, buttonHeight, hud);
-	button.setRun(credits);
-	button.setHoverTexture(buttonTextures[3]);
-	button.setTexture(buttonTextures[3]);
-	addInteractible(button);
-
 	//exit button
 	startY+=buttonHeight+inbetween;
 	button = Spawn(class'DELInterfaceButtonMain');
 	button.setPosition(startX, startY, length, buttonHeight, hud);
 	button.setRun(exit);
-	button.setHoverTexture(buttonTextures[4]);
-	button.setTexture(buttonTextures[4]);
+	button.setHoverTexture(buttonTextures[2]);
+	button.setTexture(buttonTextures[2]);
 	addInteractible(button);
-	super.load(hud);
 }
 
 function play(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
@@ -80,32 +64,39 @@ function loadGame(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject
 	start(hud.getPlayer());
 }
 
-function options(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	
-}
-
-function credits(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	hud.ConsoleCommand("movietest credits");
-}
-
 function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject object){
-	ConsoleCommand("quit");
-	ConsoleCommand("quit");
+	hud.getPlayer().swapState('MainMenu');
 }
 
 function start(DELPlayerController c){
+	c.Worldinfo.Game.RestartPlayer(c.getALocalPlayerController());
 	c.swapState('Playing');
 	c.SetPause(false);
 }
 
+function DELRespawnPathNode getRespawn(){
+	
+}
+
+function draw(DELPlayerHud hud){
+	//black background
+	hud.Canvas.setDrawColor(0,0,0);
+	hud.Canvas.setPos(0,0);
+	hud.Canvas.drawRect(hud.SizeX, hud.SizeY);
+	super.draw(hud);
+}
+
 DefaultProperties
 {
+	color=(R=0,G=0,B=0,A=0)
+	bgColor=(R=20,G=20,B=20,A=200)
+	textColor=(R=255,G=50,B=255,A=200)\
+
+	deathImage=Texture2D'DelmorHud.DeathScreen'
+
 	inbetween=20
+	buttonAmount=3
 	backgroundDimensionWidth=0.4
 
-	buttonAmount=5
-	textures=(Texture2D'DelmorHud.MainMenuBackground')
-	openSound=none
-	logo=Texture2D'DelmorHud.logo_menu'
-	buttonTextures=(Texture2D'DelmorHud.play', Texture2D'DelmorHud.load', Texture2D'DelmorHud.options', Texture2D'DelmorHud.credits', Texture2D'DelmorHud.exit')
+	buttonTextures=(Texture2D'DelmorHud.play', Texture2D'DelmorHud.load', Texture2D'DelmorHud.exit')
 }

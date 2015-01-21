@@ -51,14 +51,18 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 		}
 	}*/
 
+	`log( self$" hitWhileNotBlocking" );
+
+
 	//Block randomly
-	if ( bCanBlock && rand( 3 ) == 1 ){
-		`log( "Start blocking" );
-		startBlocking();
-		setTimer( 1.0 , false , 'stopBlocking' );
+	if ( rand( 3 ) > 1 ){
+		`log( "Ratman gethit" );
+		getHit();
 	} else {
-		if ( rand( 2 ) == 1 ){
-			getHit();
+		if ( bCanBlock && rand( 3 ) == 1 ){
+			`log( "Start blocking" );
+			startBlocking();
+			setTimer( 1.0 , false , 'stopBlocking' );
 		}
 	}
 
@@ -91,6 +95,8 @@ function breakBlock(){
 defaultproperties
 {	
 	swordClass = class'DELMeleeWeaponFists'
+	//swordClass = class'DELMeleeWeaponBattleAxe'
+	//swordClass = class'DELMeleeWeaponDagger'
 	
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder
@@ -126,8 +132,15 @@ defaultproperties
 	animname[ 2 ] = ratman_jumpattack
 	attackAnimationImpactTime[ 2 ] = 0.7219
 	deathAnimName = ratman_death
-	knockBackAnimName = ratman_knockback
 	getHitAnimName = ratman_gettinghit
+
+	knockBackStartAnimName = ratman_knockback_start
+	knockBackStartAnimLength = 0.6
+	knockBackAnimName = ratman_knockback_down
+	knockBackStandupAnimName = ratman_knockback_standup
+	knockBackStandupAnimLength = 2.7
+
+	bHasSplittedKnockbackAnim = true
 
 	deathAnimationTime = 0.6387
 	bloodDecalSize = 96.0

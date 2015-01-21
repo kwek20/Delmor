@@ -59,12 +59,9 @@ auto state Idle {
  * state where the goat is walking to a random player
  */
 state walk {
-	local Vector targetLocation;
-	local bool playerIsSeen;
 	function beginState( Name previousStateName ){
 		super.beginState( previousStateName );
 		nextLocation = getRandomLocation();
-		playerIsSeen = false;
 	}	
 
 	event Tick( float deltaTime ){
@@ -166,10 +163,27 @@ function Vector GetALocation() {
  * Gets a random location in the moverange.
  */
 function Vector GetLocationInMoveRange(){
-	local Vector temp;
+	local Vector temp , offSet;
+
+	/**
+	 * A fail save system. If we haven't got coords after 100 tries, stop and go to state 'Eat'.
+	 */
+	local int nTries; 
+
 	temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
 	temp.Z = startPosition.Z;// + Rand(5000);
+
+	while( bLocationObstructed( temp ) && nTries < 100 ){
+		nTries ++;
+		temp.X = startPosition.X + lengthDirX(Rand(moveRange), Rand(360 * DegToUnrRot));
+		temp.Y = startPosition.Y + lengthDirY(Rand(moveRange), Rand(360 * DegToUnrRot));
+	}
+	offSet.Z = 32.0;
+	temp = DELPawn( pawn ).getFloorLocation( temp + offSet );
+	if ( nTries >= 100 ){
+		goToState( 'Eat' );
+	}
 	return temp;
 }
 

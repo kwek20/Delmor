@@ -67,8 +67,8 @@ DefaultProperties
 {
 	criticalHitChance = 0
 	criticalDamageMultiplier = 1
-	damageMin = 2
-	damageMax = 7
+	damageMin = 5
+	damageMax = 10
 
 	animname1 = attack1
 	animname2 = attack2

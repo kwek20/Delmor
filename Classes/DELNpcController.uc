@@ -36,6 +36,11 @@ var float fleeSpeedupFactor;
  */
 var name prevState;
 
+/**
+ * The radius to wander in.
+ */
+var float wanderRadius;
+
 /*
  * ==============================================
  * States
@@ -50,22 +55,18 @@ event Possess( Pawn inPawn , bool bVehicleTransition ){
  * Called when the pawn took damage.
  */
 event pawnTookDamage( optional Actor DamageCauser ){
-	`log( "!!!!!!!!!!!!!!!!!!!!!!" );
-	`log( "Being hit" ); 
-	if ( DamageCauser != none && isInState( 'Idle' ) ){
-		if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
-			`log( "DELPlayer" );
-			`log( "Retaliate" );
-			attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
-			changeState( 'Attack' );
-		}
-		if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
-			`log( "DELMagicProjectile" );
-			`log( "Retaliate" );
-			//Attack target will be set to the player since he's to only one who can cast magic in-game.
-			attackTarget = findPlayer();
-			changeState( 'Attack' );
-		}
+	if ( !isInState( 'Idle' ) ) return;
+	if ( DamageCauser == none ) return;
+	return;
+
+	if ( DamageCauser.IsA( 'DELMeleeWeapon' ) ){
+		attackTarget = DELPawn( DELMeleeWeapon( DamageCauser ).Owner );
+		changeState( 'Attack' );
+	}
+	if ( DamageCauser.IsA( 'DELMagicProjectile' ) ){
+		//Attack target will be set to the player since he's to only one who can cast magic in-game.
+		attackTarget = findPlayer();
+		changeState( 'Attack' );
 	}
 }
 
@@ -77,7 +78,6 @@ auto state Idle{
 		if ( player == none ){
 			//Find the player
 			player = findPlayer();
-			`log( "findPlayer: player: "$player );
 		}
 	}
 }
@@ -113,7 +113,6 @@ state Attack{
 		 * We'll adjust the location so the pawn will not point upwards or downwards when the player jumps.
 		 */
 		local vector adjustedLocation;
-		//`log( self$" Target In Range" );
 		//Don't attack while moving, set the pawn still.
 		stopPawn();
 
@@ -201,11 +200,67 @@ function FleeFrom( DELPawn from ){
 }
 
 /**
+ * Wander randomly on the map.
+ */
+state wander extends Idle{
+	local vector targetLocation;
+	local float timeAtLocation;
+	local float maxTimeAtPoint;
+
+	function beginState( name previousStateName ){
+		targetLocation = getRandomLocation();
+		resetTimer();
+	}
+
+	event tick( float deltaTime ){
+		if ( distanceToPoint( targetLocation ) > 32.0 ){
+			self.moveTowardsPoint( targetLocation , deltaTime );
+		} else {
+			stopPawn();
+			timeAtLocation += deltaTime;
+
+			if ( timeAtLocation > maxTimeAtPoint ){
+				targetLocation = getRandomLocation();
+				resetTimer();
+			}
+		}
+	}
+
+	/**
+	 * Sets timeAtLocation to 0.0 and gets a new maxTimeAtPoint.
+	 */
+	private function resetTimer(){
+		timeAtLocation = 0.0;
+		maxTimeAtPoint = 1 + rand( 5 );
+	}
+
+	/**
+	 * Gets a random position within the pawn's wanderRadius.
+	 */
+	private function vector getRandomLocation(){
+		local vector randomLoc , offset;
+		local int nTries;
+
+		randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
+		randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
+		randomLoc.Z = pawn.Location.Z;
+
+		while( bLocationObstructed( randomLoc ) && nTries < 100 ){
+			nTries ++;
+			randomLoc.X = pawn.Location.X - wanderRadius + rand( wanderRadius * 2 );
+			randomLoc.Y = pawn.Location.Y - wanderRadius + rand( wanderRadius * 2 );
+		}
+		offSet.Z = 32.0;
+		randomLoc = DELPawn( pawn ).getFloorLocation( randomLoc + offSet );
+		return randomLoc;
+	}
+}
+
+/**
  * A state in which the pawn is not allowed to move on its own.
  */
 state NonMovingState{
 	local Rotator startingRotation;
-	local name previousState;
 
 	function beginState( name previousStateName ){
 		super.BeginState( previousStateName );
@@ -251,8 +306,6 @@ state NonMovingState{
 	 * Returns to the previous state.
 	 */
 	function returnToPreviousState(){
-		`log( "============================================" );
-		`log( self$" returnToPreviousState: "$prevState );
 		goToState( prevState );
 	}
 
@@ -289,8 +342,12 @@ state Attacking extends NonMovingState{
 		setTimer( DELPawn( pawn ).attackInterval , false , 'SwingFinished' );
 	}
 
+	event Tick( float deltaTime ){
+		self.clearDesiredDirection();
+		pawn.SetRotation( rotator( adjustLocation( attackTarget.location , pawn.Location.Z ) - pawn.Location ) );
+	}
+
 	function SwingFinished(){
-		`log( "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Swing Finished" );
 		returnToPreviousState();
 	}
 }
@@ -414,6 +471,7 @@ function rotator adjustRotation( rotator inRotation , float targetYaw ){
  * Checks whether a pawn to too close to this pawn.
  */
 function bool tooCloseToPawn( DELPawn p ){
+	if ( p == none ) return false;
 	if ( VSize( p.location - Pawn.Location ) < tooCloseDistance ){
 		return true;
 	}
@@ -439,7 +497,7 @@ function DELPlayer findPlayer(){
  * if the player variable is not null.
  */
 function changeState( name newState ){
-	if ( player != none ){
+	if ( player != none && !isInState( 'KnockedBack' ) ){
 		goToState( newState );
 	}
 }
@@ -464,6 +522,33 @@ function float lengthDirY( float len , float dir ){
 	Radians = UnrRotToRad * dir;
 
 	return len * -sin( Radians );
+}
+
+/**
+ * Returns true when a location is obstructed by a static-mesh or brush or is simply unreachable.
+ */
+function bool bLocationObstructed( Vector l ){
+	local Brush b;
+	local StaticMeshActor s;
+	local vector hitLocation , hitNormal;
+
+	foreach pawn.CollidingActors( class'Brush' , b , 128.0 , l ){
+		return true;
+	}
+	
+	foreach pawn.CollidingActors( class'StaticMeshActor' , s , 128.0 , l ){
+		return true;
+	}
+
+	if ( trace( hitLocation , hitNormal, l , pawn.Location , false ) != none ){
+		return true;
+	}
+
+	if ( !PointReachable( l ) ){
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -574,7 +659,6 @@ function clearDesiredDirection(){
  * Sets the controller's pawn still.
  */
 function stopPawn(){
-	//www`log( self$" Stop pawn" );
 	Pawn.Velocity.X = 0.0;
 	Pawn.Velocity.Y = 0.0;
 	//Pawn.Velocity.Z = 0.0;
@@ -635,4 +719,5 @@ DefaultProperties
 	fleeDistance = 512.0
 	tooCloseDistance = 256.0
 	fleeSpeedupFactor = 2.0
+	wanderRadius = 512.0
 }

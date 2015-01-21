@@ -33,7 +33,6 @@ auto state Idle{
 function alertNearbyHostiles( DELPawn p ){
 	local DELHostileController c;
 
-	`log( "alertNearbyHostiles" );
 	foreach WorldInfo.AllControllers( class'DELHostileController' , c ){
 		//If the pawn is whitin the alert-radius
 		if ( VSize( c.Pawn.Location - Pawn.Location ) < alertDistance
@@ -51,7 +50,6 @@ function alertNearbyHostiles( DELPawn p ){
 function engagePlayer( Pawn p ){
 	p = GetALocalPlayerController().Pawn;
 	if ( VSize( p.Location - Pawn.Location ) <= DELPawn( Pawn ).detectionRange ){ //The player has to be whitin the detection range.
-		`log( self$" See player: "$p );
 		attackTarget = DELPawn( p );
 
 		if ( targetIsAlive() ){

@@ -7,76 +7,76 @@ class DELInterfaceCompass extends DELInterfaceTexture implements(DELICompass)
 var(Movement) const vector Location;
 var(Movement) const rotator Rotation;
 
+var array<MaterialInstanceConstant> materials;
+
 /*COMPASS VARIABLES*/
 var DELMinimap GameMinimap;
-var MaterialInstanceConstant GameMiniMapMIC;
-
 var float TileSize;
 var int MapDim;
-var int BoxSize;
-var float ResolutionScale;
-var float MPosXMap;
-var float MPosYMap;
-var float xStart, yStart;
-var Vector2D MapPosition;
 
 function load(DELPlayerHud hud){
+	local float xSize, ySize, xStart, yStart, mapDim;
+	ySize = hud.SizeY * class'DELInterfaceHealthBars'.const.hudFactorScaleY;
+	xSize = hud.SizeX * class'DELInterfaceHealthBars'.const.hudFactorScaleX;
 
-	yStart = hud.SizeY/36;
-	xStart = hud.SizeY/36;
-	setPos(xStart,yStart,MapDim,MapDim, hud);
+	mapDim = ySize*1.2;
+	yStart = hud.SizeY/36 - (mapDim - ySize) / 2;
+	xStart = hud.SizeY/36 + (xSize / 4 - mapDim/2);
+	
+	setPos(xStart,yStart,mapDim,mapDim, hud);
 	GameMiniMap = DELGame(WorldInfo.Game).GameMinimap;
+
+	materials.AddItem(GameMinimap.Minimap);
+	materials.AddItem(GameMinimap.CompassOverlay);
+	materials.AddItem(GameMinimap.CompassGloss);
 }
 
 
 /**
  * Draws compass to hud
- * @PARAMS DELPlayerHud hud
+ * @param hud
  * */
 function draw(DELPlayerHud hud){
-	local int startX, startY;
 	local DELPawn pawn;
 	local float TrueNorth, PlayerHeading;
 	local float CompassRotation, MapRotation;
 	local LinearColor MapOffset;
 
-	pawn = hud.getPlayer().getPawn();
-	if (pawn == None || pawn.Health <= 0)return;
+	if ( GameMinimap != none ){
+		pawn = hud.getPlayer().getPawn();
+		if (pawn == None || pawn.Health <= 0)return;
 
-	super.draw(hud);
+		super.draw(hud);
 
-	startX = position.X+position.Z/8;
-	startY = position.Y+position.W/5-startX;
-
-	MapDim = MapDim * ResolutionScale;
-
-	//returns the direction the in-game placed minimap is pointing
-	TrueNorth = GameMinimap.getRadianHeading();
-	//returns the player heading in-game
-	Playerheading = getPlayerHeading();
+		//returns the direction the in-game placed minimap is pointing
+		TrueNorth = GameMinimap.getRadianHeading();
+		//returns the player heading in-game
+		Playerheading = getPlayerHeading();
 	
-	//Check wether the compass should rotate along with the player rotation, it shouldnt.
-	if(GameMinimap.bForwardAlwaysUp){
-		MapRotation = PlayerHeading;
-		CompassRotation = PlayerHeading - TrueNorth;
-	} else {
-		MapRotation = PlayerHeading - TrueNorth;
-		CompassRotation = MapRotation;
+		//Check wether the compass should rotate along with the player rotation, it shouldnt.
+		if(GameMinimap.bForwardAlwaysUp){
+			MapRotation = PlayerHeading;
+			CompassRotation = PlayerHeading - TrueNorth;
+		} else {
+			MapRotation = PlayerHeading - TrueNorth;
+			CompassRotation = MapRotation;
+		}
+
+		GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
+		GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
+		GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
+		GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
+
+		drawMaterialTiles(hud.Canvas, materials);
 	}
+}
 
-	GameMinimap.Minimap.SetScalarParameterValue('MapRotation',MapRotation);
-	GameMinimap.Minimap.SetScalarParameterValue('TileSize',TileSize);
-	GameMinimap.Minimap.SetVectorParameterValue('MapOffset',MapOffset);
-	GameMinimap.CompassOverlay.SetScalarParameterValue('CompassRotation',CompassRotation);
-
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawMaterialTile(GameMinimap.Minimap, MapDim, MapDim, 0.0,0.0,1.0,1.0);
-
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawMaterialTile(GameMinimap.CompassOverlay,MapDim,MapDim,0.0,0.0,1.0,1.0);
-	//Draw the overlay
-	hud.Canvas.SetPos(startX, startY);   
-	hud.Canvas.DrawMaterialTile(GameMinimap.CompassGloss,MapDim,MapDim,0.0,0.0,1.0,1.0);
+function drawMaterialTiles(Canvas c, array<MaterialInstanceConstant> materials){
+	local MaterialInstanceConstant mat;
+	foreach materials(mat){
+		c.SetPos(position.X, position.Y); 
+		c.DrawMaterialTile(mat,position.Z,position.W,0.0,0.0,1.0,1.0);
+	}
 }
 
 /**
@@ -176,7 +176,4 @@ DefaultProperties
 
 	MapDim=125
 	TileSize=0.4
-	BoxSize=12
-	MapPosition=(X=30.000000,Y=10.000000)
-	ResolutionScale=1.0
 }

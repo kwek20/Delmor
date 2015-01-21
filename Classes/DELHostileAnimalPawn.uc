@@ -1,4 +1,5 @@
-class DELHostilePawn extends DELNPCPawn abstract;
+class DELHostileAnimalPawn extends DELAnimalPawn abstract;
+
 
 var bool bCanBeStunned;
 
@@ -27,11 +28,7 @@ simulated event PostBeginPlay(){
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, 
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	if ( !isInState( 'Dead' ) ){
-		if ( !controller.IsInState( 'Blocking' ) ){
-			hitWhileNotBlocking(damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
-		} else {
-			hitWhileBlocking( hitLocation , damageType );
-		}
+		hitWhileNotBlocking(damage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 	}
 }
 
@@ -71,15 +68,6 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 	}
 	ProcessDamage(newDamage,InstigatedBy,HitLocation,Momentum,DamageType,HitInfo,DamageCauser);
 }
-/**
- * An event that will be called when the pawn is hit while blocking.
- */
-event hitWhileBlocking( vector HitLocation , class<DamageType> DamageType ){
-	if(DamageType == class'DELDmgTypeMelee'){
-		playBlockingSound();
-		spawnBlockEffect( hitLocation );
-	}
-}
 
 simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraPosition, vector CameraDir){
 	local Vector ScreenPos;
@@ -94,20 +82,6 @@ simulated event PostRenderFor(PlayerController PC, Canvas Canvas, vector CameraP
 		
 	Canvas.SetDrawColor(255, 0, 0); // Red
 	drawBar(Canvas, ScreenPos.X - barLength/2, ScreenPos.Y-barWidth, barLength, barWidth, self, healthBar, edge);
-}
-
-/**
- * Stub to play a blocking sound.
- */
-function playBlockingSound(){
-	PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_impact' );
-}
-
-/**
- * Ends the stun.
- */
-function endStun(){
-	controller.goToState( 'Attack' );
 }
 
 DefaultProperties

@@ -109,7 +109,7 @@ simulated event SetPosition(UDKPawn Holder){
  * traces the sword and damages any actors that touches the sword
  */
 simulated function TraceSwing(){
-	local Actor HitActor;
+	local DELHostilePawn HitActor;
 	local Vector HitLoc, HitNorm, SwordTip, SwordHilt, Momentum;
 	local int DamageAmount;
 
@@ -119,8 +119,8 @@ simulated function TraceSwing(){
 	DamageAmount = calculateDamage();
 
 
-	foreach TraceActors(class'Actor', HitActor, HitLoc, HitNorm, SwordTip, SwordHilt){
-		if (HitActor != self && AddToSwingHitActors(HitActor) && !hitActor.IsInState( 'Dead' ) ){
+	foreach TraceActors(class'DELHostilePawn', HitActor, HitLoc, HitNorm, SwordTip, SwordHilt){
+		if ( AddToSwingHitActors(HitActor) && !hitActor.IsInState( 'Dead' ) ){
 			HitActor.TakeDamage(DamageAmount, Instigator.Controller, HitLoc, Momentum, dmgType);
 			//PlaySound(SwordClank);
 		}
@@ -241,9 +241,9 @@ simulated function FireAmmunition(){
 		} else {
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname3, 1.0);
 		}
-		super.FireAmmunition();
 		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
 		//bSwinging = false;
+		super.FireAmmunition();
 	}
 }
 DefaultProperties
