@@ -31,8 +31,7 @@ function addObjective(DELQuest quest, String questObjective){
 	`log("Added objective: " $ questObjective $ " to quest: " $ quest.title);
 }
 
-function completeObjective(DELQuest quest, String questObjective)
-{
+function completeObjective(DELQuest quest, String questObjective) {
 	local int i;
 	for (i=0; i < quest.objectives.Length; i++){
 		if (quest.objectives[i].objective == questObjective){
