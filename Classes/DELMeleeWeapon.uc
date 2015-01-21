@@ -62,7 +62,7 @@ simulated state Swinging extends WeaponFiring {
 	}
 	simulated event EndState(Name NextStateName){
 		super.EndState(NextStateName);
-		SetTimer(1.0, false, nameof(ResetSwings));
+		SetTimer(0.5, false, nameof(ResetSwings));
 	}
 }
 
@@ -269,7 +269,7 @@ DefaultProperties
 	MaxSwings=3
 	Swings(0)=3
 
-	FireInterval(0)= 1.0
+	FireInterval(0)= 0.66
 
 	damageMin = 10
 	damageMax = 50
