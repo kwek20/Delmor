@@ -260,8 +260,7 @@ simulated function StartFire(byte FireModeNum){
 		else{
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
-		weapon.StartFire(FireModeNum);
-		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
+		sword.StartFire(FireModeNum);
 	}
 }
 
@@ -835,7 +834,6 @@ event Tick( float deltaTime ){
 
 
 function DelmorWorldTick(){
-	`log("event called");
 	TriggerGlobalEventClass(class'DELSeqEvent_Tick',self);
 }
 
