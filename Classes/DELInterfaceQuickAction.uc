@@ -33,7 +33,7 @@ function bool isActive(){
 
 function draw(DELPlayerHud hud){
 	//do we still have this item?
-	if (!hud.getPlayer().getPawn().UManager.hasItem(focusItem.class)){
+	if (focusItem == none || !hud.getPlayer().getPawn().UManager.hasItem(focusItem.class)){
 		//We dont, have we allready added the empty texture?
 		if (!added){
 			added = true;
