@@ -256,6 +256,8 @@ function bool isBeingKnockedBack(){
 			return true;
 		}
 	}
+
+	return false;
 }
 
 /**

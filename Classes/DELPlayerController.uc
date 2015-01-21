@@ -32,7 +32,7 @@ enum EMouseEvent {
 
 function BeginState(Name PreviousStateName){
 	super.BeginState(PreviousStateName);
-	self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
+	//self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 }
 
 auto state PlayerWalking {
@@ -48,7 +48,7 @@ state Playing extends PlayerWalking{
 		drawSubtitles = true;
 		checkHuds();
 		
-		self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
+		//self.showSubtitle("Old: " $ PreviousStateName $ " | New: " $ GetStateName());
 	}
 
 Begin:
@@ -328,6 +328,10 @@ function DELPlayerHud getHud(){
 
 function DELPawn getPawn(){
 	return DELPawn(self.Pawn);
+}
+
+function DELPlayerInput getInput(){
+	return DELPlayerInput(self.PlayerInput);
 }
 
 function bool isDead(){

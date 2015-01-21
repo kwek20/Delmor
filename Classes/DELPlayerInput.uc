@@ -97,7 +97,7 @@ simulated exec function moveBackward( float deltaTime ){
  * Goes to state movingForward
  */
 exec function startMovingForward(){
-	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
+	if (!getController().canWalk || getController().isDead() ) return;
 	goToState( 'movingForward' );
 	nKeysPressed ++;
 	bKeyPressed[ 0 ] = true;
@@ -107,7 +107,7 @@ exec function startMovingForward(){
  * Goes to state movingLeft
  */
 exec function startMovingLeft(){
-	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
+	if (!getController().canWalk || getController().isDead() ) return;
 	goToState( 'movingLeft' );
 	nKeysPressed ++;
 	bKeyPressed[ 2 ] = true;
@@ -117,7 +117,7 @@ exec function startMovingLeft(){
  * Goes to state movingLeft
  */
 exec function startMovingRight(){
-	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
+	if (!getController().canWalk || getController().isDead() ) return;
 	goToState( 'movingRight' );
 	nKeysPressed ++;
 	bKeyPressed[ 1 ] = true;
@@ -126,7 +126,7 @@ exec function startMovingRight(){
  * Goes to state movingBackward
  */
 exec function startMovingBackward(){
-	if (!getController().canWalk || pawn.IsInState( 'Dead' ) ) return;
+	if (!getController().canWalk || getController().isDead() ) return;
 	goToState( 'movingBackward' );
 	nKeysPressed ++;
 	bKeyPressed[ 3 ] = true;
