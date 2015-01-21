@@ -7,7 +7,7 @@ class DELInterfaceQuickAction extends DELInterfaceHotbarButton;
 /**
  * The item this interface is focussing on
  */
-var class<DELItem> focusItem;
+var DELItem focusItem;
 
 /**
  * The texture we add when this action is empty/out
@@ -33,7 +33,7 @@ function bool isActive(){
 
 function draw(DELPlayerHud hud){
 	//do we still have this item?
-	if (!hud.getPlayer().getPawn().UManager.hasItem(focusItem)){
+	if (!hud.getPlayer().getPawn().UManager.hasItem(focusItem.class)){
 		//We dont, have we allready added the empty texture?
 		if (!added){
 			added = true;
@@ -46,7 +46,7 @@ function draw(DELPlayerHud hud){
 	}
 	super.draw(hud);
 	//if this action is active, draw the amount we have
-	if (isActive())drawNumber(hud.Canvas, position.Z, position.W, string(hud.getPlayer().getPawn().UManager.getAmount(focusItem)));
+	if (isActive() && focusItem != none)drawNumber(hud.Canvas, position.Z, position.W, string(hud.getPlayer().getPawn().UManager.getAmount(focusItem.class)));
 }
 
 /**
@@ -56,9 +56,9 @@ function draw(DELPlayerHud hud){
  * @param hud
  * @param focusItem The item class we will be  focussing on
  */
-function setFocus(DELPlayerHud hud, class<DELItem> focusItem){
+function setFocus(DELPlayerHud hud, DELItem focusItem){
 	self.focusItem = focusItem;
-	setTexture(Spawn(focusItem).texture);
+	setTexture(focusItem.texture);
 }
 
 DefaultProperties

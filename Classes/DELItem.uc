@@ -9,6 +9,12 @@ var() SoundCue pickupSound, useSound;
 var() private int amount;
 var() bool playerBound;
 
+
+simulated function PostBeginPlay() {
+	super.PostBeginPlay();
+	`log("SPAWNED ITEM"@self);
+}
+
 function int getAmount(){
 	return amount;
 }

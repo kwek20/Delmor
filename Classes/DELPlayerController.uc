@@ -270,7 +270,6 @@ public function showSubtitle(string text){
  ###############*/
 
 simulated function PostBeginPlay() {
-
 	super.PostBeginPlay();
 }
 

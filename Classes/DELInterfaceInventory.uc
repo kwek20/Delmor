@@ -40,8 +40,8 @@ function draw(DELPlayerHud hud){
 }
 
 /**
- * Remvoe an object.<br/>
- * This menas clear all textures, set text to empty and remove the run function
+ * Remove an object.<br/>
+ * This means clear all textures, set text to empty and remove the run function
  * @param item the item to remove
  */
 function removeActiveItem(DELInterfaceItemSlot item){

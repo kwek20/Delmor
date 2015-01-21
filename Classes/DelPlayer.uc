@@ -270,8 +270,6 @@ function bool isBeingKnockedBack(){
  */
 simulated function StartFire(byte FireModeNum){
 	local DELHostilePawn nearest;
-	`log("start fire");
-	`log(sword);
 
 	if ( isBeingKnockedBack() ) return;
 
@@ -296,7 +294,6 @@ simulated function StartFire(byte FireModeNum){
 		else{
 			DELPlayerInput( DELPlayerController( controller ).getHud().PlayerOwner.PlayerInput ).targetYaw = controller.Rotation.Yaw;
 		}
-		`log("sword slash");
 		weapon.StartFire(FireModeNum);
 	}
 }

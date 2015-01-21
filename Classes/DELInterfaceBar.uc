@@ -22,6 +22,7 @@ function load(DELPlayerHud hud){
 	local DELInterfaceButton button;
 	local int i, length, startX, startY;
 	local array<Texture2D> images;
+	local array<DELItem> displayItems;
 
 	length = 5*squareSize + 6*inbetween;
 	startX = hud.sizeX/2 - length/2;
@@ -29,6 +30,8 @@ function load(DELPlayerHud hud){
 
 	setPos(startX, startY, length, squareSize+2*inbetween, hud);
 	images = getIcons(hud);
+
+	displayItems = getQuickActionItems(hud.getPlayer().getPawn().UManager);
 
 	for (i=1; i<=amountBars; i++){
 		//load magic spells, then quick action items
@@ -46,8 +49,8 @@ function load(DELPlayerHud hud){
 		if (images.Length>=i){
 			button.setTexture(images[i-1]);
 			button.setRun(useMagic);
-		} else if (hotbarItems.Length >=i-images.Length){
-			DELInterfaceQuickAction(button).setFocus(hud, hotbarItems[i-images.Length-1]);
+		} else if (displayItems.Length >=i-images.Length){
+			DELInterfaceQuickAction(button).setFocus(hud, displayItems[i-images.Length-1]);
 			button.setRun(usePotion);
 		}
 
@@ -61,6 +64,22 @@ function load(DELPlayerHud hud){
 	super.load(hud);
 }
 
+function array<DELItem> getQuickActionItems(DELInventoryManager inv, optional int amount=2){
+	local array<DELItem> displayItems;
+	local DELItem tempItem;
+	local int i;
+
+	foreach inv.UItems(tempItem){
+		if (i>=amount) break;
+		if (tempItem.IsA('DELItemInteractible')){
+			displayItems.AddItem(tempItem);
+			i++;
+		}
+	}
+
+	return displayItems;
+}
+
 /**
  * gets the icons from the items themselves
  * !has magic number in the place for potions
@@ -68,6 +87,7 @@ function load(DELPlayerHud hud){
  * @author harmen wiersma
  */
 function array<Texture2D> getIcons(DELPlayerHud hud){
+	local array<Texture2D> textures;
 	return DELPlayer(hud.getPlayer().getPawn()).grimoire != none ? DELPlayer(hud.getPlayer().getPawn()).grimoire.getIcons() : textures;
 }
 
@@ -92,7 +112,7 @@ function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject
 function usePotion(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
 	if (!button.isA('DELInterfaceQuickAction') || !DELInterfaceQuickAction(button).isActive()) return;
-	item = hud.getPlayer().getPawn().UManager.getFirst(DELInterfaceQuickAction(button).focusItem);
+	item = hud.getPlayer().getPawn().UManager.getFirst(DELInterfaceQuickAction(button).focusItem.class);
 	if (!item.isA('DELItemInteractible')) return;
 	DELItemInteractible(item).use(hud);
 }
@@ -107,6 +127,4 @@ DefaultProperties
 	glass=Texture2D'DelmorHud.Glass'
 	shadow=Texture2D'DelmorHud.Shadow_belowglass'
 	vlek=Texture2D'DelmorHud.vlekje2'
-
-	hotbarItems=(class'DELItemPotionHealth', class'DELItemPotionMana')
 }
