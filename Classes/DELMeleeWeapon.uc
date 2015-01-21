@@ -32,13 +32,14 @@ var const int maxSwings;
 var bool bSwinging;
 
 
-/*
-simulated function StartFire(byte FireModeNum){
-	if(bSwinging) return;
-
-	bSwinging = true;
+function StartFire(byte FireModeNum){
+	`log("starrt fireeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+	if(bSwinging == true) {
+		`log("return start fire");
+		return;
+	}
 	super.StartFire(FireModeNum);
-}*/
+}
 
 
 /**
@@ -47,6 +48,7 @@ simulated function StartFire(byte FireModeNum){
 simulated state Swinging extends WeaponFiring {
 	simulated event beginState(name PreviousStateName){
 		super.BeginState(previousStateName);
+		
 	}
 
 	simulated event Tick(float DeltaTime){
@@ -56,7 +58,6 @@ simulated state Swinging extends WeaponFiring {
 	}
 	simulated event EndState(Name NextStateName){
 		super.EndState(NextStateName);
-		//bSwinging =false;
 		SetTimer(1.0, false, nameof(ResetSwings));
 	}
 }
@@ -231,8 +232,8 @@ simulated function bool HasAmmo(byte FireModeNum, optional int Ammount){
 simulated function FireAmmunition(){
 	StopFire(CurrentFireMode);
 	SwingHitActors.Remove(0, SwingHitActors.Length);
-
 	if (HasAmmo(CurrentFireMode)){
+		//bSwinging = true;
 		if (MaxSwings - Swings[0] == 0) {
 			DELPawn(Owner).SwingAnim.PlayCustomAnim(animname1, 1.f);
 		} else if (MaxSwings - Swings[0] == 1){
@@ -242,6 +243,7 @@ simulated function FireAmmunition(){
 		}
 		super.FireAmmunition();
 		PlaySound( SoundCue'Delmor_sound.Weapon.sndc_sword_swing' );
+		//bSwinging = false;
 	}
 }
 DefaultProperties
@@ -261,13 +263,13 @@ DefaultProperties
 
 	FireInterval(0)= 1.0
 
-	damageMin = 1
-	damageMax = 1
+	damageMin = 10
+	damageMax = 50
 
 	bMeleeWeapon=true
 	bInstantHit=true
 	bCanThrow=false
-	bSwinging = false
+	//bSwinging = false
 
 	FiringStatesArray(0)="Swinging"
 

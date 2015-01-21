@@ -6,28 +6,6 @@ class DELMeleeWeaponTheButcher extends DELMeleeWeapon;
 
 DefaultProperties
 {
-	bHardAttach = true
-	swordHiltSocketName = SwordHiltSocket
-	swordTipSocketName = SwordTipSocket
-	handSocketName = WeaponPoint
-
-	dmgType = class'DELDmgTypeMelee'
-
-	MaxSwings=3
-	Swings(0)=3
-
-	FireInterval(0)=0.25
-
-	damageMin = 10;
-	damageMax = 50;
-
-	bMeleeWeapon=true;
-	bInstantHit=true;
-	bCanThrow=false;
-
-	FiringStatesArray(0)="Swinging"
-	WeaponFireTypes(0)=EWFT_Custom
-
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'delmor_character.Meshes.sk_lucian_sword2'
         FOV=60
