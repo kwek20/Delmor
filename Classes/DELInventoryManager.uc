@@ -43,10 +43,12 @@ function bool CheckInventorySize(class<DELItem> ItemToCheck, int AmountWantingTo
  */
 function StartingInventory(){
 	AddInventory(class'DELItemPotionHealth', 5);
-	AddInventory(class'DELItemPotionMana', 25);
-	AddInventory(class'DELItemFriedChicken', 1);
+	AddInventory(class'DELItemPotionMana', 15);
 }
 
+function clear(){
+	UItems.Length = 0;
+}
 
 //Add items to the current inventory
 function AddInventory(class<DELItem> ItemType, int amount ){

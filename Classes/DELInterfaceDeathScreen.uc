@@ -69,13 +69,27 @@ function exit(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject obj
 }
 
 function start(DELPlayerController c){
-	c.Worldinfo.Game.RestartPlayer(c.getALocalPlayerController());
+	c.Worldinfo.Game.RestartPlayer(c);
+	c.getPawn().gotoState('Playing');
+
 	c.swapState('Playing');
+	c.getPawn().setLocation(getRespawn().Location);
+
+	c.getPawn().Mana = c.getPawn().manaMax;
+	c.getPawn().Health = c.getPawn().HealthMax;
+
+	c.getPawn().UManager.clear();
+	c.getPawn().UManager.StartingInventory();
+
 	c.SetPause(false);
 }
 
 function DELRespawnPathNode getRespawn(){
-	
+	local DELRespawnPathNode n;
+	foreach WorldInfo.AllActors( class'DELRespawnPathNode' , n ){
+		return n;
+	}
+	return none;
 }
 
 function draw(DELPlayerHud hud){
