@@ -6,5 +6,5 @@ class DELNPCPawn extends DELPawn;
 
 DefaultProperties
 {
-	keepInRam = true
+	bKeepInRam = true
 }

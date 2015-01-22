@@ -34,19 +34,19 @@ function startSpawn() {
 
 	for(i = 0; i < numberOfEasyMonster; i++) {
 		if(checkMonsterToSpawn(class'DELEasyMonsterPawn', numberOfEasyMonster)) {
-			newLocation = getRandomLocation();
+			newLocation = super.getRandomLocation();
 			spawnPawn(class'DELEasyMonsterPawn', newLocation);
 		}
 	}
 	for(i = 0; i < numberOfMediumMonster; i++) {
 		if(checkMonsterToSpawn(class'DELMediumMonsterPawn', numberOfMediumMonster)) {
-			newLocation = getRandomLocation();
+			newLocation = super.getRandomLocation();
 			spawnPawn(class'DELMediumMonsterPawn', newLocation);
 		}
 	}
 	for(i = 0; i < numberOfHardMonster; i++) {
 		if(checkMonsterToSpawn(class'DELHardMonsterSmallPawn', numberOfHardMonster)) {
-			newLocation = getRandomLocation();
+			newLocation = super.getRandomLocation();
 			spawnPawn(class'DELHardMonsterSmallPawn', newLocation); 
 		}
 	}
