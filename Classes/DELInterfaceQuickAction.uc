@@ -33,7 +33,7 @@ function bool isActive(){
 
 function draw(DELPlayerHud hud){
 	//do we still have this item?
-	if (focusItem == none || !hud.getPlayer().getPawn().UManager.hasItem(focusItem.class)){
+	if (focusItem == none || !hud.getPlayer().getPawn().UManager.itemExists(focusItem.class)){
 		//We dont, have we allready added the empty texture?
 		if (!added){
 			added = true;
@@ -46,7 +46,7 @@ function draw(DELPlayerHud hud){
 	}
 	super.draw(hud);
 	//if this action is active, draw the amount we have
-	if (isActive() && focusItem != none)drawNumber(hud.Canvas, position.Z, position.W, string(hud.getPlayer().getPawn().UManager.getAmount(focusItem.class)));
+	if (isActive() && focusItem != none)drawNumber(hud.Canvas, position.Z, position.W, string(hud.getPlayer().getPawn().UManager.getTotalAmount(focusItem.class)));
 }
 
 /**

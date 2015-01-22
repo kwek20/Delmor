@@ -4,10 +4,10 @@ DefaultProperties
 {
 	FireInterval(0)=0.25
 
-	criticalHitChance = 15
-	criticalDamageMultiplier = 1.5
-	damageMin = 5;
-	damageMax = 15;
+	criticalHitChance = 50
+	criticalDamageMultiplier = 2
+	damageMin = 20;
+	damageMax = 40;
 
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
         SkeletalMesh=SkeletalMesh'Delmor_Weapons.Meshes.sk_dagger'

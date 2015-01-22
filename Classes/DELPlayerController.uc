@@ -381,7 +381,7 @@ public function int getSeconds(){
 	return sec;
 }
 
-exec function AddItem(string item, int amount){
+/*exec function AddItem(string item, int amount){
 	AddToInventory(item, amount);
 }
 
@@ -401,15 +401,15 @@ function AddToInventory(string item, int amount) {
 			break;
 			}
 	
-}
+}*/
 
-function addHerb(int amount) {
+/*function addHerb(int amount) {
 	getPawn().UManager.AddInventory(class'DELItemHerb', amount);
 }
 
 function addOre(int amount) {
 	getPawn().UManager.AddInventory(class'DELItemOre', amount);
-}
+}*/
 
 exec function SaveGame(string FileName){
     local DELSaveGameState GameSave;

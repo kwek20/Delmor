@@ -5,8 +5,6 @@
  */
 class DELPlayer extends DELCharacterPawn implements(DELSaveGameStateInterface);
 
-var array< class<Inventory> > DefaultInventory;
-var DELMeleeWeapon sword;
 var DELMagic magic;
 var bool isMagician;
 
@@ -112,7 +110,7 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
 	playSound( hitSound );
-	if ( rand( 3 ) == 1 ){
+	if ( rand( 3 ) == 1 && !sword.isInState( 'Swinging' ) ){
 		playGetHitAnimation();
 	}
 
@@ -127,23 +125,23 @@ class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor Dama
 }
 
 function playGetHitAnimation(){
-	local name animName;
+	local name aniName;
 
 	switch( rand( 3 ) ){
 	case 1:
-		animName = 'Lucian_hit1';
+		aniName = 'Lucian_hit1';
 		break;
 	case 2:
-		animName = 'Lucian_hit2';
+		aniName = 'Lucian_hit2';
 		break;
 	case 3:
-		animName = 'Lucian_hit3';
+		aniName = 'Lucian_hit3';
 		break;
 	default:
-		animName = 'Lucian_hit1';
+		aniName = 'Lucian_hit1';
 		break;
 	}
-	SwingAnim.PlayCustomAnim(animName, 1.0 , 0.0 , 0.0 , false , true );
+	SwingAnim.PlayCustomAnim(aniName, 1.0 , 0.0 , 0.0 , false , true );
 }
 
 /**
@@ -166,9 +164,28 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp){
  * adds the certain items to the default inventory
  */
 function AddDefaultInventory(){
-	sword = Spawn(swordClass,,,self.Location);
+	//sword = Spawn(swordClass,,,self.Location);
+	//sword.GiveTo(Controller.Pawn);
+	//Controller.ClientSwitchToBestWeapon();
+
+	swapWeapon( swordClass );
+}
+
+function swapWeapon( class<DELMeleeWeapon> weaponClass ){
+
+	`log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+	`log( "SWAP WEAPON" );
+	if ( sword != none ){
+		InvManager.RemoveFromInventory( sword );
+		sword.DetachWeapon();
+		sword.SetHidden( true );
+		sword.destroy();
+		`log( "Sword: "$sword );
+	}
+	sword.destroy();
+	sword = Spawn(weaponClass,,,self.Location);
 	sword.GiveTo(Controller.Pawn);
-	Controller.ClientSwitchToBestWeapon();
+	Controller.ClientSwitchToBestWeapon( true );
 }
 
 /**
@@ -204,6 +221,9 @@ simulated event PostBeginPlay(){
 			`log("Warning! Couldn't spawn InventoryManager" @ UInventory @ "for" @ Self @  GetHumanReadableName() );
 		}
 	}
+	//Get Starting items
+	UManager.StartingInventory();
+
 	AddDefaultInventory();
 	QManager = Spawn(class'DELQuestManager',,,);
 
@@ -417,7 +437,7 @@ function PickUpItems(){
 	local DELItem i;
 
 	foreach WorldInfo.AllActors( class'DELItem' , i ){
-		if ( VSize( location - self.adjustLocation( i.location , location.z ) ) < pickupRange && !i.bIsFlying ){
+		if ( VSize( location - self.adjustLocation( i.location , location.z ) ) < pickupRange && i.bCanPickup ){
 			i.pickup( self );
 			self.playPickupAnimation();
 		}

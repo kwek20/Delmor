@@ -92,11 +92,19 @@ function breakBlock(){
 	knockBack( 50.0 , location - DELHostileController( controller ).player.location , true );
 }
 
+function setUpDropList(){
+	super.setUpDropList();
+	//dropableItems.AddItem( createDroppableItemParams( class'DELItemWeaponDagger' , 5 , 1 , 1 ) );
+}
+
 defaultproperties
 {	
 	swordClass = class'DELMeleeWeaponFists'
 	//swordClass = class'DELMeleeWeaponBattleAxe'
 	//swordClass = class'DELMeleeWeaponDagger'
+
+	//dropableItems = (dropItemStruct = (toDrop = class 'DELItemPotionHealth' , dropChance = 75  , minDrops = 1 , maxDrops = 10 ),
+	//dropItemStruct = (toDrop = class 'DELItemPotionMana' , dropChance = 75  , minDrops = 1 , maxDrops = 10 ))
 	
 	//Collision cylinder
 	Begin Object Name=CollisionCylinder

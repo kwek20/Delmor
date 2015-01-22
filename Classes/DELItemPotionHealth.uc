@@ -1,4 +1,4 @@
-class DELItemPotionHealth extends DELItemInteractible placeable;
+class DELItemPotionHealth extends DELItemPotion placeable;
 
 var int healingAmount;
 var StaticMeshComponent healthPotion;

@@ -252,6 +252,7 @@ simulated function FireAmmunition(){
 		super.FireAmmunition();
 	}
 }
+
 DefaultProperties
 {
 	animname1 = Lucian_slash1

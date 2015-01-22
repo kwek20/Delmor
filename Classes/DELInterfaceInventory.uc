@@ -67,7 +67,7 @@ function load(DELPlayerHud hud){
 	startY = hud.sizeY/2 - ((AmountY*length)+((AmountY + 1)*inbetween))/2;
 
 	//snag all items
-	items = hud.getPlayer().getPawn().UManager.UItems;
+	items = hud.getPlayer().getPawn().UManager.getItemList();
 
 	//for every itemslot we can have
 	for(i = 0; i < (amountX*amountY); i++){

@@ -106,6 +106,15 @@ function hitFloor(){
 	spawnShockwaveEffect( getFloorLocation( getASocketsLocation( 'FlashSocket' ) ) );
 }
 
+/**
+ * Sets up a list of items to drop.
+ */
+function setUpDropList(){
+	dropableItems.AddItem( createDroppableItemParams( class'DELItemPotionHealth' , 100 , 4 , 5 ) );
+	dropableItems.AddItem( createDroppableItemParams( class'DELItemPotionMana' , 100 , 3 , 5 ) );
+	//dropableItems.AddItem( createDroppableItemParams( class'DELItemWeaponTheButcher' , 10 , 1 , 1 ) );
+}
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELHardMonsterLargeController'

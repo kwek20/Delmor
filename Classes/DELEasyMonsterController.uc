@@ -330,7 +330,6 @@ state Attack{
 		if ( distanceToPoint( attackTarget.location ) < 512.0 ){
 			obstructing = isInTheWay();
 			if ( obstructing != none ){
-				`log( "Move away" );
 				moveInDirection( pawn.Location - obstructing.location , deltaTime );
 			}
 		}

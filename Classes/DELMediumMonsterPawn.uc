@@ -118,6 +118,14 @@ function stopBlocking(){
 	setTimer( 2.0 , false , 'resetCanBlock' );
 }
 
+/**
+ * Sets up a list of items to drop.
+ */
+function setUpDropList(){
+	dropableItems.AddItem( createDroppableItemParams( class'DELItemPotionHealth' , 75 , 1 , 3 ) );
+	dropableItems.AddItem( createDroppableItemParams( class'DELItemPotionMana' , 60 , 1 , 2 ) );
+}
+
 defaultproperties
 {
 	ControllerClass=class'Delmor.DELMediumMonsterController'

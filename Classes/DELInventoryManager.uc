@@ -16,6 +16,14 @@ var DELPlayerHUD HUD;
 simulated event PostBeginPlay(){
 	super.PostBeginPlay();
 	StartingInventory();
+
+	`log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+	`log( "#######################################" );
+	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
+	`log( self$" HAS BEEN SPAWNED" );
+	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
+	`log( "#######################################" );
+	`log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 }
 
 /**
@@ -42,20 +50,27 @@ function bool CheckInventorySize(class<DELItem> ItemToCheck, int AmountWantingTo
  * with low low health.)
  */
 function StartingInventory(){
-	AddInventory(class'DELItemPotionHealth', 5);
-	AddInventory(class'DELItemPotionMana', 15);
+	//AddInventory(class'DELItemPotionHealth', 5);
+	//AddInventory(class'DELItemPotionMana', 15);
 }
 
 function clear(){
+	`log( "#######################################" );
+	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
+	`log( "CLEAR INVENTORY" );
+	`log( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" );
+	`log( "#######################################" );
 	UItems.Length = 0;
 }
 
-//Add items to the current inventory
+/**
+ * Add items to the current inventory
+ */
 function AddInventory(class<DELItem> ItemType, int amount ){
 	local DELItem AddItem, item;
 	local int toRemove;
 	
-	if (ItemType == None || amount < 1) return;
+	if (ItemType == None || amount < 1 ) return;
 	foreach UItems(item){
 		if (item.class == ItemType){
 			toRemove = item.getAmount() + amount > item.maxSize ? item.maxSize - item.getAmount() : amount;
@@ -108,7 +123,9 @@ function int getAmount(class<DELItem> item){
 	return amount;
 }
 
-//Remove items from the current inventory either when used or dropped.
+/**
+ * Remove items from the current inventory either when used or dropped.
+ */
 function RemoveInventory(class<DELItem> ItemToRemove, int Amount){
 	local int i;
     local DELItem Item;
@@ -121,6 +138,13 @@ function RemoveInventory(class<DELItem> ItemToRemove, int Amount){
             break;
         }
     }
+}
+
+/**
+ * Returns a list of all items.
+ */
+function array<DELItem> getItemList(){
+	return UItems;
 }
 
 defaultproperties

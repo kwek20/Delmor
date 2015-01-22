@@ -44,5 +44,5 @@ DefaultProperties
     Mesh=MeleeWeapon
     Components.Add(MeleeWeapon)
 
-	criticalHitChance = 20
+	criticalHitChance = 15
 }

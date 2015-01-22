@@ -22,7 +22,7 @@ var DELPawn UHP;
 
 event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vector HitNormal)
 {
-    super.Touch(Other, OtherComp, HitLocation, HitNormal);
+    /*super.Touch(Other, OtherComp, HitLocation, HitNormal);
 
     UHP = DELPawn(Other);
 
@@ -37,7 +37,7 @@ event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vecto
          //UHP.UManager. NotifyHUDMessage(PickUpMessage, ItemAmount_ADD, ItemName);
 
        }
-    }
+    }*/
 }
 
 
@@ -45,14 +45,14 @@ event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vecto
 //If you still have space add it to the inventory
  function GiveTo( DELPawn Other )
 {
-	if ( Other != None && Other.UManager != None )
+	/*if ( Other != None && Other.UManager != None )
 	{
 		Other.UManager.AddInventory(ItemType, ItemAmount_ADD );
 		Destroy();
 
 		
 	}
-
+	*/
 }
 
 defaultproperties

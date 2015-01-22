@@ -7,7 +7,7 @@ class DELMeleeWeaponTheButcher extends DELMeleeWeapon;
 DefaultProperties
 {
 	Begin Object class=SkeletalMeshComponent Name=MeleeWeapon
-        SkeletalMesh=SkeletalMesh'delmor_character.Meshes.sk_lucian_sword2'
+        SkeletalMesh=SkeletalMesh'Delmor_Weapons.Meshes.sk_the_butcher'
         FOV=60
 		HiddenGame=FALSE
         HiddenEditor=FALSE
@@ -34,7 +34,7 @@ DefaultProperties
 		MinDistFactorForKinematicUpdate=0.2f
 		bChartDistanceFactor=true
 		RBDominanceGroup=20
-		Scale=1.f
+		Scale=3.f
 		bAllowAmbientOcclusion=false
 		bUseOnePassLightingOnTranslucency=true
 		bPerBoneMotionBlur=true
@@ -42,4 +42,8 @@ DefaultProperties
     Mesh=MeleeWeapon
 	
     Components.Add(MeleeWeapon)
+
+	damageMin = 15
+	damageMax = 55
+	criticalHitChance = 20
 }

@@ -64,14 +64,16 @@ function load(DELPlayerHud hud){
 	super.load(hud);
 }
 
-function array<DELItem> getQuickActionItems(DELInventoryManager inv, optional int amount=2){
-	local array<DELItem> displayItems;
+function array<DELItem> getQuickActionItems(DELInventory inv, optional int amount=2){
+	local array<DELItem> displayItems , itemList;
 	local DELItem tempItem;
 	local int i;
 
-	foreach inv.UItems(tempItem){
+	itemList = inv.getItemList();
+
+	foreach itemList(tempItem){
 		if (i>=amount) break;
-		if (tempItem.IsA('DELItemInteractible')){
+		if (tempItem.IsA('DELItemPotion')){
 			displayItems.AddItem(tempItem);
 			i++;
 		}
@@ -112,7 +114,7 @@ function useMagic(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject
 function usePotion(DELPlayerHud hud, DELInputMouseStats stats, DELInterfaceObject button){
 	local DELItem item;
 	if (!button.isA('DELInterfaceQuickAction') || !DELInterfaceQuickAction(button).isActive()) return;
-	item = hud.getPlayer().getPawn().UManager.getFirst(DELInterfaceQuickAction(button).focusItem.class);
+	item = hud.getPlayer().getPawn().UManager.getItem(DELInterfaceQuickAction(button).focusItem.class);
 	if (!item.isA('DELItemInteractible')) return;
 	DELItemInteractible(item).use(hud);
 }

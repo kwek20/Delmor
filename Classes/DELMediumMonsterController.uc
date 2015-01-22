@@ -366,7 +366,7 @@ state Charge{
 	 * Returns true when there is no geometry in the way.
 	 */
 	function bool nothingInTheWay( vector traceEnd ){
-		local vector hitLocation , hitNormal , emptyVector;
+		local vector hitLocation , hitNormal;
 
 		if ( trace( hitLocation , hitNormal , traceEnd, pawn.Location , false ) == none ){
 			return false;

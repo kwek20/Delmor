@@ -97,8 +97,8 @@ function drawName(DELPlayerHud hud){
  * Get the item this itemslot is associated with
  */
 function DELItem getItem(DELPlayerHud hud){
-	if (hud.getPlayer().getPawn().UManager.UItems.Length < identifierKey) return none;
-	return hud.getPlayer().getPawn().UManager.UItems[identifierKey-1];
+	if (hud.getPlayer().getPawn().UManager.getItemList().Length < identifierKey) return none;
+	return hud.getPlayer().getPawn().UManager.getItemList()[identifierKey-1];
 }
 
 DefaultProperties

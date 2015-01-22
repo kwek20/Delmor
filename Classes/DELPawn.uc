@@ -124,9 +124,9 @@ var DELSoundSet mySoundSet;
  */
 var SoundCue hitSound;
 
-var class<DELInventoryManager> UInventory;
+var class<DELInventory> UInventory;
 
-var repnotify DELInventoryManager UManager;
+var repnotify DELInventory UManager;
 
 var class<DELQuestManager> QuestManager;
 
@@ -194,7 +194,26 @@ var int hitTime;
  */
 var float barLength, barWidth;
 
-var array < class<DELItem> > dropableItems;
+struct dropItemStruct{
+	/**
+	 * Class to drop.
+	 */
+	var class<DELItem> toDrop;
+	/**
+	 * Chance in percentages to drop this item.
+	 */
+	var float dropChance;
+	/**
+	 * Minimum number of items dropped if dropped.
+	 */
+	var int minDrops;
+	/**
+	 * Maximum number of items dropped if dropped.
+	 */
+	var int maxDrops;
+};
+
+var array < dropItemStruct > dropableItems;
 
 /**
  * In this event, the pawn will get his movement physics, camera offset and controller.
@@ -205,7 +224,9 @@ simulated event PostBeginPlay(){
 	spawnDefaultController();
 	SetMovementPhysics();
 
-	SetTimer( 1.0 , true , nameOf( regenerate ) ); 
+	SetTimer( 1.0 , true , nameOf( regenerate ) );
+
+	setUpDropList();
 }
 
 /**
@@ -653,10 +674,49 @@ function interrupt( optional bool bDontInterruptState ){
 	}
 }
 
+/**
+ * Sifts through the itemsToDropLists to drop items.
+ */
 function dropItem(){
 		local class<DELItem> item;
-		item = calculateDrop();
-		Spawn(item, , , getFloorLocation( self.getASocketsLocation( 'FlashSocket' ) ) , , , false);
+		local dropItemStruct d;
+		local int nDrops, i;
+		//item = calculateDrop();
+
+		`log( "=============================" );
+		`log( "Drops items" );
+		`log( "dropableItems.length: "$dropableItems.Length );
+
+		foreach dropableItems( d ){
+			`log( "d: "$d.toDrop );
+			if ( rand( 100 ) <= d.dropChance ){
+				nDrops = clamp( rand( d.maxDrops ) , min( d.minDrops , d.maxDrops ) , max( d.maxDrops , d.minDrops ) );
+				for( i = 0; i < nDrops; i ++ ){
+					Spawn(d.toDrop, , , getFloorLocation( self.getASocketsLocation( 'FlashSocket' ) ) , , , false);
+				}
+			}
+		}
+
+		`log( "=============================" );
+}
+
+/**
+ * Sets up a list of items to drop.
+ */
+function setUpDropList(){
+	dropableItems.AddItem( createDroppableItemParams( class'DELItemPotionHealth' , 50 , 1 , 1 ) );
+	dropableItems.AddItem( createDroppableItemParams( class'DELItemPotionMana' , 25 , 1 , 1 ) );
+}
+
+function dropItemStruct createDroppableItemParams( class<DELItem> className , int chance , int minValue , int maxValue ){
+	local dropItemStruct dis;
+
+	dis.toDrop = className;
+	dis.dropChance = chance;
+	dis.minDrops = minValue;
+	dis.maxDrops = maxValue;
+
+	return dis;
 }
 
 /**
@@ -887,13 +947,13 @@ function resetAttackCombo(){
 	attackNumber = 0;
 }
 
-function class<DELItem> calculateDrop(){
+/*function class<DELItem> calculateDrop(){
 	if (dropableItems.Length > 0){
 		return dropableItems[Rand(dropableItems.Length)];
 	} else {
 		return none;
 	}
-}
+}*/
 
 /*
  * ========================================
@@ -1063,8 +1123,9 @@ function rotator adjustRotation( rotator inRotation , float targetYaw ){
 DefaultProperties
 {
 	bCanPickUpInventory = true
-	UInventory = DELInventoryManager
-	dropableItems = (class'DELItemPotionHealth', class 'DELItemPotionMana')
+	UInventory = DELInventory
+	//dropableItems = (dropItemStruct = (toDrop = class 'DELItemPotionHealth' , dropChance = 50  , minDrops = 1 , maxDrops = 1 ),
+	//dropItemStruct = (toDrop = class 'DELItemPotionMana' , dropChance = 25  , minDrops = 1 , maxDrops = 1 ))
 
 	MaxFootstepDistSq=9000000.0
 	health = 100

@@ -1,4 +1,4 @@
-class DELItemPotionMana extends DELItemInteractible placeable;
+class DELItemPotionMana extends DELItemPotion placeable;
 
 var int manaAmount;
 

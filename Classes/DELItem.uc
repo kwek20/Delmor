@@ -8,6 +8,8 @@ var() Texture2D texture, hoverTexture;
 var() SoundCue pickupSound, useSound;
 var() private int amount;
 var() bool playerBound;
+var bool bCanPickup;
+var bool bIsInInventory;
 /**
  * The awesome Glow effect.
  */
@@ -20,6 +22,7 @@ var float gravity;
 
 
 simulated function PostBeginPlay() {
+	local rotator rRate;
 	super.PostBeginPlay();
 	`log("SPAWNED ITEM"@self);
 
@@ -27,6 +30,9 @@ simulated function PostBeginPlay() {
 	velocity.X = -200.0 + rand( 200.0 );
 	velocity.Y = -200.0 + rand( 200.0 );
 	velocity.Z = 300.0;
+
+	rRate.Yaw = 2500;
+	self.RotationRate = rRate;
 }
 
 function int getAmount(){
@@ -51,7 +57,12 @@ function bool isBound(){
 }
 
 event tick( float deltaTime ){
-	processGravity( deltaTime );
+	if ( bIsInInventory ){
+		SetHidden( true );
+	} else {
+		SetHidden( false );
+		processGravity( deltaTime );
+	}
 }
 
 /**
@@ -73,6 +84,7 @@ function processGravity( float deltaTime ){
 }
 
 event pseudLanded(){
+	bCanPickup = true;
 	bIsFlying = false;
 	Glow.SetActive( true );
 }
@@ -106,7 +118,8 @@ function vector getFloorLocation( vector l ){
  */
 function pickUp( DELPawn picker ){
 	`log( "Picked up: "$self );
-	picker.UManager.AddInventory( self.Class , getAmount() );
+	//picker.UManager.AddInventory( self.Class , getAmount() );
+	picker.UManager.addItemToInventory( class , getAmount() );
 	spawnPickupEffect();
 	destroy();
 }
