@@ -1047,4 +1047,6 @@ DefaultProperties
 	bHasSplittedKnockbackAnim = true
 
 	pickupRange = 64.0
+
+	keepInRam = true
 }

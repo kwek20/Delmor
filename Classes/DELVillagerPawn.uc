@@ -27,4 +27,6 @@ DefaultProperties
 	end object
 
 	GroundSpeed=100.0
+
+	keepInRam = false
 }

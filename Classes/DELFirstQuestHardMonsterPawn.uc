@@ -16,4 +16,5 @@ DefaultProperties
 	healthMax = 100
 	healthRegeneration = 0
 	GroundSpeed = 500.0
+	bKeepInRam = true
 }

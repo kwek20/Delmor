@@ -216,6 +216,15 @@ struct dropItemStruct{
 var array < dropItemStruct > dropableItems;
 
 /**
+ * If false the pawn will be destroyed is he is too far away from the player.
+ */
+var() bool bKeepInRam;
+/**
+ * The pawn will keep existing if he is this close to the player.
+ */
+var int maxDistance;
+
+/**
  * In this event, the pawn will get his movement physics, camera offset and controller.
  */
 simulated event PostBeginPlay(){
@@ -239,6 +248,14 @@ event tick( float deltaTime ){
 	super.tick( deltaTime );
 
 	blockActorsAgain();
+
+	//Destroy the pawn is the player is too far away.
+	if ( !bKeepInRam ){
+		if ( Abs( VSize( GetALocalPlayerController().Pawn.Location - location ) ) > maxDistance ){
+			controller.Destroy();
+			Destroy();
+		}
+	}
 }
 
 /**
@@ -1190,4 +1207,7 @@ DefaultProperties
 	hitSound = SoundCue'Delmor_sound.Weapon.sndc_sword_monster_impact'
 
 	bloodDecalSize = 128.0
+
+	bKeepInRam = false
+	maxDistance = 5120
 }

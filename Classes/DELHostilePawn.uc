@@ -123,4 +123,5 @@ function endStun(){
 
 DefaultProperties
 {
+	keepInRam = false
 }
