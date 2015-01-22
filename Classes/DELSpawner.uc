@@ -3,11 +3,13 @@ class DELSpawner extends Actor
 
 var() int spawnDelay;
 var() float spawnArea;
+var vector selfToPlayer;
+var float distanceToSpawner;
+var() float spawnRangeToPlayer;
 var bool bCanSpawn;
 /**
  * Spawn only when the player is this close to the spawner.
  */
-var() int spawnDistance;
 
 /**
  * standard event that is called when the game is started
@@ -15,19 +17,36 @@ var() int spawnDistance;
 event PostBeginPlay ()
 {
     Super.PostBeginPlay();
-	GotoState('Spawner');
 }
 
-state Idle {
+auto state Idle {
 	function BeginState(Name PreviousStateName) {
 		Super.BeginState(PreviousStateName);
 	}
 
 	event Tick(float DeltaTime) {
-		if( bCanSpawn /*&& Abs( VSize( GetALocalPlayerController().Pawn.Location - location ) ) < Abs( spawnDistance + spawnArea ) */) {
+		if( bCanSpawn && Abs( VSize( GetALocalPlayerController().Pawn.Location - location ) ) < Abs( spawnRangeToPlayer )) {
 			GotoState('Spawner');
 		}
 	}
+
+	/*event Tick(float deltaTime)
+	{
+		local Controller C;
+		foreach WorldInfo.AllControllers(class'Controller', C)
+		{	
+			if (C.IsA('DELPlayerController'))
+			{
+				selfToPlayer = C.Pawn.Location - self.Location;
+				distanceToSpawner = Abs(VSize(selfToPlayer));
+				`log("mijn distance: " $ distanceToSpawner);
+				`log("Mijn spawnrange: " $ spawnRangeToPlayer);
+				if(distanceToSpawner < spawnRangeToPlayer) {
+						GotoState('Spawner');
+				}
+			}
+		}
+	}*/
 }
 
 /**
@@ -95,5 +114,6 @@ function resetCooldown() {
 
 DefaultProperties
 {
-	spawnDistance = 5120.0
+	spawnArea = 1024
+	spawnRangeToPlayer = 1024
 }

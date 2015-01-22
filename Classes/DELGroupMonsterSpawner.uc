@@ -7,7 +7,6 @@ Placeable
 Config(Game);
 
 var() int spawnDelay;
-var() float spawnArea;
 var() int numberOfEasyMonster;
 var() int numberOfMediumMonster;
 var() int numberOfHardMonster;

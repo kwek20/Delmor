@@ -7,7 +7,6 @@ Placeable
 Config(Game);
 
 var() int spawnDelay;
-var() float spawnArea;
 var() int numberOfChickens;
 var() int numberOfCows;
 var() int numberOfGoats;
@@ -31,19 +30,19 @@ function startSpawn() {
 	local int i;
 	for(i = 0; i < numberOfChickens; i++) {
 		if(checkAnimalsToSpawn(class'DELChickenPawn', numberOfChickens)) {
-			newLocation = getRandomLocation();
+			newLocation = super.getRandomLocation();
 			spawnPawn(class'DELChickenPawn', newLocation);
 		}
 	}
 	for(i = 0; i < numberOfCows; i++) {
 		if(checkAnimalsToSpawn(class'DELCowPawn', numberOfCows)) {
-			newLocation = getRandomLocation();
+			newLocation = super.getRandomLocation();
 			spawnPawn(class'DELCowPawn', newLocation);
 		}
 	}
 	for(i = 0; i < numberOfCows; i++) {
 		if(checkAnimalsToSpawn(class'DELGoatPawn', numberOfGoats)) {
-			newLocation = getRandomLocation();
+			newLocation = super.getRandomLocation();
 			spawnPawn(class'DELGoatPawn', newLocation);
 		}
 	}
@@ -74,7 +73,6 @@ function bool checkAnimalsToSpawn(class<DELAnimalPawn> monsterToCheck, int MaxNu
 
 DefaultProperties
 {
-	spawnArea = 1024
 	spawnDelay = 120
 	bCanSpawn = true
 	bHidden = true
